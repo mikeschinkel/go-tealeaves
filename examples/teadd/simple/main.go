@@ -1,0 +1,160 @@
+package main
+
+import (
+	"fmt"
+	"os"
+	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/mikeschinkel/go-tealeaves/teadd"
+)
+
+type model struct {
+	dropdown     teadd.DropdownModel
+	selected     string
+	quitting     bool
+	hasSelection bool
+	screenWidth  int
+	screenHeight int
+}
+
+var (
+	selectedStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("10")).Bold(true) // Bright green
+	borderStyle   = lipgloss.NewStyle().
+			Border(lipgloss.RoundedBorder()).
+			BorderForeground(lipgloss.Color("240")).
+			Padding(1, 2)
+)
+
+func main() {
+	items := teadd.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
+
+	// Ensure that term.GetSize() is initialized before continuing.
+	// This is needed in GoLand terminal for debugging, but is not harmful if not needed.
+	teadd.EnsureTermGetSize(os.Stdout.Fd())
+
+	// Create dropdown at row 3, col 18 (after "     Fruit Selected: ")
+	// Screen dimensions will be set automatically from tea.WindowSizeMsg
+	dropdown := teadd.NewModel(items, 3, 18, nil)
+
+	initialModel := model{
+		dropdown:     dropdown,
+		selected:     "",
+		hasSelection: false,
+	}
+
+	p := tea.NewProgram(initialModel, tea.WithAltScreen())
+
+	finalModel, err := p.Run()
+	if err != nil {
+		_, _ = fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+
+	// Show selected value when exiting
+	m := finalModel.(model)
+	if m.hasSelection {
+		fmt.Printf("You selected fruit %s\n", selectedStyle.Render(m.selected))
+	}
+}
+
+func (m model) Init() tea.Cmd {
+	return nil
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+
+	// Let dropdown handle message first
+	dropdown, cmd := m.dropdown.Update(msg)
+	if cmd != nil {
+		m.dropdown = dropdown.(teadd.DropdownModel)
+		return m, cmd
+	}
+
+	// Dropdown didn't handle - process message
+	switch msg := msg.(type) {
+	case teadd.OptionSelectedMsg:
+		m.selected = msg.Text
+		m.hasSelection = true
+		m.dropdown, _ = m.dropdown.Close()
+		return m, nil
+
+	case tea.WindowSizeMsg:
+		m.screenWidth = msg.Width
+		m.screenHeight = msg.Height
+		m.dropdown = m.dropdown.WithScreenSize(msg.Width, msg.Height)
+		return m, nil
+
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "q", "ctrl+c":
+			m.quitting = true
+			return m, tea.Quit
+
+		case " ", "enter":
+			if !m.dropdown.IsOpen {
+				m.dropdown, cmd = m.dropdown.Open()
+				return m, cmd
+			}
+		}
+	}
+
+	return m, nil
+}
+
+func (m model) View() string {
+	if m.quitting {
+		return ""
+	}
+
+	// Build interior content
+	var content strings.Builder
+
+	content.WriteString("TeaDD Dropdown Example - Full Screen TUI\n")
+	content.WriteString("Press Space/Enter to open dropdown, q to quit\n")
+	content.WriteString("\n")
+
+	// Field with triangle indicator
+	var fieldSymbol string
+	if m.dropdown.IsOpen {
+		if m.dropdown.DisplayAbove {
+			fieldSymbol = "▲"
+		} else {
+			fieldSymbol = "▼"
+		}
+	} else {
+		fieldSymbol = "▶"
+	}
+
+	// Show "Select Fruit" or selected value in bright green
+	var fieldText string
+	if m.hasSelection {
+		fieldText = selectedStyle.Render(m.selected)
+	} else {
+		fieldText = "Select Fruit"
+	}
+	content.WriteString(fmt.Sprintf("Fruit Selected: %s %s", fieldSymbol, fieldText))
+
+	// Apply border sized to fill screen
+	baseView := content.String()
+	if m.screenWidth > 0 && m.screenHeight > 0 {
+		// Size the border to fill the screen
+		baseView = borderStyle.
+			Width(m.screenWidth - 4).   // -4 for border and padding
+			Height(m.screenHeight - 4). // -4 for border and padding
+			Render(content.String())
+	} else {
+		baseView = borderStyle.Render(content.String())
+	}
+
+	// Overlay dropdown if open
+	if m.dropdown.IsOpen {
+		dropdownView := m.dropdown.View()
+		// Adjust for border (1 row) + padding (1 row top, 2 cols left)
+		return teadd.OverlayDropdown(baseView, dropdownView, m.dropdown.Row+2, m.dropdown.Col+3)
+	}
+
+	return baseView
+}
