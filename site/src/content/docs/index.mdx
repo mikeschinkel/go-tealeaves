@@ -1,40 +1,61 @@
 ---
-title: Welcome to Starlight
-description: Get started building your docs site with Starlight.
-template: splash # Remove or comment out this line to display the site sidebar on this page.
+title: go-tealeaves
+description: Reusable Bubble Tea UI components for building terminal applications in Go.
+template: splash
 hero:
-  tagline: Congrats on setting up a new Starlight project!
-  image:
-    file: ../../assets/houston.webp
+  tagline: Independently importable Bubble Tea components. Install only what you need.
   actions:
-    - text: Example Guide
-      link: /guides/example/
+    - text: Getting Started
+      link: /go-tealeaves/guides/getting-started/
       icon: right-arrow
-    - text: Read the Starlight docs
-      link: https://starlight.astro.build
+    - text: View on GitHub
+      link: https://github.com/mikeschinkel/go-tealeaves
       icon: external
       variant: minimal
 ---
 
 import { Card, CardGrid } from '@astrojs/starlight/components';
 
-## Next steps
+## Components
 
-<CardGrid stagger>
-	<Card title="Update content" icon="pencil">
-		Edit `src/content/docs/index.mdx` to see this page change.
+<CardGrid>
+	<Card title="teadd" icon="list-format">
+		Dropdown selection with intelligent positioning. Displays above or below the anchor based on available terminal space.
 	</Card>
-	<Card title="Change page layout" icon="document">
-		Delete `template: splash` in `src/content/docs/index.mdx` to display a
-		sidebar on this page.
+	<Card title="teamodal" icon="document">
+		Modal dialogs for confirmations, alerts, and choice/list selection. Supports button focus, mouse clicks, and custom key bindings.
 	</Card>
-	<Card title="Add new content" icon="add-document">
-		Add Markdown or MDX files to `src/content/docs` to create new pages.
+	<Card title="teatree" icon="seti:folder">
+		Generic tree view with expand/collapse, keyboard navigation, viewport scrolling, and pluggable node providers.
 	</Card>
-	<Card title="Configure your site" icon="setting">
-		Edit your `sidebar` and other config in `astro.config.mjs`.
+	<Card title="teastatus" icon="bars">
+		Two-zone status bar with key-action menu items on the left and text indicators on the right.
 	</Card>
-	<Card title="Read the docs" icon="open-book">
-		Learn more in [the Starlight Docs](https://starlight.astro.build/).
+	<Card title="teatextsel" icon="pencil">
+		Text area with selection (Shift+Arrow) and clipboard operations (Ctrl+C/X/V). Supports single-line mode.
+	</Card>
+	<Card title="teautils" icon="setting">
+		Key registry, help visor, and positioning utilities shared across Bubble Tea applications.
+	</Card>
+	<Card title="teadep" icon="random">
+		Interactive dependency path viewer for exploring module dependency graphs.
+	</Card>
+	<Card title="teanotify" icon="information">
+		Notification overlays for transient status messages and alerts.
+	</Card>
+	<Card title="teagrid" icon="seti:db">
+		Grid/table component for tabular data display.
 	</Card>
 </CardGrid>
+
+## Installation
+
+Each package is an independent Go module. Install the ones you need:
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teadd
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+go get github.com/mikeschinkel/go-tealeaves/teatree
+```
+
+There is no root module — do not `go get` the repository root.

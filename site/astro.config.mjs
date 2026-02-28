@@ -8,19 +8,25 @@ export default defineConfig({
 	base: '/go-tealeaves',
 	integrations: [
 		starlight({
-			title: 'Tea Leaves for Go + Bubble Tea',
+			title: 'go-tealeaves',
 			social: [{ icon: 'github', label: 'GitHub', href: 'https://github.com/mikeschinkel/go-tealeaves' }],
 			sidebar: [
 				{
-					label: 'Guides',
+					label: 'Getting Started',
 					items: [
-						// Each item here is one entry in the navigation menu.
-						{ label: 'Example Guide', slug: 'guides/example' },
+						{ label: 'Installation', slug: 'guides/getting-started' },
+						{ label: 'Architecture', slug: 'guides/architecture' },
 					],
 				},
 				{
-					label: 'Reference',
+					label: 'Components',
 					autogenerate: { directory: 'reference' },
+				},
+				{
+					label: 'Migration',
+					items: [
+						{ label: 'Charm v2 Migration', slug: 'guides/charm-v2-migration' },
+					],
 				},
 			],
 		}),
