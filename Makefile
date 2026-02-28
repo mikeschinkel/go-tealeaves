@@ -1,7 +1,7 @@
 .PHONY: help build test tidy fmt vet clean build-examples
 
 # Modules in this repo
-MODULES = teadd teadep teamodal teastatus teatextsel teatree teautils
+MODULES = teadd teadep teagrid teamodal teanotify teastatus teatextsel teatree teautils
 
 # Example modules (each is an independent Go module)
 EXAMPLES = \
@@ -11,9 +11,14 @@ EXAMPLES = \
 	examples/teamodal/choices \
 	examples/teamodal/editlist \
 	examples/teamodal/various \
+	examples/teanotify/simple \
 	examples/teastatus/statusbar \
 	examples/teatextsel/editor \
 	examples/teatree/filetree \
+	examples/teagrid/simplest \
+	examples/teagrid/sorting \
+	examples/teagrid/filtering \
+	examples/teagrid/scrolling \
 	examples/teautils/keyhelp
 
 # Default target

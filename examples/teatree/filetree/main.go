@@ -120,7 +120,7 @@ func (m model) View() string {
 
 	var b strings.Builder
 
-	b.WriteString(titleStyle.Render("TeaTree File Tree Example"))
+	b.WriteString(titleStyle.Render("teatree File Tree Example"))
 	b.WriteString("\n\n")
 
 	b.WriteString(m.tree.View())
