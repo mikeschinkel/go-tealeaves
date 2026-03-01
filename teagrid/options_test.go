@@ -3,283 +3,123 @@ package teagrid
 import (
 	"testing"
 
+	"charm.land/lipgloss/v2"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWithHighlightedRowSet(t *testing.T) {
-	highlightedIndex := 1
-
-	cols := []Column{
-		NewColumn("id", "ID", 3),
+func TestWithRows(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"x": 1}),
+		NewRow(RowData{"x": 2}),
 	}
+	m := New([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
 
-	model := New(cols).WithRows([]Row{
-		NewRow(RowData{
-			"id": "first",
-		}),
-		NewRow(RowData{
-			"id": "second",
-		}),
-	}).WithHighlightedRow(highlightedIndex)
-
-	assert.Equal(t, model.rows[highlightedIndex], model.HighlightedRow())
+	assert.Len(t, m.GetVisibleRows(), 2)
 }
 
-func TestWithHighlightedRowSetNegative(t *testing.T) {
-	highlightedIndex := -1
+func TestWithRowsResetsCache(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).
+		WithRows([]Row{NewRow(RowData{"x": 1})})
 
-	cols := []Column{
-		NewColumn("id", "ID", 3),
-	}
+	_ = m.GetVisibleRows() // populate cache
 
-	model := New(cols).WithRows([]Row{
-		NewRow(RowData{
-			"id": "first",
-		}),
-		NewRow(RowData{
-			"id": "second",
-		}),
-	}).WithHighlightedRow(highlightedIndex)
-
-	assert.Equal(t, model.rows[0], model.HighlightedRow())
-}
-
-func TestWithHighlightedRowSetTooHigh(t *testing.T) {
-	highlightedIndex := 2
-
-	cols := []Column{
-		NewColumn("id", "ID", 3),
-	}
-
-	model := New(cols).WithRows([]Row{
-		NewRow(RowData{
-			"id": "first",
-		}),
-		NewRow(RowData{
-			"id": "second",
-		}),
-	}).WithHighlightedRow(highlightedIndex)
-
-	assert.Equal(t, model.rows[1], model.HighlightedRow())
-}
-
-// This is long only because it's a lot of repetitive test cases
-//
-//nolint:funlen
-func TestPageOptions(t *testing.T) {
-	const (
-		pageSize = 5
-		rowCount = 30
-	)
-
-	cols := []Column{
-		NewColumn("id", "ID", 3),
-	}
-
-	rows := make([]Row, rowCount)
-
-	model := New(cols).WithRows(rows).WithPageSize(pageSize)
-	assert.Equal(t, 1, model.CurrentPage())
-
-	model = model.PageDown()
-	assert.Equal(t, 2, model.CurrentPage())
-
-	model = model.PageDown()
-	model = model.PageUp()
-	assert.Equal(t, 2, model.CurrentPage())
-
-	model = model.PageLast()
-	assert.Equal(t, 6, model.CurrentPage())
-
-	model = model.PageLast()
-	model = model.PageLast()
-	assert.Equal(t, 6, model.CurrentPage())
-
-	model = model.PageFirst()
-	assert.Equal(t, 1, model.CurrentPage())
-
-	model = model.PageFirst()
-	model = model.PageFirst()
-	assert.Equal(t, 1, model.CurrentPage())
-
-	model = model.PageUp()
-	assert.Equal(t, 6, model.CurrentPage())
-
-	model = model.PageDown()
-	assert.Equal(t, 1, model.CurrentPage())
-
-	model = model.WithCurrentPage(3)
-	model = model.WithCurrentPage(3)
-	model = model.WithCurrentPage(3)
-	assert.Equal(t, 3, model.CurrentPage())
-	assert.Equal(t, 10, model.rowCursorIndex)
-
-	model = model.WithCurrentPage(-1)
-	assert.Equal(t, 1, model.CurrentPage())
-	assert.Equal(t, 0, model.rowCursorIndex)
-
-	model = model.WithCurrentPage(0)
-	assert.Equal(t, 1, model.CurrentPage())
-	assert.Equal(t, 0, model.rowCursorIndex)
-
-	model = model.WithCurrentPage(7)
-	assert.Equal(t, 6, model.CurrentPage())
-	assert.Equal(t, 25, model.rowCursorIndex)
-
-	model.rowCursorIndex = 26
-	model = model.WithCurrentPage(6)
-	assert.Equal(t, 6, model.CurrentPage())
-	assert.Equal(t, 26, model.rowCursorIndex)
-
-	model = model.WithFooterVisibility(false)
-	assert.Equal(t, "", model.renderFooter(10, false))
-
-	model = model.WithFooterVisibility(true)
-	assert.Greater(t, len(model.renderFooter(10, false)), 10)
-	assert.Contains(t, model.renderFooter(10, false), "6/6")
-}
-
-func TestMinimumHeightOptions(t *testing.T) {
-	columns := []Column{
-		NewColumn("ka", "a", 3),
-		NewColumn("kb", "b", 4),
-		NewColumn("kc", "c", 5),
-	}
-
-	model := New(columns).WithMinimumHeight(10)
-	assert.Equal(t, 10, model.minimumHeight)
-	assert.Equal(t, 3, model.metaHeight)
-
-	model = model.WithPageSize(2)
-	assert.Equal(t, 5, model.metaHeight)
-
-	model = model.WithNoPagination()
-	assert.Equal(t, 3, model.metaHeight)
-
-	model = model.WithStaticFooter("footer with\nmultiple lines")
-	assert.Equal(t, 6, model.metaHeight)
-
-	model = model.WithStaticFooter("").Filtered(true)
-	assert.Equal(t, 5, model.metaHeight)
-
-	model = model.WithFooterVisibility(false)
-	assert.Equal(t, 3, model.metaHeight)
-
-	model = model.WithHeaderVisibility(false)
-	assert.Equal(t, 1, model.metaHeight)
-}
-
-// This is long only because the test cases are larger
-//
-//nolint:funlen
-func TestSelectRowsProgramatically(t *testing.T) {
-	const col = "id"
-
-	tests := map[string]struct {
-		rows        []Row
-		selectedIDs []int
-	}{
-		"no rows selected": {
-			[]Row{
-				NewRow(RowData{col: 1}),
-				NewRow(RowData{col: 2}),
-				NewRow(RowData{col: 3}),
-			},
-			[]int{},
-		},
-
-		"all rows selected": {
-			[]Row{
-				NewRow(RowData{col: 1}).Selected(true),
-				NewRow(RowData{col: 2}).Selected(true),
-				NewRow(RowData{col: 3}).Selected(true),
-			},
-			[]int{1, 2, 3},
-		},
-
-		"first row selected": {
-			[]Row{
-				NewRow(RowData{col: 1}).Selected(true),
-				NewRow(RowData{col: 2}),
-				NewRow(RowData{col: 3}),
-			},
-			[]int{1},
-		},
-
-		"last row selected": {
-			[]Row{
-				NewRow(RowData{col: 1}),
-				NewRow(RowData{col: 2}),
-				NewRow(RowData{col: 3}).Selected(true),
-			},
-			[]int{3},
-		},
-	}
-
-	baseModel := New([]Column{
-		NewColumn(col, col, 1),
+	m = m.WithRows([]Row{
+		NewRow(RowData{"x": 1}),
+		NewRow(RowData{"x": 2}),
 	})
 
-	for name, test := range tests {
-		t.Run(name, func(t *testing.T) {
-			model := baseModel.WithRows(test.rows)
-			sel := model.SelectedRows()
-
-			assert.Equal(t, len(test.selectedIDs), len(sel))
-			for i, id := range test.selectedIDs {
-				assert.Equal(t, id, sel[i].Data[col], "expecting row %d to have same %s column value", i)
-			}
-
-			model = model.WithAllRowsDeselected()
-			assert.Len(t, model.SelectedRows(), 0, "Did not deselect all rows")
-		})
-	}
+	assert.Len(t, m.GetVisibleRows(), 2)
 }
 
-func TestDefaultBorderIsDefault(t *testing.T) {
-	model := New([]Column{
-		NewColumn("id", "ID", 1),
-	}).WithRows([]Row{
-		NewRow(RowData{"id": 1}),
-		NewRow(RowData{"id": 2}),
-		NewRow(RowData{"id": 3}),
-	})
-
-	renderedInitial := model.View()
-
-	model = model.BorderRounded()
-	renderedRounded := model.View()
-
-	model = model.BorderDefault()
-	renderedDefault := model.View()
-
-	assert.NotEqual(t, renderedInitial, renderedRounded, "Rounded border should differ from default")
-	assert.Equal(t, renderedInitial, renderedDefault, "Default border should match initial state")
+func TestWithBaseStyle(t *testing.T) {
+	style := lipgloss.NewStyle().Bold(true)
+	m := New([]Column{NewColumn("x", "X", 5)}).WithBaseStyle(style)
+	assert.Equal(t, style, m.baseStyle)
 }
 
-func BenchmarkSelectedRows(b *testing.B) {
-	const N = 1000
-
-	b.ReportAllocs()
-
-	rows := make([]Row, 0, N)
-	for i := 0; i < N; i++ {
-		rows = append(rows, NewRow(RowData{"row": i}).Selected(i%2 == 0))
-	}
-
-	model := New([]Column{
-		NewColumn("row", "Row", 4),
-	}).WithRows(rows)
-
-	var sel []Row
-
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		sel = model.SelectedRows()
-	}
-
-	Rows = sel
+func TestWithBorder(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithBorder(Borderless())
+	assert.False(t, m.border.HasOuterBorder())
 }
 
-var Rows []Row
+func TestFocused(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).Focused(true)
+	assert.True(t, m.GetFocused())
+}
+
+func TestWithCellCursorMode(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithCellCursorMode(true)
+	assert.True(t, m.GetCellCursorMode())
+}
+
+func TestWithSelectableRows(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithSelectableRows(true)
+	assert.True(t, m.selectableRows)
+	// v0.2.0: no auto-added column
+	assert.Len(t, m.columns, 1)
+}
+
+func TestWithHighlightedRow(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"x": 1}),
+		NewRow(RowData{"x": 2}),
+		NewRow(RowData{"x": 3}),
+	}
+	m := New([]Column{NewColumn("x", "X", 5)}).
+		WithRows(rows).
+		WithHighlightedRow(2)
+
+	assert.Equal(t, 2, m.GetHighlightedRowIndex())
+}
+
+func TestWithHighlightedRowClamped(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"x": 1}),
+		NewRow(RowData{"x": 2}),
+	}
+	m := New([]Column{NewColumn("x", "X", 5)}).
+		WithRows(rows).
+		WithHighlightedRow(100)
+
+	assert.Equal(t, 1, m.GetHighlightedRowIndex())
+}
+
+func TestWithHeaderVisibility(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithHeaderVisibility(false)
+	assert.False(t, m.GetHeaderVisibility())
+}
+
+func TestWithFooterVisibility(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithFooterVisibility(false)
+	assert.False(t, m.GetFooterVisibility())
+}
+
+func TestWithMetadata(t *testing.T) {
+	meta := map[string]any{"theme": "dark"}
+	m := New([]Column{NewColumn("x", "X", 5)}).WithMetadata(meta)
+	assert.Equal(t, "dark", m.metadata["theme"])
+}
+
+func TestWithOverflowIndicator(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithOverflowIndicator(true)
+	assert.True(t, m.overflowIndicator)
+}
+
+func TestImmutability(t *testing.T) {
+	original := New([]Column{NewColumn("x", "X", 5)})
+	modified := original.Focused(true)
+
+	assert.False(t, original.focused)
+	assert.True(t, modified.focused)
+}
+
+func TestWithEditableStub(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).WithEditable(true)
+	assert.True(t, m.editable)
+}
+
+func TestWithCellValidatorStub(t *testing.T) {
+	validator := func(columnKey string, value any) error { return nil }
+	m := New([]Column{NewColumn("x", "X", 5)}).WithCellValidator(validator)
+	assert.NotNil(t, m.cellValidator)
+}

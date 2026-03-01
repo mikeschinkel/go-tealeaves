@@ -1,41 +1,6 @@
 package teagrid
 
-// GetColumnSorting returns the current sorting rules for the table as a list of
-// SortColumns, which are applied from first to last.  This means that data will
-// be grouped by the later elements in the list.  The returned list is a copy
-// and modifications will have no effect.
-func (m *Model) GetColumnSorting() []SortColumn {
-	c := make([]SortColumn, len(m.sortOrder))
-
-	copy(c, m.sortOrder)
-
-	return c
-}
-
-// GetCanFilter returns true if the table enables filtering at all.  This does
-// not say whether a filter is currently active, only that the feature is enabled.
-func (m *Model) GetCanFilter() bool {
-	return m.filtered
-}
-
-// GetIsFilterActive returns true if the table is currently being filtered.  This
-// does not say whether the table CAN be filtered, only whether or not a filter
-// is actually currently being applied.
-func (m *Model) GetIsFilterActive() bool {
-	return m.filterTextInput.Value() != ""
-}
-
-// GetIsFilterInputFocused returns true if the table's built-in filter input is
-// currently focused.
-func (m *Model) GetIsFilterInputFocused() bool {
-	return m.filterTextInput.Focused()
-}
-
-// GetCurrentFilter returns the current filter text being applied, or an empty
-// string if none is applied.
-func (m *Model) GetCurrentFilter() string {
-	return m.filterTextInput.Value()
-}
+import "charm.land/bubbles/v2/key"
 
 // GetVisibleRows returns sorted and filtered rows.
 func (m *Model) GetVisibleRows() []Row {
@@ -45,9 +10,11 @@ func (m *Model) GetVisibleRows() []Row {
 
 	rows := make([]Row, len(m.rows))
 	copy(rows, m.rows)
+
 	if m.filtered {
 		rows = m.getFilteredRows(rows)
 	}
+
 	rows = getSortedRows(m.sortOrder, rows)
 
 	m.visibleRowCache = rows
@@ -56,73 +23,171 @@ func (m *Model) GetVisibleRows() []Row {
 	return rows
 }
 
-// GetHighlightedRowIndex returns the index of the Row that's currently highlighted
-// by the user.
+// GetColumnSorting returns the current sort configuration (copy).
+func (m *Model) GetColumnSorting() []SortColumn {
+	c := make([]SortColumn, len(m.sortOrder))
+	copy(c, m.sortOrder)
+	return c
+}
+
+// GetHighlightedRowIndex returns the index of the highlighted row.
 func (m *Model) GetHighlightedRowIndex() int {
 	return m.rowCursorIndex
 }
 
-// GetCellCursorMode returns true if cell cursor mode is enabled.
-// When enabled, left/right keys navigate cells instead of pages.
+// HighlightedRow returns the currently highlighted Row.
+func (m Model) HighlightedRow() Row {
+	rows := m.GetVisibleRows()
+	if len(rows) > 0 && m.rowCursorIndex < len(rows) {
+		return rows[m.rowCursorIndex]
+	}
+	return Row{}
+}
+
+// SelectedRows returns all selected rows.
+func (m Model) SelectedRows() []Row {
+	var selected []Row
+	for _, row := range m.GetVisibleRows() {
+		if row.selected {
+			selected = append(selected, row)
+		}
+	}
+	return selected
+}
+
+// GetCellCursorMode returns whether cell cursor mode is enabled.
 func (m *Model) GetCellCursorMode() bool {
 	return m.cellCursorMode
 }
 
 // GetCellCursorColumnIndex returns the current cell cursor column index.
-// Only meaningful when cell cursor mode is enabled.
 func (m *Model) GetCellCursorColumnIndex() int {
 	return m.cellCursorColumnIndex
 }
 
-// GetFocused returns whether or not the table is focused and is receiving inputs.
+// GetFocused returns whether the grid is focused.
 func (m *Model) GetFocused() bool {
 	return m.focused
 }
 
-// GetHorizontalScrollColumnOffset returns how many columns to the right the table
-// has been scrolled.  0 means the table is all the way to the left, which is
-// the starting default.
+// GetCanFilter returns whether filtering is enabled.
+func (m *Model) GetCanFilter() bool {
+	return m.filtered
+}
+
+// GetIsFilterActive returns whether a filter is currently being applied.
+func (m *Model) GetIsFilterActive() bool {
+	return m.filterTextInput.Value() != ""
+}
+
+// GetIsFilterInputFocused returns whether the filter input has focus.
+func (m *Model) GetIsFilterInputFocused() bool {
+	return m.filterTextInput.Focused()
+}
+
+// GetCurrentFilter returns the current filter text.
+func (m *Model) GetCurrentFilter() string {
+	return m.filterTextInput.Value()
+}
+
+// GetHorizontalScrollColumnOffset returns the horizontal scroll offset.
 func (m *Model) GetHorizontalScrollColumnOffset() int {
 	return m.horizontalScrollOffsetCol
 }
 
-// GetHeaderVisibility returns true if the header has been set to visible (default)
-// or false if the header has been set to hidden.
+// GetHeaderVisibility returns header visibility.
 func (m *Model) GetHeaderVisibility() bool {
 	return m.headerVisible
 }
 
-// GetFooterVisibility returns true if the footer has been set to
-// visible (default) or false if the footer has been set to hidden.
-// Note that even if the footer is visible it will only be rendered if
-// it has contents.
+// GetFooterVisibility returns footer visibility.
 func (m *Model) GetFooterVisibility() bool {
 	return m.footerVisible
 }
 
-// GetPaginationWrapping returns true if pagination wrapping is enabled, or false
-// if disabled.  If disabled, navigating through pages will stop at the first
-// and last pages.
+// GetPaginationWrapping returns whether pagination wraps.
 func (m *Model) GetPaginationWrapping() bool {
 	return m.paginationWrapping
 }
 
-// GetVisibleColumnRange returns the range of visible column indices after accounting
-// for horizontal scrolling. Frozen columns are always visible.
-// Returns (firstVisibleColumn, lastVisibleColumn) inclusive.
-func (m *Model) GetVisibleColumnRange() (start, end int) {
-	// Frozen columns (0 to horizontalScrollFreezeColumnsCount-1) are always visible
-	// After frozen columns, we start showing from horizontalScrollOffsetCol
-	start = m.horizontalScrollFreezeColumnsCount + m.horizontalScrollOffsetCol
+// NaturalWidth returns the minimum width needed to display all columns
+// without flex expansion.
+func (m *Model) NaturalWidth() int {
+	return m.computeNaturalWidth()
+}
 
-	// Calculate the last visible column based on available width
-	// This uses the same logic as maxHorizontalColumnIndex but returns absolute column index
-	end = m.horizontalScrollFreezeColumnsCount + m.maxHorizontalColumnIndex
+// TotalWidth returns the total rendered width after flex column resolution.
+func (m *Model) TotalWidth() int {
+	return m.computeTotalWidth()
+}
 
-	// Ensure we don't exceed column count
-	if end >= len(m.columns) {
-		end = len(m.columns) - 1
+// Border returns the current border configuration.
+func (m *Model) Border() BorderConfig {
+	return m.border
+}
+
+// KeyMap returns a copy of the current key map.
+func (m Model) KeyMap() KeyMap {
+	return m.keyMap
+}
+
+// GetLastUpdateUserEvents returns events from the last Update call (copy).
+func (m *Model) GetLastUpdateUserEvents() []UserEvent {
+	if len(m.lastUpdateUserEvents) == 0 {
+		return nil
 	}
 
-	return start, end
+	returned := make([]UserEvent, len(m.lastUpdateUserEvents))
+	copy(returned, m.lastUpdateUserEvents)
+	return returned
+}
+
+func (m *Model) appendUserEvent(e UserEvent) {
+	m.lastUpdateUserEvents = append(m.lastUpdateUserEvents, e)
+}
+
+func (m *Model) clearUserEvents() {
+	m.lastUpdateUserEvents = nil
+}
+
+// hasFooter returns whether the footer should be rendered.
+func (m *Model) hasFooter() bool {
+	if !m.footerVisible {
+		return false
+	}
+	return m.pageSize > 0 || m.staticFooter != "" || m.filtered
+}
+
+// --- Help interface ---
+
+// FullHelp returns grouped key bindings for the full help view.
+func (m Model) FullHelp() [][]key.Binding {
+	keyBinds := [][]key.Binding{
+		{m.keyMap.RowDown, m.keyMap.RowUp, m.keyMap.RowSelectToggle},
+		{m.keyMap.PageDown, m.keyMap.PageUp, m.keyMap.PageFirst, m.keyMap.PageLast},
+		{m.keyMap.CellLeft, m.keyMap.CellRight, m.keyMap.CellSelect},
+		{m.keyMap.Filter, m.keyMap.FilterBlur, m.keyMap.FilterClear, m.keyMap.ScrollRight, m.keyMap.ScrollLeft},
+	}
+	if m.additionalFullHelpKeys != nil {
+		keyBinds = append(keyBinds, m.additionalFullHelpKeys())
+	}
+	return keyBinds
+}
+
+// ShortHelp returns key bindings for the short help view.
+func (m Model) ShortHelp() []key.Binding {
+	keyBinds := []key.Binding{
+		m.keyMap.RowDown,
+		m.keyMap.RowUp,
+		m.keyMap.RowSelectToggle,
+		m.keyMap.PageDown,
+		m.keyMap.PageUp,
+		m.keyMap.CellLeft,
+		m.keyMap.CellRight,
+		m.keyMap.Filter,
+	}
+	if m.additionalShortHelpKeys != nil {
+		keyBinds = append(keyBinds, m.additionalShortHelpKeys()...)
+	}
+	return keyBinds
 }

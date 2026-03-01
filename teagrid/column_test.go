@@ -1,217 +1,100 @@
 package teagrid
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestColumnTitle(t *testing.T) {
-	tests := []struct {
-		title    string
-		expected string
-	}{
-		{
-			title:    "foo",
-			expected: "foo",
-		},
-		{
-			title:    "bar",
-			expected: "bar",
-		},
-	}
+func TestNewColumnDefaults(t *testing.T) {
+	col := NewColumn("name", "Name", 20)
 
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("title %s gives %s", test.title, test.expected), func(t *testing.T) {
-			col := NewColumn("key", test.title, 10)
-			assert.Equal(t, test.expected, col.Title())
-		})
-	}
+	assert.Equal(t, "name", col.Key())
+	assert.Equal(t, "Name", col.Title())
+	assert.Equal(t, 20, col.Width())
+	assert.Equal(t, 0, col.FlexFactor())
+	assert.False(t, col.IsFlex())
+	assert.Equal(t, lipgloss.Left, col.Alignment())
+	assert.Equal(t, 1, col.PaddingLeft())
+	assert.Equal(t, 0, col.PaddingRight())
+	assert.False(t, col.Filterable())
+	assert.Equal(t, "", col.FmtString())
 }
 
-func TestColumnKey(t *testing.T) {
-	tests := []struct {
-		key      string
-		expected string
-	}{
-		{
-			key:      "foo",
-			expected: "foo",
-		},
-		{
-			key:      "bar",
-			expected: "bar",
-		},
-	}
+func TestNewFlexColumnDefaults(t *testing.T) {
+	col := NewFlexColumn("desc", "Description", 3)
 
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("key %s gives %s", test.key, test.expected), func(t *testing.T) {
-			col := NewColumn(test.key, "title", 10)
-			assert.Equal(t, test.expected, col.Key())
-		})
-	}
+	assert.Equal(t, "desc", col.Key())
+	assert.Equal(t, "Description", col.Title())
+	assert.Equal(t, 0, col.Width())
+	assert.Equal(t, 3, col.FlexFactor())
+	assert.True(t, col.IsFlex())
+	assert.Equal(t, lipgloss.Left, col.Alignment())
 }
 
-func TestColumnWidth(t *testing.T) {
-	tests := []struct {
-		width    int
-		expected int
-	}{
-		{
-			width:    3,
-			expected: 3,
-		},
-		{
-			width:    4,
-			expected: 4,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("width %d gives %d", test.width, test.expected), func(t *testing.T) {
-			col := NewColumn("key", "title", test.width)
-			assert.Equal(t, test.expected, col.Width())
-		})
-	}
+func TestNewFlexColumnMinFactor(t *testing.T) {
+	col := NewFlexColumn("x", "X", 0)
+	assert.Equal(t, 1, col.FlexFactor(), "flex factor should be at least 1")
 }
 
-func TestColumnFlexFactor(t *testing.T) {
-	tests := []struct {
-		flexFactor int
-		expected   int
-	}{
-		{
-			flexFactor: 3,
-			expected:   3,
-		},
-		{
-			flexFactor: 4,
-			expected:   4,
-		},
-	}
+func TestColumnRenderWidth(t *testing.T) {
+	t.Run("default padding", func(t *testing.T) {
+		col := NewColumn("x", "X", 10)
+		// paddingLeft=1 + width=10 + paddingRight=0 = 11
+		assert.Equal(t, 11, col.RenderWidth())
+	})
 
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("flexFactor %d gives %d", test.flexFactor, test.expected), func(t *testing.T) {
-			col := NewFlexColumn("key", "title", test.flexFactor)
-			assert.Equal(t, test.expected, col.FlexFactor())
-		})
-	}
+	t.Run("custom padding", func(t *testing.T) {
+		col := NewColumn("x", "X", 10).WithPadding(2, 3)
+		// paddingLeft=2 + width=10 + paddingRight=3 = 15
+		assert.Equal(t, 15, col.RenderWidth())
+	})
 }
 
-func TestColumnIsFlex(t *testing.T) {
-	testsFlexColumn := []struct {
-		flexFactor int
-		expected   bool
-	}{
-		{
-			flexFactor: 3,
-			expected:   true,
-		},
-		{
-			flexFactor: 0,
-			expected:   true,
-		},
-	}
-
-	for _, test := range testsFlexColumn {
-		t.Run(fmt.Sprintf("flexFactor %d gives %t", test.flexFactor, test.expected), func(t *testing.T) {
-			col := NewFlexColumn("key", "title", test.flexFactor)
-			assert.Equal(t, test.expected, col.IsFlex())
-		})
-	}
-
-	testsRegularColumn := []struct {
-		width    int
-		expected bool
-	}{
-		{
-			width:    3,
-			expected: false,
-		},
-		{
-			width:    0,
-			expected: false,
-		},
-	}
-
-	for _, test := range testsRegularColumn {
-		t.Run(fmt.Sprintf("width %d gives %t", test.width, test.expected), func(t *testing.T) {
-			col := NewColumn("key", "title", test.width)
-			assert.Equal(t, test.expected, col.IsFlex())
-		})
-	}
+func TestColumnWithPadding(t *testing.T) {
+	col := NewColumn("x", "X", 10).WithPadding(3, 2)
+	assert.Equal(t, 3, col.PaddingLeft())
+	assert.Equal(t, 2, col.PaddingRight())
 }
 
-func TestColumnFilterable(t *testing.T) {
-	tests := []struct {
-		filterable bool
-		expected   bool
-	}{
-		{
-			filterable: true,
-			expected:   true,
-		},
-		{
-			filterable: false,
-			expected:   false,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("filterable %t gives %t", test.filterable, test.expected), func(t *testing.T) {
-			col := NewColumn("key", "title", 10)
-			col = col.WithFiltered(test.filterable)
-			assert.Equal(t, test.expected, col.Filterable())
-		})
-	}
+func TestColumnWithPaddingLeft(t *testing.T) {
+	col := NewColumn("x", "X", 10).WithPaddingLeft(5)
+	assert.Equal(t, 5, col.PaddingLeft())
+	assert.Equal(t, 0, col.PaddingRight())
 }
 
-func TestColumnStyle(t *testing.T) {
-	width := 10
-	tests := []struct {
-		style    lipgloss.Style
-		expected lipgloss.Style
-	}{
-		{
-			style:    lipgloss.NewStyle(),
-			expected: lipgloss.NewStyle().Width(width),
-		},
-		{
-			style:    lipgloss.NewStyle().Bold(true),
-			expected: lipgloss.NewStyle().Bold(true).Width(width),
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("style %v gives %v", test.style, test.expected), func(t *testing.T) {
-			col := NewColumn("key", "title", width).WithStyle(test.style)
-			assert.Equal(t, test.expected, col.Style())
-		})
-	}
+func TestColumnWithPaddingRight(t *testing.T) {
+	col := NewColumn("x", "X", 10).WithPaddingRight(5)
+	assert.Equal(t, 1, col.PaddingLeft())
+	assert.Equal(t, 5, col.PaddingRight())
 }
 
-func TestColumnFormatString(t *testing.T) {
-	tests := []struct {
-		fmtString string
-		expected  string
-	}{
-		{
-			fmtString: "%v",
-			expected:  "%v",
-		},
-		{
-			fmtString: "%.2f",
-			expected:  "%.2f",
-		},
-	}
+func TestColumnWithAlignment(t *testing.T) {
+	col := NewColumn("x", "X", 10).WithAlignment(lipgloss.Right)
+	assert.Equal(t, lipgloss.Right, col.Alignment())
+}
 
-	for _, test := range tests {
-		t.Run(fmt.Sprintf("fmtString %s gives %s", test.fmtString, test.expected), func(t *testing.T) {
-			col := NewColumn("key", "title", 10)
-			col = col.WithFormatString(test.fmtString)
-			assert.Equal(t, test.expected, col.FmtString())
-		})
-	}
+func TestColumnWithFiltered(t *testing.T) {
+	col := NewColumn("x", "X", 10).WithFiltered(true)
+	assert.True(t, col.Filterable())
+}
+
+func TestColumnWithFormatString(t *testing.T) {
+	col := NewColumn("x", "X", 10).WithFormatString("%.2f")
+	assert.Equal(t, "%.2f", col.FmtString())
+}
+
+func TestColumnWithStyle(t *testing.T) {
+	style := lipgloss.NewStyle().Bold(true)
+	col := NewColumn("x", "X", 10).WithStyle(style)
+	assert.Equal(t, style, col.Style())
+}
+
+func TestColumnImmutability(t *testing.T) {
+	original := NewColumn("x", "X", 10)
+	modified := original.WithPaddingLeft(5)
+
+	assert.Equal(t, 1, original.PaddingLeft(), "original should be unchanged")
+	assert.Equal(t, 5, modified.PaddingLeft())
 }

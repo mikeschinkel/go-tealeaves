@@ -2,7 +2,7 @@ package teagrid
 
 import "time"
 
-// This is just a bunch of data type checks, so... no linting here
+// asInt attempts to convert any numeric type to int64.
 //
 //nolint:cyclop
 func asInt(data any) (int64, bool) {
@@ -42,13 +42,17 @@ func asInt(data any) (int64, bool) {
 	case time.Duration:
 		return int64(val), true
 
-	case StyledCell:
+	case CellValue:
+		if val.SortValue != nil {
+			return asInt(val.SortValue)
+		}
 		return asInt(val.Data)
 	}
 
 	return 0, false
 }
 
+// asNumber attempts to convert any numeric type to float64.
 func asNumber(data any) (float64, bool) {
 	switch val := data.(type) {
 	case float32:
@@ -57,7 +61,10 @@ func asNumber(data any) (float64, bool) {
 	case float64:
 		return val, true
 
-	case StyledCell:
+	case CellValue:
+		if val.SortValue != nil {
+			return asNumber(val.SortValue)
+		}
 		return asNumber(val.Data)
 	}
 

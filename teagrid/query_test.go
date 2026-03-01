@@ -3,209 +3,146 @@ package teagrid
 import (
 	"testing"
 
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetColumnSorting(t *testing.T) {
-	cols := []Column{
-		NewColumn("a", "a", 3),
-		NewColumn("b", "b", 3),
-		NewColumn("c", "c", 3),
-	}
-
-	model := New(cols).SortByAsc("b")
-
-	sorted := model.GetColumnSorting()
-
-	assert.Len(t, sorted, 1, "Should only have one column")
-	assert.Equal(t, sorted[0].ColumnKey, "b", "Should sort column b")
-	assert.Equal(t, sorted[0].Direction, SortDirectionAsc, "Should be ascending")
-
-	sorted[0].Direction = SortDirectionDesc
-
-	assert.NotEqual(
-		t,
-		model.sortOrder[0].Direction,
-		sorted[0].Direction,
-		"Should not have been able to modify actual values",
-	)
-}
-
-func TestGetFilterData(t *testing.T) {
-	model := New([]Column{})
-
-	assert.False(t, model.GetIsFilterActive(), "Should not start with filter active")
-	assert.False(t, model.GetCanFilter(), "Should not start with filter ability")
-	assert.Equal(t, model.GetCurrentFilter(), "", "Filter string should be empty")
-
-	model = model.Filtered(true)
-
-	assert.False(t, model.GetIsFilterActive(), "Should not be filtered just because the ability was activated")
-	assert.True(t, model.GetCanFilter(), "Filter feature should be enabled")
-	assert.Equal(t, model.GetCurrentFilter(), "", "Filter string should be empty")
-
-	model.filterTextInput.SetValue("a")
-
-	assert.True(t, model.GetIsFilterActive(), "Typing anything into box should mark as filtered")
-	assert.True(t, model.GetCanFilter(), "Filter feature should be enabled")
-	assert.Equal(t, model.GetCurrentFilter(), "a", "Filter string should be what was typed")
-}
-
 func TestGetVisibleRows(t *testing.T) {
-	input := textinput.Model{}
-	input.SetValue("AAA")
-	columns := []Column{NewColumn("title", "title", 10).WithFiltered(true)}
 	rows := []Row{
-		NewRow(RowData{
-			"title":       "AAA",
-			"description": "",
-		}),
-		NewRow(RowData{
-			"title":       "BBB",
-			"description": "",
-		}),
-		NewRow(RowData{
-			"title":       "CCC",
-			"description": "",
-		}),
+		NewRow(RowData{"x": 3}),
+		NewRow(RowData{"x": 1}),
+		NewRow(RowData{"x": 2}),
 	}
-	m := Model{filtered: true, filterTextInput: input, columns: columns, rows: rows}
-	visibleRows := m.GetVisibleRows()
-	assert.Len(t, visibleRows, 1)
+	m := New([]Column{NewColumn("x", "X", 5)}).
+		WithRows(rows).
+		SortByAsc("x")
+
+	visible := m.GetVisibleRows()
+	assert.Len(t, visible, 3)
+	assert.Equal(t, 1, visible[0].Data["x"])
 }
 
-func TestGetHighlightedRowIndex(t *testing.T) {
-	model := New([]Column{})
+func TestGetVisibleRowsCache(t *testing.T) {
+	rows := []Row{NewRow(RowData{"x": 1})}
+	m := New([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
 
-	assert.Equal(t, 0, model.GetHighlightedRowIndex(), "Empty table should still safely have 0 index highlighted")
+	// First call populates cache
+	v1 := m.GetVisibleRows()
+	// Second call uses cache
+	v2 := m.GetVisibleRows()
 
-	// We don't actually need data to test this
-	empty := RowData{}
-	model = model.WithRows([]Row{NewRow(empty), NewRow(empty)})
-
-	assert.Equal(t, 0, model.GetHighlightedRowIndex(), "Unfocused table should start with 0 index")
-
-	model = model.WithHighlightedRow(1)
-
-	assert.Equal(t, 1, model.GetHighlightedRowIndex(), "Table with set highlighted row should return same highlighted row")
+	assert.Equal(t, len(v1), len(v2))
 }
 
-func TestGetFocused(t *testing.T) {
-	model := New([]Column{})
-
-	assert.Equal(t, false, model.GetFocused(), "Table should not be focused by default")
-
-	model = model.Focused(true)
-
-	assert.Equal(t, true, model.GetFocused(), "Table should be focused after being set")
-}
-
-func TestGetHorizontalScrollColumnOffset(t *testing.T) {
-	model := New([]Column{
-		NewColumn("1", "1", 4),
-		NewColumn("2", "2", 4),
-		NewColumn("3", "3", 4),
-		NewColumn("4", "4", 4),
-	}).
-		WithRows([]Row{
-			NewRow(RowData{
-				"1": "x1",
-				"2": "x2",
-				"3": "x3",
-				"4": "x4",
-			}),
-		}).
-		WithMaxTotalWidth(18).
-		Focused(true)
-
-	hitScrollRight := func() {
-		model, _ = model.Update(tea.KeyMsg{Type: tea.KeyShiftRight})
+func TestHighlightedRow(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"x": "a"}),
+		NewRow(RowData{"x": "b"}),
 	}
+	m := New([]Column{NewColumn("x", "X", 5)}).
+		WithRows(rows).
+		WithHighlightedRow(1)
 
-	hitScrollLeft := func() {
-		model, _ = model.Update(tea.KeyMsg{Type: tea.KeyShiftLeft})
+	row := m.HighlightedRow()
+	assert.Equal(t, "b", row.Data["x"])
+}
+
+func TestHighlightedRowEmpty(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)})
+	row := m.HighlightedRow()
+	assert.Nil(t, row.Data)
+}
+
+func TestSelectedRows(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"x": 1}).Selected(true),
+		NewRow(RowData{"x": 2}),
+		NewRow(RowData{"x": 3}).Selected(true),
 	}
+	m := New([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
 
-	assert.Equal(
-		t,
-		0,
-		model.GetHorizontalScrollColumnOffset(),
-		"Should start to left",
-	)
-
-	hitScrollRight()
-
-	assert.Equal(
-		t,
-		1,
-		model.GetHorizontalScrollColumnOffset(),
-		"Should be 1 after scrolling to the right once",
-	)
-
-	hitScrollLeft()
-	assert.Equal(
-		t,
-		0,
-		model.GetHorizontalScrollColumnOffset(),
-		"Should be back to 0 after moving to the left",
-	)
-
-	hitScrollLeft()
-	assert.Equal(
-		t,
-		0,
-		model.GetHorizontalScrollColumnOffset(),
-		"Should still be 0 after trying to go left again",
-	)
+	selected := m.SelectedRows()
+	assert.Len(t, selected, 2)
 }
 
-func TestGetHeaderVisibility(t *testing.T) {
-	model := New([]Column{})
+func TestNaturalWidth(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewColumn("b", "B", 20),
+	}
+	m := New(cols)
 
-	assert.True(t, model.GetHeaderVisibility(), "Header should be visible by default")
-
-	model = model.WithHeaderVisibility(false)
-
-	assert.False(t, model.GetHeaderVisibility(), "Header was not set to hidden")
+	assert.Equal(t, 35, m.NaturalWidth())
 }
 
-func TestGetFooterVisibility(t *testing.T) {
-	model := New([]Column{})
+func TestTotalWidth(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewColumn("b", "B", 20),
+	}
+	m := New(cols)
 
-	assert.True(t, model.GetFooterVisibility(), "Footer should be visible by default")
-
-	model = model.WithFooterVisibility(false)
-
-	assert.False(t, model.GetFooterVisibility(), "Footer was not set to hidden")
+	assert.Equal(t, 35, m.TotalWidth())
 }
 
-func TestGetPaginationWrapping(t *testing.T) {
-	model := New([]Column{})
+func TestTotalWidthWithFlex(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewFlexColumn("b", "B", 1),
+	}
+	m := New(cols).SetSize(50, 24)
 
-	assert.True(t, model.GetPaginationWrapping(), "Pagination wrapping should default to true")
-
-	model = model.WithPaginationWrapping(false)
-
-	assert.False(t, model.GetPaginationWrapping(), "Pagination wrapping setting did not update after setting option")
+	// TotalWidth should match viewport after flex resolution
+	assert.Equal(t, 50, m.TotalWidth())
 }
 
-func TestGetIsFilterInputFocused(t *testing.T) {
-	model := New([]Column{}).Filtered(true).Focused(true)
-
-	assert.False(t, model.GetIsFilterInputFocused(), "Text input shouldn't start focused")
-
-	model, _ = model.Update(tea.KeyMsg{
-		Type:  tea.KeyRunes,
-		Runes: []rune{'/'},
+func TestHasFooter(t *testing.T) {
+	t.Run("no footer when hidden", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 5)}).
+			WithFooterVisibility(false)
+		assert.False(t, m.hasFooter())
 	})
 
-	assert.True(t, model.GetIsFilterInputFocused(), "Did not trigger text input")
-
-	model, _ = model.Update(tea.KeyMsg{
-		Type: tea.KeyEnter,
+	t.Run("footer with pagination", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 5)}).
+			WithPageSize(10)
+		assert.True(t, m.hasFooter())
 	})
 
-	assert.False(t, model.GetIsFilterInputFocused(), "Should no longer be focused after hitting enter")
+	t.Run("footer with static text", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 5)}).
+			WithStaticFooter("info")
+		assert.True(t, m.hasFooter())
+	})
+
+	t.Run("footer with filter", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 5)}).
+			Filtered(true)
+		assert.True(t, m.hasFooter())
+	})
+}
+
+func TestGetColumnSorting(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)}).
+		SortByAsc("x").
+		ThenSortByDesc("y")
+
+	sorting := m.GetColumnSorting()
+	assert.Len(t, sorting, 2)
+
+	// Mutation of returned slice should not affect model
+	sorting[0].ColumnKey = "mutated"
+	assert.NotEqual(t, "mutated", m.GetColumnSorting()[0].ColumnKey)
+}
+
+func TestGetLastUpdateUserEvents(t *testing.T) {
+	m := New([]Column{NewColumn("x", "X", 5)})
+
+	assert.Nil(t, m.GetLastUpdateUserEvents())
+
+	m.appendUserEvent(UserEventFilterInputFocused{})
+	events := m.GetLastUpdateUserEvents()
+	assert.Len(t, events, 1)
+
+	m.clearUserEvents()
+	assert.Nil(t, m.GetLastUpdateUserEvents())
 }

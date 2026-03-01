@@ -1,40 +1,32 @@
 /*
-Package teagrid contains a Bubble Tea component for an interactive and
-customizable table. It is a fork of github.com/evertras/bubble-table/table.
+Package teagrid provides a Bubble Tea v2 component for interactive,
+customizable data grids.
 
-The simplest useful table can be created with teagrid.New(...).WithRows(...).
-Row data should map to the column keys, as shown below.  Note that extra data
-will simply not be shown, while missing data will be safely blank in the row's
-cell.
+teagrid supports fixed and flex-width columns with built-in padding and
+alignment, per-cell/per-row/per-column styling with a style cascade,
+render-time cursor and row highlighting (no row rebuilding), region-based
+border configuration with presets, horizontal scrolling with frozen columns,
+sorting with separate sort keys, filtering with match highlighting, rich text
+cells with Span-based inline styling, and cell cursor navigation with selection
+events.
 
-	const (
-		// This is not necessary, but recommended to avoid typos
-		columnKeyName  = "name"
-		columnKeyCount = "count"
-	)
+Basic usage:
 
-	// Define the columns and how they appear
 	columns := []teagrid.Column{
-		teagrid.NewColumn(columnKeyName, "Name", 10),
-		teagrid.NewColumn(columnKeyCount, "Count", 6),
+		teagrid.NewColumn("name", "Name", 20),
+		teagrid.NewColumn("count", "Count", 10),
 	}
 
-	// Define the data that will be in the table, mapping to the column keys
 	rows := []teagrid.Row{
 		teagrid.NewRow(teagrid.RowData{
-			columnKeyName:  "Cheeseburger",
-			columnKeyCount: 3,
-		}),
-		teagrid.NewRow(teagrid.RowData{
-			columnKeyName:  "Fries",
-			columnKeyCount: 2,
+			"name":  "Cheeseburger",
+			"count": 3,
 		}),
 	}
 
-	// Create the table
-	tbl := teagrid.New(columns).WithRows(rows)
+	grid := teagrid.New(columns).WithRows(rows)
 
-	// Use it like any Bubble Tea component in your view
-	tbl.View()
+	// Use it like any Bubble Tea v2 component in your view
+	grid.View()
 */
 package teagrid

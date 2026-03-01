@@ -1,118 +1,136 @@
 package teagrid
 
-import (
-	"github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
+
+const (
+	defaultPaddingLeft  = 1
+	defaultPaddingRight = 0
 )
 
-// Column is a column in the table.
+// Column defines a column in the grid.
 type Column struct {
-	title string
-	key   string
-	width int
-
-	flexFactor int
-
-	filterable bool
-	style      lipgloss.Style
-
-	fmtString string
+	title        string
+	key          string
+	width        int
+	flexFactor   int
+	paddingLeft  int
+	paddingRight int
+	alignment    lipgloss.Position
+	filterable   bool
+	style        lipgloss.Style
+	fmtString    string
 }
 
-// NewColumn creates a new fixed-width column with the given information.
+// NewColumn creates a new fixed-width column.
+// Default alignment is Left, paddingLeft is 1, paddingRight is 0.
 func NewColumn(key, title string, width int) Column {
 	return Column{
-		key:   key,
-		title: title,
-		width: width,
-
-		filterable: false,
+		key:          key,
+		title:        title,
+		width:        width,
+		paddingLeft:  defaultPaddingLeft,
+		paddingRight: defaultPaddingRight,
+		alignment:    lipgloss.Left,
 	}
 }
 
-// NewFlexColumn creates a new flexible width column that tries to fill in the
-// total table width.  If multiple flex columns exist, each will measure against
-// each other depending on their flexFactor.  For example, if both have a flexFactor
-// of 1, they will have equal width.  If one has a flexFactor of 1 and the other
-// has a flexFactor of 3, the second will be 3 times larger than the first.  You
-// must use WithTargetWidth if you have any flex columns, so that the table knows
-// how much width it should fill.
+// NewFlexColumn creates a flexible-width column that fills available space.
+// Multiple flex columns share space proportional to their flex factors.
 func NewFlexColumn(key, title string, flexFactor int) Column {
 	return Column{
-		key:   key,
-		title: title,
-
-		flexFactor: max(flexFactor, 1),
+		key:          key,
+		title:        title,
+		flexFactor:   max(flexFactor, 1),
+		paddingLeft:  defaultPaddingLeft,
+		paddingRight: defaultPaddingRight,
+		alignment:    lipgloss.Left,
 	}
 }
 
-// WithStyle applies a style to the column as a whole.
+// WithStyle applies a style to the column.
 func (c Column) WithStyle(style lipgloss.Style) Column {
-	c.style = style.Width(c.width)
-
+	c.style = style
 	return c
 }
 
-// WithFiltered sets whether the column should be considered for filtering (true)
-// or not (false).
+// WithFiltered sets whether the column participates in filtering.
 func (c Column) WithFiltered(filterable bool) Column {
 	c.filterable = filterable
-
 	return c
 }
 
-// WithFormatString sets the format string used by fmt.Sprintf to display the data.
-// If not set, the default is "%v" for all data types.  Intended mainly for
-// numeric formatting.
-//
-// Since data is of the any type, make sure that all data in the column
-// is of the expected type or the format may fail.  For example, hardcoding '3'
-// instead of '3.0' and using '%.2f' will fail because '3' is an integer.
+// WithFormatString sets the format string used by fmt.Sprintf to display data.
+// Unlike v0.1.0, this applies to both data cells and header cells.
 func (c Column) WithFormatString(fmtString string) Column {
 	c.fmtString = fmtString
-
 	return c
 }
 
-func (c *Column) isFlex() bool {
-	return c.flexFactor != 0
+// WithPadding sets left and right cell padding (in characters).
+func (c Column) WithPadding(left, right int) Column {
+	c.paddingLeft = left
+	c.paddingRight = right
+	return c
 }
 
-// Title returns the title of the column.
-func (c Column) Title() string {
-	return c.title
+// WithPaddingLeft sets the left cell padding.
+func (c Column) WithPaddingLeft(padding int) Column {
+	c.paddingLeft = padding
+	return c
 }
 
-// Key returns the key of the column.
-func (c Column) Key() string {
-	return c.key
+// WithPaddingRight sets the right cell padding.
+func (c Column) WithPaddingRight(padding int) Column {
+	c.paddingRight = padding
+	return c
 }
 
-// Width returns the width of the column.
-func (c Column) Width() int {
+// WithAlignment sets the text alignment within the column.
+func (c Column) WithAlignment(alignment lipgloss.Position) Column {
+	c.alignment = alignment
+	return c
+}
+
+// RenderWidth returns the total rendered width of the column including padding.
+func (c Column) RenderWidth() int {
+	return c.paddingLeft + c.contentWidth() + c.paddingRight
+}
+
+// contentWidth returns the width available for content (either explicit or
+// computed from flex).
+func (c Column) contentWidth() int {
 	return c.width
 }
 
-// FlexFactor returns the flex factor of the column.
-func (c Column) FlexFactor() int {
-	return c.flexFactor
-}
+// Title returns the column title.
+func (c Column) Title() string { return c.title }
 
-// IsFlex returns whether the column is a flex column.
-func (c Column) IsFlex() bool {
-	return c.isFlex()
-}
+// Key returns the column key used to match row data.
+func (c Column) Key() string { return c.key }
 
-// Filterable returns whether the column is filterable.
-func (c Column) Filterable() bool {
-	return c.filterable
-}
+// Width returns the content width of the column (excluding padding).
+func (c Column) Width() int { return c.width }
 
-// Style returns the style of the column.
-func (c Column) Style() lipgloss.Style {
-	return c.style
-}
+// FlexFactor returns the flex factor, or 0 for fixed columns.
+func (c Column) FlexFactor() int { return c.flexFactor }
 
-// FmtString returns the format string of the column.
-func (c Column) FmtString() string {
-	return c.fmtString
-}
+// IsFlex returns whether this is a flex-width column.
+func (c Column) IsFlex() bool { return c.flexFactor != 0 }
+
+// Filterable returns whether the column participates in filtering.
+func (c Column) Filterable() bool { return c.filterable }
+
+// Style returns the column style.
+func (c Column) Style() lipgloss.Style { return c.style }
+
+// FmtString returns the format string.
+func (c Column) FmtString() string { return c.fmtString }
+
+// PaddingLeft returns the left padding.
+func (c Column) PaddingLeft() int { return c.paddingLeft }
+
+// PaddingRight returns the right padding.
+func (c Column) PaddingRight() int { return c.paddingRight }
+
+// Alignment returns the text alignment.
+func (c Column) Alignment() lipgloss.Position { return c.alignment }

@@ -1,8 +1,8 @@
 package teagrid
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
-// KeyMap defines the keybindings for the table when it's focused.
+// KeyMap defines the key bindings for the grid.
 type KeyMap struct {
 	RowDown key.Binding
 	RowUp   key.Binding
@@ -14,23 +14,32 @@ type KeyMap struct {
 	PageFirst key.Binding
 	PageLast  key.Binding
 
-	// Filter allows the user to start typing and filter the rows.
+	// CellLeft moves the cell cursor left.
+	CellLeft key.Binding
+
+	// CellRight moves the cell cursor right.
+	CellRight key.Binding
+
+	// CellSelect emits a UserEventCellSelected event.
+	CellSelect key.Binding
+
+	// Filter starts the filter input.
 	Filter key.Binding
 
-	// FilterBlur is the key that stops the user's input from typing into the filter.
+	// FilterBlur exits filter input.
 	FilterBlur key.Binding
 
-	// FilterClear will clear the filter while it's blurred.
+	// FilterClear clears the filter while blurred.
 	FilterClear key.Binding
 
-	// ScrollRight will move one column to the right when overflow occurs.
+	// ScrollRight scrolls the viewport one column right.
 	ScrollRight key.Binding
 
-	// ScrollLeft will move one column to the left when overflow occurs.
+	// ScrollLeft scrolls the viewport one column left.
 	ScrollLeft key.Binding
 }
 
-// DefaultKeyMap returns a set of sensible defaults for controlling a focused table with help text.
+// DefaultKeyMap returns sensible default key bindings for Charm v2.
 func DefaultKeyMap() KeyMap {
 	return KeyMap{
 		RowDown: key.NewBinding(
@@ -42,16 +51,16 @@ func DefaultKeyMap() KeyMap {
 			key.WithHelp("↑/k", "move up"),
 		),
 		RowSelectToggle: key.NewBinding(
-			key.WithKeys(" ", "enter"),
-			key.WithHelp("<space>/enter", "select row"),
+			key.WithKeys("space"),
+			key.WithHelp("space", "select row"),
 		),
 		PageDown: key.NewBinding(
-			key.WithKeys("right", "l", "pgdown"),
-			key.WithHelp("→/h/page down", "next page"),
+			key.WithKeys("pgdown"),
+			key.WithHelp("pgdn", "next page"),
 		),
 		PageUp: key.NewBinding(
-			key.WithKeys("left", "h", "pgup"),
-			key.WithHelp("←/h/page up", "previous page"),
+			key.WithKeys("pgup"),
+			key.WithHelp("pgup", "previous page"),
 		),
 		PageFirst: key.NewBinding(
 			key.WithKeys("home", "g"),
@@ -61,16 +70,28 @@ func DefaultKeyMap() KeyMap {
 			key.WithKeys("end", "G"),
 			key.WithHelp("end/G", "last page"),
 		),
+		CellLeft: key.NewBinding(
+			key.WithKeys("left", "h"),
+			key.WithHelp("←/h", "cell left"),
+		),
+		CellRight: key.NewBinding(
+			key.WithKeys("right", "l"),
+			key.WithHelp("→/l", "cell right"),
+		),
+		CellSelect: key.NewBinding(
+			key.WithKeys("enter"),
+			key.WithHelp("enter", "select cell"),
+		),
 		Filter: key.NewBinding(
 			key.WithKeys("/"),
 			key.WithHelp("/", "filter"),
 		),
 		FilterBlur: key.NewBinding(
-			key.WithKeys("enter", "esc"),
-			key.WithHelp("enter/esc", "unfocus"),
+			key.WithKeys("enter", "escape"),
+			key.WithHelp("enter/esc", "stop filtering"),
 		),
 		FilterClear: key.NewBinding(
-			key.WithKeys("esc"),
+			key.WithKeys("escape"),
 			key.WithHelp("esc", "clear filter"),
 		),
 		ScrollRight: key.NewBinding(
@@ -82,39 +103,4 @@ func DefaultKeyMap() KeyMap {
 			key.WithHelp("shift+←", "scroll left"),
 		),
 	}
-}
-
-// FullHelp returns a multi row view of all the helpkeys that are defined. Needed to fullfil the 'help.Model' interface.
-// Also appends all user defined extra keys to the help.
-func (m Model) FullHelp() [][]key.Binding {
-	keyBinds := [][]key.Binding{
-		{m.keyMap.RowDown, m.keyMap.RowUp, m.keyMap.RowSelectToggle},
-		{m.keyMap.PageDown, m.keyMap.PageUp, m.keyMap.PageFirst, m.keyMap.PageLast},
-		{m.keyMap.Filter, m.keyMap.FilterBlur, m.keyMap.FilterClear, m.keyMap.ScrollRight, m.keyMap.ScrollLeft},
-	}
-	if m.additionalFullHelpKeys != nil {
-		keyBinds = append(keyBinds, m.additionalFullHelpKeys())
-	}
-
-	return keyBinds
-}
-
-// ShortHelp just returns a single row of help views. Needed to fullfil the 'help.Model' interface.
-// Also appends all user defined extra keys to the help.
-func (m Model) ShortHelp() []key.Binding {
-	keyBinds := []key.Binding{
-		m.keyMap.RowDown,
-		m.keyMap.RowUp,
-		m.keyMap.RowSelectToggle,
-		m.keyMap.PageDown,
-		m.keyMap.PageUp,
-		m.keyMap.Filter,
-		m.keyMap.FilterBlur,
-		m.keyMap.FilterClear,
-	}
-	if m.additionalShortHelpKeys != nil {
-		keyBinds = append(keyBinds, m.additionalShortHelpKeys()...)
-	}
-
-	return keyBinds
 }

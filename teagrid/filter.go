@@ -5,65 +5,51 @@ import (
 	"strings"
 )
 
-// FilterFuncInput is the input to a FilterFunc. It's a struct so we can add more things later
-// without breaking compatibility.
+// FilterFuncInput is the input to a FilterFunc.
 type FilterFuncInput struct {
-	// Columns is a list of the columns of the table
-	Columns []Column
-
-	// Row is the row that's being considered for filtering
-	Row Row
-
-	// GlobalMetadata is an arbitrary set of metadata from the table set by WithGlobalMetadata
+	Columns        []Column
+	Row            Row
 	GlobalMetadata map[string]any
-
-	// Filter is the filter string input to consider
-	Filter string
+	Filter         string
 }
 
-// FilterFunc takes a FilterFuncInput and returns true if the row should be visible,
-// or false if the row should be hidden.
+// FilterFunc returns true if the row should be visible, false to hide it.
 type FilterFunc func(FilterFuncInput) bool
 
 func (m Model) getFilteredRows(rows []Row) []Row {
-	filterInputValue := m.filterTextInput.Value()
-	if !m.filtered || filterInputValue == "" {
+	filterValue := m.filterTextInput.Value()
+	if !m.filtered || filterValue == "" {
 		return rows
 	}
 
-	filteredRows := make([]Row, 0)
+	filterFunc := m.filterFunc
+	if filterFunc == nil {
+		filterFunc = filterFuncContains
+	}
 
+	filtered := make([]Row, 0)
 	for _, row := range rows {
-		var availableFilterFunc FilterFunc
-
-		if m.filterFunc != nil {
-			availableFilterFunc = m.filterFunc
-		} else {
-			availableFilterFunc = filterFuncContains
-		}
-
-		if availableFilterFunc(FilterFuncInput{
+		if filterFunc(FilterFuncInput{
 			Columns:        m.columns,
 			Row:            row,
-			Filter:         filterInputValue,
+			Filter:         filterValue,
 			GlobalMetadata: m.metadata,
 		}) {
-			filteredRows = append(filteredRows, row)
+			filtered = append(filtered, row)
 		}
 	}
 
-	return filteredRows
+	return filtered
 }
 
-// filterFuncContains returns a filterFunc that performs case-insensitive
-// "contains" matching over all filterable columns in a row.
+// filterFuncContains performs case-insensitive substring matching
+// across all filterable columns.
 func filterFuncContains(input FilterFuncInput) bool {
 	if input.Filter == "" {
 		return true
 	}
 
 	checkedAny := false
-
 	filterLower := strings.ToLower(input.Filter)
 
 	for _, column := range input.Columns {
@@ -74,25 +60,21 @@ func filterFuncContains(input FilterFuncInput) bool {
 		checkedAny = true
 
 		data, ok := input.Row.Data[column.key]
-
 		if !ok {
 			continue
 		}
 
-		// Extract internal StyledCell data
-		switch dataV := data.(type) {
-		case StyledCell:
-			data = dataV.Data
+		// Extract CellValue data
+		if cv, ok := data.(CellValue); ok {
+			data = cv.Data
 		}
 
 		var target string
-		switch dataV := data.(type) {
+		switch v := data.(type) {
 		case string:
-			target = dataV
-
+			target = v
 		case fmt.Stringer:
-			target = dataV.String()
-
+			target = v.String()
 		default:
 			target = fmt.Sprintf("%v", data)
 		}
@@ -105,8 +87,8 @@ func filterFuncContains(input FilterFuncInput) bool {
 	return !checkedAny
 }
 
-// filterFuncFuzzy returns a filterFunc that performs case-insensitive fuzzy
-// matching (subsequence) over the concatenation of all filterable column values.
+// filterFuncFuzzy performs case-insensitive fuzzy (subsequence) matching
+// across all filterable columns concatenated.
 func filterFuncFuzzy(input FilterFuncInput) bool {
 	filter := strings.TrimSpace(input.Filter)
 	if filter == "" {
@@ -118,14 +100,17 @@ func filterFuncFuzzy(input FilterFuncInput) bool {
 		if !col.filterable {
 			continue
 		}
+
 		value, ok := input.Row.Data[col.key]
 		if !ok {
 			continue
 		}
-		if sc, ok := value.(StyledCell); ok {
-			value = sc.Data
+
+		if cv, ok := value.(CellValue); ok {
+			value = cv.Data
 		}
-		builder.WriteString(fmt.Sprint(value)) // uses Stringer if implemented
+
+		builder.WriteString(fmt.Sprint(value))
 		builder.WriteByte(' ')
 	}
 
@@ -144,21 +129,22 @@ func filterFuncFuzzy(input FilterFuncInput) bool {
 }
 
 // fuzzySubsequenceMatch returns true if all runes in needle appear in order
-// within haystack (not necessarily contiguously). Case must be normalized by caller.
+// within haystack. Case must be normalized by caller.
 func fuzzySubsequenceMatch(haystack, needle string) bool {
 	if needle == "" {
 		return true
 	}
-	haystackIndex, needleIndex := 0, 0
+
 	haystackRunes := []rune(haystack)
 	needleRunes := []rune(needle)
+	hi, ni := 0, 0
 
-	for haystackIndex < len(haystackRunes) && needleIndex < len(needleRunes) {
-		if haystackRunes[haystackIndex] == needleRunes[needleIndex] {
-			needleIndex++
+	for hi < len(haystackRunes) && ni < len(needleRunes) {
+		if haystackRunes[hi] == needleRunes[ni] {
+			ni++
 		}
-		haystackIndex++
+		hi++
 	}
 
-	return needleIndex == len(needleRunes)
+	return ni == len(needleRunes)
 }

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/mikeschinkel/go-tealeaves/teagrid"
 )
 
@@ -76,7 +76,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	cmds = append(cmds, cmd)
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "esc", "q":
 			cmds = append(cmds, tea.Quit)
@@ -98,16 +98,16 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	var body strings.Builder
 
 	body.WriteString("A sorted simple default table\n")
 	body.WriteString("Sort by (n)ame, (t)ype->wins combo, or (w)ins\n")
 	body.WriteString("Currently sorting by: " + m.columnSortKey + "\n")
 	body.WriteString("Press q or ctrl+c to quit\n\n")
-	body.WriteString(m.simpleTable.View())
+	body.WriteString(m.simpleTable.View().Content)
 
-	return body.String()
+	return tea.NewView(body.String())
 }
 
 func main() {

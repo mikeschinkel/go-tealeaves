@@ -1,116 +1,144 @@
 package teagrid
 
-import (
-	"github.com/charmbracelet/lipgloss"
-)
-
+// recalculateWidth resolves flex column widths and scroll boundaries.
 func (m *Model) recalculateWidth() {
-	if m.targetTotalWidth != 0 {
-		m.totalWidth = m.targetTotalWidth
-	} else {
-		total := 0
-
-		for _, column := range m.columns {
-			total += column.width
-		}
-
-		m.totalWidth = total + len(m.columns) + 1
+	targetWidth := m.viewportWidth
+	if targetWidth > 0 {
+		updateColumnWidths(m.columns, targetWidth, m.border)
 	}
-
-	updateColumnWidths(m.columns, m.targetTotalWidth)
-
 	m.recalculateLastHorizontalColumn()
 }
 
-// Updates column width in-place.  This could be optimized but should be called
-// very rarely so we prioritize simplicity over performance here.
-func updateColumnWidths(cols []Column, totalWidth int) {
-	totalFlexWidth := totalWidth - len(cols) - 1
+// recalculatePageSize computes page size from viewport height minus chrome.
+func (m *Model) recalculatePageSize() {
+	if m.viewportHeight == 0 {
+		return
+	}
+
+	chrome := m.chromeHeight()
+	autoPageSize := m.viewportHeight - chrome
+
+	if autoPageSize < 1 {
+		autoPageSize = 1
+	}
+
+	m.pageSize = autoPageSize
+}
+
+// chromeHeight estimates the non-data height consumed by borders,
+// header, and footer. Used for auto page size computation.
+func (m *Model) chromeHeight() int {
+	height := 0
+
+	if m.border.HasOuterBorder() {
+		height += 2 // top and bottom border lines
+	}
+
+	if m.headerVisible {
+		height++ // header row
+		if m.border.HasHeaderSeparator() {
+			height++ // header separator line
+		}
+	}
+
+	if m.footerVisible {
+		height++ // footer row
+		if m.border.HasFooterSeparator() {
+			height++ // footer separator line
+		}
+	}
+
+	return height
+}
+
+// computeNaturalWidth returns the minimum width needed to display all columns
+// without flex expansion. Flex columns contribute their padding + 1 char minimum.
+func (m *Model) computeNaturalWidth() int {
+	width := m.border.OuterWidth()
+
+	for i, col := range m.columns {
+		if col.IsFlex() {
+			width += col.paddingLeft + 1 + col.paddingRight
+		} else {
+			width += col.RenderWidth()
+		}
+
+		if i < len(m.columns)-1 {
+			width += m.border.InnerDividerWidth()
+		}
+	}
+
+	return width
+}
+
+// computeTotalWidth returns the total rendered width of the grid
+// after flex column resolution.
+func (m *Model) computeTotalWidth() int {
+	width := m.border.OuterWidth()
+
+	for i, col := range m.columns {
+		width += col.RenderWidth()
+
+		if i < len(m.columns)-1 {
+			width += m.border.InnerDividerWidth()
+		}
+	}
+
+	return width
+}
+
+// updateColumnWidths resolves flex column widths to fill totalWidth.
+func updateColumnWidths(cols []Column, totalWidth int, border BorderConfig) {
+	if totalWidth == 0 || len(cols) == 0 {
+		return
+	}
+
+	// Compute border overhead
+	borderWidth := border.OuterWidth()
+	if len(cols) > 1 {
+		borderWidth += (len(cols) - 1) * border.InnerDividerWidth()
+	}
+
+	availableForFlex := totalWidth - borderWidth
 	totalFlexFactor := 0
 	flexGCD := 0
 
-	for index, col := range cols {
-		if !col.isFlex() {
-			totalFlexWidth -= col.width
-			cols[index].style = col.style.Width(col.width)
+	for _, col := range cols {
+		if !col.IsFlex() {
+			availableForFlex -= col.RenderWidth()
 		} else {
+			// Padding is always present; only the content width is flexible
+			availableForFlex -= col.paddingLeft + col.paddingRight
 			totalFlexFactor += col.flexFactor
 			flexGCD = gcd(flexGCD, col.flexFactor)
 		}
 	}
 
-	if totalFlexFactor == 0 {
+	if totalFlexFactor == 0 || availableForFlex <= 0 {
 		return
 	}
 
-	// We use the GCD here because otherwise very large values won't divide
-	// nicely as ints
 	totalFlexFactor /= flexGCD
+	flexUnit := availableForFlex / totalFlexFactor
+	leftoverWidth := availableForFlex % totalFlexFactor
 
-	flexUnit := totalFlexWidth / totalFlexFactor
-	leftoverWidth := totalFlexWidth % totalFlexFactor
-
-	for index := range cols {
-		if !cols[index].isFlex() {
+	for i := range cols {
+		if !cols[i].IsFlex() {
 			continue
 		}
 
-		width := flexUnit * (cols[index].flexFactor / flexGCD)
+		width := flexUnit * (cols[i].flexFactor / flexGCD)
 
 		if leftoverWidth > 0 {
 			width++
 			leftoverWidth--
 		}
 
-		if index == len(cols)-1 {
+		if i == len(cols)-1 {
 			width += leftoverWidth
 			leftoverWidth = 0
 		}
 
-		width = max(width, 1)
-
-		cols[index].width = width
-
-		// Take borders into account for the actual style
-		cols[index].style = cols[index].style.Width(width)
+		cols[i].width = max(width, 1)
 	}
-}
-
-func (m *Model) recalculateHeight() {
-	header := m.renderHeaders()
-	headerHeight := 1 // Header always has the top border
-	if m.headerVisible {
-		headerHeight = lipgloss.Height(header)
-	}
-
-	footer := m.renderFooter(lipgloss.Width(header), false)
-	var footerHeight int
-	if footer != "" {
-		footerHeight = lipgloss.Height(footer)
-	}
-
-	m.metaHeight = headerHeight + footerHeight
-}
-
-func (m *Model) calculatePadding(numRows int) int {
-	if m.minimumHeight == 0 {
-		return 0
-	}
-
-	padding := m.minimumHeight - m.metaHeight - numRows - 1 // additional 1 for bottom border
-
-	if padding == 0 && numRows == 0 {
-		// This is an edge case where we want to add 1 additional line of height, i.e.
-		// add a border without an empty row. However, this is not possible, so we need
-		// to add an extra row which will result in the table being 1 row taller than
-		// the requested minimum height.
-		return 1
-	}
-
-	if padding < 0 {
-		// Table is already larger than minimum height, do nothing.
-		return 0
-	}
-
-	return padding
 }

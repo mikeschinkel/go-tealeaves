@@ -1,54 +1,32 @@
 package teagrid
 
 import (
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textinput"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/textinput"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
-const (
-	columnKeySelect = "___select___"
-)
-
-var (
-	defaultHighlightStyle = lipgloss.NewStyle().Background(lipgloss.Color("#334"))
-)
-
-// Model is the main table model.  Create using New().
+// Model is the main grid model. Create using New().
 type Model struct {
 	// Data
 	columns  []Column
 	rows     []Row
 	metadata map[string]any
 
-	// Caches for optimizations
+	// Caches
 	visibleRowCacheUpdated bool
 	visibleRowCache        []Row
 
-	// Shown when data is missing from a row
+	// Missing data indicator
 	missingDataIndicator any
 
 	// Interaction
-	focused bool
-	keyMap  KeyMap
-
-	// Taken from: 'Bubbles/List'
-	// Additional key mappings for the short and full help views. This allows
-	// you to add additional key mappings to the help menu without
-	// re-implementing the help component. Of course, you can also disable the
-	// list's help component and implement a new one if you need more
-	// flexibility.
-	// You have to supply a keybinding like this:
-	// key.NewBinding( key.WithKeys("shift+left"), key.WithHelp("shift+←", "scroll left"))
-	// It needs both 'WithKeys' and 'WithHelp'
-	additionalShortHelpKeys func() []key.Binding
-	additionalFullHelpKeys  func() []key.Binding
-
-	selectableRows bool
-	rowCursorIndex int
-
-	// Cell cursor mode - when enabled, left/right navigate cells instead of pages
+	focused               bool
+	keyMap                KeyMap
+	selectableRows        bool
+	selectColumn          bool
+	rowCursorIndex        int
 	cellCursorMode        bool
 	cellCursorColumnIndex int
 
@@ -56,18 +34,21 @@ type Model struct {
 	lastUpdateUserEvents []UserEvent
 
 	// Styles
-	baseStyle      lipgloss.Style
-	highlightStyle lipgloss.Style
-	headerStyle    lipgloss.Style
-	rowStyleFunc   func(RowStyleFuncInput) lipgloss.Style
-	border         Border
+	baseStyle       lipgloss.Style
+	highlightStyle  lipgloss.Style
+	cellCursorStyle lipgloss.Style
+	headerStyle     lipgloss.Style
+	footerStyle     lipgloss.Style
+	rowStyleFunc    func(RowStyleFuncInput) lipgloss.Style
+	border          BorderConfig
+
 	selectedText   string
 	unselectedText string
 
 	// Header
 	headerVisible bool
 
-	// Footers
+	// Footer
 	footerVisible bool
 	staticFooter  string
 
@@ -76,8 +57,7 @@ type Model struct {
 	currentPage        int
 	paginationWrapping bool
 
-	// Sorting, where a stable sort is applied from first element to last so
-	// that elements are grouped by the later elements.
+	// Sorting
 	sortOrder []SortColumn
 
 	// Filter
@@ -85,68 +65,79 @@ type Model struct {
 	filterTextInput textinput.Model
 	filterFunc      FilterFunc
 
-	// For flex columns
-	targetTotalWidth int
+	// Dimensions
+	viewportWidth  int
+	viewportHeight int
 
-	// The maximum total width for overflow/scrolling
-	maxTotalWidth int
-
-	// Internal cached calculations for reference, may be higher than
-	// maxTotalWidth.  If this is the case, we need to adjust the view
-	totalWidth int
-
-	// How far to scroll to the right, in columns
-	horizontalScrollOffsetCol int
-
-	// How many columns to freeze when scrolling horizontally
+	// Scrolling
+	horizontalScrollOffsetCol          int
 	horizontalScrollFreezeColumnsCount int
+	maxHorizontalColumnIndex           int
 
-	// Calculated maximum column we can scroll to before the last is displayed
-	maxHorizontalColumnIndex int
-
-	// Minimum total height of the table
+	// Height
 	minimumHeight int
 
-	// Internal cached calculation, the height of the header and footer
-	// including borders. Used to determine how many padding rows to add.
-	metaHeight int
+	// Editing stubs (v0.3.0)
+	editable      bool
+	cellValidator CellValidatorFunc
 
-	// If true, the table will be multiline
-	multiline bool
+	// Help keys
+	additionalShortHelpKeys func() []key.Binding
+	additionalFullHelpKeys  func() []key.Binding
+
+	// Overflow indicator
+	overflowIndicator bool
 }
 
-// New creates a new table ready for further modifications.
+const selectColumnKey = "___select___"
+
+var (
+	defaultHighlightStyle  = lipgloss.NewStyle().Background(lipgloss.Color("#874BFD"))
+	defaultCellCursorStyle = lipgloss.NewStyle().Reverse(true)
+)
+
+// New creates a new grid with the given columns.
+// Defaults: left-aligned text, visible highlight (purple), cell cursor is
+// Reverse, rounded borders, no right-align on baseStyle (fixes v0.1.0 #1).
 func New(columns []Column) Model {
 	filterInput := textinput.New()
 	filterInput.Prompt = "/"
-	model := Model{
-		columns:        make([]Column, len(columns)),
-		metadata:       make(map[string]any),
-		highlightStyle: defaultHighlightStyle,
-		border:         borderDefault,
-		headerVisible:  true,
-		footerVisible:  true,
-		keyMap:         DefaultKeyMap(),
 
-		selectedText:   "[x]",
-		unselectedText: "[ ]",
-
-		filterTextInput: filterInput,
-		filterFunc:      filterFuncContains,
-		baseStyle:       lipgloss.NewStyle().Align(lipgloss.Right),
-
+	m := Model{
+		columns:            make([]Column, len(columns)),
+		metadata:           make(map[string]any),
+		keyMap:             DefaultKeyMap(),
+		border:             BorderRounded(),
+		headerVisible:      true,
+		footerVisible:      true,
+		highlightStyle:     defaultHighlightStyle,
+		cellCursorStyle:    defaultCellCursorStyle,
+		baseStyle:          lipgloss.NewStyle(),
+		filterTextInput:    filterInput,
+		filterFunc:         filterFuncContains,
+		selectedText:       "[x]",
+		unselectedText:     "[ ]",
 		paginationWrapping: true,
 	}
 
-	// Do a full deep copy to avoid unexpected edits
-	copy(model.columns, columns)
+	copy(m.columns, columns)
+	m.recalculateWidth()
 
-	model.recalculateWidth()
-
-	return model
+	return m
 }
 
-// Init initializes the table per the Bubble Tea architecture.
+// Init initializes the grid per the Bubble Tea architecture.
 func (m Model) Init() tea.Cmd {
 	return nil
+}
+
+// SetSize sets the viewport dimensions and auto-configures the grid.
+// Width triggers flex column resolution and fill/scroll mode.
+// Height triggers automatic page size computation.
+func (m Model) SetSize(width, height int) Model {
+	m.viewportWidth = width
+	m.viewportHeight = height
+	m.recalculateWidth()
+	m.recalculatePageSize()
+	return m
 }

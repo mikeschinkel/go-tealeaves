@@ -1,252 +1,67 @@
 package teagrid
 
 import (
-	"fmt"
 	"sync/atomic"
 
-	"github.com/charmbracelet/lipgloss"
-	"github.com/muesli/reflow/wordwrap"
+	"charm.land/lipgloss/v2"
 )
 
-// RowData is a map of string column keys to arbitrary data.  Data with a key
-// that matches a column key will be displayed.  Data with a key that does not
-// match a column key will not be displayed, but will remain attached to the Row.
-// This can be useful for attaching hidden metadata for future reference when
-// retrieving rows.
+// RowData is a map of column keys to cell values.
+// Values can be any type: plain values are displayed with fmt.Sprintf,
+// CellValue instances provide styling, sort keys, and rich text.
+// Data with keys that don't match any column is retained but not displayed.
 type RowData map[string]any
 
-// Row represents a row in the table with some data keyed to the table columns>
-// Can have a style applied to it such as color/bold.  Create using NewRow().
+// Row represents a row in the grid.
 type Row struct {
 	Style lipgloss.Style
 	Data  RowData
 
 	selected bool
 
-	// id is an internal unique ID to match rows after they're copied
+	// id is an internal unique ID to match rows after they're copied.
 	id uint32
 }
 
-var lastRowID uint32 = 1
+var lastRowID atomic.Uint32
 
-// NewRow creates a new row and copies the given row data.
+func init() {
+	lastRowID.Store(1)
+}
+
+// NewRow creates a new row with the given data.
+// Data is shallow-copied to prevent external mutation.
 func NewRow(data RowData) Row {
 	row := Row{
-		Data: make(map[string]any),
-		id:   lastRowID,
+		Data: make(RowData, len(data)),
+		id:   lastRowID.Add(1),
 	}
 
-	atomic.AddUint32(&lastRowID, 1)
-
-	for key, val := range data {
-		// Doesn't deep copy val, but close enough for now...
-		row.Data[key] = val
+	for k, v := range data {
+		row.Data[k] = v
 	}
 
 	return row
 }
 
-// WithStyle uses the given style for the text in the row.
+// WithStyle sets the row's style.
 func (r Row) WithStyle(style lipgloss.Style) Row {
 	r.Style = style
-
 	return r
 }
 
-//nolint:cyclop,funlen // Breaking this up will be more complicated than it's worth for now
-func (m Model) renderRowColumnData(row Row, column Column, rowStyle lipgloss.Style, borderStyle lipgloss.Style) string {
-	cellStyle := rowStyle.Inherit(column.style).Inherit(m.baseStyle)
-
-	var str string
-
-	switch column.key {
-	case columnKeySelect:
-		if row.selected {
-			str = m.selectedText
-		} else {
-			str = m.unselectedText
-		}
-	case columnKeyOverflowRight:
-		cellStyle = cellStyle.Align(lipgloss.Right)
-		str = ">"
-	case columnKeyOverflowLeft:
-		str = "<"
-	default:
-		fmtString := "%v"
-
-		var data any
-
-		if entry, exists := row.Data[column.key]; exists {
-			data = entry
-
-			if column.fmtString != "" {
-				fmtString = column.fmtString
-			}
-		} else if m.missingDataIndicator != nil {
-			data = m.missingDataIndicator
-		} else {
-			data = ""
-		}
-
-		switch entry := data.(type) {
-		case StyledCell:
-			str = fmt.Sprintf(fmtString, entry.Data)
-
-			if entry.StyleFunc != nil {
-				cellStyle = entry.StyleFunc(StyledCellFuncInput{
-					Column:         column,
-					Data:           entry.Data,
-					Row:            row,
-					GlobalMetadata: m.metadata,
-				}).Inherit(cellStyle)
-			} else {
-				cellStyle = entry.Style.Inherit(cellStyle)
-			}
-		default:
-			str = fmt.Sprintf(fmtString, entry)
-		}
-	}
-
-	if m.multiline {
-		str = wordwrap.String(str, column.width)
-		cellStyle = cellStyle.Align(lipgloss.Top)
-	} else {
-		str = limitStr(str, column.width)
-	}
-
-	cellStyle = cellStyle.Inherit(borderStyle)
-	cellStr := cellStyle.Render(str)
-
-	return cellStr
-}
-
-func (m Model) renderRow(rowIndex int, last bool) string {
-	row := m.GetVisibleRows()[rowIndex]
-	highlighted := rowIndex == m.rowCursorIndex
-
-	rowStyle := row.Style
-
-	if m.rowStyleFunc != nil {
-		styleResult := m.rowStyleFunc(RowStyleFuncInput{
-			Index:         rowIndex,
-			Row:           row,
-			IsHighlighted: m.focused && highlighted,
-		})
-
-		rowStyle = rowStyle.Inherit(styleResult)
-	} else if m.focused && highlighted {
-		rowStyle = rowStyle.Inherit(m.highlightStyle)
-	}
-
-	return m.renderRowData(row, rowStyle, last)
-}
-
-func (m Model) renderBlankRow(last bool) string {
-	return m.renderRowData(NewRow(nil), lipgloss.NewStyle(), last)
-}
-
-// This is long and could use some refactoring in the future, but not quite sure
-// how to pick it apart yet.
-//
-//nolint:funlen, cyclop
-func (m Model) renderRowData(row Row, rowStyle lipgloss.Style, last bool) string {
-	numColumns := len(m.columns)
-
-	columnStrings := []string{}
-	totalRenderedWidth := 0
-
-	stylesInner, stylesLast := m.styleRows()
-
-	maxCellHeight := 1
-	if m.multiline {
-		for _, column := range m.columns {
-			cellStr := m.renderRowColumnData(row, column, rowStyle, lipgloss.NewStyle())
-			maxCellHeight = max(maxCellHeight, lipgloss.Height(cellStr))
-		}
-	}
-
-	for columnIndex, column := range m.columns {
-		var borderStyle lipgloss.Style
-		var rowStyles borderStyleRow
-
-		if !last {
-			rowStyles = stylesInner
-		} else {
-			rowStyles = stylesLast
-		}
-		rowStyle = rowStyle.Height(maxCellHeight)
-
-		if m.horizontalScrollOffsetCol > 0 && columnIndex == m.horizontalScrollFreezeColumnsCount {
-			var borderStyle lipgloss.Style
-
-			if columnIndex == 0 {
-				borderStyle = rowStyles.left
-			} else {
-				borderStyle = rowStyles.inner
-			}
-
-			rendered := m.renderRowColumnData(row, genOverflowColumnLeft(1), rowStyle, borderStyle)
-
-			totalRenderedWidth += lipgloss.Width(rendered)
-
-			columnStrings = append(columnStrings, rendered)
-		}
-
-		if columnIndex >= m.horizontalScrollFreezeColumnsCount &&
-			columnIndex < m.horizontalScrollOffsetCol+m.horizontalScrollFreezeColumnsCount {
-			continue
-		}
-
-		if len(columnStrings) == 0 {
-			borderStyle = rowStyles.left
-		} else if columnIndex < numColumns-1 {
-			borderStyle = rowStyles.inner
-		} else {
-			borderStyle = rowStyles.right
-		}
-
-		cellStr := m.renderRowColumnData(row, column, rowStyle, borderStyle)
-
-		if m.maxTotalWidth != 0 {
-			renderedWidth := lipgloss.Width(cellStr)
-
-			const (
-				borderAdjustment = 1
-				overflowColWidth = 2
-			)
-
-			targetWidth := m.maxTotalWidth - overflowColWidth
-
-			if columnIndex == len(m.columns)-1 {
-				// If this is the last header, we don't need to account for the
-				// overflow arrow column
-				targetWidth = m.maxTotalWidth
-			}
-
-			if totalRenderedWidth+renderedWidth > targetWidth {
-				overflowWidth := m.maxTotalWidth - totalRenderedWidth - borderAdjustment
-				overflowStyle := genOverflowStyle(rowStyles.right, overflowWidth)
-				overflowColumn := genOverflowColumnRight(overflowWidth)
-				overflowStr := m.renderRowColumnData(row, overflowColumn, rowStyle, overflowStyle)
-
-				columnStrings = append(columnStrings, overflowStr)
-
-				break
-			}
-
-			totalRenderedWidth += renderedWidth
-		}
-
-		columnStrings = append(columnStrings, cellStr)
-	}
-
-	return lipgloss.JoinHorizontal(lipgloss.Bottom, columnStrings...)
-}
-
-// Selected returns a copy of the row that's set to be selected or deselected.
-// The old row is not changed in-place.
+// Selected returns a copy of the row with the given selection state.
 func (r Row) Selected(selected bool) Row {
 	r.selected = selected
-
 	return r
+}
+
+// IsSelected returns whether the row is selected.
+func (r Row) IsSelected() bool {
+	return r.selected
+}
+
+// ID returns the row's internal unique identifier.
+func (r Row) ID() uint32 {
+	return r.id
 }

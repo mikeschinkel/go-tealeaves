@@ -3,87 +3,47 @@ package teagrid
 import (
 	"testing"
 
-	"github.com/charmbracelet/bubbles/help"
-	"github.com/charmbracelet/bubbles/key"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestKeyMapShortHelp(t *testing.T) {
-	columns := []Column{NewColumn("c1", "Column1", 10)}
-	model := New(columns)
+func TestDefaultKeyMap(t *testing.T) {
 	km := DefaultKeyMap()
-	model.WithKeyMap(km)
-	assert.Nil(t, model.additionalShortHelpKeys)
-	assert.Equal(t, model.ShortHelp(), []key.Binding{
-		model.keyMap.RowDown,
-		model.keyMap.RowUp,
-		model.keyMap.RowSelectToggle,
-		model.keyMap.PageDown,
-		model.keyMap.PageUp,
-		model.keyMap.Filter,
-		model.keyMap.FilterBlur,
-		model.keyMap.FilterClear},
-	)
-	// Testing if the 'adding of keys' works too.
-	keys := []key.Binding{key.NewBinding(key.WithKeys("t"), key.WithHelp("t", "Testing additional keybinds"))}
-	model = model.WithAdditionalShortHelpKeys(keys)
-	assert.NotNil(t, model.additionalShortHelpKeys)
-	assert.Equal(t, model.ShortHelp(), []key.Binding{
-		model.keyMap.RowDown,
-		model.keyMap.RowUp,
-		model.keyMap.RowSelectToggle,
-		model.keyMap.PageDown,
-		model.keyMap.PageUp,
-		model.keyMap.Filter,
-		model.keyMap.FilterBlur,
-		model.keyMap.FilterClear,
-		key.NewBinding(
-			key.WithKeys("t"),
-			key.WithHelp("t",
-				"Testing additional keybinds"),
-		),
-	})
+
+	assert.NotEmpty(t, km.RowDown.Keys())
+	assert.NotEmpty(t, km.RowUp.Keys())
+	assert.NotEmpty(t, km.RowSelectToggle.Keys())
+	assert.NotEmpty(t, km.PageDown.Keys())
+	assert.NotEmpty(t, km.PageUp.Keys())
+	assert.NotEmpty(t, km.PageFirst.Keys())
+	assert.NotEmpty(t, km.PageLast.Keys())
+	assert.NotEmpty(t, km.CellLeft.Keys())
+	assert.NotEmpty(t, km.CellRight.Keys())
+	assert.NotEmpty(t, km.CellSelect.Keys())
+	assert.NotEmpty(t, km.Filter.Keys())
+	assert.NotEmpty(t, km.FilterBlur.Keys())
+	assert.NotEmpty(t, km.FilterClear.Keys())
+	assert.NotEmpty(t, km.ScrollRight.Keys())
+	assert.NotEmpty(t, km.ScrollLeft.Keys())
 }
 
-func TestKeyMapFullHelp(t *testing.T) {
-	columns := []Column{NewColumn("c1", "Column1", 10)}
-	model := New(columns)
+func TestDefaultKeyMapCellNavSeparateFromPagination(t *testing.T) {
 	km := DefaultKeyMap()
-	model.WithKeyMap(km)
-	assert.Nil(t, model.additionalFullHelpKeys)
-	assert.Equal(t,
-		model.FullHelp(),
-		[][]key.Binding{
-			{model.keyMap.RowDown, model.keyMap.RowUp, model.keyMap.RowSelectToggle},
-			{model.keyMap.PageDown, model.keyMap.PageUp, model.keyMap.PageFirst, model.keyMap.PageLast},
-			{
-				model.keyMap.Filter,
-				model.keyMap.FilterBlur,
-				model.keyMap.FilterClear,
-				model.keyMap.ScrollRight,
-				model.keyMap.ScrollLeft,
-			},
-		},
-	)
-	// Testing if the 'adding of keys' works too.
-	keys := []key.Binding{key.NewBinding(key.WithKeys("t"), key.WithHelp("t", "Testing additional keybinds"))}
-	model = model.WithAdditionalFullHelpKeys(keys)
-	assert.NotNil(t, model.additionalFullHelpKeys)
-	assert.Equal(t,
-		model.FullHelp(),
-		[][]key.Binding{
-			{model.keyMap.RowDown, model.keyMap.RowUp, model.keyMap.RowSelectToggle},
-			{model.keyMap.PageDown, model.keyMap.PageUp, model.keyMap.PageFirst, model.keyMap.PageLast},
-			{model.keyMap.Filter, model.keyMap.FilterBlur,
-				model.keyMap.FilterClear,
-				model.keyMap.ScrollRight,
-				model.keyMap.ScrollLeft},
-			{key.NewBinding(key.WithKeys("t"), key.WithHelp("t", "Testing additional keybinds"))}},
-	)
-}
 
-// Testing if Model actually implements the 'help.KeyMap' interface.
-func TestKeyMapInterface(t *testing.T) {
-	model := New(nil)
-	assert.Implements(t, (*help.KeyMap)(nil), model)
+	// CellLeft/CellRight should use arrow keys, not pgup/pgdown
+	cellLeftKeys := km.CellLeft.Keys()
+	cellRightKeys := km.CellRight.Keys()
+	pageDownKeys := km.PageDown.Keys()
+	pageUpKeys := km.PageUp.Keys()
+
+	// Verify no overlap between cell nav and pagination
+	for _, ck := range cellLeftKeys {
+		for _, pk := range pageUpKeys {
+			assert.NotEqual(t, ck, pk, "CellLeft should not share keys with PageUp")
+		}
+	}
+	for _, ck := range cellRightKeys {
+		for _, pk := range pageDownKeys {
+			assert.NotEqual(t, ck, pk, "CellRight should not share keys with PageDown")
+		}
+	}
 }

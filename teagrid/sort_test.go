@@ -3,186 +3,93 @@ package teagrid
 import (
 	"testing"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestSortSingleColumnAscAndDesc(t *testing.T) {
-	const idColKey = "id"
-
-	// Check mixing types
-	type someType string
-
+func TestSortByAsc(t *testing.T) {
 	rows := []Row{
-		NewRow(RowData{idColKey: someType("b")}),
-		NewRow(RowData{idColKey: NewStyledCell("c", lipgloss.NewStyle().Bold(true))}),
-		NewRow(RowData{idColKey: "a"}),
-		// Missing data
-		NewRow(RowData{}),
+		NewRow(RowData{"name": "Charlie"}),
+		NewRow(RowData{"name": "Alice"}),
+		NewRow(RowData{"name": "Bob"}),
 	}
+	m := New([]Column{NewColumn("name", "Name", 10)}).
+		WithRows(rows).
+		SortByAsc("name")
 
-	model := New([]Column{
-		NewColumn(idColKey, "ID", 3),
-	}).WithRows(rows).SortByAsc(idColKey)
-
-	assertOrder := func(expectedList []string) {
-		for index, expected := range expectedList {
-			idVal, ok := model.GetVisibleRows()[index].Data[idColKey]
-
-			if expected != "" {
-				assert.True(t, ok)
-			} else {
-				assert.False(t, ok)
-
-				continue
-			}
-
-			switch idVal := idVal.(type) {
-			case string:
-				assert.Equal(t, expected, idVal)
-
-			case someType:
-				assert.Equal(t, expected, string(idVal))
-
-			case StyledCell:
-				assert.Equal(t, expected, idVal.Data)
-
-			default:
-				assert.Fail(t, "Unknown type")
-			}
-		}
-	}
-
-	assert.Len(t, model.GetVisibleRows(), len(rows))
-	assertOrder([]string{"", "a", "b", "c"})
-
-	model = model.SortByDesc(idColKey)
-
-	assertOrder([]string{"c", "b", "a", ""})
+	visible := m.GetVisibleRows()
+	assert.Equal(t, "Alice", visible[0].Data["name"])
+	assert.Equal(t, "Bob", visible[1].Data["name"])
+	assert.Equal(t, "Charlie", visible[2].Data["name"])
 }
 
-func TestSortSingleColumnIntsAsc(t *testing.T) {
-	const idColKey = "id"
-
+func TestSortByDesc(t *testing.T) {
 	rows := []Row{
-		NewRow(RowData{idColKey: 13}),
-		NewRow(RowData{idColKey: NewStyledCell(1, lipgloss.NewStyle().Bold(true))}),
-		NewRow(RowData{idColKey: 2}),
+		NewRow(RowData{"name": "Alice"}),
+		NewRow(RowData{"name": "Charlie"}),
+		NewRow(RowData{"name": "Bob"}),
 	}
+	m := New([]Column{NewColumn("name", "Name", 10)}).
+		WithRows(rows).
+		SortByDesc("name")
 
-	model := New([]Column{
-		NewColumn(idColKey, "ID", 3),
-	}).WithRows(rows).SortByAsc(idColKey)
-
-	assertOrder := func(expectedList []int) {
-		for index, expected := range expectedList {
-			idVal, ok := model.GetVisibleRows()[index].Data[idColKey]
-
-			assert.True(t, ok)
-
-			switch idVal := idVal.(type) {
-			case int:
-				assert.Equal(t, expected, idVal)
-
-			case StyledCell:
-				assert.Equal(t, expected, idVal.Data)
-
-			default:
-				assert.Fail(t, "Unknown type")
-			}
-		}
-	}
-
-	assert.Len(t, model.GetVisibleRows(), len(rows))
-	assertOrder([]int{1, 2, 13})
+	visible := m.GetVisibleRows()
+	assert.Equal(t, "Charlie", visible[0].Data["name"])
+	assert.Equal(t, "Bob", visible[1].Data["name"])
+	assert.Equal(t, "Alice", visible[2].Data["name"])
 }
 
-func TestSortTwoColumnsAscDescMix(t *testing.T) {
-	const (
-		nameKey  = "name"
-		scoreKey = "score"
-	)
-
-	makeRow := func(name string, score int) Row {
-		return NewRow(RowData{
-			nameKey:  name,
-			scoreKey: score,
-		})
+func TestSortNumeric(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"score": 100}),
+		NewRow(RowData{"score": 3}),
+		NewRow(RowData{"score": 42}),
 	}
+	m := New([]Column{NewColumn("score", "Score", 10)}).
+		WithRows(rows).
+		SortByAsc("score")
 
-	model := New([]Column{
-		NewColumn(nameKey, "Name", 8),
-		NewColumn(scoreKey, "Score", 8),
-	}).WithRows([]Row{
-		makeRow("c", 50),
-		makeRow("a", 75),
-		makeRow("b", 101),
-		makeRow("a", 100),
-	}).SortByAsc(nameKey).ThenSortByDesc(scoreKey)
-
-	assertVals := func(index int, name string, score int) {
-		actualName, ok := model.GetVisibleRows()[index].Data[nameKey].(string)
-		assert.True(t, ok)
-
-		actualScore, ok := model.GetVisibleRows()[index].Data[scoreKey].(int)
-		assert.True(t, ok)
-
-		assert.Equal(t, name, actualName)
-		assert.Equal(t, score, actualScore)
-	}
-
-	assert.Len(t, model.GetVisibleRows(), 4)
-
-	assertVals(0, "a", 100)
-	assertVals(1, "a", 75)
-	assertVals(2, "b", 101)
-	assertVals(3, "c", 50)
-
-	model = model.SortByDesc(nameKey).ThenSortByAsc(scoreKey)
-
-	assertVals(0, "c", 50)
-	assertVals(1, "b", 101)
-	assertVals(2, "a", 75)
-	assertVals(3, "a", 100)
+	visible := m.GetVisibleRows()
+	assert.Equal(t, 3, visible[0].Data["score"])
+	assert.Equal(t, 42, visible[1].Data["score"])
+	assert.Equal(t, 100, visible[2].Data["score"])
 }
 
-func TestGetSortedRows(t *testing.T) {
-	sortColumns := []SortColumn{
-		{
-			ColumnKey: "cb",
-			Direction: SortDirectionDesc,
-		},
-		{
-			ColumnKey: "ca",
-			Direction: SortDirectionAsc,
-		},
+func TestSortWithSortValue(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"date": NewCellValueWithSortKey("Jan 1", 1, lipgloss.NewStyle())}),
+		NewRow(RowData{"date": NewCellValueWithSortKey("Mar 15", 3, lipgloss.NewStyle())}),
+		NewRow(RowData{"date": NewCellValueWithSortKey("Feb 14", 2, lipgloss.NewStyle())}),
 	}
-	rows := getSortedRows(sortColumns, []Row{
-		NewRow(RowData{
-			"ca": "2",
-			"cb": "t-1",
-		}),
-		NewRow(RowData{
-			"ca": "1",
-			"cb": "t-2",
-		}),
-		NewRow(RowData{
-			"ca": "3",
-			"cb": "t-3",
-		}),
-		NewRow(RowData{
-			"ca": "3",
-			"cb": "t-2",
-		}),
-	})
-	assert.Len(t, rows, 4)
-	assert.Equal(t, "1", rows[0].Data["ca"])
-	assert.Equal(t, "2", rows[1].Data["ca"])
-	assert.Equal(t, "3", rows[2].Data["ca"])
-	assert.Equal(t, "3", rows[3].Data["ca"])
+	m := New([]Column{NewColumn("date", "Date", 10)}).
+		WithRows(rows).
+		SortByAsc("date")
 
-	assert.Equal(t, "t-2", rows[0].Data["cb"])
-	assert.Equal(t, "t-1", rows[1].Data["cb"])
-	assert.Equal(t, "t-3", rows[2].Data["cb"])
-	assert.Equal(t, "t-2", rows[3].Data["cb"])
+	visible := m.GetVisibleRows()
+	cv0 := visible[0].Data["date"].(CellValue)
+	cv1 := visible[1].Data["date"].(CellValue)
+	cv2 := visible[2].Data["date"].(CellValue)
+	assert.Equal(t, "Jan 1", cv0.Data)
+	assert.Equal(t, "Feb 14", cv1.Data)
+	assert.Equal(t, "Mar 15", cv2.Data)
+}
+
+func TestThenSortBy(t *testing.T) {
+	rows := []Row{
+		NewRow(RowData{"dept": "B", "name": "Charlie"}),
+		NewRow(RowData{"dept": "A", "name": "Bob"}),
+		NewRow(RowData{"dept": "A", "name": "Alice"}),
+	}
+	m := New([]Column{
+		NewColumn("dept", "Dept", 10),
+		NewColumn("name", "Name", 10),
+	}).WithRows(rows).
+		SortByAsc("dept").
+		ThenSortByAsc("name")
+
+	visible := m.GetVisibleRows()
+	assert.Equal(t, "A", visible[0].Data["dept"])
+	assert.Equal(t, "Alice", visible[0].Data["name"])
+	assert.Equal(t, "A", visible[1].Data["dept"])
+	assert.Equal(t, "Bob", visible[1].Data["name"])
 }

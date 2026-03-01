@@ -3,23 +3,23 @@ package teagrid
 import (
 	"strings"
 
-	"github.com/muesli/reflow/ansi"
-	"github.com/muesli/reflow/truncate"
+	"github.com/charmbracelet/x/ansi"
 )
 
+// limitStr truncates a string to maxLen printable characters,
+// handling ANSI escape sequences and newlines correctly.
 func limitStr(str string, maxLen int) string {
-	if maxLen == 0 {
+	if maxLen <= 0 {
 		return ""
 	}
 
-	newLineIndex := strings.Index(str, "\n")
-	if newLineIndex > -1 {
-		str = str[:newLineIndex] + "…"
+	// Replace newlines with ellipsis
+	if idx := strings.Index(str, "\n"); idx > -1 {
+		str = str[:idx] + "…"
 	}
 
-	if ansi.PrintableRuneWidth(str) > maxLen {
-		// #nosec: G115
-		return truncate.StringWithTail(str, uint(maxLen), "…")
+	if ansi.StringWidth(str) > maxLen {
+		return ansi.Truncate(str, maxLen, "…")
 	}
 
 	return str

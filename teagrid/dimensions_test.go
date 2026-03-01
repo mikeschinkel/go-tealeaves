@@ -1,235 +1,125 @@
 package teagrid
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
 )
 
-// This function is only long because of repetitive test definitions, this is fine
-//
-//nolint:funlen
-func TestColumnUpdateWidths(t *testing.T) {
-	tests := []struct {
-		name           string
-		columns        []Column
-		totalWidth     int
-		expectedWidths []int
-	}{
-		{
-			name: "Static",
-			columns: []Column{
-				NewColumn("abc", "a", 4),
-				NewColumn("sdf", "b", 7),
-				NewColumn("xyz", "c", 2),
-			},
-			totalWidth: 13,
-			expectedWidths: []int{
-				4, 7, 2,
-			},
-		},
-		{
-			name: "Even half",
-			columns: []Column{
-				NewFlexColumn("abc", "a", 1),
-				NewFlexColumn("sdf", "b", 1),
-			},
-			totalWidth: 11,
-			expectedWidths: []int{
-				4, 4,
-			},
-		},
-		{
-			name: "Odd half increases first",
-			columns: []Column{
-				NewFlexColumn("abc", "a", 1),
-				NewFlexColumn("sdf", "b", 1),
-			},
-			totalWidth: 12,
-			expectedWidths: []int{
-				5, 4,
-			},
-		},
-		{
-			name: "Even fourths",
-			columns: []Column{
-				NewFlexColumn("abc", "a", 1),
-				NewFlexColumn("sdf", "b", 1),
-				NewFlexColumn("xyz", "c", 1),
-				NewFlexColumn("123", "d", 1),
-			},
-			totalWidth: 17,
-			expectedWidths: []int{
-				3, 3, 3, 3,
-			},
-		},
-		{
-			name: "Odd fourths",
-			columns: []Column{
-				NewFlexColumn("abc", "a", 1),
-				NewFlexColumn("sdf", "b", 1),
-				NewFlexColumn("xyz", "c", 1),
-				NewFlexColumn("123", "d", 1),
-			},
-			totalWidth: 20,
-			expectedWidths: []int{
-				4, 4, 4, 3,
-			},
-		},
-		{
-			name: "Simple mix static and flex",
-			columns: []Column{
-				NewColumn("abc", "a", 5),
-				NewFlexColumn("flex", "flex", 1),
-			},
-			totalWidth: 18,
-			expectedWidths: []int{
-				5, 10,
-			},
-		},
-		{
-			name: "Static and flex with high flex factor",
-			columns: []Column{
-				NewColumn("abc", "a", 5),
-				NewFlexColumn("flex", "flex", 1000),
-			},
-			totalWidth: 18,
-			expectedWidths: []int{
-				5, 10,
-			},
-		},
-		{
-			name: "Static and multiple flexes with high flex factor",
-			columns: []Column{
-				NewColumn("abc", "a", 5),
-				NewFlexColumn("flex", "flex", 1000),
-				NewFlexColumn("flex", "flex", 1000),
-				NewFlexColumn("flex", "flex", 1000),
-			},
-			totalWidth: 22,
-			expectedWidths: []int{
-				5, 4, 4, 4,
-			},
-		},
-		{
-			name: "Static and multiple flexes of different sizes",
-			columns: []Column{
-				NewFlexColumn("flex", "flex", 1),
-				NewColumn("abc", "a", 5),
-				NewFlexColumn("flex", "flex", 2),
-				NewFlexColumn("flex", "flex", 1),
-			},
-			totalWidth: 22,
-			expectedWidths: []int{
-				3, 5, 6, 3,
-			},
-		},
-		{
-			name: "Width is too small",
-			columns: []Column{
-				NewColumn("abc", "a", 5),
-				NewFlexColumn("flex", "flex", 2),
-				NewFlexColumn("flex", "flex", 1),
-			},
-			totalWidth: 3,
-			expectedWidths: []int{
-				5, 1, 1,
-			},
-		},
-	}
+func TestComputeNaturalWidth(t *testing.T) {
+	t.Run("fixed columns with rounded border", func(t *testing.T) {
+		cols := []Column{
+			NewColumn("a", "A", 10),
+			NewColumn("b", "B", 20),
+		}
+		m := New(cols)
+		// RenderWidth: (1+10+0) + (1+20+0) = 11 + 21 = 32
+		// Outer border: 2
+		// Inner divider: 1
+		// Total: 32 + 2 + 1 = 35
+		assert.Equal(t, 35, m.computeNaturalWidth())
+	})
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			updateColumnWidths(test.columns, test.totalWidth)
+	t.Run("borderless", func(t *testing.T) {
+		cols := []Column{
+			NewColumn("a", "A", 10),
+			NewColumn("b", "B", 20),
+		}
+		m := New(cols).WithBorder(Borderless())
+		// RenderWidth: 11 + 21 = 32
+		// No borders
+		assert.Equal(t, 32, m.computeNaturalWidth())
+	})
 
-			for i, col := range test.columns {
-				assert.Equal(t, test.expectedWidths[i], col.width, fmt.Sprintf("index %d", i))
-			}
-		})
-	}
+	t.Run("flex columns use minimum width", func(t *testing.T) {
+		cols := []Column{
+			NewColumn("a", "A", 10),
+			NewFlexColumn("b", "B", 1),
+		}
+		m := New(cols)
+		// Fixed: 11
+		// Flex minimum: 1 + 1 + 0 = 2 (paddingLeft=1, content=1, paddingRight=0)
+		// Outer: 2, Inner: 1
+		// Total: 11 + 2 + 2 + 1 = 16
+		assert.Equal(t, 16, m.computeNaturalWidth())
+	})
 }
 
-// This function is long because it has many test cases
-//
-//nolint:funlen
-func TestRecalculateHeight(t *testing.T) {
-	columns := []Column{
-		NewColumn("ka", "a", 3),
-		NewColumn("kb", "b", 4),
-		NewColumn("kc", "c", 5),
+func TestComputeTotalWidth(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewColumn("b", "B", 20),
 	}
+	m := New(cols)
 
-	rows := []Row{
-		NewRow(RowData{"ka": 1, "kb": 23, "kc": "zyx"}),
-		NewRow(RowData{"ka": 3, "kb": 34, "kc": "wvu"}),
-		NewRow(RowData{"ka": 5, "kb": 45, "kc": "zyx"}),
-		NewRow(RowData{"ka": 7, "kb": 56, "kc": "wvu"}),
-	}
+	assert.Equal(t, 35, m.computeTotalWidth())
+}
 
-	tests := []struct {
-		name           string
-		model          Model
-		expectedHeight int
-	}{
-		{
-			name:           "Default header",
-			model:          New(columns).WithRows(rows),
-			expectedHeight: 3,
-		},
-		{
-			name:           "Empty page with default header",
-			model:          New(columns),
-			expectedHeight: 3,
-		},
-		{
-			name:           "Filtered with default header",
-			model:          New(columns).WithRows(rows).Filtered(true),
-			expectedHeight: 5,
-		},
-		{
-			name:           "Static footer one line",
-			model:          New(columns).WithRows(rows).WithStaticFooter("single line"),
-			expectedHeight: 5,
-		},
-		{
-			name: "Static footer overflow",
-			model: New(columns).WithRows(rows).
-				WithStaticFooter("single line but it's long"),
-			expectedHeight: 6,
-		},
-		{
-			name: "Static footer multi-line",
-			model: New(columns).WithRows(rows).
-				WithStaticFooter("footer with\nmultiple lines"),
-			expectedHeight: 6,
-		},
-		{
-			name:           "Paginated",
-			model:          New(columns).WithRows(rows).WithPageSize(2),
-			expectedHeight: 5,
-		},
-		{
-			name:           "No pagination",
-			model:          New(columns).WithRows(rows).WithPageSize(2).WithNoPagination(),
-			expectedHeight: 3,
-		},
-		{
-			name:           "Footer not visible",
-			model:          New(columns).WithRows(rows).Filtered(true).WithFooterVisibility(false),
-			expectedHeight: 3,
-		},
-		{
-			name:           "Header not visible",
-			model:          New(columns).WithRows(rows).WithHeaderVisibility(false),
-			expectedHeight: 1,
-		},
+func TestUpdateColumnWidthsFlex(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewFlexColumn("b", "B", 1),
 	}
+	border := BorderRounded()
 
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			test.model.recalculateHeight()
-			assert.Equal(t, test.expectedHeight, test.model.metaHeight)
-		})
+	updateColumnWidths(cols, 50, border)
+
+	assert.Equal(t, 10, cols[0].Width(), "fixed column should keep its width")
+	assert.Greater(t, cols[1].Width(), 0, "flex column should have resolved width")
+}
+
+func TestUpdateColumnWidthsMultipleFlex(t *testing.T) {
+	cols := []Column{
+		NewFlexColumn("a", "A", 1),
+		NewFlexColumn("b", "B", 3),
 	}
+	border := BorderRounded()
+
+	updateColumnWidths(cols, 44, border)
+
+	// Total available: 44 - 2 (outer) - 1 (inner) = 41
+	// Subtract padding: 41 - 1 - 0 - 1 - 0 = 39
+	// Flex 1:3, so A gets ~10, B gets ~29
+	assert.Greater(t, cols[0].Width(), 0)
+	assert.Greater(t, cols[1].Width(), cols[0].Width())
+}
+
+func TestUpdateColumnWidthsNoFlex(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewColumn("b", "B", 20),
+	}
+	border := BorderRounded()
+
+	updateColumnWidths(cols, 50, border)
+
+	// No flex columns, widths should not change
+	assert.Equal(t, 10, cols[0].Width())
+	assert.Equal(t, 20, cols[1].Width())
+}
+
+func TestChromeHeight(t *testing.T) {
+	t.Run("full chrome with rounded borders", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 10)})
+		// outer=2, header=1, header_sep=1, footer=1, footer_sep=1 = 6
+		assert.Equal(t, 6, m.chromeHeight())
+	})
+
+	t.Run("borderless", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 10)}).WithBorder(Borderless())
+		// header=1, footer=1 = 2
+		assert.Equal(t, 2, m.chromeHeight())
+	})
+
+	t.Run("no header", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 10)}).WithHeaderVisibility(false)
+		// outer=2, footer=1, footer_sep=1 = 4
+		assert.Equal(t, 4, m.chromeHeight())
+	})
+
+	t.Run("no footer", func(t *testing.T) {
+		m := New([]Column{NewColumn("x", "X", 10)}).WithFooterVisibility(false)
+		// outer=2, header=1, header_sep=1 = 4
+		assert.Equal(t, 4, m.chromeHeight())
+	})
 }
