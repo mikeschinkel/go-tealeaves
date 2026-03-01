@@ -25,16 +25,37 @@
 }
 
 /* ==========================================
-   Nav bar — fixed width to match body, larger social icons
+   Nav bar — constrain header width + larger social icons
    ========================================== */
-.social-icons a {
-	--sl-icon-size: 1.5rem;
+body:has(.hero) header.header > .header {
+	max-width: var(--sl-content-width);
+	margin-inline: auto;
+	width: 100%;
 }
 
-/* Constrain header contents, not the header element (preserves full-width background) */
-.header {
-	max-width: var(--sl-content-width, 72rem);
-	margin-inline: auto;
+.social-icons svg {
+	font-size: 2rem !important;
+}
+
+/* Theme switcher — always light text on dark nav bar */
+starlight-theme-select label {
+	color: #e2e8f0 !important;
+}
+starlight-theme-select label:hover {
+	color: #fff !important;
+}
+
+/* Hide theme switcher on splash page (no light theme) */
+body:has(.hero) starlight-theme-select {
+	display: none;
+}
+body:has(.hero) .social-icons::after {
+	display: none;
+}
+
+/* Hide fat footer on splash page */
+body:not(:has(.hero)) .tl-footer {
+	display: none !important;
 }
 
 /* ==========================================
@@ -45,6 +66,7 @@
 main:has(.hero) .content-panel {
 	background: #0f172a;
 	border: none;
+	overflow-x: clip;
 }
 
 /* Kill the green line between hero and content */
@@ -59,30 +81,30 @@ main:has(.hero) .sl-container {
    ========================================== */
 .hero {
 	background: linear-gradient(135deg, #0f172a 0%, #162033 30%, #0d3429 70%, #064e3b 100%);
-	padding: 3.5rem 2.5rem 1.5rem;
-	margin-inline: -1rem;
+	padding: 2rem 0 1rem;
+	margin-inline: calc(-50vw + 50%);
+	padding-inline: calc(50vw - 50%);
 	margin-top: -1rem;
-	display: flex !important;
-	flex-direction: row !important;
+	display: grid !important;
+	grid-template-columns: 1.618fr 1fr;
 	align-items: center !important;
-	justify-content: center !important;
-	gap: 4rem;
-	max-width: none;
-	padding-inline: calc((100% - var(--sl-content-width, 72rem)) / 2 + 2.5rem);
+	gap: 3rem;
 }
 
-/* Logo — big, golden ratio right side */
+/* Logo — golden ratio right column (38.2%) */
 .hero > img {
-	flex: 0 0 auto;
-	width: 420px;
-	height: 420px;
+	order: 2;
+	width: 100%;
+	max-width: 420px;
+	height: auto;
+	justify-self: center;
 	filter: drop-shadow(0 4px 24px rgba(16, 185, 129, 0.25));
 }
 
-/* Text + CTA — golden ratio right column (~62%) */
+/* Text + CTA — golden ratio left column (~62%) */
 .hero .stack {
 	align-items: flex-start !important;
-	max-width: 32rem;
+	margin-left: 60px;
 }
 
 .hero .copy {
@@ -100,6 +122,7 @@ main:has(.hero) .sl-container {
 	font-size: 1.35rem;
 	line-height: 1.5;
 	margin-top: 0.5rem;
+	text-wrap: balance;
 }
 
 /* Bold, prominent CTA */
@@ -121,15 +144,18 @@ main:has(.hero) .sl-container {
 /* Responsive: stack on small screens */
 @media (max-width: 50rem) {
 	.hero {
-		flex-direction: column !important;
+		grid-template-columns: 1fr !important;
 		text-align: center;
 	}
 	.hero > img {
-		width: 260px;
-		height: 260px;
+		order: -1;
+		width: 220px;
+		height: auto;
+		justify-self: center;
 	}
 	.hero .stack {
 		align-items: center !important;
+		margin-left: 0;
 	}
 	.hero .copy {
 		align-items: center !important;
@@ -198,16 +224,61 @@ main:has(.hero) starlight-tabs [role="tab"][aria-selected="true"] {
 	height: 64px;
 	margin-right: 1rem;
 	margin-bottom: 0.5rem;
+	background: #0f172a;
+	border-radius: 50%;
+	padding: 8px;
+}
+
+/* ==========================================
+   Sidebar — hierarchy: larger headings, indented links
+   ========================================== */
+nav.sidebar,
+.sidebar-pane {
+	background-color: var(--sl-color-bg-sidebar) !important;
+}
+.sidebar .large {
+	font-size: 1.2rem !important;
+	color: #fff !important;
+}
+.sidebar a:not([aria-current="page"]) {
+	color: #e2e8f0 !important;
+	font-size: 0.875rem !important;
+}
+.sidebar summary {
+	color: #fff !important;
+}
+.sidebar ul ul li {
+	margin-inline-start: 1rem !important;
+	padding-inline-start: 0.75rem !important;
+}
+
+/* Right TOC — larger heading and links */
+@media (max-width: 50rem) {
+	mobile-starlight-toc,
+	mobile-starlight-toc nav {
+		display: none !important;
+	}
+}
+
+starlight-toc h2 {
+	font-size: 1.15rem;
+}
+starlight-toc a {
+	font-size: 0.95rem;
 }
 
 /* ==========================================
    Regular page styles (non-splash)
    ========================================== */
 
-/* Code block font sizing */
+/* Code block font sizing + horizontal scroll */
 .expressive-code pre {
 	font-size: 0.85rem;
 	line-height: 1.5;
+	overflow-x: auto;
+}
+.expressive-code .frame {
+	overflow-x: auto;
 }
 
 /* Component card hover effects */

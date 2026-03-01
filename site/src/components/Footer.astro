@@ -12,21 +12,13 @@ import Default from '@astrojs/starlight/components/Footer.astro';
         <li><a href="/go-tealeaves/guides/quick-start/">Quick Start</a></li>
         <li><a href="/go-tealeaves/guides/architecture/">Architecture</a></li>
         <li><a href="/go-tealeaves/guides/composition/">Composition</a></li>
-      </ul>
-    </div>
-    <div class="tl-footer-col">
-      <h3>Components</h3>
-      <ul>
-        <li><a href="/go-tealeaves/components/">Overview</a></li>
-        <li><a href="/go-tealeaves/components/teadd/">teadd — Dropdown</a></li>
-        <li><a href="/go-tealeaves/components/teamodal/">teamodal — Modals</a></li>
-        <li><a href="/go-tealeaves/components/teagrid/">teagrid — Data Grid</a></li>
-        <li><a href="/go-tealeaves/components/teatree/">teatree — Tree View</a></li>
+        <li><a href="/go-tealeaves/guides/why-tea-leaves/">Why Tea Leaves?</a></li>
       </ul>
     </div>
     <div class="tl-footer-col">
       <h3>Resources</h3>
       <ul>
+        <li><a href="/go-tealeaves/components/">Components</a></li>
         <li><a href="/go-tealeaves/examples/">Examples</a></li>
         <li><a href="/go-tealeaves/cookbook/dropdown-in-form/">Cookbook</a></li>
         <li><a href="/go-tealeaves/reference/roadmap/">Roadmap</a></li>
@@ -50,23 +42,25 @@ import Default from '@astrojs/starlight/components/Footer.astro';
 
 <style>
   .tl-footer {
-    border-top: 1px solid var(--sl-color-gray-5);
-    padding: 2rem 1.5rem 1.5rem;
+    border-top: 1px solid var(--sl-color-gray-4);
+    padding: 2.5rem 1.5rem 1.5rem;
     margin-top: 2rem;
+    background: #0f172a;
   }
   .tl-footer-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: 2rem;
-    max-width: 72rem;
+    justify-items: center;
+    max-width: var(--sl-content-width);
     margin: 0 auto;
   }
   .tl-footer-col h3 {
-    font-size: 0.85rem;
+    font-size: 1rem;
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: var(--sl-color-gray-2);
+    color: #fff;
     margin: 0 0 0.75rem;
   }
   .tl-footer-col ul {
@@ -75,11 +69,11 @@ import Default from '@astrojs/starlight/components/Footer.astro';
     margin: 0;
   }
   .tl-footer-col li {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.5rem;
   }
   .tl-footer-col a {
-    font-size: 0.85rem;
-    color: var(--sl-color-gray-3);
+    font-size: 1.05rem;
+    color: #e2e8f0;
     text-decoration: none;
   }
   .tl-footer-col a:hover {
@@ -87,20 +81,16 @@ import Default from '@astrojs/starlight/components/Footer.astro';
   }
   .tl-footer-bottom {
     text-align: center;
-    font-size: 0.8rem;
-    color: var(--sl-color-gray-4);
+    font-size: 0.95rem;
+    color: #94a3b8;
     margin-top: 2rem;
-    padding-top: 1rem;
-    border-top: 1px solid var(--sl-color-gray-6);
   }
   @media (max-width: 50rem) {
     .tl-footer-grid {
-      grid-template-columns: repeat(2, 1fr);
-    }
-  }
-  @media (max-width: 30rem) {
-    .tl-footer-grid {
-      grid-template-columns: 1fr;
+      grid-template-columns: max-content;
+      justify-items: start;
+      justify-content: center;
+      margin-inline-end: 5%;
     }
   }
 </style>

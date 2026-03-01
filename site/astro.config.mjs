@@ -12,7 +12,7 @@ export default defineConfig({
 			logo: { src: './src/assets/logo.png', alt: 'Tea Leaves logo' },
 			favicon: '/favicon.png',
 			social: [
-				{ icon: 'open-book', label: 'Browse Components', href: '/go-tealeaves/components/' },
+				{ icon: 'open-book', label: 'Documentation', href: '/go-tealeaves/guides/quick-start/' },
 				{ icon: 'github', label: 'GitHub', href: 'https://github.com/mikeschinkel/go-tealeaves' },
 			],
 			customCss: ['./src/styles/custom.css'],
@@ -80,6 +80,7 @@ export default defineConfig({
 						{ label: 'Roadmap', slug: 'reference/roadmap' },
 						{ label: 'Charm v2 Migration', slug: 'migration/charm-v2' },
 						{ label: 'Contributing', slug: 'contributing' },
+						{ label: 'Why Tea Leaves?', slug: 'guides/why-tea-leaves' },
 					],
 				},
 			],

@@ -1,0 +1,84 @@
+---
+title: Why Tea Leaves?
+description: The problems Tea Leaves solves — modal state infection, ANSI overlay bugs, framework lock-in, and repeated boilerplate.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Building terminal UIs with [Bubble Tea](https://github.com/charmbracelet/bubbletea) is powerful but painful once you need modals, dropdowns, or overlays. These are the problems Tea Leaves solves.
+
+## Modals infect Update()
+
+The common approach forces your parent `Update()` to check modal state before processing keys:
+
+```go
+// Anti-pattern: parent must know dropdown internals
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    if !m.dropdown.IsOpen {  // State check "infection"
+        switch msg := msg.(type) {
+        case tea.KeyMsg:
+            if msg.String() == "q" {
+                return m, tea.Quit
+            }
+        }
+    }
+    return m, nil
+}
+```
+
+Tea Leaves uses **non-nil `tea.Cmd` as a consumption signal** — no state checks needed:
+
+```go
+// Tea Leaves: clean parent code
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    dropdown, cmd := m.dropdown.Update(msg)
+    if cmd != nil {
+        m.dropdown = dropdown.(teadd.DropdownModel)
+        return m, cmd  // Dropdown consumed it — done!
+    }
+    // Parent processes normally
+}
+```
+
+See [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) for the full pattern.
+
+## ANSI breaks overlays
+
+Naive string positioning breaks when text contains ANSI escape codes from lipgloss styling:
+
+```go
+// WRONG: len() counts ANSI codes, not visual width
+width := len(styledText)  // Returns 47 for a 12-char string
+```
+
+Tea Leaves provides **ANSI-aware overlay compositing** built into every modal and dropdown:
+
+```go
+// Correct: visual width, ANSI-safe truncation
+width := ansi.StringWidth(styledText)  // Returns 12
+view := teamodal.OverlayModal(background, modal, row, col)
+```
+
+See [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) for details.
+
+## Framework lock-in
+
+Most component libraries ship as a single import — you get everything or nothing.
+
+Tea Leaves is **9 independent Go modules**. Import only what you need:
+
+```go
+// Just need a dropdown? Import only teadd
+go get github.com/mikeschinkel/go-tealeaves/teadd
+
+// Need modals too? Add teamodal
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+```
+
+No root module. No transitive dependency bloat. Each component is its own `go.mod`.
+
+## Rebuild every project
+
+Dropdowns, trees, grids, and modals get rebuilt from scratch in every Bubble Tea project.
+
+Tea Leaves provides **tested, production-ready implementations** with keyboard navigation, mouse support, and proper overlay rendering — so you can focus on your application logic.

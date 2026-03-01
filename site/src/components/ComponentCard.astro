@@ -25,7 +25,7 @@ const { icon, name, label, href, description } = Astro.props;
     align-items: flex-start;
     gap: 1rem;
     padding: 1.25rem;
-    border: 1px solid rgba(148, 163, 184, 0.2);
+    border: 1px solid rgba(148, 163, 184, 0.35);
     border-radius: 0.75rem;
     text-decoration: none;
     color: inherit;
@@ -41,7 +41,9 @@ const { icon, name, label, href, description } = Astro.props;
     flex-shrink: 0;
     width: 36px;
     height: 36px;
-    margin-top: 0;
+    margin-top: 0.15rem;
+    object-fit: contain;
+    object-position: top center;
     filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.3));
   }
   .comp-card-body {
@@ -49,21 +51,26 @@ const { icon, name, label, href, description } = Astro.props;
     flex-direction: column;
     gap: 0.15rem;
     min-width: 0;
+    margin: 0;
+  }
+  .comp-card-body > span {
+    margin: 0;
   }
   .comp-card-name {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
-    font-size: 1.05rem;
+    font-size: 1.2rem;
     color: #fff;
+    line-height: 1.2;
   }
   .comp-card-label {
-    font-size: 0.8rem;
+    font-size: 0.95rem;
     font-weight: 500;
-    color: #10b981;
+    color: #34d399;
     letter-spacing: 0.02em;
   }
   .comp-card-desc {
-    font-size: 0.82rem;
+    font-size: 0.88rem;
     color: #94a3b8;
     line-height: 1.4;
     margin-top: 0.25rem;

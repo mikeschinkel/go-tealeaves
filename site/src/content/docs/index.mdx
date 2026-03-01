@@ -13,7 +13,6 @@ hero:
       icon: right-arrow
 ---
 
-import { Tabs, TabItem, Aside } from '@astrojs/starlight/components';
 import ComponentCard from '../../components/ComponentCard.astro';
 
 ## Components
@@ -30,83 +29,3 @@ import ComponentCard from '../../components/ComponentCard.astro';
   <ComponentCard icon="/go-tealeaves/icons/icon-teautils.svg" name="teautils" label="Utilities" href="/go-tealeaves/components/teautils/" description="Key registry, help visor, centering helpers, and positioning." />
 </div>
 
-## What problems does this solve?
-
-Building terminal UIs with Bubble Tea is powerful but painful once you need modals, dropdowns, or overlays. These are the problems Tea Leaves solves.
-
-<Tabs>
-  <TabItem label="Modals infect Update()">
-    The common approach forces your parent `Update()` to check modal state before processing keys:
-
-    ```go
-    // Anti-pattern: parent must know dropdown internals
-    func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-        if !m.dropdown.IsOpen {  // State check "infection"
-            switch msg := msg.(type) {
-            case tea.KeyMsg:
-                if msg.String() == "q" {
-                    return m, tea.Quit
-                }
-            }
-        }
-        return m, nil
-    }
-    ```
-
-    Tea Leaves uses **non-nil `tea.Cmd` as a consumption signal** — no state checks needed:
-
-    ```go
-    // Tea Leaves: clean parent code
-    func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
-        dropdown, cmd := m.dropdown.Update(msg)
-        if cmd != nil {
-            m.dropdown = dropdown.(teadd.DropdownModel)
-            return m, cmd  // Dropdown consumed it — done!
-        }
-        // Parent processes normally
-    }
-    ```
-  </TabItem>
-  <TabItem label="ANSI breaks overlays">
-    Naive string positioning breaks when text contains ANSI escape codes from lipgloss styling:
-
-    ```go
-    // WRONG: len() counts ANSI codes, not visual width
-    width := len(styledText)  // Returns 47 for a 12-char string
-    ```
-
-    Tea Leaves provides **ANSI-aware overlay compositing** built into every modal and dropdown:
-
-    ```go
-    // Correct: visual width, ANSI-safe truncation
-    width := ansi.StringWidth(styledText)  // Returns 12
-    view := teamodal.OverlayModal(background, modal, row, col)
-    ```
-  </TabItem>
-  <TabItem label="Framework lock-in">
-    Most component libraries ship as a single import — you get everything or nothing.
-
-    Tea Leaves is **9 independent Go modules**. Import only what you need:
-
-    ```go
-    // Just need a dropdown? Import only teadd
-    go get github.com/mikeschinkel/go-tealeaves/teadd
-
-    // Need modals too? Add teamodal
-    go get github.com/mikeschinkel/go-tealeaves/teamodal
-    ```
-
-    No root module. No transitive dependency bloat. Each component is its own `go.mod`.
-  </TabItem>
-  <TabItem label="Rebuild every project">
-    Dropdowns, trees, grids, and modals get rebuilt from scratch in every Bubble Tea project.
-
-    Tea Leaves provides **tested, production-ready implementations** with keyboard navigation, mouse support, and proper overlay rendering — so you can focus on your application logic.
-  </TabItem>
-</Tabs>
-
-## Built for real apps
-
-Tea Leaves components power [Gomion](https://github.com/mikeschinkel/gomion), a production Git TUI. Every pattern documented here was discovered and validated in real application code.
-
-The architecture is designed around **composition over inheritance** — components communicate through `tea.Cmd` and `tea.Msg`, not shared state. Read the [Architecture guide](/go-tealeaves/guides/architecture/) to understand the design philosophy.
