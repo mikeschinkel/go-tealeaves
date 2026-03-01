@@ -1,4 +1,4 @@
-module github.com/mikeschinkel/go-tealeaves/cmd/color-viewer
+module github.com/mikeschinkel/go-tealeaves/color-viewer
 
 go 1.25.3
 
