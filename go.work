@@ -1,0 +1,30 @@
+go 1.25.7
+
+use (
+	./cmd/color-viewer
+	./examples/teadd/demo
+	./examples/teadd/simple
+	./examples/teadep/treenav
+	./examples/teagrid/filtering
+	./examples/teagrid/scrolling
+	./examples/teagrid/simplest
+	./examples/teagrid/sorting
+	./examples/teamodal/choices
+	./examples/teamodal/editlist
+	./examples/teamodal/various
+	./examples/teamodal/vertical
+	./examples/teanotify/simple
+	./examples/teastatus/statusbar
+	./examples/teatextsel/editor
+	./examples/teatree/filetree
+	./examples/teautils/keyhelp
+	./teadd
+	./teadep
+	./teagrid
+	./teamodal
+	./teanotify
+	./teastatus
+	./teatextsel
+	./teatree
+	./teautils
+)
