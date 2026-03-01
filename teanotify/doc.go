@@ -6,10 +6,11 @@
 //
 // Usage:
 //
-//	model, err := teanotify.NewNotifyModel(teanotify.NotifyOpts{
+//	model := teanotify.NewNotifyModel(teanotify.NotifyOpts{
 //	    Width:    60,
 //	    Duration: 3 * time.Second,
 //	})
+//	model, err := model.Initialize()
 //
 //	// In Update():
 //	cmd := model.NewNotifyCmd(teanotify.InfoKey, "File saved")

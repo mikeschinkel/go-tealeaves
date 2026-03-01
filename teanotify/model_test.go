@@ -19,10 +19,11 @@ func extractMsg(cmd tea.Cmd) tea.Msg {
 }
 
 func newTestModel() NotifyModel {
-	m, err := NewNotifyModel(NotifyOpts{
+	m := NewNotifyModel(NotifyOpts{
 		Width:    40,
 		Duration: 3 * time.Second,
 	})
+	m, err := m.Initialize()
 	if err != nil {
 		panic("newTestModel: " + err.Error())
 	}
@@ -31,7 +32,8 @@ func newTestModel() NotifyModel {
 
 func newTestModelWithOpts(t *testing.T, opts NotifyOpts) NotifyModel {
 	t.Helper()
-	m, err := NewNotifyModel(opts)
+	m := NewNotifyModel(opts)
+	m, err := m.Initialize()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -80,41 +82,45 @@ func TestNewNotifyModel_ExplicitPosition(t *testing.T) {
 	}
 }
 
-func TestNewNotifyModel_InvalidWidth(t *testing.T) {
-	_, err := NewNotifyModel(NotifyOpts{
+func TestInitialize_InvalidWidth(t *testing.T) {
+	m := NewNotifyModel(NotifyOpts{
 		Width:    0,
 		Duration: 3 * time.Second,
 	})
+	_, err := m.Initialize()
 	if !errors.Is(err, ErrInvalidWidth) {
 		t.Fatalf("expected ErrInvalidWidth, got: %v", err)
 	}
 }
 
-func TestNewNotifyModel_NegativeWidth(t *testing.T) {
-	_, err := NewNotifyModel(NotifyOpts{
+func TestInitialize_NegativeWidth(t *testing.T) {
+	m := NewNotifyModel(NotifyOpts{
 		Width:    -5,
 		Duration: 3 * time.Second,
 	})
+	_, err := m.Initialize()
 	if !errors.Is(err, ErrInvalidWidth) {
 		t.Fatalf("expected ErrInvalidWidth, got: %v", err)
 	}
 }
 
-func TestNewNotifyModel_InvalidDuration(t *testing.T) {
-	_, err := NewNotifyModel(NotifyOpts{
+func TestInitialize_InvalidDuration(t *testing.T) {
+	m := NewNotifyModel(NotifyOpts{
 		Width:    40,
 		Duration: 0,
 	})
+	_, err := m.Initialize()
 	if !errors.Is(err, ErrInvalidDuration) {
 		t.Fatalf("expected ErrInvalidDuration, got: %v", err)
 	}
 }
 
-func TestNewNotifyModel_NegativeDuration(t *testing.T) {
-	_, err := NewNotifyModel(NotifyOpts{
+func TestInitialize_NegativeDuration(t *testing.T) {
+	m := NewNotifyModel(NotifyOpts{
 		Width:    40,
 		Duration: -1 * time.Second,
 	})
+	_, err := m.Initialize()
 	if !errors.Is(err, ErrInvalidDuration) {
 		t.Fatalf("expected ErrInvalidDuration, got: %v", err)
 	}
@@ -155,27 +161,29 @@ func TestNewNotifyModel_CustomNotices(t *testing.T) {
 	}
 }
 
-func TestNewNotifyModel_CustomNoticeInvalidColor(t *testing.T) {
-	_, err := NewNotifyModel(NotifyOpts{
+func TestInitialize_CustomNoticeInvalidColor(t *testing.T) {
+	m := NewNotifyModel(NotifyOpts{
 		Width:    40,
 		Duration: 3 * time.Second,
 		CustomNotices: []NoticeDefinition{
 			{Key: "Bad", ForeColor: "bad"},
 		},
 	})
+	_, err := m.Initialize()
 	if !errors.Is(err, ErrInvalidColor) {
 		t.Fatalf("expected ErrInvalidColor, got: %v", err)
 	}
 }
 
-func TestNewNotifyModel_CustomNoticeEmptyKey(t *testing.T) {
-	_, err := NewNotifyModel(NotifyOpts{
+func TestInitialize_CustomNoticeEmptyKey(t *testing.T) {
+	m := NewNotifyModel(NotifyOpts{
 		Width:    40,
 		Duration: 3 * time.Second,
 		CustomNotices: []NoticeDefinition{
 			{Key: "", ForeColor: "#AABBCC"},
 		},
 	})
+	_, err := m.Initialize()
 	if !errors.Is(err, ErrInvalidNoticeKey) {
 		t.Fatalf("expected ErrInvalidNoticeKey, got: %v", err)
 	}

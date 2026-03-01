@@ -28,11 +28,12 @@ type model struct {
 }
 
 func main() {
-	notify, err := teanotify.NewNotifyModel(teanotify.NotifyOpts{
+	notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
 		Width:           40,
 		Duration:        3 * time.Second,
 		AllowEscToClose: true,
 	})
+	notify, err := notify.Initialize()
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)

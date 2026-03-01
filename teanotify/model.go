@@ -50,6 +50,8 @@ type NotifyModel struct {
 	useNerdFont      bool
 	useUnicodePrefix bool
 	allowEscToClose  bool
+	noDefaultNotices bool
+	customNotices    []NoticeDefinition
 	noticeTypes      map[NoticeKey]NoticeDefinition
 	activeNotice     *notice
 	width            int
@@ -58,24 +60,10 @@ type NotifyModel struct {
 	position         Position
 }
 
-// NewNotifyModel creates a NotifyModel from the provided options. It validates
-// opts, registers default notices (unless NoDefaultNotices), and registers any
-// custom notices. Returns an error if validation or registration fails.
-func NewNotifyModel(opts NotifyOpts) (m NotifyModel, err error) {
-	if opts.Width <= 0 {
-		err = NewErr(ErrNotify, ErrInvalidWidth,
-			"width", opts.Width,
-		)
-		goto end
-	}
-
-	if opts.Duration <= 0 {
-		err = NewErr(ErrNotify, ErrInvalidDuration,
-			"duration", opts.Duration,
-		)
-		goto end
-	}
-
+// NewNotifyModel creates a NotifyModel from the provided options. The model
+// is not yet ready to use — call Initialize() to validate options, register
+// default notices, and register any custom notices.
+func NewNotifyModel(opts NotifyOpts) (m NotifyModel) {
 	m = NotifyModel{
 		width:            opts.Width,
 		minWidth:         opts.MinWidth,
@@ -84,35 +72,60 @@ func NewNotifyModel(opts NotifyOpts) (m NotifyModel, err error) {
 		useUnicodePrefix: opts.UseUnicodePrefix,
 		allowEscToClose:  opts.AllowEscToClose,
 		position:         opts.Position,
-		noticeTypes:      make(map[NoticeKey]NoticeDefinition),
+		noDefaultNotices: opts.NoDefaultNotices,
+		customNotices:    opts.CustomNotices,
+	}
+	return m
+}
+
+// Initialize validates options, registers default notices (unless
+// NoDefaultNotices), and registers any custom notices. Returns an error
+// if validation or registration fails.
+func (m NotifyModel) Initialize() (out NotifyModel, err error) {
+	out = m
+
+	if out.width <= 0 {
+		err = NewErr(ErrNotify, ErrInvalidWidth,
+			"width", out.width,
+		)
+		goto end
 	}
 
-	if m.position == UnspecifiedPosition {
-		m.position = TopLeftPosition
+	if out.duration <= 0 {
+		err = NewErr(ErrNotify, ErrInvalidDuration,
+			"duration", out.duration,
+		)
+		goto end
 	}
 
-	if m.minWidth > m.width {
-		m.minWidth = m.width
+	out.noticeTypes = make(map[NoticeKey]NoticeDefinition)
+
+	if out.position == UnspecifiedPosition {
+		out.position = TopLeftPosition
 	}
 
-	if !opts.NoDefaultNotices {
-		for _, def := range defaultNotices(m.useNerdFont, m.useUnicodePrefix) {
-			m, err = registerNotice(m, def)
+	if out.minWidth > out.width {
+		out.minWidth = out.width
+	}
+
+	if !out.noDefaultNotices {
+		for _, def := range defaultNotices(out.useNerdFont, out.useUnicodePrefix) {
+			out, err = registerNotice(out, def)
 			if err != nil {
 				goto end
 			}
 		}
 	}
 
-	for _, def := range opts.CustomNotices {
-		m, err = registerNotice(m, def)
+	for _, def := range out.customNotices {
+		out, err = registerNotice(out, def)
 		if err != nil {
 			goto end
 		}
 	}
 
 end:
-	return m, err
+	return out, err
 }
 
 // WithPosition returns a copy of the model with the specified position.
