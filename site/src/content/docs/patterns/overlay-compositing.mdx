@@ -1,0 +1,186 @@
+---
+title: Overlay Compositing
+description: How Tea Leaves renders modals and dropdowns on top of styled terminal content using ANSI-aware string operations.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Overlaying one Bubble Tea component on top of another — modals, dropdowns, tooltips — requires ANSI-aware string operations. Standard Go string functions break because ANSI escape codes from lipgloss styling inflate byte length beyond visual width.
+
+## The problem
+
+When you render styled text with lipgloss, the resulting string contains invisible ANSI escape codes:
+
+```go
+styled := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("Hello")
+
+len(styled)                    // 18 — includes escape codes
+ansi.StringWidth(styled)       // 5  — visual width
+```
+
+If you use `len()` or byte slicing to position an overlay, the overlay appears at the wrong column. Characters get duplicated or lost. The composited output is garbled.
+
+## The solution
+
+Tea Leaves uses **ANSI-aware string operations** from `github.com/charmbracelet/x/ansi` to correctly composite foreground views on top of background views.
+
+### ANSI-aware operations reference
+
+| Operation | Description |
+|-----------|-------------|
+| `ansi.StringWidth(s)` | Visual width — what you see on screen |
+| `ansi.Truncate(s, width, tail)` | Keep first N visual columns (cut from right) |
+| `ansi.TruncateLeft(s, width, tail)` | Skip first N visual columns (cut from left) |
+
+### Per-line overlay
+
+The core algorithm splits both background and foreground into lines, then composites each line where they overlap:
+
+```go
+func overlayLine(background, foreground string, col int) string {
+    bgWidth := ansi.StringWidth(background)
+    fgWidth := ansi.StringWidth(foreground)
+
+    var result strings.Builder
+
+    // Left part: background up to overlay column
+    if col > 0 {
+        if col <= bgWidth {
+            left := ansi.Truncate(background, col, "")
+            result.WriteString(left)
+        } else {
+            result.WriteString(background)
+            result.WriteString(strings.Repeat(" ", col-bgWidth))
+        }
+    }
+
+    // Middle: the overlay content
+    result.WriteString(foreground)
+
+    // Right part: background after the overlay ends
+    endCol := col + fgWidth
+    if endCol < bgWidth {
+        remaining := ansi.TruncateLeft(background, endCol, "")
+        result.WriteString(remaining)
+    }
+
+    return result.String()
+}
+```
+
+The pattern is: **left part of background + foreground + right part of background**, using `ansi.Truncate` and `ansi.TruncateLeft` to cut at visual column boundaries.
+
+### Full overlay function
+
+```go
+func OverlayDropdown(background, foreground string, row, col int) string {
+    var result strings.Builder
+
+    bgLines := strings.Split(background, "\n")
+    fgLines := strings.Split(foreground, "\n")
+
+    for i, bgLine := range bgLines {
+        fgRow := i - row
+
+        if fgRow < 0 || fgRow >= len(fgLines) {
+            // No overlay on this line
+            result.WriteString(bgLine)
+        } else {
+            // Composite foreground onto background
+            composited := overlayLine(bgLine, fgLines[fgRow], col)
+            result.WriteString(composited)
+        }
+        result.WriteString("\n")
+    }
+
+    // Remove trailing newline
+    output := result.String()
+    if len(output) > 0 && output[len(output)-1] == '\n' {
+        output = output[:len(output)-1]
+    }
+
+    return output
+}
+```
+
+## Usage in your View()
+
+Both `teadd` and `teamodal` provide overlay functions. Use them in your `View()` method:
+
+<Tabs>
+  <TabItem label="Modal overlay">
+    ```go
+    func (m model) View() string {
+        mainView := m.mainContent.View()
+
+        if m.modal.IsOpen() {
+            return m.modal.OverlayModal(mainView)
+        }
+
+        return mainView
+    }
+    ```
+  </TabItem>
+  <TabItem label="Dropdown overlay">
+    ```go
+    func (m model) View() string {
+        baseView := m.renderBase()
+
+        if m.dropdown.IsOpen {
+            dropdownView := m.dropdown.View()
+            return teadd.OverlayDropdown(
+                baseView, dropdownView,
+                m.dropdown.Row+2, m.dropdown.Col+3,
+            )
+        }
+
+        return baseView
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Positioning helpers
+
+**Center on screen:**
+```go
+row := (screenHeight - overlayHeight) / 2
+col := (screenWidth - overlayWidth) / 2
+```
+
+**Below a trigger element:**
+```go
+row := triggerRow + 1
+col := triggerCol
+```
+
+**Right-aligned:**
+```go
+col := screenWidth - overlayWidth
+```
+
+The `teautils` package provides `CenterModal()` and `CalculateCenter()` helpers for common positioning needs.
+
+## Common mistakes
+
+<Aside type="caution">
+**Never use `len()` for width calculations on styled text.** Always use `ansi.StringWidth()`. The difference can be 3-10x depending on how much styling is applied.
+</Aside>
+
+| Mistake | Consequence |
+|---------|------------|
+| Using `len()` instead of `ansi.StringWidth()` | Overlay positioned at wrong column |
+| Using byte slicing instead of `ansi.Truncate()` | ANSI codes split mid-sequence, garbled output |
+| Not padding background when overlay extends beyond it | Missing characters at overlay edges |
+| Applying overlay before all styling is complete | Partial ANSI codes in the composited output |
+
+## Reference implementations
+
+- `teadd/overlay_dropdown.go` — Dropdown overlay
+- `teamodal/overlay_modal.go` — Modal overlay (identical logic, different context)
+
+## Related
+
+- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — How modals consume keyboard input
+- [teadd component](/go-tealeaves/components/teadd/) — Dropdown with overlay
+- [teamodal component](/go-tealeaves/components/teamodal/) — Modal with overlay

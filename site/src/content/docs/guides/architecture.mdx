@@ -1,0 +1,115 @@
+---
+title: Architecture
+description: Multi-module structure, design philosophy, and the patterns that make Tea Leaves components compose cleanly.
+---
+
+import { Aside, FileTree } from '@astrojs/starlight/components';
+
+## Multi-module structure
+
+Each component in Tea Leaves is a separate Go module with its own `go.mod`. This means you only pull in the dependencies you actually use.
+
+<FileTree>
+- go-tealeaves/
+  - teadd/         (Dropdown)
+  - teadep/        (Dep viewer --- depends on teadd)
+  - teagrid/       (Data grid)
+  - teamodal/      (Modals --- depends on teautils)
+  - teanotify/     (Notifications)
+  - teastatus/     (Status bar)
+  - teatextsel/    (Text selection)
+  - teatree/       (Tree view)
+  - teautils/      (Utilities)
+  - examples/      (Example programs)
+  - docs/          (Documentation source)
+  - site/          (This website)
+</FileTree>
+
+## Dependency graph
+
+Most components are fully standalone. Only two have internal dependencies:
+
+```
+teadep ──────► teadd
+teamodal ────► teautils
+
+teagrid        (standalone)
+teanotify      (standalone)
+teastatus      (standalone)
+teatextsel     (standalone)
+teatree        (standalone)
+```
+
+All components depend on Bubble Tea and Lip Gloss from Charm, but they do not depend on each other unless shown above.
+
+## Design philosophy
+
+### ClearPath style
+
+Tea Leaves follows the ClearPath coding style: all variables are declared upfront, control flow uses `goto end` with named returns, and each function has a single return point. This makes the flow of every function immediately visible from top to bottom.
+
+```go
+func (m Model) doSomething() (result Model, err error) {
+    var value string
+
+    value, err = computeValue()
+    if err != nil {
+        goto end
+    }
+
+    result = m.withValue(value)
+
+end:
+    return result, err
+}
+```
+
+### doterr structured errors
+
+Components use a custom error system that attaches key-value metadata to errors. This provides rich context for debugging without sacrificing the simplicity of Go's error model.
+
+```go
+err = doterr.New(ErrInvalidOption, "option", name, causeErr)
+// Later: extract metadata with doterr.ErrValue[string](err, "option")
+```
+
+Errors support sentinel values for type checking, key-value pairs for metadata, and chaining with `errors.Join` compatibility.
+
+### Immutable structs (wither methods)
+
+Components use value receivers and return updated copies rather than mutating in place. Methods that modify state are named with a `With` prefix (or `Set` for Bubble Tea convention) and return the modified model. This is sometimes called the "wither pattern."
+
+```go
+m.modal = m.modal.SetSize(width, height)
+m.dropdown = m.dropdown.WithMaxItems(10)
+```
+
+See [Wither pattern](/patterns/wither-pattern/) for a detailed explanation.
+
+### tea.Cmd message consumption
+
+When a child component returns a non-nil `tea.Cmd` from its `Update()` method, that signals the message has been consumed. The parent should stop processing the message and return immediately. This convention prevents multiple components from acting on the same keypress or event.
+
+See [Modal message consumption](/patterns/modal-consumption/) for the full pattern.
+
+## Communication contract
+
+Components communicate exclusively through `tea.Cmd` and `tea.Msg` -- never through shared state. The parent passes messages down to children via `Update()`, and children signal results back through commands that produce messages.
+
+This contract means:
+
+- Components have no knowledge of their siblings
+- The parent decides the order of message processing
+- Any component can be swapped out without affecting others
+- Testing is straightforward because each component can be exercised in isolation
+
+## Why separate modules?
+
+<Aside type="note">
+Each component being its own Go module is a deliberate choice, not a limitation. This structure provides:
+
+- **No transitive dependency bloat** -- importing `teamodal` does not pull in `teagrid` or any other component you are not using
+- **Independent versioning** -- components can release breaking changes without forcing updates across the entire project
+- **Smaller binary sizes** -- the compiler only includes code you actually import
+- **Clear dependency boundaries** -- `go.mod` files make inter-component dependencies explicit and auditable
+</Aside>

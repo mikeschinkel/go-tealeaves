@@ -1,0 +1,183 @@
+---
+title: Charm v2 Migration
+description: Guide for migrating from Charm Bubbles v1 table to Tea Leaves teagrid.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+If you were using the Charm Bubbles v1 `table` component (`github.com/charmbracelet/bubbles/table`) and need a replacement after the Charm v2 rearchitecture, `teagrid` provides a compatible data grid with additional features.
+
+## Why migrate?
+
+Charm v2 removed and rearchitected the table component from Bubbles. If your application depended on `bubbles/table` for tabular data display, you need an alternative.
+
+`teagrid` is a fork of [bubble-table](https://github.com/evertras/bubble-table) by Brandon Fulljames, adapted for the Tea Leaves ecosystem. It provides the same core table functionality with sorting, filtering, pagination, and row selection built in.
+
+## Key differences
+
+| Feature | Bubbles v1 `table` | `teagrid` |
+|---------|-------------------|-----------|
+| Column definition | `table.Column{Title, Width}` | `teagrid.NewColumn(key, title, width)` |
+| Row data format | `table.Row` (string slice) | `teagrid.NewRow(RowData{})` (map) |
+| Row data access | By index position | By column key |
+| Styling | `table.DefaultStyles()` | `WithBaseStyle()`, `WithHeaderStyle()` |
+| Sorting | Not built in | Multi-column sort with `SortByAsc`/`SortByDesc` |
+| Filtering | Not built in | Built-in fuzzy filter or custom `FilterFunc` |
+| Pagination | Not built in | Page size, page navigation, page count |
+| Row selection | Cursor-based highlight | Single and multi-select with `SelectedRows()` |
+| Flexible columns | Not supported | `NewFlexColumn` for proportional widths |
+
+## Migration steps
+
+### Column definitions
+
+<Tabs>
+  <TabItem label="Bubbles v1">
+    ```go
+    columns := []table.Column{
+        {Title: "Name", Width: 20},
+        {Title: "Status", Width: 10},
+        {Title: "Age", Width: 5},
+    }
+    ```
+  </TabItem>
+  <TabItem label="teagrid">
+    ```go
+    columns := []teagrid.Column{
+        teagrid.NewColumn("name", "Name", 20),
+        teagrid.NewColumn("status", "Status", 10),
+        teagrid.NewColumn("age", "Age", 5),
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+In `teagrid`, each column has a **key** (used for data lookup) in addition to the display title and width. This decouples the display order from the data structure.
+
+### Row data
+
+<Tabs>
+  <TabItem label="Bubbles v1">
+    ```go
+    rows := []table.Row{
+        {"Alice", "Active", "30"},
+        {"Bob", "Inactive", "25"},
+    }
+    ```
+  </TabItem>
+  <TabItem label="teagrid">
+    ```go
+    rows := []teagrid.Row{
+        teagrid.NewRow(teagrid.RowData{
+            "name":   "Alice",
+            "status": "Active",
+            "age":    "30",
+        }),
+        teagrid.NewRow(teagrid.RowData{
+            "name":   "Bob",
+            "status": "Inactive",
+            "age":    "25",
+        }),
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+The map-based row format means column order in data does not need to match column display order. You can reorder, add, or remove columns without changing your data.
+
+### Styling
+
+<Tabs>
+  <TabItem label="Bubbles v1">
+    ```go
+    s := table.DefaultStyles()
+    s.Header = s.Header.
+        BorderStyle(lipgloss.NormalBorder()).
+        BorderForeground(lipgloss.Color("240")).
+        Bold(false)
+    s.Selected = s.Selected.
+        Foreground(lipgloss.Color("229")).
+        Background(lipgloss.Color("57"))
+
+    t := table.New(
+        table.WithColumns(columns),
+        table.WithRows(rows),
+        table.WithStyles(s),
+    )
+    ```
+  </TabItem>
+  <TabItem label="teagrid">
+    ```go
+    t := teagrid.New(columns).
+        WithRows(rows).
+        WithBaseStyle(
+            lipgloss.NewStyle().
+                Align(lipgloss.Left).
+                Foreground(lipgloss.Color("229")),
+        ).
+        WithHeaderStyle(
+            lipgloss.NewStyle().Bold(true),
+        ).
+        WithHighlightStyle(
+            lipgloss.NewStyle().
+                Foreground(lipgloss.Color("229")).
+                Background(lipgloss.Color("57")),
+        )
+    ```
+  </TabItem>
+</Tabs>
+
+### Construction
+
+<Tabs>
+  <TabItem label="Bubbles v1">
+    ```go
+    t := table.New(
+        table.WithColumns(columns),
+        table.WithRows(rows),
+        table.WithFocused(true),
+        table.WithHeight(10),
+    )
+    ```
+  </TabItem>
+  <TabItem label="teagrid">
+    ```go
+    t := teagrid.New(columns).
+        WithRows(rows).
+        WithPageSize(10).
+        Focused(true)
+    ```
+  </TabItem>
+</Tabs>
+
+`teagrid` uses a fluent builder pattern with `With*()` wither methods that return the updated model.
+
+## Breaking changes
+
+<Aside type="caution" title="Not a drop-in replacement">
+`teagrid` is **not** a drop-in replacement for `bubbles/table`. The API surface is different in several fundamental ways that require code changes beyond import path swaps.
+</Aside>
+
+The key breaking changes are:
+
+- **Row data format** -- Rows use a `map[string]any` keyed by column key, not a `[]string` indexed by position. Every place you construct rows must change.
+- **Styling API** -- There is no `DefaultStyles()` struct. Styles are applied via individual `With*Style()` methods on the model.
+- **Height vs page size** -- Bubbles v1 uses `WithHeight()` for visible rows. `teagrid` uses `WithPageSize()` for pagination.
+- **Default text alignment** -- `teagrid` defaults to right-aligned text (inherited from bubble-table). Add `WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left))` for left-aligned text.
+
+## Additional features
+
+Migrating to `teagrid` gives you access to features that were not available in the Bubbles v1 table:
+
+- **Sorting** -- Sort by any column ascending or descending with `SortByAsc()`/`SortByDesc()`. Add secondary sort columns with `ThenSortByAsc()`/`ThenSortByDesc()`.
+- **Filtering** -- Enable built-in fuzzy filtering with `WithFuzzyFilter()` or provide a custom filter function with `WithFilterFunc()`.
+- **Pagination** -- Navigate through pages with `PageDown()`/`PageUp()`, `PageFirst()`/`PageLast()`. Query current position with `CurrentPage()`/`MaxPages()`.
+- **Row selection** -- Enable multi-select with `SelectableRows(true)`. Toggle selection with `RowSelectToggle()` and retrieve selections with `SelectedRows()`.
+- **Flexible columns** -- Use `NewFlexColumn()` for columns that share remaining width proportionally after fixed-width columns are allocated.
+- **Styled cells** -- Apply per-cell styling with `StyledCell` or dynamic styling with `StyledCellFunc` for conditional formatting based on cell values.
+- **Row style functions** -- Apply row-level styling conditionally based on row data.
+
+## Related
+
+- [teagrid component reference](/go-tealeaves/components/teagrid/) -- Full API documentation
+- [Best Practices](/go-tealeaves/reference/best-practices/) -- Width calculation and debugging guidance

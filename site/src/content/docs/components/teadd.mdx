@@ -1,0 +1,116 @@
+---
+title: "teadd — Dropdown"
+description: Dropdown selection component with intelligent above/below positioning based on available terminal space.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teadd` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teadd
+```
+
+## Quick example
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mikeschinkel/go-tealeaves/teadd"
+)
+
+func main() {
+	items := teadd.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
+	dropdown := teadd.NewModel(items, 3, 18, nil)
+
+	p := tea.NewProgram(model{dropdown: dropdown}, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+```
+
+## Features
+
+- Intelligent above/below positioning based on available terminal space
+- ANSI-aware overlay compositing via `OverlayDropdown()`
+- Keyboard navigation (up/down/enter/esc)
+- Scrollable option list when items exceed visible area
+- Non-nil `tea.Cmd` consumption signal (see [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern)
+- Configurable border and item styles
+- Terminal size auto-detection
+
+## API reference
+
+### Constructors and functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewModel` | `NewModel(options []Option, row, col int, args *ModelArgs) DropdownModel` | Create a dropdown at the given row and column position |
+| `ToOptions` | `ToOptions(items []string) []Option` | Convert a string slice into a slice of `Option` values |
+| `OverlayDropdown` | `OverlayDropdown(background, foreground string, row, col int) string` | ANSI-aware overlay compositing of foreground onto background |
+| `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr)` | Initialize terminal size detection for above/below positioning |
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `DropdownModel` | Main dropdown component — implements `tea.Model` |
+| `DropdownKeyMap` | Key bindings configuration (Cancel, Down, Select, Up) |
+| `Option` | A selectable option with `Text` and `Value` fields |
+| `OptionSelectedMsg` | Message sent when the user selects an option |
+| `ModelArgs` | Optional configuration arguments for `NewModel` |
+
+## Configuration
+
+`DropdownModel` uses the [Wither Methods](/go-tealeaves/patterns/wither-methods/) pattern for configuration:
+
+```go
+m.dropdown = m.dropdown.
+    WithScreenSize(msg.Width, msg.Height).
+    WithPosition(row, col)
+```
+
+| Method | Description |
+|--------|-------------|
+| `WithPosition(row, col int)` | Set the dropdown's row and column position |
+| `WithScreenSize(width, height int)` | Set screen dimensions for above/below auto-detection |
+| `Open()` | Open the dropdown (returns model and `tea.Cmd`) |
+| `Close()` | Close the dropdown (returns model and `tea.Cmd`) |
+
+## Messages
+
+| Message | When sent |
+|---------|-----------|
+| `OptionSelectedMsg` | User selects an option — contains `Index`, `Text`, and `Value` fields |
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `up` / `k` | Move selection up |
+| `down` / `j` | Move selection down |
+| `enter` | Select current option |
+| `esc` | Cancel and close |
+
+## Known limitations
+
+<Aside type="caution">
+- Dropdown width is determined by the widest option text — there is no explicit width control.
+- Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
+</Aside>
+
+## Related
+
+- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — The non-nil `tea.Cmd` pattern used by teadd
+- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — How `OverlayDropdown()` renders on top of styled content
+- [Wither Methods](/go-tealeaves/patterns/wither-methods/) — The immutable update pattern used by `With*()` methods
+- [teamodal](/go-tealeaves/components/teamodal/) — Modal dialogs that use the same consumption and overlay patterns

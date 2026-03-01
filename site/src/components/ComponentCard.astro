@@ -1,0 +1,71 @@
+---
+interface Props {
+  icon: string;
+  name: string;
+  label: string;
+  href: string;
+  description: string;
+}
+
+const { icon, name, label, href, description } = Astro.props;
+---
+
+<a class="comp-card" href={href}>
+  <img class="comp-card-icon" src={icon} alt="" width="40" height="40" loading="lazy" />
+  <div class="comp-card-body">
+    <span class="comp-card-name">{name}</span>
+    <span class="comp-card-label">{label} Component</span>
+    <span class="comp-card-desc">{description}</span>
+  </div>
+</a>
+
+<style>
+  .comp-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
+    padding: 1.25rem;
+    border: 1px solid rgba(148, 163, 184, 0.2);
+    border-radius: 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(30, 41, 59, 0.4);
+    transition: border-color 0.2s ease, background-color 0.2s ease, transform 0.15s ease;
+  }
+  .comp-card:hover {
+    border-color: #10b981;
+    background: rgba(30, 41, 59, 0.7);
+    transform: translateY(-2px);
+  }
+  .comp-card-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    margin-top: 0;
+    filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.3));
+  }
+  .comp-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    min-width: 0;
+  }
+  .comp-card-name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 1.05rem;
+    color: #fff;
+  }
+  .comp-card-label {
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #10b981;
+    letter-spacing: 0.02em;
+  }
+  .comp-card-desc {
+    font-size: 0.82rem;
+    color: #94a3b8;
+    line-height: 1.4;
+    margin-top: 0.25rem;
+  }
+</style>

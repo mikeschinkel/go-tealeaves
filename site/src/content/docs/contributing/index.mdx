@@ -1,0 +1,119 @@
+---
+title: Contributing
+description: How to contribute to Tea Leaves — reporting issues, submitting pull requests, and code style guidelines.
+---
+
+import { Steps } from '@astrojs/starlight/components';
+
+## Reporting issues
+
+Use [GitHub Issues](https://github.com/mikeschinkel/go-tealeaves/issues) to report bugs or request features.
+
+- **Include the package name** in the issue title (e.g., `teadd: overlay breaks with styled background` or `teamodal: ESC propagates through closed modal`).
+- **For bugs**, include:
+  - Go version (`go version`)
+  - Operating system and terminal emulator
+  - A minimal reproduction case (ideally a standalone `main.go`)
+- **For feature requests**, describe the use case and the behavior you expect.
+
+## Pull request workflow
+
+<Steps>
+
+1. ### Fork and branch
+
+   Fork the repository and create a feature branch from `main`:
+
+   ```bash
+   git clone https://github.com/<you>/go-tealeaves.git
+   cd go-tealeaves
+   git checkout -b my-feature
+   ```
+
+2. ### Make changes
+
+   Work in the relevant package directory. If your change spans multiple packages, note the dependency order below.
+
+3. ### Run checks
+
+   Before submitting, verify that tests pass and the code is clean:
+
+   ```bash
+   make test && make vet
+   ```
+
+4. ### Write clear commit messages
+
+   Describe the change, not the files. Prefix with the package name when applicable:
+
+   ```
+   teamodal: fix ESC propagation when modal closes during Update
+   teautils: add CenterModal helper for overlay positioning
+   ```
+
+5. ### Open a PR against main
+
+   Push your branch and open a pull request. The PR description should explain what changed and why.
+
+</Steps>
+
+## Multi-module structure
+
+This repository contains **7 independent Go modules**, one per package. Each has its own `go.mod` and `go.sum`.
+
+When making changes:
+
+- **Only modify `go.mod`/`go.sum` in the package you are changing.** Do not update unrelated modules.
+- Run `make tidy` to ensure all modules are consistent after dependency changes.
+- If your change spans multiple packages, respect the dependency order:
+  - `teautils` must be updated before `teamodal` (teamodal depends on teautils)
+  - `teadd` must be updated before `teadep` (teadep depends on teadd)
+  - All other packages (`teastatus`, `teatextsel`, `teatree`, `teanotify`, `teagrid`) are independent of each other.
+
+## Code style
+
+Follow the patterns established in existing code. Key conventions:
+
+- **ClearPath pattern** -- Use `goto end` with named returns instead of early returns. This keeps the success path on the left margin and error handling at the bottom:
+
+  ```go
+  func doWork() (result string, err error) {
+      data, err := fetchData()
+      if err != nil {
+          err = fmt.Errorf("fetch failed: %w", err)
+          goto end
+      }
+      result = process(data)
+  end:
+      return result, err
+  }
+  ```
+
+- **Width calculations** -- Always use `ansi.StringWidth()` for measuring visual width of styled text. Never use `len()` or rune count.
+- **Modal consumption signal** -- A non-nil `tea.Cmd` return from a modal's `Update()` signals that the modal consumed the message. Check for this before passing messages to other components.
+- **Wither methods** -- Configuration methods return the updated model rather than mutating in place. Follow the `With*()` naming convention.
+
+## Testing
+
+- **Add tests** for new functionality. Check existing `*_test.go` files in the package you are modifying for conventions.
+- **Run the full test suite** before submitting:
+
+  ```bash
+  make test
+  ```
+
+- **Run static analysis:**
+
+  ```bash
+  make vet
+  ```
+
+- **Verify examples still build.** Example programs in `examples/` serve as integration tests:
+
+  ```bash
+  make build-examples
+  ```
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the [MIT License](https://github.com/mikeschinkel/go-tealeaves/blob/main/LICENSE).

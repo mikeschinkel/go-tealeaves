@@ -1,0 +1,131 @@
+---
+title: "teastatus — Status Bar"
+description: Two-zone status bar with key-action menu items on the left and text indicators on the right.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Status bars with key menus on the left and indicators on the right require manual layout calculations -- measuring ANSI-aware string widths, computing gap sizes, and formatting key labels with consistent styling. `teastatus` provides a two-zone status bar that handles all of this in a single component: set your menu items and indicators, give it a width, and it renders the bar.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teastatus
+```
+
+## Quick example
+
+```go
+sb := teastatus.New()
+
+sb = sb.SetMenuItems([]teastatus.MenuItem{
+    {Key: "?", Label: "Help"},
+    {Key: "tab", Label: "Switch pane"},
+    {Key: "q", Label: "Quit"},
+})
+
+sb = sb.SetIndicators([]teastatus.StatusIndicator{
+    teastatus.NewStatusIndicator("DEPS IN-FLUX"),
+    teastatus.NewStatusIndicator("3 batches"),
+})
+
+sb = sb.SetSize(terminalWidth)
+
+// In View()
+return contentView + "\n" + sb.View()
+```
+
+## Features
+
+- Two-zone layout: left-side key menu + right-side text indicators
+- ANSI-aware width calculation for correct gap spacing
+- Multiple separator styles for indicators (pipe, space, bracket)
+- Per-indicator style overrides
+- Key binding integration via `NewMenuItemFromBinding()`
+- Dynamic updates via `SetMenuItems()` and `SetIndicators()`
+- Message-based updates via `SetMenuItemsMsg` and `SetIndicatorsMsg`
+- Configurable styling for every element (key labels, menu labels, indicators, separators, bar background)
+
+## API reference
+
+### Constructors and functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `New` | `New() Model` | Create a status bar with default styles |
+| `NewStatusIndicator` | `NewStatusIndicator(text string) StatusIndicator` | Create an indicator with text |
+| `NewMenuItemFromBinding` | `NewMenuItemFromBinding(binding key.Binding, label string) MenuItem` | Create a menu item from a Charm key binding |
+| `RenderMenuLine` | `RenderMenuLine(items []MenuItem, styles Styles) string` | Render menu items as a formatted string (useful outside the status bar) |
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `Model` | Main status bar component -- implements `tea.Model` |
+| `MenuItem` | A key-action entry with `Key`, `Label`, and `Binding` fields |
+| `StatusIndicator` | A text indicator with `Text` and optional `Style` override |
+| `Styles` | Complete styling configuration for both zones |
+| `SeparatorKind` | Indicator separator type (`PipeSeparator`, `SpaceSeparator`, `BracketSeparator`) |
+
+## Configuration
+
+```go
+sb = sb.
+    WithStyles(teastatus.Styles{
+        MenuKeyStyle:      lipgloss.NewStyle().Foreground(lipgloss.Color("86")).Bold(true),
+        MenuLabelStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("246")),
+        MenuSeparator:     "  ",
+        IndicatorStyle:    lipgloss.NewStyle().Foreground(lipgloss.Color("246")),
+        IndicatorSepStyle: lipgloss.NewStyle().Foreground(lipgloss.Color("240")),
+        SeparatorKind:     teastatus.PipeSeparator,
+        BarStyle:          lipgloss.NewStyle().Background(lipgloss.Color("236")),
+    }).
+    SetSize(width)
+```
+
+| Method | Description |
+|--------|-------------|
+| `SetMenuItems(items []MenuItem) Model` | Replace the left-side menu items |
+| `SetIndicators(indicators []StatusIndicator) Model` | Replace the right-side indicators |
+| `SetSize(width int) Model` | Set the terminal width for gap calculation |
+| `WithStyles(styles Styles) Model` | Override the complete style configuration |
+
+### Indicator styles
+
+Per-indicator style overrides let you highlight specific indicators:
+
+```go
+indicators := []teastatus.StatusIndicator{
+    teastatus.NewStatusIndicator("DEPS IN-FLUX").
+        WithStyle(lipgloss.NewStyle().Foreground(lipgloss.Color("196"))), // Red
+    teastatus.NewStatusIndicator("3 batches"), // Uses default style
+}
+```
+
+## Separator kinds
+
+| Kind | Rendering | Example |
+|------|-----------|---------|
+| `PipeSeparator` | Indicators joined with ` \| ` | `DEPS IN-FLUX | 3 batches` |
+| `SpaceSeparator` | Indicators joined with two spaces | `DEPS IN-FLUX  3 batches` |
+| `BracketSeparator` | Each indicator wrapped in brackets | `[DEPS IN-FLUX] [3 batches]` |
+
+## Messages
+
+| Message | When sent |
+|---------|-----------|
+| `SetMenuItemsMsg` | Replaces menu items via `tea.Msg` (contains `Items []MenuItem`) |
+| `SetIndicatorsMsg` | Replaces indicators via `tea.Msg` (contains `Indicators []StatusIndicator`) |
+
+## Known limitations
+
+<Aside type="caution">
+- Single-line only -- there is no multi-line status bar support.
+- When the combined width of menu items and indicators exceeds the terminal width, the right-side indicators are dropped.
+- The bar does not handle its own key input -- it is purely a display component. Use it with [teautils KeyRegistry](/go-tealeaves/patterns/key-registry/) to generate menu items from registered bindings.
+</Aside>
+
+## Related
+
+- [Key Registry](/go-tealeaves/patterns/key-registry/) -- Centralized key binding management that produces `MenuItem` values for teastatus
+- [teautils](/go-tealeaves/components/teautils/) -- Shared utilities including `FormatKeyDisplay()` for key label formatting

@@ -1,0 +1,217 @@
+---
+title: Best Practices
+description: Hard-won lessons from building Bubble Tea UIs — width calculations, overlay compositing, debugging, and common pitfalls.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Hard-won lessons from building Bubble Tea UIs. Read this before implementing new models or components to avoid repeating mistakes.
+
+## The golden rule
+
+<Aside type="danger" title="Trust lipgloss">
+**Do not second-guess lipgloss.** If you find yourself with "empirical adjustment" constants to fix widths, you have a bug in your understanding, not in lipgloss. Stop, step back, and find the root cause. The goal is for all width adjustments to be zero. If they are not, something in your calculation is wrong.
+</Aside>
+
+Common symptoms of fighting lipgloss instead of working with it:
+
+- Magic constants like `paneTotalAdjustment = 3` with the comment "empirically determined"
+- Manually subtracting padding and border from widths before passing to `Width()`
+- Telling child components they have more or less width than they actually do via `SetSize()`
+
+## Width calculations
+
+### How `Width()` works
+
+`Width()` in lipgloss **includes padding but excludes border**. This is the single most important fact for layout code.
+
+```go
+style := lipgloss.NewStyle().
+    Width(100).                       // includes padding, excludes border
+    PaddingLeft(1).
+    PaddingRight(1).
+    BorderStyle(lipgloss.RoundedBorder())
+```
+
+Visual breakdown:
+
+```
+Border(1) | Pad(1) | Content | Pad(1) | Border(1)
+          |<------ Width(100) ------->|
+|<---------- Total Visual Width = 102 --------->|
+```
+
+### Key facts
+
+- **Borders are 1 character per side** (2 total), not 2 per side. `RoundedBorder`, `NormalBorder`, and `DoubleBorder` all use single Unicode characters.
+- **Do not manually subtract padding or border** from width values. Tell lipgloss the width you want and let it handle spacing internally.
+- **Track two width values** in your model — `paneTotalWidth` for lipgloss `Width()` and `paneContentWidth` for child components `SetSize()` — but do not derive one from the other by subtracting constants.
+
+### If you want a total rendered width of 37
+
+```go
+const borderWidth = 2 // 1 left + 1 right
+totalWidth := 37
+widthForLipgloss := totalWidth - borderWidth // 35
+
+style := lipgloss.NewStyle().
+    Width(widthForLipgloss). // 35 — includes padding
+    PaddingLeft(1).
+    PaddingRight(2).
+    BorderStyle(lipgloss.RoundedBorder())
+
+// Result: 35 + 2 (border) = 37 total rendered width
+```
+
+### Who handles borders?
+
+The **parent model** applies borders, not child components. Children have no knowledge of borders. The parent calculates total width including border, passes content width to the child via `SetSize()`, and wraps the child's `View()` output with a border style.
+
+```go
+func (m MyModel) View() string {
+    childContent := m.childModel.View()
+    style := lipgloss.NewStyle().BorderStyle(lipgloss.RoundedBorder())
+    return style.Render(childContent)
+}
+```
+
+## Debugging width issues
+
+<Aside type="tip" title="Measure before fixing">
+Never make a "fix" without first understanding the discrepancy. Bad: "I'll add 3 to the width, that should fix it." Good: "Logs show actual is 34 but calculated is 37. That is a 3-char gap. Let me investigate why."
+</Aside>
+
+### Systematic approach
+
+1. **Add debug logging immediately.** Do not guess. Do not assume. Measure actual runtime values.
+2. **Run the app and capture logs.** Look for `WIDTH DEBUG` entries.
+3. **Compare calculated vs actual.** Any discrepancy points to the root cause.
+4. **Fix the root cause.** Do not apply magic constant adjustments.
+
+```go
+m.Logger.Info("WIDTH DEBUG calculateLayout",
+    "terminalWidth", m.terminalWidth,
+    "treeContentWidth", m.treeContentWidth,
+    "treeTotalWidth", m.treeTotalWidth,
+)
+
+// Measure what actually renders
+treeRendered := treeStyle.Render(m.treePane.View())
+if lines := strings.Split(treeRendered, "\n"); len(lines) > 0 {
+    treeActualWidth := ansi.StringWidth(lines[0])
+    m.Logger.Info("WIDTH DEBUG View",
+        "treeCalculated", m.treeTotalWidth,
+        "treeActual", treeActualWidth,
+        "gap", m.treeTotalWidth - treeActualWidth,
+    )
+}
+```
+
+### Common discrepancy table
+
+| Symptom | Likely Cause |
+|---------|-------------|
+| Actual = Calculated - 2 | Forgot to account for borders (1 per side) |
+| Actual = Calculated - 3 | `Width()` excludes border and you did not subtract it |
+| Actual < Calculated | Content is narrower than expected, not being padded |
+| Actual > Calculated | Padding or border added twice |
+
+### Never use `fmt.Printf` in TUI code
+
+`fmt.Printf()` and `fmt.Fprintf(os.Stderr, ...)` write directly to stdout/stderr. In a TUI application, stdout **is** the terminal display. Debug output gets interleaved with the rendered TUI and the display becomes corrupted.
+
+Always use `*slog.Logger` which writes to a log file, not the terminal:
+
+```go
+// WRONG — corrupts TUI display
+fmt.Printf("DEBUG: value=%d\n", value)
+
+// CORRECT — goes to log file
+m.Logger.Debug("debug message", "value", value)
+```
+
+## Component `Update()` return types
+
+Not all Bubble Tea components return `tea.Model` from their `Update()` method. Some return their concrete type directly.
+
+| Component | `Update()` returns | Use type assertion? |
+|-----------|-------------------|---------------------|
+| `viewport.Model` | `viewport.Model` | No — assign directly |
+| `textinput.Model` | `textinput.Model` | No — assign directly |
+| `textarea.Model` | `textarea.Model` | No — assign directly |
+| Tea Leaves components | `tea.Model` | Yes — type assert |
+
+```go
+// viewport returns concrete type — assign directly
+m.contextViewport, cmd = m.contextViewport.Update(msg)
+
+// teamodal returns tea.Model — type assert
+var updated tea.Model
+updated, cmd = m.modal.Update(msg)
+m.modal = updated.(teamodal.ModalModel)
+```
+
+When unsure, check the component's method signature. The compiler will tell you.
+
+## Viewport scrolling
+
+Use the viewport's **native horizontal scrolling** rather than manually tracking an offset. The manual approach breaks because `viewport.View()` internally truncates lines to the viewport width, and then removing more characters from the left causes content loss on both sides.
+
+```go
+// Enable native horizontal scrolling
+vp := viewport.New(width, height)
+vp.SetHorizontalStep(4) // Must be > 0 to enable; 0 = disabled (default)
+
+// Reset on content change
+m.diffViewport.SetContent(newDiff)
+m.diffViewport.GotoTop()
+m.diffViewport.SetXOffset(0) // Reset horizontal scroll too
+```
+
+The viewport's default keymap already binds `left`/`h` and `right`/`l` for horizontal scrolling. They do nothing until `SetHorizontalStep()` is called with a positive value.
+
+## Tab characters
+
+Replace tabs with spaces **before** setting viewport content. Tab characters have variable visual width depending on column position. When the viewport applies horizontal scrolling via `ansi.Cut()`, it counts characters, not visual columns, causing content to jump and misalign.
+
+```go
+diff = strings.ReplaceAll(diff, "\t", "    ")
+m.diffViewport.SetContent(diff)
+```
+
+Do this at the content-setting boundary, not in rendering. The viewport needs consistent character widths to scroll correctly.
+
+## Emojis in width-sensitive layouts
+
+<Aside type="caution" title="Avoid emojis where alignment matters">
+Emojis and wide Unicode characters **cannot** be reliably aligned in terminal UIs. This is not a bug in your code, lipgloss, or `ansi.StringWidth()`. It is a fundamental mismatch between Unicode width tables and terminal rendering that cannot be fixed programmatically.
+</Aside>
+
+`ansi.StringWidth()` and the terminal disagree on character widths. Different libraries use different Unicode tables, terminals make their own rendering decisions based on font and OS, and there is no programmatic way to ask a terminal "how many columns wide will this character render?"
+
+### What does not work
+
+| Approach | Why it fails |
+|----------|-------------|
+| `ansi.StringWidth()` | Returns the library's table value, not the terminal's rendering |
+| `lipgloss.Width()` | Uses rune count, not display width |
+| Measure after styling | ANSI codes are ignored, but emoji width mismatch remains |
+| Empirical adjustments | Different terminals need different adjustments |
+
+### Safe alternatives
+
+For width-sensitive layouts (list items, table columns, fixed-width fields), use ASCII characters only:
+
+```go
+// Unreliable alignment
+"  Commit Batch #1"
+"  Recommendation: 6 commits"
+
+// Reliable alignment
+"[U] Commit Batch #1"
+"[R] Recommendation: 6 commits"
+```
+
+Emojis are fine for status messages, notifications, headers, and anywhere alignment does not matter.
+
+For a detailed explanation of why each fix attempt fails, including the Unicode East Asian Width property table and terminal rendering inconsistencies, see the full analysis in `docs/BEST_PRACTICES.md` in the repository.

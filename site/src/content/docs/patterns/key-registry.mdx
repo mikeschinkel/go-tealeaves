@@ -1,0 +1,173 @@
+---
+title: Key Registry
+description: Centralized key binding management with namespace validation, help visor integration, and status bar support.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+When building a Bubble Tea app with multiple components, key bindings scatter across files. The `teautils.KeyRegistry` provides a **centralized registry** with namespace validation, category grouping, and integration with help modals and status bars.
+
+## The problem
+
+Without a registry, key bindings are defined inline throughout your codebase:
+
+```go
+// In tree component
+case "up", "k":
+    // move up
+case "down", "j":
+    // move down
+
+// In modal component
+case "enter":
+    // confirm
+case "esc":
+    // cancel
+
+// In main app
+case "q":
+    // quit
+case "?":
+    // help
+```
+
+Key conflicts are discovered at runtime. Help text must be maintained separately. Status bar key labels must be kept in sync manually.
+
+## The solution
+
+Register all keys in one place with metadata for help display and status bar rendering:
+
+```go
+registry := teautils.NewKeyRegistry()
+
+registry.MustRegisterMany([]teautils.KeyMeta{
+    {
+        ID:        teautils.MustParseKeyIdentifier("nav.up"),
+        Binding:   key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("up/k", "Move up")),
+        HelpModal: true,
+        Category:  "Navigation",
+        HelpText:  "Move cursor up one line",
+    },
+    {
+        ID:        teautils.MustParseKeyIdentifier("nav.down"),
+        Binding:   key.NewBinding(key.WithKeys("down", "j"), key.WithHelp("down/j", "Move down")),
+        HelpModal: true,
+        Category:  "Navigation",
+        HelpText:  "Move cursor down one line",
+    },
+    {
+        ID:             teautils.MustParseKeyIdentifier("action.open"),
+        Binding:        key.NewBinding(key.WithKeys("enter"), key.WithHelp("enter", "Open")),
+        StatusBar:      true,
+        StatusBarLabel: "Open",
+        HelpModal:      true,
+        Category:       "Actions",
+        HelpText:       "Open the selected file",
+    },
+    {
+        ID:             teautils.MustParseKeyIdentifier("sys.quit"),
+        Binding:        key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit")),
+        StatusBar:      true,
+        StatusBarLabel: "Quit",
+        HelpModal:      true,
+        Category:       "System",
+        HelpText:       "Quit the application",
+    },
+})
+```
+
+## Namespace validation
+
+Key identifiers use dot-separated namespaces: `nav.up`, `action.open`, `sys.quit`. The parser validates format at registration time:
+
+```go
+// Valid identifiers
+teautils.MustParseKeyIdentifier("nav.up")
+teautils.MustParseKeyIdentifier("action.delete")
+teautils.MustParseKeyIdentifier("sys.help")
+
+// Invalid — panics at registration
+teautils.MustParseKeyIdentifier("")           // empty
+teautils.MustParseKeyIdentifier("up")         // no namespace
+teautils.MustParseKeyIdentifier("nav.")       // trailing dot
+```
+
+## Querying the registry
+
+### For status bars
+
+```go
+// Get keys marked for status bar display
+statusKeys := registry.ForStatusBar()
+for _, km := range statusKeys {
+    display := teautils.FormatKeyDisplay(km)
+    label := km.StatusBarLabel
+    fmt.Printf("[%s] %s  ", display, label)
+}
+// Output: [Enter] Open  [q] Quit  [?] Help
+```
+
+### For help modals
+
+```go
+// Get keys grouped by category
+byCategory := registry.ByCategory()
+sorted := teautils.GetSortedCategories(byCategory, []string{
+    "Navigation", "Actions", "System",
+})
+
+for _, cat := range sorted {
+    fmt.Println(cat)
+    for _, km := range byCategory[cat] {
+        fmt.Printf("  %-16s %s\n",
+            teautils.FormatKeyDisplay(km),
+            km.HelpText,
+        )
+    }
+}
+```
+
+### By individual key
+
+```go
+km, err := registry.Get(teautils.MustParseKeyIdentifier("nav.up"))
+if err != nil {
+    // key not registered
+}
+fmt.Println(km.HelpText)  // "Move cursor up one line"
+```
+
+## Integration with teastatus
+
+The registry produces `teastatus.MenuItem` values for the status bar:
+
+```go
+statusKeys := registry.ForStatusBar()
+menuItems := make([]teastatus.MenuItem, len(statusKeys))
+for i, km := range statusKeys {
+    menuItems[i] = teastatus.NewMenuItemFromBinding(
+        km.Binding,
+        km.StatusBarLabel,
+    )
+}
+sb := teastatus.New().SetMenuItems(menuItems)
+```
+
+## KeyMeta fields
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `ID` | `KeyIdentifier` | Namespaced identifier (e.g., `nav.up`) |
+| `Binding` | `key.Binding` | Charm key binding with keys and help text |
+| `Category` | `string` | Grouping for help display |
+| `HelpText` | `string` | Detailed description for help modal |
+| `HelpModal` | `bool` | Include in help modal listing |
+| `StatusBar` | `bool` | Include in status bar |
+| `StatusBarLabel` | `string` | Short label for status bar display |
+| `DisplayKeys` | `string` | Override display (e.g., "Ctrl+C" instead of "ctrl+c") |
+
+## Related
+
+- [teautils component](/go-tealeaves/components/teautils/) — Full API reference
+- [teastatus component](/go-tealeaves/components/teastatus/) — Status bar integration
+- [Composing Components](/go-tealeaves/guides/composition/) — Using components together

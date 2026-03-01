@@ -1,0 +1,99 @@
+---
+title: "teanotify — Notifications"
+description: Toast-style notification component with auto-dismiss, color fade animation, and 6 configurable screen positions.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Toast/notification UIs in the terminal require overlay rendering, timed auto-dismiss, and multiple positioning options. Building this from scratch for each project is wasteful. `teanotify` provides a ready-made notification component that handles all of these concerns, letting you focus on your application logic.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teanotify
+```
+
+## Quick example
+
+```go
+// Create notification model
+notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
+    Width:           40,
+    Duration:        3 * time.Second,
+    AllowEscToClose: true,
+})
+notify, err := notify.Initialize()
+
+// Send a notification
+cmd := m.notify.NewNotifyCmd(teanotify.InfoKey, "File saved successfully")
+
+// In View() — render overlay on content
+return m.notify.Render(fullContent)
+```
+
+## Features
+
+- 4 built-in notice types: Info, Warn, Error, Debug
+- Custom notice types via `RegisterNoticeType()`
+- 6 screen positions (TopLeft, TopCenter, TopRight, BottomLeft, BottomCenter, BottomRight)
+- Auto-dismiss with configurable duration
+- Color fade animation using linear interpolation
+- ESC key to dismiss early (configurable)
+- Unicode prefix symbols (configurable)
+- ANSI-aware overlay rendering via `Render()`
+- Minimum width configuration
+
+## API reference
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `NotifyModel` | Main notification component |
+| `NotifyOpts` | Configuration options (Duration, Position, Width) |
+| `NoticeDefinition` | Custom notice type (Key, ForeColor, Prefix, Style) |
+| `NoticeKey` | String identifier (`InfoKey`, `WarnKey`, `ErrorKey`, `DebugKey`) |
+| `Position` | Screen position type |
+
+## Configuration
+
+Configure the notification using `With*()` wither methods. These return the updated model rather than mutating in place (see [Wither Methods](/go-tealeaves/patterns/wither-methods/)).
+
+- **`WithPosition(pos Position)`** — Change position at runtime.
+- **`WithMinWidth(w int)`** — Set minimum notification width.
+- **`WithUnicodePrefix(b bool)`** — Toggle Unicode prefix symbols.
+- **`WithAllowEscToClose(b bool)`** — Toggle ESC dismissal.
+
+## Built-in notice types
+
+| Key | Prefix | Color | Description |
+|-----|--------|-------|-------------|
+| `InfoKey` | `[i]` | Cyan | Informational |
+| `WarnKey` | `[!]` | Amber | Warning |
+| `ErrorKey` | `[x]` | Red | Error |
+| `DebugKey` | `[~]` | Gray | Debug |
+
+## Positions
+
+- `TopLeft` — Top-left corner of the screen
+- `TopCenter` — Top-center of the screen
+- `TopRight` — Top-right corner of the screen
+- `BottomLeft` — Bottom-left corner of the screen
+- `BottomCenter` — Bottom-center of the screen
+- `BottomRight` — Bottom-right corner of the screen
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `esc` | Dismiss active notification (when `AllowEscToClose` is true) |
+
+<Aside type="caution" title="Known limitations">
+- Only one notification displayed at a time — new notifications replace the current one.
+- Color fade requires terminal with true color support for best results.
+</Aside>
+
+## Related
+
+- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — The rendering technique used by `teanotify` to place notifications on top of terminal content.
+- [teastatus](/go-tealeaves/components/teastatus/) — Status bar component for persistent indicators alongside transient notifications.

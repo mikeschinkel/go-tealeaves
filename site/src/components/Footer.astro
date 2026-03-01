@@ -1,0 +1,106 @@
+---
+import Default from '@astrojs/starlight/components/Footer.astro';
+---
+
+<Default {...Astro.props}><slot /></Default>
+
+<footer class="tl-footer">
+  <div class="tl-footer-grid">
+    <div class="tl-footer-col">
+      <h3>Getting Started</h3>
+      <ul>
+        <li><a href="/go-tealeaves/guides/quick-start/">Quick Start</a></li>
+        <li><a href="/go-tealeaves/guides/architecture/">Architecture</a></li>
+        <li><a href="/go-tealeaves/guides/composition/">Composition</a></li>
+      </ul>
+    </div>
+    <div class="tl-footer-col">
+      <h3>Components</h3>
+      <ul>
+        <li><a href="/go-tealeaves/components/">Overview</a></li>
+        <li><a href="/go-tealeaves/components/teadd/">teadd — Dropdown</a></li>
+        <li><a href="/go-tealeaves/components/teamodal/">teamodal — Modals</a></li>
+        <li><a href="/go-tealeaves/components/teagrid/">teagrid — Data Grid</a></li>
+        <li><a href="/go-tealeaves/components/teatree/">teatree — Tree View</a></li>
+      </ul>
+    </div>
+    <div class="tl-footer-col">
+      <h3>Resources</h3>
+      <ul>
+        <li><a href="/go-tealeaves/examples/">Examples</a></li>
+        <li><a href="/go-tealeaves/cookbook/dropdown-in-form/">Cookbook</a></li>
+        <li><a href="/go-tealeaves/reference/roadmap/">Roadmap</a></li>
+        <li><a href="/go-tealeaves/contributing/">Contributing</a></li>
+      </ul>
+    </div>
+    <div class="tl-footer-col">
+      <h3>External</h3>
+      <ul>
+        <li><a href="https://github.com/mikeschinkel/go-tealeaves" rel="noopener">GitHub</a></li>
+        <li><a href="https://github.com/charmbracelet/bubbletea" rel="noopener">Bubble Tea</a></li>
+        <li><a href="https://github.com/charmbracelet/lipgloss" rel="noopener">Lip Gloss</a></li>
+        <li><a href="https://pkg.go.dev/github.com/mikeschinkel/go-tealeaves" rel="noopener">pkg.go.dev</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="tl-footer-bottom">
+    &copy; 2025 Mike Schinkel. MIT License.
+  </div>
+</footer>
+
+<style>
+  .tl-footer {
+    border-top: 1px solid var(--sl-color-gray-5);
+    padding: 2rem 1.5rem 1.5rem;
+    margin-top: 2rem;
+  }
+  .tl-footer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 2rem;
+    max-width: 72rem;
+    margin: 0 auto;
+  }
+  .tl-footer-col h3 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-gray-2);
+    margin: 0 0 0.75rem;
+  }
+  .tl-footer-col ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  .tl-footer-col li {
+    margin-bottom: 0.4rem;
+  }
+  .tl-footer-col a {
+    font-size: 0.85rem;
+    color: var(--sl-color-gray-3);
+    text-decoration: none;
+  }
+  .tl-footer-col a:hover {
+    color: var(--sl-color-accent);
+  }
+  .tl-footer-bottom {
+    text-align: center;
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-4);
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--sl-color-gray-6);
+  }
+  @media (max-width: 50rem) {
+    .tl-footer-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 30rem) {
+    .tl-footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

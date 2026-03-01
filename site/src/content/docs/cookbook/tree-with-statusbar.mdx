@@ -1,0 +1,250 @@
+---
+title: "Tree + Status Bar"
+description: "Recipe: Combining teatree and teastatus in a two-pane layout."
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Goal
+
+Build a two-pane layout with a tree navigator that fills most of the screen and a status bar fixed to the bottom row. The tree and status bar both respond to terminal resize events.
+
+## What you need
+
+- `teatree` -- the tree view component
+- `teastatus` -- the status bar component
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teatree
+go get github.com/mikeschinkel/go-tealeaves/teastatus
+```
+
+## Full example
+
+```go
+package main
+
+import (
+    "fmt"
+    "os"
+    "strings"
+
+    "github.com/charmbracelet/bubbles/key"
+    tea "github.com/charmbracelet/bubbletea"
+    "github.com/charmbracelet/lipgloss"
+    "github.com/mikeschinkel/go-dt"
+    "github.com/mikeschinkel/go-tealeaves/teastatus"
+    "github.com/mikeschinkel/go-tealeaves/teatree"
+)
+
+// headerLines is the number of rows used by the title and spacing above the tree.
+const headerLines = 3
+
+// statusBarLines is the number of rows used by the status bar at the bottom.
+const statusBarLines = 1
+
+type model struct {
+    tree      teatree.Model[teatree.File]
+    statusBar teastatus.Model
+    width     int
+    height    int
+}
+
+var titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("205"))
+
+func main() {
+    // Build a sample file tree
+    files := []*teatree.File{
+        teatree.NewFile(dt.RelFilepath("cmd/main.go"), nil),
+        teatree.NewFile(dt.RelFilepath("cmd/version.go"), nil),
+        teatree.NewFile(dt.RelFilepath("internal/handler/auth.go"), nil),
+        teatree.NewFile(dt.RelFilepath("internal/handler/user.go"), nil),
+        teatree.NewFile(dt.RelFilepath("internal/model/user.go"), nil),
+        teatree.NewFile(dt.RelFilepath("pkg/config/config.go"), nil),
+        teatree.NewFile(dt.RelFilepath("go.mod"), nil),
+        teatree.NewFile(dt.RelFilepath("README.md"), nil),
+    }
+
+    nodes := teatree.BuildFileTree(files, teatree.BuildFileTreeArgs{
+        RootPath: dt.PathSegment("myproject"),
+    })
+
+    provider := teatree.NewCompactNodeProvider[teatree.File](teatree.TriangleExpanderControls)
+    tree := teatree.NewTree(nodes, &teatree.TreeArgs[teatree.File]{
+        NodeProvider:     provider,
+        ExpanderControls: &teatree.TriangleExpanderControls,
+    })
+
+    // Expand root nodes so the tree is visible on launch
+    for _, node := range tree.Nodes() {
+        node.Expand()
+    }
+
+    treeModel := teatree.NewModel(tree, 20)
+
+    // Build the status bar with key menus
+    helpBinding := key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "Help"))
+    expandBinding := key.NewBinding(key.WithKeys("e"), key.WithHelp("e", "Expand all"))
+    collapseBinding := key.NewBinding(key.WithKeys("c"), key.WithHelp("c", "Collapse all"))
+    quitBinding := key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit"))
+
+    sb := teastatus.New().
+        SetMenuItems([]teastatus.MenuItem{
+            teastatus.NewMenuItemFromBinding(helpBinding, "Help"),
+            teastatus.NewMenuItemFromBinding(expandBinding, "Expand all"),
+            teastatus.NewMenuItemFromBinding(collapseBinding, "Collapse all"),
+            teastatus.NewMenuItemFromBinding(quitBinding, "Quit"),
+        }).
+        SetIndicators([]teastatus.StatusIndicator{
+            teastatus.NewStatusIndicator("Ready"),
+        })
+
+    m := model{
+        tree:      treeModel,
+        statusBar: sb,
+    }
+
+    p := tea.NewProgram(m, tea.WithAltScreen())
+    if _, err := p.Run(); err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+}
+
+func (m model) Init() tea.Cmd {
+    return m.tree.Init()
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    var cmd tea.Cmd
+
+    switch msg := msg.(type) {
+    case tea.WindowSizeMsg:
+        m.width = msg.Width
+        m.height = msg.Height
+
+        // Tree gets all height except header and status bar
+        treeHeight := msg.Height - headerLines - statusBarLines
+        if treeHeight < 5 {
+            treeHeight = 5
+        }
+        m.tree = m.tree.SetSize(msg.Width, treeHeight)
+
+        // Status bar gets the full width
+        m.statusBar = m.statusBar.SetSize(msg.Width)
+
+        // Update the file count indicator
+        focused := m.tree.FocusedNode()
+        if focused != nil {
+            m.statusBar = m.statusBar.SetIndicators([]teastatus.StatusIndicator{
+                teastatus.NewStatusIndicator(focused.Name()),
+            })
+        }
+        return m, nil
+
+    case tea.KeyMsg:
+        switch msg.String() {
+        case "q", "ctrl+c":
+            return m, tea.Quit
+        case "e":
+            m.tree.Tree().ExpandAll()
+            return m, nil
+        case "c":
+            m.tree.Tree().CollapseAll()
+            return m, nil
+        }
+    }
+
+    m.tree, cmd = m.tree.Update(msg)
+
+    // Update status bar indicator with focused node name
+    if focused := m.tree.FocusedNode(); focused != nil {
+        m.statusBar = m.statusBar.SetIndicators([]teastatus.StatusIndicator{
+            teastatus.NewStatusIndicator(focused.Name()),
+        })
+    }
+
+    return m, cmd
+}
+
+func (m model) View() string {
+    var b strings.Builder
+
+    // Header
+    b.WriteString(titleStyle.Render("File Navigator"))
+    b.WriteString("\n\n")
+
+    // Tree view
+    b.WriteString(m.tree.View())
+    b.WriteString("\n")
+
+    // Pad to push the status bar to the bottom
+    lines := strings.Split(b.String(), "\n")
+    targetLines := m.height - statusBarLines
+    for len(lines) < targetLines {
+        lines = append(lines, "")
+    }
+    // Trim if content is too tall
+    if len(lines) > targetLines {
+        lines = lines[:targetLines]
+    }
+
+    // Append the status bar as the final row
+    lines = append(lines, m.statusBar.View())
+
+    return strings.Join(lines, "\n")
+}
+```
+
+## Layout calculation explained
+
+The screen height is divided between three zones:
+
+```
++----------------------------------+
+| Title + spacing  (headerLines=3) |
++----------------------------------+
+| Tree view                        |
+| (height - headerLines - 1)       |
+|                                  |
++----------------------------------+
+| Status bar       (1 row)         |
++----------------------------------+
+```
+
+When a `tea.WindowSizeMsg` arrives, both components receive their allocated dimensions:
+
+```go
+// Tree gets all available height minus header and status bar
+treeHeight := msg.Height - headerLines - statusBarLines
+m.tree = m.tree.SetSize(msg.Width, treeHeight)
+
+// Status bar gets the full terminal width
+m.statusBar = m.statusBar.SetSize(msg.Width)
+```
+
+In `View()`, the content is padded with empty lines so that the status bar always sits on the last row, regardless of how many tree nodes are visible.
+
+<Aside type="tip">
+If you add more components (e.g., a breadcrumb bar or a notification overlay), adjust the `headerLines` or `statusBarLines` constants and recalculate `treeHeight` accordingly. Each component that occupies fixed rows must be subtracted from the tree's available height.
+</Aside>
+
+### Dynamic status bar indicators
+
+The status bar's right-side indicators update to reflect the currently focused tree node. Each time the tree navigates to a new node, the `Update()` method refreshes the indicator:
+
+```go
+if focused := m.tree.FocusedNode(); focused != nil {
+    m.statusBar = m.statusBar.SetIndicators([]teastatus.StatusIndicator{
+        teastatus.NewStatusIndicator(focused.Name()),
+    })
+}
+```
+
+Because `teastatus` uses value semantics (the `SetIndicators` method returns a new model), this is safe to call on every update cycle.
+
+## Related
+
+- [teatree component](/go-tealeaves/components/teatree/) -- Full API reference for the tree view
+- [teastatus component](/go-tealeaves/components/teastatus/) -- Full API reference for the status bar
+- [Wither Methods](/go-tealeaves/patterns/wither-methods/) -- The immutable update pattern used by both components

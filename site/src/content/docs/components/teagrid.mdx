@@ -1,0 +1,144 @@
+---
+title: "teagrid — Data Grid"
+description: Tabular data display component with sorting, filtering, pagination, row selection, and flexible column widths.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Displaying tabular data in the terminal with sorting, filtering, pagination, and row selection requires extensive custom code. `teagrid` provides a ready-made data grid component that handles all of these concerns out of the box, letting you focus on your data rather than table rendering logic.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teagrid
+```
+
+## Quick example
+
+```go
+package main
+
+import (
+	"os"
+	"strings"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
+	"github.com/mikeschinkel/go-tealeaves/teagrid"
+)
+
+const (
+	columnKeyName    = "name"
+	columnKeyElement = "element"
+)
+
+func main() {
+	m := model{
+		table: teagrid.New([]teagrid.Column{
+			teagrid.NewColumn(columnKeyName, "Name", 13),
+			teagrid.NewColumn(columnKeyElement, "Element", 10),
+		}).WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left)).WithRows([]teagrid.Row{
+			teagrid.NewRow(teagrid.RowData{columnKeyName: "Pikachu", columnKeyElement: "Electric"}),
+			teagrid.NewRow(teagrid.RowData{columnKeyName: "Charmander", columnKeyElement: "Fire"}),
+		}),
+	}
+	p := tea.NewProgram(m)
+	if _, err := p.Run(); err != nil {
+		os.Exit(1)
+	}
+}
+
+type model struct{ table teagrid.Model }
+
+func (m model) Init() tea.Cmd { return nil }
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.table, cmd = m.table.Update(msg)
+	if msg, ok := msg.(tea.KeyMsg); ok && msg.String() == "q" {
+		return m, tea.Quit
+	}
+	return m, cmd
+}
+func (m model) View() string {
+	var b strings.Builder
+	b.WriteString("Simple data grid\nPress q to quit\n\n")
+	b.WriteString(m.table.View())
+	return b.String()
+}
+```
+
+## Features
+
+- Column definitions with key, title, width, and flex factor
+- Fixed and flexible column widths
+- Multi-column sorting (ascending/descending with secondary sort)
+- Built-in fuzzy filtering with custom `FilterFunc` support
+- Pagination with page size control
+- Row selection (single and multi-select)
+- Row style functions for conditional formatting
+- Header and footer visibility toggles
+- Keyboard highlight navigation
+
+## API reference
+
+### Constructors
+
+- **`New(columns []Column) Model`** — Create a grid with the given column definitions.
+- **`NewColumn(key, title string, width int) Column`** — Create a column with a key, display title, and fixed width.
+- **`NewRow(data RowData) Row`** — Create a row from a map of column keys to values.
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `Model` | Main grid component implementing `tea.Model` |
+| `Column` | Column definition with key, title, width, and style |
+| `Row` | Row data with `RowData` map and optional `Style` |
+| `RowData` | `map[string]any` mapping column keys to values |
+| `Border` | Border character definitions |
+| `SortColumn` | Sort specification (`ColumnKey`, `Direction`) |
+| `FilterFuncInput` | Input for custom filter functions |
+| `UserEvent` | Grid events (filter, highlight, row select changes) |
+
+## Configuration
+
+Configure the grid using `With*()` wither methods. These return the updated model rather than mutating in place (see [Wither Methods](/go-tealeaves/patterns/wither-methods/)).
+
+- **`WithRows(rows []Row)`** — Set row data.
+- **`WithColumns(cols []Column)`** — Update column definitions.
+- **`WithPageSize(n int)`** — Set rows per page.
+- **`WithTargetWidth(w int)`** — Set target total width for the grid.
+- **`WithBaseStyle(s lipgloss.Style)`** — Set the base cell style applied to all cells.
+- **`WithFilterFunc(fn FilterFunc)`** — Provide a custom filter function.
+- **`WithFuzzyFilter()`** — Enable the built-in fuzzy filter.
+- **`WithHeaderVisibility(v bool)`** — Show or hide the header row.
+- **`WithFooterVisibility(v bool)`** — Show or hide the footer row.
+
+## Sorting
+
+Sort rows by one or more columns. Primary sort sets the main sort column; secondary sort breaks ties.
+
+- **`SortByAsc(key string)`** / **`SortByDesc(key string)`** — Set the primary sort column and direction.
+- **`ThenSortByAsc(key string)`** / **`ThenSortByDesc(key string)`** — Add a secondary sort column.
+- **`GetColumnSorting(key string)`** — Query the current sort state for a column.
+
+## Pagination
+
+Navigate through pages when the row count exceeds the page size.
+
+- **`PageDown()`** / **`PageUp()`** — Move forward or backward one page.
+- **`PageFirst()`** / **`PageLast()`** — Jump to the first or last page.
+- **`CurrentPage()`** / **`MaxPages()`** — Query the current page index and total page count.
+
+## Row selection
+
+Enable row selection to let users pick one or more rows from the grid.
+
+- **`RowSelectToggle()`** — Toggle selection on the currently highlighted row.
+- **`SelectedRows()`** — Get the list of currently selected rows.
+- **`SelectableRows(b bool)`** — Enable or disable row selection.
+
+<Aside type="caution" title="Known limitations">
+- Column widths must be specified at creation time. There is no auto-width calculation from cell content.
+- No built-in horizontal scrolling for wide tables that exceed the terminal width.
+</Aside>

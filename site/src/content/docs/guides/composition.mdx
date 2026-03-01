@@ -1,0 +1,151 @@
+---
+title: Composing Components
+description: How to use multiple Tea Leaves components together — message flow, overlay stacking, and shared screen dimensions.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Message flow
+
+When using multiple components, each receives `Update()` in sequence. The first component to return a non-nil `tea.Cmd` "wins" -- its response is used and subsequent components do not process the message. This prevents a single keypress from being handled by multiple components at once.
+
+Order your components from highest to lowest priority:
+
+```go
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    // Modals first (highest priority)
+    modal, cmd := m.modal.Update(msg)
+    if cmd != nil {
+        m.modal = modal.(teamodal.ModalModel)
+        return m, cmd
+    }
+
+    // Then dropdown
+    dropdown, cmd := m.dropdown.Update(msg)
+    if cmd != nil {
+        m.dropdown = dropdown.(teadd.DropdownModel)
+        return m, cmd
+    }
+
+    // Then main content
+    // ...
+}
+```
+
+A modal that is open should consume all keyboard input so the user cannot interact with content behind it. By checking modals first, you get this behavior naturally through the `cmd != nil` convention.
+
+## Stacking overlays
+
+When rendering, overlay order matters. Each overlay draws on top of whatever came before it, so modals should render last (on top of everything) and dropdowns should render after main content but before modals.
+
+```go
+func (m model) View() string {
+    view := m.mainContent.View()
+
+    // Dropdown overlay (lower z-order)
+    if m.dropdown.IsOpen {
+        view = teadd.OverlayDropdown(view, m.dropdown.View(), row, col)
+    }
+
+    // Modal overlay (higher z-order)
+    if m.modal.IsOpen() {
+        view = m.modal.OverlayModal(view)
+    }
+
+    return view
+}
+```
+
+The overlay functions replace characters in the underlying view string at the correct positions. They do not use any terminal-specific escape sequences beyond what Bubble Tea already handles.
+
+## Sharing screen dimensions
+
+All components that need sizing must receive `tea.WindowSizeMsg`. Propagate it to every component in your model:
+
+```go
+case tea.WindowSizeMsg:
+    m.width = msg.Width
+    m.height = msg.Height
+    m.modal = m.modal.SetSize(msg.Width, msg.Height)
+    m.dropdown = m.dropdown.WithScreenSize(msg.Width, msg.Height)
+    m.tree = m.tree.SetSize(msg.Width, msg.Height-2)
+    m.statusBar = m.statusBar.SetSize(msg.Width)
+```
+
+Note that you can adjust dimensions per component. In the example above, the tree view gets `height-2` to leave room for the status bar at the bottom.
+
+## Example: teastatus + teamodal + teanotify
+
+Here is a sketch of how three components work together -- a status bar at the bottom, a modal overlay when triggered, and notifications in the corner:
+
+```go
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    // Modal has highest priority
+    modal, cmd := m.modal.Update(msg)
+    if cmd != nil {
+        m.modal = modal.(teamodal.ModalModel)
+        return m, cmd
+    }
+
+    switch msg := msg.(type) {
+    case teamodal.AnsweredYesMsg:
+        m.result = "Confirmed"
+        return m, nil
+
+    case teanotify.ExpiredMsg:
+        m.notification = m.notification.Clear()
+        return m, nil
+
+    case tea.WindowSizeMsg:
+        m.width = msg.Width
+        m.height = msg.Height
+        m.modal = m.modal.SetSize(msg.Width, msg.Height)
+        m.statusBar = m.statusBar.SetSize(msg.Width)
+        return m, nil
+
+    case tea.KeyMsg:
+        switch msg.String() {
+        case "q":
+            return m, tea.Quit
+        case "c":
+            m.modal, cmd = m.modal.Open()
+            return m, cmd
+        case "n":
+            m.notification, cmd = m.notification.Show("Action completed")
+            return m, cmd
+        }
+    }
+    return m, nil
+}
+
+func (m model) View() string {
+    // Main content area
+    content := m.mainView()
+
+    // Status bar at the bottom
+    view := content + "\n" + m.statusBar.View()
+
+    // Notification overlay (corner position)
+    if m.notification.IsVisible() {
+        view = m.notification.Overlay(view)
+    }
+
+    // Modal overlay (centered, on top of everything)
+    if m.modal.IsOpen() {
+        view = m.modal.OverlayModal(view)
+    }
+
+    return view
+}
+```
+
+The `View()` function builds the screen from back to front: main content first, then status bar as part of the layout, then notification and modal overlays painted on top.
+
+## Tips
+
+<Aside type="tip">
+- **Process modals and dropdowns before main content** in `Update()` so they consume input when open
+- **Render overlays after main content** in `View()` so they paint on top of the base view
+- **Always propagate `tea.WindowSizeMsg`** to all components that need sizing information
+- **Use the key registry from teautils** to avoid key binding conflicts between components that are active at the same time
+</Aside>

@@ -1,0 +1,198 @@
+---
+title: "Filterable Grid"
+description: "Recipe: Using teagrid with custom FilterFunc for real-time data filtering."
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Goal
+
+Build a data grid that filters rows in real-time as the user types. Press `/` to activate the filter input, type a query, and watch the grid narrow down to matching rows. Press Escape to clear the filter and show all rows again.
+
+## What you need
+
+- `teagrid` -- the data grid component
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teagrid
+```
+
+## Full example
+
+```go
+package main
+
+import (
+    "os"
+    "strings"
+
+    tea "github.com/charmbracelet/bubbletea"
+    "github.com/charmbracelet/lipgloss"
+    "github.com/mikeschinkel/go-tealeaves/teagrid"
+)
+
+const (
+    colName    = "name"
+    colLang    = "language"
+    colStars   = "stars"
+)
+
+type project struct {
+    name     string
+    language string
+    stars    int
+}
+
+var projects = []project{
+    {"bubbletea", "Go", 28000},
+    {"lipgloss", "Go", 8200},
+    {"charm", "Go", 3100},
+    {"glow", "Go", 16000},
+    {"vhs", "Go", 15000},
+    {"react", "JavaScript", 230000},
+    {"vue", "JavaScript", 208000},
+    {"svelte", "JavaScript", 80000},
+    {"django", "Python", 81000},
+    {"flask", "Python", 68000},
+    {"fastapi", "Python", 78000},
+    {"rails", "Ruby", 56000},
+}
+
+type model struct {
+    table teagrid.Model
+}
+
+func newModel() model {
+    columns := []teagrid.Column{
+        teagrid.NewColumn(colName, "Project", 20).WithFiltered(true),
+        teagrid.NewColumn(colLang, "Language", 15).WithFiltered(true),
+        teagrid.NewColumn(colStars, "Stars", 10),
+    }
+
+    rows := make([]teagrid.Row, len(projects))
+    for i, p := range projects {
+        rows[i] = teagrid.NewRow(teagrid.RowData{
+            colName:  p.name,
+            colLang:  p.language,
+            colStars: p.stars,
+        })
+    }
+
+    return model{
+        table: teagrid.
+            New(columns).
+            Filtered(true).
+            Focused(true).
+            WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left)).
+            WithPageSize(15).
+            WithRows(rows),
+    }
+}
+
+func (m model) Init() tea.Cmd { return nil }
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    var (
+        cmd  tea.Cmd
+        cmds []tea.Cmd
+    )
+
+    // Let the grid handle the message (navigation, filtering, sorting)
+    m.table, cmd = m.table.Update(msg)
+    cmds = append(cmds, cmd)
+
+    switch msg := msg.(type) {
+    case tea.WindowSizeMsg:
+        m.table = m.table.WithTargetWidth(msg.Width)
+
+    case tea.KeyMsg:
+        switch msg.String() {
+        case "ctrl+c", "q":
+            // Only quit if the filter input is NOT focused.
+            // When filtering, "q" is a valid character to type.
+            if !m.table.GetIsFilterInputFocused() {
+                cmds = append(cmds, tea.Quit)
+            }
+        }
+    }
+
+    return m, tea.Batch(cmds...)
+}
+
+func (m model) View() string {
+    var b strings.Builder
+
+    b.WriteString("Filterable Project Grid\n")
+    b.WriteString("Press / to filter, Escape to clear, q to quit\n\n")
+    b.WriteString(m.table.View())
+
+    return b.String()
+}
+
+func main() {
+    p := tea.NewProgram(newModel(), tea.WithAltScreen())
+    if _, err := p.Run(); err != nil {
+        os.Exit(1)
+    }
+}
+```
+
+## The filtering pipeline
+
+### 1. Mark columns as filterable
+
+Not every column should participate in filtering. Use `WithFiltered(true)` on the columns you want the filter to search:
+
+```go
+teagrid.NewColumn(colName, "Project", 20).WithFiltered(true)
+teagrid.NewColumn(colLang, "Language", 15).WithFiltered(true)
+teagrid.NewColumn(colStars, "Stars", 10)  // not filterable
+```
+
+Only columns marked as filterable contribute to the filter match. In this example, typing "go" filters by the Project and Language columns but ignores Stars.
+
+### 2. Enable filtering on the grid
+
+Call `Filtered(true)` on the grid model to enable the built-in filter input:
+
+```go
+teagrid.New(columns).Filtered(true)
+```
+
+This registers the `/` key to activate the filter input and enables the built-in case-insensitive substring matching.
+
+### 3. Activating the filter
+
+When the user presses `/`, the grid focuses an inline text input. Every keystroke filters the visible rows in real-time. The grid emits `UserEventFilterInputFocused` and `UserEventFilterInputUnfocused` events that you can listen for if you need to adjust other UI elements.
+
+### 4. Protecting quit keys
+
+While the filter input is focused, normal key bindings like `q` should be treated as filter text, not as quit commands. Use `GetIsFilterInputFocused()` to guard your quit handler:
+
+```go
+case "ctrl+c", "q":
+    if !m.table.GetIsFilterInputFocused() {
+        cmds = append(cmds, tea.Quit)
+    }
+```
+
+### 5. Clearing the filter
+
+Press `Escape` while the filter input is focused to blur the input and keep the current filter. Press `Escape` again while the filter input is blurred to clear the filter entirely and show all rows.
+
+## Keyboard shortcuts (filter mode)
+
+| Key | Action |
+|-----|--------|
+| `/` | Activate filter input |
+| `Enter` / `Escape` | Stop filtering (blur the input) |
+| `Escape` (when blurred) | Clear the filter |
+
+<Aside type="tip">
+The `WithTargetWidth` call in the `WindowSizeMsg` handler ensures flex columns (created with `NewFlexColumn`) expand to fill the available terminal width. Fixed-width columns keep their specified width regardless of the terminal size.
+</Aside>
+
+## Related
+
+- [teagrid component](/go-tealeaves/components/teagrid/) -- Full API reference
+- [Wither Methods](/go-tealeaves/patterns/wither-methods/) -- The immutable update pattern used by `With*()` methods

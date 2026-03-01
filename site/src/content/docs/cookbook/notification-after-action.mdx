@@ -1,0 +1,224 @@
+---
+title: "Async Notifications"
+description: "Recipe: Triggering teanotify notifications from asynchronous tea.Cmd operations."
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## Goal
+
+Display a toast notification after an asynchronous operation completes. The notification should appear automatically, animate a color fade, and dismiss itself after a configurable duration.
+
+## What you need
+
+- `teanotify` -- the notification/toast component
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teanotify
+```
+
+## Full example
+
+```go
+package main
+
+import (
+    "fmt"
+    "os"
+    "strings"
+    "time"
+
+    tea "github.com/charmbracelet/bubbletea"
+    "github.com/charmbracelet/lipgloss"
+    "github.com/mikeschinkel/go-tealeaves/teanotify"
+)
+
+// saveCompleteMsg is returned by the async save command.
+type saveCompleteMsg struct{ filename string }
+
+// saveFailedMsg is returned when the save fails.
+type saveFailedMsg struct{ err error }
+
+type model struct {
+    notify   teanotify.NotifyModel
+    saving   bool
+    width    int
+    height   int
+}
+
+var (
+    titleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("205"))
+    helpStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
+    keyStyle   = lipgloss.NewStyle().Foreground(lipgloss.Color("86"))
+)
+
+func main() {
+    // Create the notification model with options
+    notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
+        Width:           40,
+        Duration:        3 * time.Second,
+        Position:        teanotify.TopRightPosition,
+        AllowEscToClose: true,
+    })
+
+    // Initialize registers default notice types (Info, Warn, Error, Debug)
+    var err error
+    notify, err = notify.Initialize()
+    if err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+
+    p := tea.NewProgram(model{notify: notify}, tea.WithAltScreen())
+    if _, err := p.Run(); err != nil {
+        fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+        os.Exit(1)
+    }
+}
+
+// simulateSave returns a tea.Cmd that simulates an async file save.
+func simulateSave(filename string) tea.Cmd {
+    return func() tea.Msg {
+        // Simulate network or disk latency
+        time.Sleep(1 * time.Second)
+        return saveCompleteMsg{filename: filename}
+    }
+}
+
+func (m model) Init() tea.Cmd { return nil }
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    // Always let teanotify process the message first.
+    // This handles tick messages for animation and ESC for dismissal.
+    var notifyCmd tea.Cmd
+    m.notify, notifyCmd = m.notify.Update(msg)
+
+    switch msg := msg.(type) {
+    case tea.WindowSizeMsg:
+        m.width = msg.Width
+        m.height = msg.Height
+        return m, notifyCmd
+
+    case tea.KeyMsg:
+        switch msg.String() {
+        case "q", "ctrl+c":
+            return m, tea.Quit
+        case "s":
+            if !m.saving {
+                m.saving = true
+                return m, tea.Batch(notifyCmd, simulateSave("document.txt"))
+            }
+        }
+
+    // --- Handle async completion messages ---
+    case saveCompleteMsg:
+        m.saving = false
+        // Trigger an info notification
+        cmd := m.notify.NewNotifyCmd(
+            teanotify.InfoKey,
+            fmt.Sprintf("Saved %s successfully", msg.filename),
+        )
+        return m, tea.Batch(notifyCmd, cmd)
+
+    case saveFailedMsg:
+        m.saving = false
+        // Trigger an error notification
+        cmd := m.notify.NewNotifyCmd(
+            teanotify.ErrorKey,
+            fmt.Sprintf("Save failed: %v", msg.err),
+        )
+        return m, tea.Batch(notifyCmd, cmd)
+    }
+
+    return m, notifyCmd
+}
+
+func (m model) View() string {
+    if m.width == 0 {
+        return "Loading..."
+    }
+
+    var b strings.Builder
+    b.WriteString(titleStyle.Render("Async Notification Example"))
+    b.WriteString("\n\n")
+    b.WriteString("  " + keyStyle.Render("s") + "  " + helpStyle.Render("Save file (async)") + "\n")
+    b.WriteString("  " + keyStyle.Render("esc") + "  " + helpStyle.Render("Dismiss notification") + "\n")
+    b.WriteString("  " + keyStyle.Render("q") + "  " + helpStyle.Render("Quit") + "\n")
+
+    if m.saving {
+        b.WriteString("\n  Saving...")
+    }
+
+    // Pad content to fill the terminal height
+    lines := strings.Split(b.String(), "\n")
+    for len(lines) < m.height {
+        lines = append(lines, "")
+    }
+    if len(lines) > m.height {
+        lines = lines[:m.height]
+    }
+
+    fullContent := strings.Join(lines, "\n")
+
+    // Render overlays the notification on top of the content.
+    // If no notification is active, it returns the content unchanged.
+    return m.notify.Render(fullContent)
+}
+```
+
+## How it works
+
+### Setup: NewNotifyModel + Initialize
+
+`NewNotifyModel` accepts a `NotifyOpts` struct that configures the notification width, auto-dismiss duration, screen position, and ESC-to-close behavior. After construction, you must call `Initialize()` to validate the options and register the four built-in notice types (Info, Warn, Error, Debug).
+
+```go
+notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
+    Width:           40,
+    Duration:        3 * time.Second,
+    Position:        teanotify.TopRightPosition,
+    AllowEscToClose: true,
+})
+notify, err = notify.Initialize()
+```
+
+### Triggering: NewNotifyCmd
+
+When your async operation completes, call `NewNotifyCmd` with a notice type key and a message string. This returns a `tea.Cmd` that, when processed by the Bubble Tea runtime, delivers a notification message to the `NotifyModel`.
+
+```go
+cmd := m.notify.NewNotifyCmd(teanotify.InfoKey, "Saved successfully")
+return m, tea.Batch(notifyCmd, cmd)
+```
+
+### Rendering: Render
+
+In your `View()`, call `m.notify.Render(content)` as the final step. If a notification is active, `Render` overlays it at the configured position using ANSI-aware string operations. If no notification is active, it returns the content unchanged.
+
+```go
+return m.notify.Render(fullContent)
+```
+
+### Timing and dismissal
+
+Once triggered, `teanotify` manages its own lifecycle:
+
+1. A `tickMsg` fires every 100ms to advance the color fade animation.
+2. At each tick, the lerp step increments, blending the foreground color toward the background.
+3. When the duration expires, the notification clears itself automatically.
+4. If `AllowEscToClose` is enabled, the user can press ESC to dismiss early.
+
+You do not need to manage timers or cleanup -- just forward all messages through `m.notify.Update(msg)` on every update cycle.
+
+<Aside type="tip">
+Always call `m.notify.Update(msg)` for **every** message, not just notification-related ones. The tick timer needs to process `tea.Msg` values to advance the animation and check for expiry.
+</Aside>
+
+### Using tea.Batch
+
+Notice that `notifyCmd` (from the Update call) and the notification trigger command are combined with `tea.Batch`. This ensures both the ongoing tick animation and the new notification trigger are dispatched together.
+
+## Related
+
+- [teanotify component](/go-tealeaves/components/teanotify/) -- Full API reference
+- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) -- How `Render()` overlays notifications on styled content

@@ -1,0 +1,163 @@
+---
+title: Modal Message Consumption
+description: How Tea Leaves uses non-nil tea.Cmd returns to signal message consumption, keeping parent Update() code clean.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+When a dropdown or modal is open, it needs to consume keyboard messages so they don't propagate to the parent. The common approach **infects** the parent's `Update()` with modal state checks. Tea Leaves solves this with a simple contract: **non-nil `tea.Cmd` means the message was consumed**.
+
+## The problem
+
+<Aside type="danger">
+**Anti-pattern: State checking in parent.** The parent must know the dropdown's internal state to decide whether to process messages. This violates encapsulation and clutters parent code.
+</Aside>
+
+```go
+// Parent Update() — infected with modal checks
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    if !m.dropdown.IsOpen {  // ← State check "infection"
+        switch msg := msg.(type) {
+        case tea.KeyMsg:
+            if msg.String() == "q" {
+                return m, tea.Quit
+            }
+        }
+    }
+    return m, nil
+}
+```
+
+This approach has several problems:
+- Parent must know dropdown's internal state
+- Every modal component requires its own `IsOpen` guard
+- Parent code grows linearly with the number of modal components
+- Violates encapsulation — the parent reaches into the dropdown's state
+
+## The solution
+
+<Aside type="tip">
+**Tea Leaves pattern: Check the returned `tea.Cmd`.** If the dropdown returns a non-nil `tea.Cmd`, it handled the message. The parent skips its own processing.
+</Aside>
+
+<Tabs>
+  <TabItem label="Parent pattern">
+    ```go
+    func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+        var cmd tea.Cmd
+
+        // Let dropdown handle message first
+        dropdown, cmd := m.dropdown.Update(msg)
+        if cmd != nil {
+            m.dropdown = dropdown.(teadd.DropdownModel)
+            return m, cmd  // Dropdown consumed it — done!
+        }
+
+        // Dropdown didn't handle — parent processes
+        switch msg := msg.(type) {
+        case tea.KeyMsg:
+            switch msg.String() {
+            case "q":
+                return m, tea.Quit
+            case " ":
+                m.dropdown, cmd = m.dropdown.Open()
+                return m, cmd
+            }
+        }
+
+        return m, nil
+    }
+    ```
+  </TabItem>
+  <TabItem label="Dropdown internals">
+    ```go
+    func (m DropdownModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+        var cmd tea.Cmd
+
+        if !m.IsOpen {
+            goto end  // Not open = nil cmd = didn't handle
+        }
+
+        keyMsg, ok := msg.(tea.KeyMsg)
+        if !ok {
+            goto end  // Not a key message = nil cmd
+        }
+
+        switch keyMsg.String() {
+        case "up", "k":
+            m.Selected--
+            cmd = func() tea.Msg { return nil }  // Non-nil = handled
+            goto end
+        case "enter":
+            m.IsOpen = false
+            cmd = func() tea.Msg {
+                return OptionSelectedMsg{Index: m.Selected}
+            }
+            goto end
+        case "esc":
+            m.IsOpen = false
+            cmd = func() tea.Msg { return DropdownCancelledMsg{} }
+            goto end
+        }
+
+    end:
+        return m, cmd  // nil if not handled, non-nil if handled
+    }
+    ```
+  </TabItem>
+</Tabs>
+
+## Why this works
+
+1. **True encapsulation** — Parent doesn't check `m.dropdown.IsOpen`. The dropdown decides what it consumes.
+
+2. **Explicit signal** — Non-nil `tea.Cmd` means "I handled this message." Nil means "this message isn't for me." Simple, unambiguous contract.
+
+3. **Whitelist pattern** — The dropdown explicitly handles specific keys. Everything else falls through to the parent. No blacklist needed.
+
+4. **Works with ClearPath** — The `goto end` pattern makes delegation crystal clear. All variables declared upfront, single return point.
+
+## Multiple modals
+
+The pattern composes naturally with multiple modal components:
+
+```go
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    var cmd tea.Cmd
+
+    // Each modal gets a chance to consume
+    dropdown, cmd := m.dropdown.Update(msg)
+    if cmd != nil {
+        m.dropdown = dropdown.(teadd.DropdownModel)
+        return m, cmd
+    }
+
+    modal, cmd := m.confirmModal.Update(msg)
+    if cmd != nil {
+        m.confirmModal = modal.(teamodal.ModalModel)
+        return m, cmd
+    }
+
+    // None consumed — parent processes
+    switch msg := msg.(type) {
+    case tea.KeyMsg:
+        // ...
+    }
+
+    return m, nil
+}
+```
+
+## Alternatives rejected
+
+| Approach | Why rejected |
+|----------|-------------|
+| **State checking** (`if !m.dropdown.IsOpen`) | Violates encapsulation, infects parent code |
+| **Returned bool flag** (`Update() → (Model, Cmd, bool)`) | Non-standard API, `tea.Cmd` already serves as signal |
+| **Message wrapper** (`ConsumedMsg{Consumed: bool}`) | Adds complexity, requires parent to check message type |
+
+## Related
+
+- [teadd component](/go-tealeaves/components/teadd/) — Dropdown uses this pattern
+- [teamodal component](/go-tealeaves/components/teamodal/) — Modals use this pattern
+- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — How overlays render on top of content

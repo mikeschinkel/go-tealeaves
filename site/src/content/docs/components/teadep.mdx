@@ -1,0 +1,159 @@
+---
+title: "teadep — Dep Viewer"
+description: Interactive dependency path viewer for exploring module dependency graphs with dropdown-based level selection.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Dependency graphs are complex -- navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `teadep` provides an interactive path viewer that renders a single root-to-leaf path through a dependency tree, with dropdown selection for choosing alternative dependencies at any level. It integrates `teadd` internally for the dropdown and uses a configurable `SelectorFunc` to determine the "best" path.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teadep
+```
+
+## Quick example
+
+```go
+// Define nodes
+root := teadep.NewBaseNode("myapp", &teadep.BaseNodeArgs{
+    Dependencies: []teadep.Node{
+        teadep.NewBaseNode("libA", &teadep.BaseNodeArgs{
+            Dependencies: []teadep.Node{
+                teadep.NewBaseNode("libC", nil),
+                teadep.NewBaseNode("libD", nil),
+            },
+        }),
+        teadep.NewBaseNode("libB", nil),
+    },
+})
+
+// Build tree (detects circular dependencies)
+tree := teadep.NewTree(root)
+
+// Create viewer with a selector that picks the first child
+viewer := teadep.NewPathViewer(tree, teadep.PathViewerArgs{
+    SelectorFunc: func(parent *teadep.Tree, children []*teadep.Tree) (*teadep.Tree, error) {
+        return children[0], nil
+    },
+    Prompt: "Dependency path:",
+})
+
+// Initialize (builds initial path from root to leaf)
+viewer, err := viewer.Initialize()
+if err != nil {
+    log.Fatal(err)
+}
+
+// Handle messages in Update()
+case teadep.SelectNodeMsg:
+    // User confirmed a leaf node with Enter
+case teadep.ChangeNodeMsg:
+    // User picked a different dependency from the dropdown
+```
+
+## Features
+
+- Path-based navigation through dependency trees (root to leaf)
+- Dropdown selection for alternatives at each level (via `teadd` internally)
+- Custom `SelectorFunc` for ranking which child to follow at each level
+- Circular dependency detection and breaking during tree construction
+- Configurable border, path, and selected item styles
+- Optional prompt text above the path display
+- `BaseNode` struct for easy node creation (embed in custom types)
+- Arrow prefix indicator for nodes that have alternatives
+
+## API reference
+
+### Constructors and functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewPathViewer` | `NewPathViewer(root *Tree, args PathViewerArgs) PathViewerModel` | Create a path viewer from a tree root |
+| `NewTree` | `NewTree(node Node) *Tree` | Build a `Tree` from a `Node`, recursively creating children |
+| `NewBaseNode` | `NewBaseNode(displayName string, args *BaseNodeArgs) *BaseNode` | Create a basic node implementation |
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `PathViewerModel` | Main component -- implements `tea.Model` |
+| `Node` | Interface: `DisplayName()`, `SetDisplayName()`, `Dependencies()`, `SetDependencies()` |
+| `BaseNode` | Default `Node` implementation with display name and dependencies |
+| `BaseNodeArgs` | Optional args for `NewBaseNode` (contains `Dependencies []Node`) |
+| `Tree` | Navigation wrapper with `Node`, `Parent`, and `Children` fields |
+| `PathViewerArgs` | Constructor args: `SelectorFunc` and `Prompt` |
+| `SelectorFunc` | `func(parent *Tree, children []*Tree) (best *Tree, err error)` |
+| `PathViewerKeyMap` | Key bindings for path navigation |
+
+### Configuration
+
+| Method | Description |
+|--------|-------------|
+| `Initialize() (PathViewerModel, error)` | Validate inputs and build the initial root-to-leaf path |
+| `WithPathStyle(style lipgloss.Style) PathViewerModel` | Set the style for non-selected path items |
+| `WithSelectedStyle(style lipgloss.Style) PathViewerModel` | Set the style for the currently selected level |
+| `WithBorderStyle(style lipgloss.Style) PathViewerModel` | Set the border style around the path viewer |
+
+### Tree methods
+
+| Method | Description |
+|--------|-------------|
+| `Alternatives() []*Tree` | Get sibling nodes at this level (parent's children) |
+| `IsLeaf() bool` | True if node has no children |
+| `HasAlternatives() bool` | True if there are sibling alternatives at this level |
+
+## Messages
+
+| Message | When sent |
+|---------|-----------|
+| `SelectNodeMsg` | User presses Enter on a leaf node -- contains `Tree *Tree` |
+| `ChangeNodeMsg` | User picks a different alternative from the dropdown -- contains `Level int` and `Tree *Tree` |
+| `FocusNodeMsg` | Selection moves via up/down navigation -- contains `Level int` and `Tree *Tree` |
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Up` / `k` | Move selection up one level in the path |
+| `Down` / `j` | Move selection down one level in the path |
+| `Space` / `Right` | Open alternatives dropdown for the current level |
+| `Enter` | Confirm selection on a leaf node (sends `SelectNodeMsg`) |
+
+When the alternatives dropdown is open, it captures input and uses the standard [teadd](/go-tealeaves/components/teadd/) keyboard shortcuts (up/down/enter/esc).
+
+## The SelectorFunc
+
+The `SelectorFunc` determines which child to follow when building a path from root to leaf. This is where you encode your ranking logic:
+
+```go
+// Pick the child with the most transitive dependencies (deepest subtree)
+selector := func(parent *teadep.Tree, children []*teadep.Tree) (*teadep.Tree, error) {
+    best := children[0]
+    bestDepth := countDepth(best)
+    for _, child := range children[1:] {
+        if d := countDepth(child); d > bestDepth {
+            best = child
+            bestDepth = d
+        }
+    }
+    return best, nil
+}
+```
+
+The function can capture any context it needs via closure -- metadata maps, configuration, scoring weights, etc.
+
+## Known limitations
+
+<Aside type="caution">
+- `Initialize()` must be called after `NewPathViewer()` before the model can be used. Forgetting this will result in an empty path.
+- The tree structure is immutable after creation via `NewTree()`. To reflect changes in the dependency graph, rebuild the tree and create a new `PathViewerModel`.
+- Root nodes have no alternatives (they cannot be swapped).
+</Aside>
+
+## Related
+
+- [teadd](/go-tealeaves/components/teadd/) -- Dropdown component used internally for alternative selection
+- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) -- How the dropdown renders on top of the path viewer
+- [Wither Methods](/go-tealeaves/patterns/wither-methods/) -- The immutable update pattern used by `With*()` methods

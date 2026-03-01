@@ -1,0 +1,114 @@
+---
+title: Wither Methods
+description: The immutable update pattern used throughout Tea Leaves — methods return the updated model instead of mutating in place.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Tea Leaves uses an **immutable struct pattern** throughout all components: methods update struct fields and return the model, rather than mutating via pointer receivers. This aligns with Bubble Tea's value-receiver `Update()` convention and prevents a class of subtle bugs.
+
+## The pattern
+
+<Tabs>
+  <TabItem label="Correct — wither method">
+    ```go
+    // Methods return the updated model
+    func (m MyModel) calculateLayout() MyModel {
+        m.contentWidth = /* calculate */
+        m.totalWidth = /* calculate */
+        return m
+    }
+
+    // Call site
+    m = m.calculateLayout()
+    // Values available as m.contentWidth, m.totalWidth
+    ```
+  </TabItem>
+  <TabItem label="Avoid — multiple returns">
+    ```go
+    // Returning multiple values is verbose and error-prone
+    func (m MyModel) calculateLayout() (contentWidth, totalWidth int) {
+        return /* calculate */, /* calculate */
+    }
+
+    // Call site — manual assignment
+    contentWidth, totalWidth := m.calculateLayout()
+    // Now tracking separate variables
+    ```
+  </TabItem>
+</Tabs>
+
+## Why this works
+
+1. **Follows Bubble Tea conventions** — All Bubble Tea model updates return the updated model. Wither methods extend this pattern to internal helpers.
+
+2. **Caches values** — Calculated results are stored in struct fields, computed once and used multiple times. No redundant recalculation.
+
+3. **Reduces errors** — No manual assignment of multiple return values. No risk of swapping content width and total width.
+
+4. **Cleaner call sites** — `m = m.calculateLayout()` is one line. Multiple return values require multiple lines of assignment.
+
+## Real examples from Tea Leaves
+
+### teamodal With\*() methods
+
+```go
+// Set size using wither pattern
+m.confirmDialog = m.confirmDialog.SetSize(msg.Width, msg.Height)
+
+// Configure modal options
+modal := teamodal.NewYesNoModal("Proceed?", &teamodal.ModelArgs{
+    Title:      "Confirmation",
+    DefaultYes: true,
+})
+```
+
+### teadd configuration
+
+```go
+// Chain wither methods for configuration
+m.dropdown = m.dropdown.
+    WithScreenSize(msg.Width, msg.Height).
+    WithPosition(row, col)
+```
+
+### teanotify positioning
+
+```go
+// Change notification position at runtime
+m.notify = m.notify.WithPosition(teanotify.TopRightPosition)
+```
+
+## Contrast with pointer mutation
+
+<Aside type="caution">
+**Pointer-receiver mutation conflicts with Bubble Tea's design.** Bubble Tea passes models by value in `Update()`. If your helper methods use pointer receivers, the mutations happen on a copy that gets discarded.
+</Aside>
+
+```go
+// WRONG — mutation on a copy
+func (m *MyModel) calculateLayout() {
+    m.contentWidth = /* calculate */  // Mutates the pointer target
+}
+
+// In Update() — Bubble Tea passes model by value
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    m.calculateLayout()  // Doesn't compile — can't take address of value
+    return m, nil
+}
+```
+
+The wither pattern avoids this entirely because it works with value receivers and returns the updated copy.
+
+## When to use wither methods
+
+- **Layout calculations** — `calculateLayout()`, `recalculateLayout()`
+- **Configuration** — `WithPosition()`, `WithScreenSize()`, `WithStyles()`
+- **State transitions** — `Open()`, `Close()`, `SetSize()`
+
+The general rule: if a method modifies the model's state, return the updated model.
+
+## Related
+
+- [Architecture guide](/go-tealeaves/guides/architecture/) — Design philosophy behind Tea Leaves
+- [Best Practices](/go-tealeaves/reference/best-practices/) — Lipgloss width calculations that use this pattern

@@ -1,0 +1,120 @@
+---
+title: "teatree — Tree View"
+description: Generic tree view component with expand/collapse, keyboard navigation, viewport scrolling, and pluggable node providers.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+File trees, directory browsers, and hierarchical navigation require expand/collapse state, viewport scrolling for large trees, and customizable node rendering. Building these from scratch each time is tedious and error-prone. `teatree` provides a generic tree view component that handles all of this out of the box, with pluggable node providers so you control how each node is rendered.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teatree
+```
+
+## Quick example
+
+```go
+// Build file tree from flat file list
+files := []*teatree.File{
+    teatree.NewFile(dt.RelFilepath("cmd/main.go"), nil),
+    teatree.NewFile(dt.RelFilepath("internal/handler/auth.go"), nil),
+    teatree.NewFile(dt.RelFilepath("pkg/config/config.go"), nil),
+    teatree.NewFile(dt.RelFilepath("go.mod"), nil),
+}
+
+nodes := teatree.BuildFileTree(files, teatree.BuildFileTreeArgs{
+    RootPath: dt.PathSegment("myproject"),
+})
+
+provider := teatree.NewCompactNodeProvider[teatree.File](teatree.TriangleExpanderControls)
+tree := teatree.NewTree(nodes, &teatree.TreeArgs[teatree.File]{
+    NodeProvider:     provider,
+    ExpanderControls: &teatree.TriangleExpanderControls,
+})
+
+treeModel := teatree.NewModel(tree, 20)
+```
+
+## Features
+
+- Generic type parameter `[T]` for custom node data
+- Built-in `File` type with path-based tree construction
+- Expand/collapse with triangle or plus/minus expander styles
+- Keyboard navigation (up/down/left/right/space)
+- Viewport scrolling for large trees
+- Pluggable `NodeProvider` interface for custom rendering
+- `CompactNodeProvider` for common use cases
+- Branch style customization (Unicode tree lines)
+- Expand all / collapse all operations
+- Node search by ID
+
+## API reference
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `Model[T]` | Main tree component with generic type parameter |
+| `Node[T]` | Tree node carrying generic data of type `T` |
+| `Tree[T]` | Tree data structure holding root nodes |
+| `NodeProvider[T]` | Interface for custom node rendering |
+| `CompactNodeProvider` | Default provider implementation |
+| `File` | Built-in file node type for path-based trees |
+| `FileMeta` | File metadata (`Size`, `ModTime`, `Permissions`) |
+| `BranchStyle` | Unicode characters for tree connector lines |
+| `TreeArgs[T]` | Configuration arguments for tree construction |
+
+## Expander controls
+
+Three built-in expander control styles determine how expandable nodes display their state:
+
+- **`TriangleExpanderControls`** — uses `▶` (collapsed) and `▼` (expanded). This is the default style.
+- **`PlusExpanderControls`** — uses `+` (collapsed) and `─` (expanded).
+- **`NoExpanderControls`** — no visual indicator for expand/collapse state.
+
+## Configuration
+
+- **`SetSize(width, height int)`** — Set viewport dimensions for the tree display.
+- **`FocusedNode()`** — Get the currently focused node.
+- **`SetFocusedNode(node)`** — Set focus to a specific node programmatically.
+
+## Tree operations
+
+- **`ExpandAll()`** / **`CollapseAll()`** — Bulk expand or collapse all nodes in the tree.
+- **`MoveUp()`** / **`MoveDown()`** — Navigate focus to the previous or next visible node.
+- **`ToggleFocused()`** — Toggle expand/collapse on the currently focused node.
+- **`FindByID(id string)`** — Search for a node by its unique identifier.
+- **`VisibleNodes()`** — Get the list of currently visible nodes (respecting collapsed state).
+
+## Node operations
+
+- **`AddChild()`** / **`RemoveChild()`** — Modify tree structure by adding or removing child nodes.
+- **`Expand()`** / **`Collapse()`** / **`Toggle()`** — Control expansion state on individual nodes.
+- **`IsExpanded()`** / **`HasChildren()`** / **`IsVisible()`** — Query node state.
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Up` / `k` | Move focus up |
+| `Down` / `j` | Move focus down |
+| `Left` / `h` | Collapse node or move to parent |
+| `Right` / `l` | Expand node or move to first child |
+| `Space` | Toggle expand/collapse |
+| `Home` | Move to first node |
+| `End` | Move to last node |
+
+## Known limitations
+
+<Aside type="caution">
+- No horizontal scrolling — wide node names are truncated to viewport width.
+- No lazy loading — the entire tree must be provided upfront.
+</Aside>
+
+## Related
+
+- [Architecture](/go-tealeaves/guides/architecture/) — Design philosophy behind the multi-module structure
+- [Wither Methods](/go-tealeaves/patterns/wither-methods/) — The immutable update pattern used by `With*()` methods
+- [teautils](/go-tealeaves/components/teautils/) — Key registry and positioning utilities used alongside tree views

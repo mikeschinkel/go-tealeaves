@@ -1,0 +1,145 @@
+---
+title: Quick Start
+description: Build a working Bubble Tea application with Tea Leaves components in 5 minutes.
+---
+
+import { Steps, Aside } from '@astrojs/starlight/components';
+
+## Prerequisites
+
+Before you begin, make sure you have:
+
+- **Go 1.25 or later** installed
+- Basic familiarity with the [Bubble Tea](https://github.com/charmbracelet/bubbletea) framework
+
+## Build a confirmation dialog
+
+<Steps>
+
+1. ### Create a new Go project
+
+   ```bash
+   mkdir my-tui-app && cd my-tui-app
+   go mod init my-tui-app
+   ```
+
+2. ### Install teamodal
+
+   The modal component is the simplest way to get started with Tea Leaves:
+
+   ```bash
+   go get github.com/mikeschinkel/go-tealeaves/teamodal
+   ```
+
+3. ### Write main.go
+
+   Create a `main.go` file with the following code. This builds a full Yes/No confirmation dialog:
+
+   ```go
+   package main
+
+   import (
+       "fmt"
+       "os"
+       "strings"
+
+       tea "github.com/charmbracelet/bubbletea"
+       "github.com/mikeschinkel/go-tealeaves/teamodal"
+   )
+
+   type model struct {
+       modal    teamodal.ModalModel
+       result   string
+       width    int
+       height   int
+   }
+
+   func main() {
+       modal := teamodal.NewYesNoModal(
+           "Would you like to continue?",
+           &teamodal.ModelArgs{Title: "Quick Start"},
+       )
+       m := model{modal: modal}
+       p := tea.NewProgram(m, tea.WithAltScreen())
+       if _, err := p.Run(); err != nil {
+           fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+           os.Exit(1)
+       }
+   }
+
+   func (m model) Init() tea.Cmd { return nil }
+
+   func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+       var cmd tea.Cmd
+       var modal tea.Model
+
+       modal, cmd = m.modal.Update(msg)
+       if cmd != nil {
+           m.modal = modal.(teamodal.ModalModel)
+           return m, cmd
+       }
+
+       switch msg := msg.(type) {
+       case teamodal.AnsweredYesMsg:
+           m.result = "You said Yes!"
+           return m, nil
+       case teamodal.AnsweredNoMsg:
+           m.result = "You said No."
+           return m, nil
+       case tea.WindowSizeMsg:
+           m.width = msg.Width
+           m.height = msg.Height
+           m.modal = m.modal.SetSize(msg.Width, msg.Height)
+           return m, nil
+       case tea.KeyMsg:
+           switch msg.String() {
+           case "q", "ctrl+c":
+               return m, tea.Quit
+           case " ", "enter":
+               if !m.modal.IsOpen() {
+                   m.modal, cmd = m.modal.Open()
+                   return m, cmd
+               }
+           }
+       }
+       return m, nil
+   }
+
+   func (m model) View() string {
+       var b strings.Builder
+       b.WriteString("Quick Start Example\n\n")
+       b.WriteString("Press Space to open the modal, q to quit\n\n")
+       if m.result != "" {
+           b.WriteString(m.result + "\n")
+       }
+
+       view := b.String()
+       lines := strings.Split(view, "\n")
+       for len(lines) < m.height {
+           lines = append(lines, "")
+       }
+       view = strings.Join(lines, "\n")
+
+       if m.modal.IsOpen() {
+           return m.modal.OverlayModal(view)
+       }
+       return view
+   }
+   ```
+
+4. ### Run it
+
+   ```bash
+   go run .
+   ```
+
+   Press **Space** to open the confirmation modal, select **Yes** or **No**, then press **q** to quit.
+
+</Steps>
+
+## Where to go next
+
+- [Architecture](/guides/architecture/) — Understand the multi-module design philosophy behind Tea Leaves
+- [Components overview](/components/overview/) — See all available components and what they do
+- [Modal message consumption](/patterns/modal-consumption/) — Learn why the `cmd != nil` check in `Update()` matters
+- [Cookbook recipes](/cookbook/confirmation-dialog/) — More complex examples and real-world patterns

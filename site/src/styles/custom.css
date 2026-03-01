@@ -1,0 +1,233 @@
+/* Tea Leaves custom styles — navy/emerald palette */
+
+:root {
+	/* Emerald accent scale — works in both light and dark */
+	--sl-color-accent-low: #064e3b;
+	--sl-color-accent: #10b981;
+	--sl-color-accent-high: #a7f3d0;
+
+	/* Nav/sidebar are always dark regardless of theme */
+	--sl-color-bg-nav: #0f172a;
+	--sl-color-bg-sidebar: #1e293b;
+
+	--sl-font-size-sm: 0.875rem;
+}
+
+/* Navy-tinted grays for dark mode only */
+[data-theme="dark"] {
+	--sl-color-gray-1: #e2e8f0;
+	--sl-color-gray-2: #cbd5e1;
+	--sl-color-gray-3: #94a3b8;
+	--sl-color-gray-4: #64748b;
+	--sl-color-gray-5: #475569;
+	--sl-color-gray-6: #1e293b;
+	--sl-color-gray-7: #0f172a;
+}
+
+/* ==========================================
+   Nav bar — fixed width to match body, larger social icons
+   ========================================== */
+.social-icons a {
+	--sl-icon-size: 1.5rem;
+}
+
+/* Constrain header contents, not the header element (preserves full-width background) */
+.header {
+	max-width: var(--sl-content-width, 72rem);
+	margin-inline: auto;
+}
+
+/* ==========================================
+   Full-dark splash page
+   ========================================== */
+
+/* Dark background for entire splash page — seamless with hero */
+main:has(.hero) .content-panel {
+	background: #0f172a;
+	border: none;
+}
+
+/* Kill the green line between hero and content */
+main:has(.hero) .content-panel,
+main:has(.hero) .sl-container {
+	border: none !important;
+	outline: none !important;
+}
+
+/* ==========================================
+   Hero — golden ratio, big logo, bold text
+   ========================================== */
+.hero {
+	background: linear-gradient(135deg, #0f172a 0%, #162033 30%, #0d3429 70%, #064e3b 100%);
+	padding: 3.5rem 2.5rem 1.5rem;
+	margin-inline: -1rem;
+	margin-top: -1rem;
+	display: flex !important;
+	flex-direction: row !important;
+	align-items: center !important;
+	justify-content: center !important;
+	gap: 4rem;
+	max-width: none;
+	padding-inline: calc((100% - var(--sl-content-width, 72rem)) / 2 + 2.5rem);
+}
+
+/* Logo — big, golden ratio right side */
+.hero > img {
+	flex: 0 0 auto;
+	width: 420px;
+	height: 420px;
+	filter: drop-shadow(0 4px 24px rgba(16, 185, 129, 0.25));
+}
+
+/* Text + CTA — golden ratio right column (~62%) */
+.hero .stack {
+	align-items: flex-start !important;
+	max-width: 32rem;
+}
+
+.hero .copy {
+	align-items: flex-start !important;
+}
+
+.hero h1 {
+	color: #fff !important;
+	font-size: 3.5rem;
+	line-height: 1.1;
+}
+
+.hero .tagline {
+	color: #e2e8f0 !important;
+	font-size: 1.35rem;
+	line-height: 1.5;
+	margin-top: 0.5rem;
+}
+
+/* Bold, prominent CTA */
+.hero .sl-link-button.primary {
+	font-weight: 700;
+	font-size: 1.15rem;
+	padding: 0.85rem 2.25rem;
+	background: #10b981;
+	color: #0f172a;
+	border-radius: 0.5rem;
+	border: none;
+	margin-top: 0.5rem;
+}
+
+.hero .sl-link-button.primary:hover {
+	background: #a7f3d0;
+}
+
+/* Responsive: stack on small screens */
+@media (max-width: 50rem) {
+	.hero {
+		flex-direction: column !important;
+		text-align: center;
+	}
+	.hero > img {
+		width: 260px;
+		height: 260px;
+	}
+	.hero .stack {
+		align-items: center !important;
+	}
+	.hero .copy {
+		align-items: center !important;
+	}
+}
+
+/* ==========================================
+   Splash page content below hero — forced dark
+   ========================================== */
+main:has(.hero) .sl-markdown-content {
+	color: #cbd5e1;
+}
+
+main:has(.hero) .sl-markdown-content h2 {
+	color: #fff;
+	border-bottom: 1px solid rgba(148, 163, 184, 0.15);
+	padding-bottom: 0.5rem;
+}
+
+main:has(.hero) .sl-markdown-content p {
+	color: #94a3b8;
+}
+
+main:has(.hero) .sl-markdown-content strong {
+	color: #e2e8f0;
+}
+
+main:has(.hero) .sl-markdown-content a {
+	color: #10b981;
+}
+
+main:has(.hero) .sl-markdown-content code:not(pre code) {
+	color: #a7f3d0;
+	background: rgba(30, 41, 59, 0.8);
+	border: 1px solid #475569;
+}
+
+/* Component card grid on homepage */
+.comp-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
+/* Tabs on dark splash page */
+main:has(.hero) starlight-tabs [role="tablist"] {
+	border-color: #475569;
+}
+
+main:has(.hero) starlight-tabs [role="tab"] {
+	color: #94a3b8;
+}
+
+main:has(.hero) starlight-tabs [role="tab"][aria-selected="true"] {
+	color: #10b981;
+	border-color: #10b981;
+}
+
+/* ==========================================
+   Component page icon next to title
+   ========================================== */
+.component-icon {
+	float: left;
+	width: 64px;
+	height: 64px;
+	margin-right: 1rem;
+	margin-bottom: 0.5rem;
+}
+
+/* ==========================================
+   Regular page styles (non-splash)
+   ========================================== */
+
+/* Code block font sizing */
+.expressive-code pre {
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+
+/* Component card hover effects */
+.sl-link-card:hover {
+	border-color: #10b981;
+	transition: border-color 0.2s ease;
+}
+
+/* Badge styling for component status */
+.sl-badge {
+	font-size: 0.75rem;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+}
+
+/* API reference tables */
+table {
+	font-size: 0.9rem;
+}
+
+table code {
+	font-size: 0.8rem;
+}

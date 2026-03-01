@@ -1,0 +1,166 @@
+---
+title: "teatextsel — Text Selection"
+description: Text area component with Shift+Arrow selection, clipboard operations (Ctrl+C/X/V), and line number display.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatextsel` wraps the standard textarea with all of this functionality.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teatextsel
+```
+
+## Quick example
+
+```go
+package main
+
+import (
+	"fmt"
+	"os"
+
+	tea "github.com/charmbracelet/bubbletea"
+	"github.com/mikeschinkel/go-tealeaves/teatextsel"
+)
+
+func main() {
+	editor := teatextsel.New()
+	editor.SetWidth(60)
+	editor.SetHeight(20)
+	editor.SetValue("Hello, world!\nSelect me with Shift+Arrow keys.")
+	editor.Focus()
+
+	p := tea.NewProgram(model{editor: editor}, tea.WithAltScreen())
+	if _, err := p.Run(); err != nil {
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		os.Exit(1)
+	}
+}
+
+type model struct{ editor teatextsel.Model }
+
+func (m model) Init() tea.Cmd                           { return nil }
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	var cmd tea.Cmd
+	m.editor, cmd = m.editor.Update(msg)
+	if msg, ok := msg.(tea.KeyMsg); ok && msg.String() == "ctrl+q" {
+		return m, tea.Quit
+	}
+	return m, cmd
+}
+func (m model) View() string { return m.editor.View() }
+```
+
+## Features
+
+- Shift+Arrow text selection (character, word, line, and document level)
+- Ctrl+A select all
+- Ctrl+C copy, Ctrl+X cut, Ctrl+V paste (system clipboard with internal fallback)
+- Selection highlighting with configurable `SelectionStyle`
+- Single-line mode via `NewSingleLine()` for input fields with clipboard support
+- Wraps `charmbracelet/bubbles/textarea.Model` — all standard textarea features remain available
+- Customizable key bindings via `SelectionKeyMap`
+
+## API reference
+
+### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `New` | `New() Model` | Create a textarea with selection and clipboard support |
+| `NewSingleLine` | `NewSingleLine() Model` | Create a single-line input with clipboard support (alternative to `textinput.Model`) |
+| `NewFromTextarea` | `NewFromTextarea(ta textarea.Model) Model` | Wrap an existing `textarea.Model` with selection support |
+
+### Key types
+
+| Type | Description |
+|------|-------------|
+| `Model` | Main component — embeds `textarea.Model` with selection and clipboard |
+| `Selection` | Selection state with `Active` bool and `Start`/`End` positions |
+| `Position` | Cursor position with `Row` and `Col` int fields |
+| `SelectionKeyMap` | Key bindings for all selection and clipboard operations |
+
+### Selection methods
+
+| Method | Description |
+|--------|-------------|
+| `Selection() Selection` | Get the current selection state |
+| `HasSelection() bool` | Check if there is an active non-empty selection |
+| `SelectedText() string` | Get the currently selected text |
+| `SetSelection(sel Selection) Model` | Set selection state (for save/restore between contexts) |
+| `ClearSelection() Model` | Clear the current selection |
+| `Copy() Model` | Copy selected text to clipboard |
+| `Cut() Model` | Copy selected text to clipboard and delete it |
+| `Paste() (Model, tea.Cmd)` | Insert clipboard text, replacing any selection |
+| `IsSingleLine() bool` | Check if this is a single-line input |
+
+### Configuration
+
+| Method | Description |
+|--------|-------------|
+| `SetSelectionKeyMap(km SelectionKeyMap) Model` | Replace the selection key bindings |
+| `SetLogger(logger *slog.Logger) Model` | Set an optional logger for debugging |
+
+Since `Model` embeds `textarea.Model`, all standard textarea methods are available: `SetWidth()`, `SetHeight()`, `SetValue()`, `Value()`, `Focus()`, `Blur()`, `ShowLineNumbers`, and so on.
+
+## Keyboard shortcuts
+
+**Character selection:**
+
+| Key | Action |
+|-----|--------|
+| `Shift+Left` | Extend selection left one character |
+| `Shift+Right` | Extend selection right one character |
+| `Shift+Up` | Extend selection up one line |
+| `Shift+Down` | Extend selection down one line |
+
+**Word selection:**
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+Shift+Left` | Extend selection left one word |
+| `Ctrl+Shift+Right` | Extend selection right one word |
+
+**Line and document selection:**
+
+| Key | Action |
+|-----|--------|
+| `Shift+Home` | Extend selection to start of line |
+| `Shift+End` | Extend selection to end of line |
+| `Ctrl+Shift+Home` | Extend selection to start of document |
+| `Ctrl+Shift+End` | Extend selection to end of document |
+| `Ctrl+A` | Select all text |
+
+**Clipboard:**
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+C` | Copy selected text to clipboard |
+| `Ctrl+X` | Cut selected text to clipboard |
+| `Ctrl+V` | Paste from clipboard (replaces selection if active) |
+
+**Other:**
+
+| Key | Action |
+|-----|--------|
+| `Esc` | Clear selection (if active; propagates if no selection) |
+
+<Aside type="tip">
+Using Ctrl+C for copy requires `tea.WithoutSignalHandler()` on your `tea.Program` to prevent SIGINT from terminating the process.
+</Aside>
+
+## Known limitations
+
+<Aside type="caution">
+- Selection highlighting renders its own view when active, bypassing some of textarea's internal rendering. This may not display correctly in all terminal emulators.
+- System clipboard integration depends on `golang.design/x/clipboard`. When unavailable, an internal clipboard is used as fallback (copy/paste works within the app but not across applications).
+- In single-line mode, Shift+Up, Shift+Down, and document-boundary selection keys are disabled.
+</Aside>
+
+## Related
+
+- [teadd](/go-tealeaves/components/teadd/) — Dropdown component for option selection
+- [teamodal](/go-tealeaves/components/teamodal/) — Modal dialogs including list modals with inline editing

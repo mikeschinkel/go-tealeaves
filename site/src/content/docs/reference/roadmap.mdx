@@ -1,0 +1,58 @@
+---
+title: Roadmap
+description: Planned components and features for Tea Leaves.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+## teaform -- Form Component
+
+<Aside type="note" title="Status: Not Started">
+This component is planned but implementation has not begun. It will be built when a concrete use case (such as a configuration editor TUI) justifies the investment.
+</Aside>
+
+**Scope:** Large -- general-purpose reusable component.
+
+### Problem
+
+There is no general-purpose form component for Bubble Tea. Building any settings UI, wizard, or multi-field input requires ad-hoc assembly of individual inputs with custom layout and navigation logic each time.
+
+### Proposed solution
+
+A reusable `teaform` package that provides declarative form building with field types, validation, layout, and keyboard navigation.
+
+### Field types
+
+| Field Type | Description |
+|-----------|-------------|
+| Text input | Single-line text with optional validation |
+| Text area | Multi-line text input |
+| Select / dropdown | Single choice from a list |
+| Multi-select | Checkboxes for multiple choices |
+| Toggle | Boolean on/off switch |
+| Number input | Numeric value with min/max constraints |
+| File / directory path | Path input with completion |
+
+### Key design considerations
+
+- **Declarative definitions** -- Define fields and get a working form. No manual wiring of individual inputs.
+- **Tab navigation** -- Tab/Shift+Tab moves between fields with intuitive keyboard flow.
+- **Validation** -- Per-field validation with inline error display next to the offending field.
+- **Field groups** -- Support for sections and logical groupings within a form.
+- **Scrolling** -- Scrollable when the form exceeds viewport height.
+- **Composable** -- Embeddable within other Bubble Tea models, including `teamodal` and `teagrid`.
+
+### Open questions
+
+- **Struct tags vs builder API?** Should field definitions use struct tags (like HTML form libraries) or a programmatic builder API?
+- **Dynamic forms?** How should fields that appear or disappear based on other field values be handled?
+- **Custom field types?** What is the right abstraction for registering user-defined field types?
+- **go-cfgstore integration?** Should `teaform` integrate with `go-cfgstore` schema definitions for automatic form generation from configuration schemas?
+
+### Known use cases
+
+- Configuration editor TUI
+- Commit message templates
+- Project scaffolding wizards
+- Filter and search dialogs
+- Row-level editing in `teagrid` (modal popup or split-pane form for editing table row data)

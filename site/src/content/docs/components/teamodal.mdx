@@ -1,0 +1,259 @@
+---
+title: "teamodal — Modals"
+description: Modal dialog components for confirmations, alerts, choice selection, editable lists, and progress indicators with ANSI-aware overlay rendering.
+---
+
+import { Aside, Tabs, TabItem } from '@astrojs/starlight/components';
+
+Modal dialogs require overlay compositing that respects ANSI escape codes, keyboard focus management across buttons, mouse click detection on positioned elements, and a message consumption protocol so parent models know whether a key was handled. All of this is non-trivial in Bubble Tea. `teamodal` provides five modal types — Yes/No, OK, Choice, List, and Progress — that handle all of this out of the box using the Tea Leaves [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+```
+
+## Quick example
+
+Creating and using a Yes/No confirmation dialog:
+
+```go
+// Create modal
+modal := teamodal.NewYesNoModal("Do you want to proceed?", &teamodal.ModelArgs{
+    Title:      "Confirmation Required",
+    DefaultYes: true,
+})
+
+// Open it
+m.modal, cmd = m.modal.Open()
+
+// In View() — overlay on background
+if m.modal.IsOpen() {
+    return m.modal.OverlayModal(backgroundView)
+}
+
+// Handle responses
+case teamodal.AnsweredYesMsg:
+    // User confirmed
+case teamodal.AnsweredNoMsg:
+    // User cancelled
+```
+
+## Modal types
+
+<Tabs>
+<TabItem label="Yes/No">
+
+Binary confirmation dialog with Yes and No buttons.
+
+```go
+modal := teamodal.NewYesNoModal("Save changes before exiting?", &teamodal.ModelArgs{
+    Title:      "Unsaved Changes",
+    DefaultYes: true,   // Focus starts on Yes button
+    YesLabel:   "Save", // Custom button labels (optional)
+    NoLabel:    "Discard",
+})
+```
+
+Sends `AnsweredYesMsg` or `AnsweredNoMsg` depending on the user's selection. Pressing Esc is equivalent to selecting No.
+
+</TabItem>
+<TabItem label="OK">
+
+Acknowledgment alert dialog with a single OK button.
+
+```go
+modal := teamodal.NewOKModal("Operation completed successfully.", &teamodal.ModelArgs{
+    Title:   "Done",
+    OKLabel: "Got it", // Custom label (optional)
+})
+```
+
+Sends `ClosedMsg` when the user presses Enter or Esc.
+
+</TabItem>
+<TabItem label="Choice">
+
+Multi-option selection dialog with hotkey support and horizontal or vertical layout.
+
+```go
+modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
+    Title:   "How should we proceed?",
+    Message: "There are unsaved changes in 3 files.",
+    Options: []teamodal.ChoiceOption{
+        {Label: "Save & Exit", Hotkey: 's', ID: "save"},
+        {Label: "Discard",     Hotkey: 'd', ID: "discard"},
+        {Label: "Continue",    Hotkey: 'c', ID: "continue"},
+    },
+    DefaultIndex: 0,
+    Orientation:  teamodal.Horizontal, // or teamodal.Vertical
+})
+```
+
+Sends `ChoiceSelectedMsg` with `OptionID` and `Index` fields. Hotkeys trigger selection immediately without needing Tab + Enter.
+
+</TabItem>
+<TabItem label="List">
+
+Generic editable list dialog with cursor navigation, inline editing, and CRUD operations. The type parameter must implement the `ListItem` interface (`ID()`, `Label()`, `IsActive()`).
+
+```go
+modal := teamodal.NewListModel[MyItem](items, &teamodal.ListModelArgs{
+    Title:      "Select a Profile",
+    MaxVisible: 8,     // Viewport height (default: 8)
+    LabelWidth: 20,    // Fixed label width (0 = auto)
+})
+```
+
+Sends `ItemSelectedMsg` (space preview), `ListAcceptedMsg` (enter), `ListCancelledMsg` (esc), `NewItemRequestedMsg` (a), `DeleteItemRequestedMsg` (d), and `EditCompletedMsg` (after inline edit). Includes a built-in help visor toggled with `?`.
+
+</TabItem>
+<TabItem label="Progress">
+
+Progress indicator for long-running operations with optional background/cancel support.
+
+```go
+modal := teamodal.NewProgressModal(&teamodal.ProgressModalArgs{
+    Title:             "Commit Message",
+    BackgroundEnabled: true, // Show [b] Background option
+})
+```
+
+Displays "Generating \{Title\}..." with Cancel and optional Background hints. Sends `ProgressCancelledMsg` on Esc or `ProgressBackgroundMsg` when the user presses `b`.
+
+</TabItem>
+</Tabs>
+
+## Features
+
+- ANSI-aware overlay compositing via `OverlayModal()` — correctly handles styled text with escape codes
+- Button focus with Tab/Shift+Tab and arrow keys
+- Mouse click support for buttons (requires `tea.WithMouseCellMotion()`)
+- Custom styling for title, message, buttons, border, and focus states
+- Non-nil `tea.Cmd` message consumption signal (see [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/))
+- Multiline message support with `\n`
+- Auto-centering on screen based on `SetSize()` dimensions
+- Generic `ListModel[T]` with type-safe item handling
+- Inline editing in list modals with overwrite-on-first-keystroke behavior
+- Scrollable list viewport with scrollbar indicator
+- Hotkey-driven selection in choice modals (case-insensitive)
+- Help visor overlay in list modals for discoverability
+
+## Key types
+
+| Type | Description |
+|------|-------------|
+| `ModalModel` | Yes/No and OK dialogs — implements `tea.Model` |
+| `ChoiceModel` | Multi-option choice dialog with hotkeys |
+| `ChoiceOption` | Option with `Label`, `Hotkey` (rune), and `ID` (string) fields |
+| `ListModel[T]` | Generic editable list dialog — `T` must implement `ListItem` |
+| `ListItem` | Interface: `ID() string`, `Label() string`, `IsActive() bool` |
+| `ProgressModal` | Progress indicator with cancel/background support |
+| `ModelArgs` | Configuration for `ModalModel` (Yes/No, OK) |
+| `ChoiceModelArgs` | Configuration for `ChoiceModel` |
+| `ListModelArgs` | Configuration for `ListModel` |
+| `ProgressModalArgs` | Configuration for `ProgressModal` |
+
+## Messages
+
+| Message | When sent |
+|---------|-----------|
+| `AnsweredYesMsg` | User selects Yes button |
+| `AnsweredNoMsg` | User selects No button (or presses Esc on Yes/No modal) |
+| `ClosedMsg` | OK dialog closed (Enter or Esc) |
+| `ChoiceSelectedMsg` | Choice option selected — contains `Index` and `OptionID` |
+| `ChoiceCancelledMsg` | Choice modal cancelled with Esc |
+| `ItemSelectedMsg[T]` | Space pressed in list — preview-select without closing |
+| `ListAcceptedMsg[T]` | Enter pressed in list — accept selection and close |
+| `ListCancelledMsg` | Esc pressed in list — close without selection |
+| `NewItemRequestedMsg` | `a` pressed in list — request new item creation |
+| `DeleteItemRequestedMsg[T]` | `d` pressed in list — contains `Item` to delete |
+| `EditCompletedMsg[T]` | Inline edit completed — contains `Item` and `NewLabel` |
+| `ProgressBackgroundMsg` | `b` pressed in progress modal |
+| `ProgressCancelledMsg` | Esc pressed in progress modal |
+
+## Configuration
+
+All modal types accept an args struct at construction and support `SetSize()` for screen dimensions:
+
+```go
+// Yes/No and OK modals
+modal := teamodal.NewYesNoModal("message", &teamodal.ModelArgs{
+    Title:              "Title",
+    DefaultYes:         true,
+    YesLabel:           "Confirm",
+    NoLabel:            "Cancel",
+    TitleStyle:         lipgloss.NewStyle().Bold(true),
+    MessageStyle:       lipgloss.NewStyle(),
+    ButtonStyle:        lipgloss.NewStyle(),
+    FocusedButtonStyle: lipgloss.NewStyle().Bold(true),
+    BorderStyle:        lipgloss.NewStyle(),
+})
+
+// Wither methods for post-construction updates
+modal = modal.
+    WithTitle("New Title").
+    WithMessage("New message").
+    WithTextAlign(lipgloss.Left).
+    SetSize(width, height)
+```
+
+`ModalModel` and `ChoiceModel` use the [Wither Methods](/go-tealeaves/patterns/wither-methods/) pattern for configuration. `ListModel` and `ProgressModal` provide both wither methods and setter methods (`SetSize`, `SetItems`, `SetTitle`, etc.).
+
+## Keyboard shortcuts
+
+**Yes/No modal:**
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift+Tab` | Switch button focus |
+| `Left` / `Right` | Switch button focus |
+| `Enter` | Activate focused button |
+| `Esc` | Cancel (same as No) |
+
+**Choice modal:**
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Right` / `Down` | Next option |
+| `Shift+Tab` / `Left` / `Up` | Previous option |
+| `Enter` | Select focused option |
+| Hotkey (e.g. `s`, `d`) | Select option directly |
+| `Esc` | Cancel |
+
+**List modal:**
+
+| Key | Action |
+|-----|--------|
+| `Up` / `k` | Move cursor up |
+| `Down` / `j` | Move cursor down |
+| `Space` | Preview-select (mark active, stay open) |
+| `Enter` | Accept selection and close |
+| `a` | Add new item |
+| `e` / `F2` | Edit item inline |
+| `d` | Delete item |
+| `?` | Toggle help visor |
+| `Esc` | Cancel and close |
+
+**Progress modal:**
+
+| Key | Action |
+|-----|--------|
+| `Esc` | Cancel operation |
+| `b` | Send to background (when enabled) |
+
+## Known limitations
+
+<Aside type="caution">
+- Modal width is determined by content — there is no explicit width control for Yes/No and OK modals.
+- Requires screen size to be set via `SetSize()` for correct centering. Call it on `tea.WindowSizeMsg`.
+- Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
+- The `OverlayModal()` function assumes the background view fills the full screen.
+</Aside>
+
+## Related
+
+- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — The non-nil `tea.Cmd` pattern used by all teamodal types
+- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — How `OverlayModal()` renders on top of styled content
+- [Wither Methods](/go-tealeaves/patterns/wither-methods/) — The immutable update pattern used by `With*()` methods
+- [teadd](/go-tealeaves/components/teadd/) — Dropdown component that uses the same overlay and consumption patterns
