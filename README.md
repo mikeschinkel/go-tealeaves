@@ -1,5 +1,7 @@
 # go-tealeaves
 
+> **Maintenance-only branch.** This `release/charm-v1` branch preserves compatibility with Charm v1 (Bubble Tea v1, Lip Gloss v1, Bubbles v0). It receives best-effort bug fixes only — no new features. For active development, switch to `main` which targets Charm v2.
+
 Reusable [Bubble Tea](https://github.com/charmbracelet/bubbletea) UI components for building terminal applications in Go.
 
 ## Overview
