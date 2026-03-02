@@ -1,6 +1,6 @@
 package teamodal
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // DefaultBorderStyle returns default modal border styling
 func DefaultBorderStyle() lipgloss.Style {

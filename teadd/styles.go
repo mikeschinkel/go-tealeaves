@@ -1,6 +1,6 @@
 package teadd
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // DefaultBorderStyle returns default border styling
 func DefaultBorderStyle() lipgloss.Style {

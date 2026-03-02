@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teastatus"
 )
 
@@ -43,7 +43,7 @@ func main() {
 		mode:      "normal",
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -62,7 +62,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.statusBar = m.statusBar.SetSize(msg.Width)
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -115,9 +115,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if m.width == 0 {
-		return "Loading..."
+		return tea.NewView("Loading...")
 	}
 
 	var content strings.Builder
@@ -139,7 +139,9 @@ func (m model) View() string {
 	}
 
 	// Status bar at bottom
-	lines = append(lines, m.statusBar.View())
+	lines = append(lines, m.statusBar.View().Content)
 
-	return strings.Join(lines, "\n")
+	v := tea.NewView(strings.Join(lines, "\n"))
+	v.AltScreen = true
+	return v
 }

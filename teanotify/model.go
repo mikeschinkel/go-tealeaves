@@ -4,7 +4,7 @@ import (
 	"strings"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 )
@@ -200,7 +200,7 @@ func (m NotifyModel) Update(msg tea.Msg) (out NotifyModel, cmd tea.Cmd) {
 		}
 		cmd = tickCmd()
 		goto end
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		if out.activeNotice == nil {
 			goto end
 		}
@@ -228,10 +228,10 @@ func (m NotifyModel) HasActiveNotice() (active bool) {
 	return active
 }
 
-// View returns an empty string. NotifyModel is not meant to be rendered
+// View returns an empty view. NotifyModel is not meant to be rendered
 // directly; use Render to overlay notifications onto your view content.
-func (m NotifyModel) View() (s string) {
-	return s
+func (m NotifyModel) View() tea.View {
+	return tea.NewView("")
 }
 
 // Render overlays the active notification (if any) onto the provided

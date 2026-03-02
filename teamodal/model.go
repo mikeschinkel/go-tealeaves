@@ -3,9 +3,9 @@ package teamodal
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
@@ -191,17 +191,16 @@ func (m ModalModel) Init() tea.Cmd {
 // Update implements tea.Model (FOLLOWS ClearPath)
 func (m ModalModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
 	var sizeMsg tea.WindowSizeMsg
-	var mouseMsg tea.MouseMsg
 
 	if !m.isOpen {
 		goto end // Not open = nil cmd = didn't handle
 	}
 
-	// Try as KeyMsg first
-	keyMsg, ok = msg.(tea.KeyMsg)
+	// Try as KeyPressMsg first
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if ok {
 		switch {
 		case key.Matches(keyMsg, m.Keys.NextButton, m.Keys.PrevButton):
@@ -263,28 +262,24 @@ func (m ModalModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		goto end
 	}
 
-	// Try as MouseMsg
-	mouseMsg, ok = msg.(tea.MouseMsg)
-	if ok {
-		switch mouseMsg.Type {
-		case tea.MouseLeft:
-			// Handle button clicks
-			if m.isClickOnButton(mouseMsg.X, mouseMsg.Y) {
-				// Close modal and emit appropriate message
+	// Try as MouseClickMsg
+	if clickMsg, ok := msg.(tea.MouseClickMsg); ok {
+		if clickMsg.Button == tea.MouseLeft {
+			if m.isClickOnButton(clickMsg.X, clickMsg.Y) {
 				m.isOpen = false
-				cmd = m.handleButtonClick(mouseMsg.X, mouseMsg.Y)
+				cmd = m.handleButtonClick(clickMsg.X, clickMsg.Y)
 				goto end
 			}
+		}
+	}
 
-		case tea.MouseMotion:
-			// Handle mouse hover for visual feedback (only for YesNo modals)
-			if m.typ == ModalTypeYesNo && m.isClickOnButton(mouseMsg.X, mouseMsg.Y) {
-				// Update focus to match hovered button
-				hoveredButton := m.getHoveredButton(mouseMsg.X, mouseMsg.Y)
-				if hoveredButton >= 0 && hoveredButton != m.focusButton {
-					m.focusButton = hoveredButton
-					cmd = func() tea.Msg { return nil }
-				}
+	// Try as MouseMotionMsg
+	if motionMsg, ok := msg.(tea.MouseMotionMsg); ok {
+		if m.typ == ModalTypeYesNo && m.isClickOnButton(motionMsg.X, motionMsg.Y) {
+			hoveredButton := m.getHoveredButton(motionMsg.X, motionMsg.Y)
+			if hoveredButton >= 0 && hoveredButton != m.focusButton {
+				m.focusButton = hoveredButton
+				cmd = func() tea.Msg { return nil }
 			}
 		}
 	}
@@ -294,7 +289,8 @@ end:
 }
 
 // View implements tea.Model (FOLLOWS ClearPath)
-func (m ModalModel) View() (view string) {
+func (m ModalModel) View() tea.View {
+	var view string
 	var err error
 
 	if !m.isOpen {
@@ -308,7 +304,7 @@ func (m ModalModel) View() (view string) {
 	}
 
 end:
-	return view
+	return tea.NewView(view)
 }
 
 // Open opens the modal and returns updated model
@@ -398,7 +394,7 @@ func (m ModalModel) OverlayModal(background string) (view string) {
 	}
 
 	// Render modal view
-	modalView = m.View()
+	modalView = m.View().Content
 
 	// Use pre-calculated position from Open() method
 	// (Position is stored when modal opens, not during rendering)

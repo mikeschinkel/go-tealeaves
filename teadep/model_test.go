@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/mikeschinkel/go-tealeaves/teadd"
 )
 
@@ -92,7 +92,7 @@ func TestPathViewer_KeyUp(t *testing.T) {
 	m := newInitializedPathViewer()
 	// SelectedLevel starts at 2 (leaf D)
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	m = result.(PathViewerModel)
 
 	if m.SelectedLevel != 1 {
@@ -109,14 +109,14 @@ func TestPathViewer_KeyUp(t *testing.T) {
 	}
 
 	// Move up again
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	m = result.(PathViewerModel)
 	if m.SelectedLevel != 0 {
 		t.Errorf("expected SelectedLevel=0, got %d", m.SelectedLevel)
 	}
 
 	// At top, should stay at 0
-	result, cmd = m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	result, cmd = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	m = result.(PathViewerModel)
 	if m.SelectedLevel != 0 {
 		t.Errorf("expected SelectedLevel=0 (clamped), got %d", m.SelectedLevel)
@@ -131,7 +131,7 @@ func TestPathViewer_KeyDown(t *testing.T) {
 	// Start at level 0
 	m.SelectedLevel = 0
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(PathViewerModel)
 
 	if m.SelectedLevel != 1 {
@@ -148,14 +148,14 @@ func TestPathViewer_KeyDown(t *testing.T) {
 	}
 
 	// Move to end
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(PathViewerModel)
 	if m.SelectedLevel != 2 {
 		t.Errorf("expected SelectedLevel=2, got %d", m.SelectedLevel)
 	}
 
 	// At bottom, should stay
-	result, cmd = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, cmd = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(PathViewerModel)
 	if m.SelectedLevel != 2 {
 		t.Errorf("expected SelectedLevel=2 (clamped), got %d", m.SelectedLevel)
@@ -170,7 +170,7 @@ func TestPathViewer_OpenDropdown(t *testing.T) {
 	// Navigate to level 1 (B), which has alternatives (B, C)
 	m.SelectedLevel = 1
 
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
 	m = result.(PathViewerModel)
 
 	if !m.DropdownOpen {
@@ -183,7 +183,7 @@ func TestPathViewer_OpenDropdown_NoAlternatives(t *testing.T) {
 	// Navigate to level 0 (root A), which has no alternatives
 	m.SelectedLevel = 0
 
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
 	m = result.(PathViewerModel)
 
 	if m.DropdownOpen {
@@ -195,7 +195,7 @@ func TestPathViewer_EnterOnLeaf(t *testing.T) {
 	m := newInitializedPathViewer()
 	// SelectedLevel=2 (leaf D)
 
-	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	_, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	msg := extractMsg(cmd)
 	sel, ok := msg.(SelectNodeMsg)
@@ -212,7 +212,7 @@ func TestPathViewer_EnterOnNonLeaf(t *testing.T) {
 	// Navigate to level 0 (root A, not a leaf)
 	m.SelectedLevel = 0
 
-	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	_, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	if cmd != nil {
 		t.Error("expected nil cmd for Enter on non-leaf node")
@@ -225,7 +225,7 @@ func TestPathViewer_DropdownSelection(t *testing.T) {
 	m.SelectedLevel = 1
 
 	// Open dropdown first
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
 	m = result.(PathViewerModel)
 	if !m.DropdownOpen {
 		t.Fatal("expected dropdown to be open")
@@ -268,7 +268,7 @@ func TestPathViewer_DropdownCancellation(t *testing.T) {
 	m.SelectedLevel = 1
 
 	// Open dropdown
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
 	m = result.(PathViewerModel)
 	if !m.DropdownOpen {
 		t.Fatal("expected dropdown open")
@@ -307,21 +307,21 @@ func TestPathViewer_View(t *testing.T) {
 	m := newInitializedPathViewer()
 	view := m.View()
 
-	if view == "" {
+	if view.Content == "" {
 		t.Fatal("expected non-empty view")
 	}
 	// Path items should be rendered
-	if !strings.Contains(view, "A") {
+	if !strings.Contains(view.Content, "A") {
 		t.Error("expected view to contain 'A'")
 	}
-	if !strings.Contains(view, "B") {
+	if !strings.Contains(view.Content, "B") {
 		t.Error("expected view to contain 'B'")
 	}
-	if !strings.Contains(view, "D") {
+	if !strings.Contains(view.Content, "D") {
 		t.Error("expected view to contain 'D'")
 	}
 	// Prompt should be visible
-	if !strings.Contains(view, "Dependencies") {
+	if !strings.Contains(view.Content, "Dependencies") {
 		t.Error("expected view to contain prompt 'Dependencies'")
 	}
 }
@@ -331,16 +331,16 @@ func TestPathViewer_View_DropdownOpen(t *testing.T) {
 	m.SelectedLevel = 1
 
 	// Open dropdown
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
 	m = result.(PathViewerModel)
 
 	view := m.View()
 	// When dropdown is open, it should overlay the view
 	// The dropdown items (alternatives B, C) should be visible
-	if !strings.Contains(view, "B") {
+	if !strings.Contains(view.Content, "B") {
 		t.Error("expected dropdown to show 'B'")
 	}
-	if !strings.Contains(view, "C") {
+	if !strings.Contains(view.Content, "C") {
 		t.Error("expected dropdown to show 'C'")
 	}
 }
@@ -351,7 +351,7 @@ func TestPathViewer_View_BorderGeometry(t *testing.T) {
 	m.Height = 10
 	view := m.View()
 
-	lines := strings.Split(view, "\n")
+	lines := strings.Split(view.Content, "\n")
 	// Should not exceed Height
 	if len(lines) > m.Height {
 		t.Errorf("expected at most %d lines, got %d", m.Height, len(lines))

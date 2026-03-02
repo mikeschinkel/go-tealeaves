@@ -113,3 +113,33 @@ If teamodal has tests:
 ```bash
 go test ./teamodal/...
 ```
+
+---
+
+# Plan: Add AllowCancel + [esc] Cancel hint to ChoiceModel
+
+## Status: Code complete — needs manual visual verification
+
+All code changes have been implemented and build/tests pass.
+
+### What was done
+
+- **CHG-INIT**: `NewChoiceModel` now initializes `cancelKeyStyle`/`cancelTextStyle` defaults, resolves `AllowCancel` (nil → true) and `ShowCancelHint` (nil → follows `AllowCancel`), and applies custom cancel style overrides
+- **CHG-UPDATE**: `Update()` Cancel key handler guarded with `if !m.allowCancel`
+- **CHG-RENDER**: `renderModal()` adds `[esc] Cancel` hint (centered, styled) below options when `showCancelHint` is true, with height adjusted by +2
+- **CHG-EXAMPLE**: Removed manual "Cancel" option from `examples/teamodal/vertical/main.go`
+- **Vet fix**: Changed `cliutil.Stderr` → `cliutil.Stderrf` in vertical example
+
+### Remaining: Manual visual verification
+
+Run the vertical example and confirm:
+
+```bash
+cd ~/Projects/go-pkgs/go-tealeaves/examples/teamodal/vertical && go run .
+```
+
+1. `[esc]` appears in green (color 46), `Cancel` in dim gray (color 244)
+2. One blank line separates the last option from the hint
+3. The hint is centered
+4. Pressing Esc sends `ChoiceCancelledMsg`
+5. Setting `AllowCancel: ptr(false)` hides the hint AND disables Esc

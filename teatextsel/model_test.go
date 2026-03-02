@@ -1,10 +1,11 @@
 package teatextsel
 
 import (
+	"strings"
 	"testing"
 
-	"github.com/charmbracelet/bubbles/textarea"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/textarea"
+	tea "charm.land/bubbletea/v2"
 )
 
 func newTestModel() Model {
@@ -237,7 +238,7 @@ func TestModel_CursorMovementClearsSelection(t *testing.T) {
 	}
 
 	// Arrow key without shift should clear selection
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRight})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
 	if m.HasSelection() {
 		t.Error("expected selection cleared after cursor movement")
 	}
@@ -252,7 +253,7 @@ func TestModel_TypingReplacesSelection(t *testing.T) {
 	}
 
 	// Type a character - should delete selection and insert
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'X'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'X', Text: "X"})
 
 	if m.HasSelection() {
 		t.Error("expected selection cleared after typing")
@@ -269,7 +270,7 @@ func TestModel_SingleLine_BlocksEnter(t *testing.T) {
 	m.Model.SetValue("test")
 	m.Model.Focus()
 
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// Value should not contain newline
 	if m.lineCount() > 1 {
@@ -292,13 +293,124 @@ func TestModel_SingleLine_BlocksVerticalSelection(t *testing.T) {
 	}
 }
 
+// --- Migration-sensitive tests (v1→v2 regression guards) ---
+
+// TSL-SPACE: Guards msg.Type == tea.KeySpace in isTypingKey() (model.go:554)
+// Space must be recognized as a typing key so it replaces active selection.
+func TestModel_SpaceIsTypingKey(t *testing.T) {
+	m := newTestModel()
+	// Select "Hello"
+	m = m.extendSelectionRight(5)
+	if !m.HasSelection() {
+		t.Fatal("expected selection before space")
+	}
+
+	// Space should delete selection then insert space
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
+
+	if m.HasSelection() {
+		t.Error("expected selection cleared after space")
+	}
+	value := m.Value()
+	if len(value) < 1 || value[0] != ' ' {
+		t.Errorf("expected value to start with space, got %q", value)
+	}
+	// "Hello" (5 chars) replaced with " " (1 char), rest is " World\n..."
+	if !strings.Contains(value, " World") {
+		t.Errorf("expected remaining text after selection replacement, got %q", value)
+	}
+}
+
+// TSL-ENTER: Guards msg.Type == tea.KeyEnter in isTypingKey() (model.go:559)
+// Enter must be recognized as a typing key in multi-line mode so it replaces
+// active selection with a newline.
+func TestModel_EnterIsTypingKey_MultiLine(t *testing.T) {
+	m := newTestModel()
+	// Select "Hello"
+	m = m.extendSelectionRight(5)
+	if !m.HasSelection() {
+		t.Fatal("expected selection before enter")
+	}
+
+	// Enter should delete selection then insert newline
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
+
+	if m.HasSelection() {
+		t.Error("expected selection cleared after enter")
+	}
+	// "Hello" should be replaced with a newline, so line count increases
+	if m.lineCount() < 3 {
+		t.Errorf("expected at least 3 lines after enter (was 3, 'Hello' replaced with newline), got %d", m.lineCount())
+	}
+}
+
+// TSL-SHIFT: Guards strings.Contains(msg.String(), "shift") in isCursorMovement() (model.go:572)
+// Shift+arrow must NOT clear selection — it extends it. This tests the inverse
+// of TestModel_CursorMovementClearsSelection.
+func TestModel_ShiftArrowExtendsSelection(t *testing.T) {
+	m := newTestModel()
+	// Create a selection via shift+right
+	m = m.extendSelectionRight(3)
+	if !m.HasSelection() {
+		t.Fatal("expected selection active")
+	}
+
+	startSel := m.Selection()
+
+	// Send another shift+right through Update() — should extend, not clear
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyRight, Mod: tea.ModShift})
+
+	if !m.HasSelection() {
+		t.Error("expected selection still active after shift+arrow")
+	}
+	sel := m.Selection()
+	// Selection should have extended (End.Col increased by 1)
+	if sel.End.Col <= startSel.End.Col {
+		t.Errorf("expected selection extended (End.Col > %d), got %d",
+			startSel.End.Col, sel.End.Col)
+	}
+}
+
+// TSL-STYLE: Guards FocusedStyle.CursorLine and BlurredStyle.Base access in view.go
+// When selection is active, view.go renders through renderFocused/renderBlurred which
+// access these style fields. This test ensures both code paths execute and produce output.
+func TestModel_View_FocusedStylePath(t *testing.T) {
+	m := newTestModel()
+	m = m.extendSelectionRight(5) // Select "Hello"
+
+	// Focused path: m.Model.Focused() is true (set in newTestModel)
+	if !m.Model.Focused() {
+		t.Fatal("expected model to be focused")
+	}
+	focusedView := m.View()
+	if focusedView.Content == "" {
+		t.Fatal("expected non-empty focused view with selection")
+	}
+	if !strings.Contains(focusedView.Content, "World") {
+		t.Error("expected focused view to contain non-selected text 'World'")
+	}
+
+	// Blurred path: after Blur()
+	m.Model.Blur()
+	if m.Model.Focused() {
+		t.Fatal("expected model to be blurred after Blur()")
+	}
+	blurredView := m.View()
+	if blurredView.Content == "" {
+		t.Fatal("expected non-empty blurred view with selection")
+	}
+	if !strings.Contains(blurredView.Content, "World") {
+		t.Error("expected blurred view to contain non-selected text 'World'")
+	}
+}
+
 // --- Layer 2: View Tests ---
 
 func TestModel_View_NoSelection(t *testing.T) {
 	m := newTestModel()
 	view := m.View()
 
-	if view == "" {
+	if view.Content == "" {
 		t.Error("expected non-empty view")
 	}
 }
@@ -308,7 +420,7 @@ func TestModel_View_WithSelection(t *testing.T) {
 	m = m.extendSelectionRight(5) // Select "Hello"
 
 	view := m.View()
-	if view == "" {
+	if view.Content == "" {
 		t.Error("expected non-empty view with selection")
 	}
 	// View should contain the original text (rendered differently with selection style)
@@ -319,7 +431,7 @@ func TestModel_View_MultiLineSelection(t *testing.T) {
 	m = m.selectAll()
 
 	view := m.View()
-	if view == "" {
+	if view.Content == "" {
 		t.Error("expected non-empty view with multi-line selection")
 	}
 }

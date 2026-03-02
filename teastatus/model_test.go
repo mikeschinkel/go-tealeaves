@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 func testMenuItems() []MenuItem {
@@ -88,7 +88,7 @@ func TestModel_Update_SetIndicatorsMsg(t *testing.T) {
 func TestModel_Update_UnknownMsg(t *testing.T) {
 	m := New()
 	m = m.SetMenuItems(testMenuItems())
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 	updated := result.(Model)
 
 	if len(updated.menuItems) != 2 {
@@ -112,16 +112,16 @@ func TestModel_View_Empty(t *testing.T) {
 func TestModel_View_MenuItems(t *testing.T) {
 	m := New().SetSize(80).SetMenuItems(testMenuItems())
 	view := m.View()
-	if !strings.Contains(view, "?") {
+	if !strings.Contains(view.Content, "?") {
 		t.Error("expected view to contain key '?'")
 	}
-	if !strings.Contains(view, "Help") {
+	if !strings.Contains(view.Content, "Help") {
 		t.Error("expected view to contain label 'Help'")
 	}
-	if !strings.Contains(view, "tab") {
+	if !strings.Contains(view.Content, "tab") {
 		t.Error("expected view to contain key 'tab'")
 	}
-	if !strings.Contains(view, "Switch") {
+	if !strings.Contains(view.Content, "Switch") {
 		t.Error("expected view to contain label 'Switch'")
 	}
 }
@@ -129,10 +129,10 @@ func TestModel_View_MenuItems(t *testing.T) {
 func TestModel_View_Indicators(t *testing.T) {
 	m := New().SetSize(80).SetIndicators(testIndicators())
 	view := m.View()
-	if !strings.Contains(view, "Ready") {
+	if !strings.Contains(view.Content, "Ready") {
 		t.Error("expected view to contain 'Ready'")
 	}
-	if !strings.Contains(view, "3 items") {
+	if !strings.Contains(view.Content, "3 items") {
 		t.Error("expected view to contain '3 items'")
 	}
 }
@@ -142,10 +142,10 @@ func TestModel_View_BothZones(t *testing.T) {
 	view := m.View()
 
 	// Both menu and indicators should be present
-	if !strings.Contains(view, "Help") {
+	if !strings.Contains(view.Content, "Help") {
 		t.Error("expected view to contain menu item label")
 	}
-	if !strings.Contains(view, "Ready") {
+	if !strings.Contains(view.Content, "Ready") {
 		t.Error("expected view to contain indicator text")
 	}
 }
@@ -158,7 +158,7 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 		styles.SeparatorKind = PipeSeparator
 		m := New().WithStyles(styles).SetSize(80).SetIndicators(indicators)
 		view := m.View()
-		if !strings.Contains(view, "|") {
+		if !strings.Contains(view.Content, "|") {
 			t.Error("expected pipe separator in view")
 		}
 	})
@@ -168,7 +168,7 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 		styles.SeparatorKind = BracketSeparator
 		m := New().WithStyles(styles).SetSize(80).SetIndicators(indicators)
 		view := m.View()
-		if !strings.Contains(view, "[Ready]") {
+		if !strings.Contains(view.Content, "[Ready]") {
 			t.Error("expected bracket-wrapped indicator in view")
 		}
 	})
@@ -178,10 +178,10 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 		styles.SeparatorKind = SpaceSeparator
 		m := New().WithStyles(styles).SetSize(80).SetIndicators(indicators)
 		view := m.View()
-		if !strings.Contains(view, "Ready") {
+		if !strings.Contains(view.Content, "Ready") {
 			t.Error("expected indicator text in view")
 		}
-		if strings.Contains(view, "|") {
+		if strings.Contains(view.Content, "|") {
 			t.Error("expected no pipe separator for SpaceSeparator")
 		}
 	})
@@ -192,7 +192,7 @@ func TestModel_View_Truncation(t *testing.T) {
 	view := m.View()
 	// With width=5, content will be too wide for both zones.
 	// Should still render without panicking.
-	if view == "" {
+	if view.Content == "" {
 		t.Error("expected non-empty view even at narrow width")
 	}
 }

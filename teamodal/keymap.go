@@ -1,6 +1,6 @@
 package teamodal
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // ModalKeyMap defines the key bindings for modal dialogs
 type ModalKeyMap struct {

@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 func testOptions() []Option {
@@ -86,7 +86,7 @@ func TestDropdownModel_Close(t *testing.T) {
 func TestDropdownModel_UpdateWhenClosed(t *testing.T) {
 	m := NewModel(testOptions(), 5, 10, nil)
 	// Not opened — closed by default
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	updated := result.(DropdownModel)
 	if cmd != nil {
 		t.Error("expected nil cmd when dropdown is closed")
@@ -99,14 +99,14 @@ func TestDropdownModel_UpdateWhenClosed(t *testing.T) {
 func TestDropdownModel_KeyUp(t *testing.T) {
 	m := newTestDropdown(testOptions())
 	// Move down first
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(DropdownModel)
 	if m.Selected != 1 {
 		t.Fatalf("expected Selected=1 after Down, got %d", m.Selected)
 	}
 
 	// Now move up
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	m = result.(DropdownModel)
 	if m.Selected != 0 {
 		t.Errorf("expected Selected=0 after Up, got %d", m.Selected)
@@ -116,7 +116,7 @@ func TestDropdownModel_KeyUp(t *testing.T) {
 	}
 
 	// Up at 0 should stay at 0
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	m = result.(DropdownModel)
 	if m.Selected != 0 {
 		t.Errorf("expected Selected=0 (clamped), got %d", m.Selected)
@@ -126,7 +126,7 @@ func TestDropdownModel_KeyUp(t *testing.T) {
 func TestDropdownModel_KeyDown(t *testing.T) {
 	m := newTestDropdown(testOptions())
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(DropdownModel)
 	if m.Selected != 1 {
 		t.Errorf("expected Selected=1 after Down, got %d", m.Selected)
@@ -136,14 +136,14 @@ func TestDropdownModel_KeyDown(t *testing.T) {
 	}
 
 	// Move to last
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(DropdownModel)
 	if m.Selected != 2 {
 		t.Errorf("expected Selected=2, got %d", m.Selected)
 	}
 
 	// Down at last should stay at last
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(DropdownModel)
 	if m.Selected != 2 {
 		t.Errorf("expected Selected=2 (clamped), got %d", m.Selected)
@@ -153,10 +153,10 @@ func TestDropdownModel_KeyDown(t *testing.T) {
 func TestDropdownModel_KeySelect(t *testing.T) {
 	m := newTestDropdown(testOptions())
 	// Move to Beta
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(DropdownModel)
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 	m = result.(DropdownModel)
 
 	if m.IsOpen {
@@ -182,7 +182,7 @@ func TestDropdownModel_KeySelect(t *testing.T) {
 func TestDropdownModel_KeyCancel(t *testing.T) {
 	m := newTestDropdown(testOptions())
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 	m = result.(DropdownModel)
 
 	if m.IsOpen {
@@ -227,7 +227,7 @@ func TestDropdownModel_ScrollOffset(t *testing.T) {
 
 	// Move down repeatedly to trigger scrolling
 	for i := 0; i < 15; i++ {
-		result, _ := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+		result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 		m = result.(DropdownModel)
 	}
 	if m.Selected != 15 {
@@ -249,7 +249,7 @@ func TestDropdownModel_WithPosition(t *testing.T) {
 func TestDropdownModel_WithOptions(t *testing.T) {
 	m := newTestDropdown(testOptions())
 	// Select second option
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	m = result.(DropdownModel)
 
 	// Replace with new options
@@ -286,24 +286,24 @@ func TestDropdownModel_WithScreenSize(t *testing.T) {
 func TestDropdownModel_View_Closed(t *testing.T) {
 	m := NewModel(testOptions(), 0, 0, nil)
 	view := m.View()
-	if view != "" {
-		t.Errorf("expected empty view when closed, got %q", view)
+	if view.Content != "" {
+		t.Errorf("expected empty view when closed, got %q", view.Content)
 	}
 }
 
 func TestDropdownModel_View_Open(t *testing.T) {
 	m := newTestDropdown(testOptions())
 	view := m.View()
-	if view == "" {
+	if view.Content == "" {
 		t.Error("expected non-empty view when open")
 	}
-	if !strings.Contains(view, "Alpha") {
+	if !strings.Contains(view.Content, "Alpha") {
 		t.Error("expected view to contain 'Alpha'")
 	}
-	if !strings.Contains(view, "Beta") {
+	if !strings.Contains(view.Content, "Beta") {
 		t.Error("expected view to contain 'Beta'")
 	}
-	if !strings.Contains(view, "Gamma") {
+	if !strings.Contains(view.Content, "Gamma") {
 		t.Error("expected view to contain 'Gamma'")
 	}
 }

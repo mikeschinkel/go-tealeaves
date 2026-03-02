@@ -1,6 +1,6 @@
 package teastatus
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // Styles holds all styling for the status bar.
 type Styles struct {

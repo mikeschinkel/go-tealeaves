@@ -5,7 +5,7 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // HelpVisorStyle holds styling configuration for help visor rendering

@@ -1,6 +1,6 @@
 package teamodal
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // ChoiceKeyMap defines key bindings for ChoiceModel
 type ChoiceKeyMap struct {

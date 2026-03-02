@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 func newTestChoiceModel(options []ChoiceOption, defaultIndex int) ChoiceModel {
@@ -38,7 +38,7 @@ func TestChoiceModel_NavigationForward(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
 	// Tab moves focus forward
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 1 {
 		t.Errorf("expected focusButton=1 after Tab, got %d", m.FocusButton())
@@ -48,14 +48,14 @@ func TestChoiceModel_NavigationForward(t *testing.T) {
 	}
 
 	// Tab again
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 2 {
 		t.Errorf("expected focusButton=2 after second Tab, got %d", m.FocusButton())
 	}
 
 	// Tab wraps to 0
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 0 {
 		t.Errorf("expected focusButton=0 after wrap, got %d", m.FocusButton())
@@ -66,7 +66,7 @@ func TestChoiceModel_NavigationBackward(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
 	// Shift+Tab from 0 wraps to last
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyShiftTab})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyTab, Mod: tea.ModShift})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 2 {
 		t.Errorf("expected focusButton=2 after Shift+Tab from 0, got %d", m.FocusButton())
@@ -76,7 +76,7 @@ func TestChoiceModel_NavigationBackward(t *testing.T) {
 	}
 
 	// Shift+Tab again
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyShiftTab})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyTab, Mod: tea.ModShift})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 1 {
 		t.Errorf("expected focusButton=1 after second Shift+Tab, got %d", m.FocusButton())
@@ -87,14 +87,14 @@ func TestChoiceModel_NavigationWithRightLeft(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
 	// Right arrow moves forward
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyRight})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 1 {
 		t.Errorf("expected focusButton=1 after Right, got %d", m.FocusButton())
 	}
 
 	// Left arrow moves backward
-	result, _ = m.Update(tea.KeyMsg{Type: tea.KeyLeft})
+	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyLeft})
 	m = result.(ChoiceModel)
 	if m.FocusButton() != 0 {
 		t.Errorf("expected focusButton=0 after Left, got %d", m.FocusButton())
@@ -105,10 +105,10 @@ func TestChoiceModel_SelectWithEnter(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
 	// Move to second option then select
-	result, _ := m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
 	m = result.(ChoiceModel)
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 	m = result.(ChoiceModel)
 
 	if m.IsOpen() {
@@ -131,7 +131,7 @@ func TestChoiceModel_SelectWithEnter(t *testing.T) {
 func TestChoiceModel_CancelWithEsc(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 	m = result.(ChoiceModel)
 
 	if m.IsOpen() {
@@ -149,7 +149,7 @@ func TestChoiceModel_HotkeyLowercase(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 2) // Focus on Cancel
 
 	// Press 'r' (lowercase) should select "Reorganize & Exit"
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'r'}})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: 'r', Text: "r"})
 	m = result.(ChoiceModel)
 
 	if m.IsOpen() {
@@ -173,7 +173,7 @@ func TestChoiceModel_HotkeyUppercase(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
 	// Press 'S' (uppercase) should select "Save & Exit" (case-insensitive)
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'S'}})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: 'S', Text: "S"})
 	m = result.(ChoiceModel)
 
 	if m.IsOpen() {
@@ -194,7 +194,7 @@ func TestChoiceModel_HotkeyNoMatch(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 
 	// Press 'z' which has no matching hotkey
-	result, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'z'}})
+	result, cmd := m.Update(tea.KeyPressMsg{Code: 'z', Text: "z"})
 	m = result.(ChoiceModel)
 
 	if !m.IsOpen() {
@@ -239,7 +239,7 @@ func TestChoiceModel_ClosedModalIgnoresInput(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 	m, _ = m.Close()
 
-	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyTab})
+	_, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
 	if cmd != nil {
 		t.Error("expected nil cmd when modal is closed")
 	}

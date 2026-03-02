@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teadd"
 )
 
@@ -44,7 +44,7 @@ func main() {
 		hasSelection: false,
 	}
 
-	p := tea.NewProgram(initialModel, tea.WithAltScreen())
+	p := tea.NewProgram(initialModel)
 
 	finalModel, err := p.Run()
 	if err != nil {
@@ -87,13 +87,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.dropdown = m.dropdown.WithScreenSize(msg.Width, msg.Height)
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			m.quitting = true
 			return m, tea.Quit
 
-		case " ", "enter":
+		case "space", "enter":
 			if !m.dropdown.IsOpen {
 				m.dropdown, cmd = m.dropdown.Open()
 				return m, cmd
@@ -104,9 +104,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if m.quitting {
-		return ""
+		return tea.NewView("")
 	}
 
 	// Build interior content
@@ -151,10 +151,12 @@ func (m model) View() string {
 
 	// Overlay dropdown if open
 	if m.dropdown.IsOpen {
-		dropdownView := m.dropdown.View()
+		dropdownView := m.dropdown.View().Content
 		// Adjust for border (1 row) + padding (1 row top, 2 cols left)
-		return teadd.OverlayDropdown(baseView, dropdownView, m.dropdown.Row+2, m.dropdown.Col+3)
+		baseView = teadd.OverlayDropdown(baseView, dropdownView, m.dropdown.Row+2, m.dropdown.Col+3)
 	}
 
-	return baseView
+	v := tea.NewView(baseView)
+	v.AltScreen = true
+	return v
 }

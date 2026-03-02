@@ -1,6 +1,6 @@
 package teamodal
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // DefaultListItemStyle returns default styling for list items
 func DefaultListItemStyle() lipgloss.Style {

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"os"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/mikeschinkel/go-tealeaves/teadd"
 	"github.com/mikeschinkel/go-tealeaves/teadep"
 )
@@ -48,7 +48,7 @@ func main() {
 		pathViewer: pathViewer,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error running program: %v\n", err)
 		os.Exit(1)
@@ -72,7 +72,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.pathViewer = pathViewer.(teadep.PathViewerModel)
 		return m, cmd
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -93,16 +93,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if m.width == 0 {
-		return "Loading..."
+		return tea.NewView("Loading...")
 	}
 
-	view := m.pathViewer.View()
-	view += "\n\n"
-	view += "↑↓: navigate | Space/→: alternatives | Enter: select leaf | q: quit"
+	content := m.pathViewer.View().Content
+	content += "\n\n"
+	content += "↑↓: navigate | Space/→: alternatives | Enter: select leaf | q: quit"
 
-	return view
+	v := tea.NewView(content)
+	v.AltScreen = true
+	return v
 }
 
 // selectBestChild chooses the best child using metadata

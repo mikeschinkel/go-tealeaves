@@ -3,7 +3,8 @@ package teatextsel
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 // SelectionStyle is the default style for selected text (inverted colors)
@@ -12,14 +13,14 @@ var SelectionStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("232")) // Dark text
 
 // View renders the textarea with selection highlighting
-func (m Model) View() string {
+func (m Model) View() tea.View {
 	if !m.HasSelection() {
 		// No selection - use default textarea view
-		return m.Model.View()
+		return tea.NewView(m.Model.View())
 	}
 
 	// With selection, we need to render with highlighting
-	return m.renderWithSelection()
+	return tea.NewView(m.renderWithSelection())
 }
 
 // renderWithSelection renders the textarea content with selection highlighting
@@ -134,7 +135,7 @@ func (m Model) isPositionSelected(pos Position, start, end Position) bool {
 
 // renderFocused applies focused styling to the content
 func (m Model) renderFocused(content string, width, height int) string {
-	style := m.Model.FocusedStyle
+	style := m.Model.Styles().Focused
 
 	// Apply prompt and line styling
 	lines := strings.Split(content, "\n")
@@ -159,6 +160,6 @@ func (m Model) renderFocused(content string, width, height int) string {
 
 // renderBlurred applies blurred styling to the content
 func (m Model) renderBlurred(content string, width, height int) string {
-	style := m.Model.BlurredStyle
+	style := m.Model.Styles().Blurred
 	return style.Base.Render(content)
 }

@@ -3,8 +3,8 @@ package teastatus
 import (
 	"testing"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/lipgloss/v2"
 )
 
 func TestNewMenuItemFromBinding(t *testing.T) {
@@ -28,7 +28,7 @@ func TestNewStatusIndicator(t *testing.T) {
 
 func TestStatusIndicator_WithStyle(t *testing.T) {
 	si := NewStatusIndicator("Active")
-	style := lipgloss.NewStyle().Foreground(lipgloss.Color("green"))
+	style := lipgloss.NewStyle().Foreground(lipgloss.Color("#00ff00"))
 	si2 := si.WithStyle(style)
 
 	// Original should be unchanged

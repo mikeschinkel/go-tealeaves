@@ -1,6 +1,6 @@
 package teamodal
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // ListKeyMap defines the key bindings for list modal dialogs
 type ListKeyMap struct {
@@ -27,7 +27,7 @@ func DefaultListKeyMap() ListKeyMap {
 			key.WithHelp("↓/j", "Move cursor down"),
 		),
 		Preview: key.NewBinding(
-			key.WithKeys(" "),
+			key.WithKeys("space"),
 			key.WithHelp("space", "Preview select (mark active)"),
 		),
 		Accept: key.NewBinding(

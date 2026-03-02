@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-dt"
 	"github.com/mikeschinkel/go-tealeaves/teatree"
 )
@@ -66,7 +66,7 @@ func main() {
 		tree: treeModel,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -91,7 +91,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.tree = m.tree.SetSize(msg.Width, treeHeight)
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			m.quitting = true
@@ -113,9 +113,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if m.quitting {
-		return ""
+		return tea.NewView("")
 	}
 
 	var b strings.Builder
@@ -123,7 +123,7 @@ func (m model) View() string {
 	b.WriteString(titleStyle.Render("teatree File Tree Example"))
 	b.WriteString("\n\n")
 
-	b.WriteString(m.tree.View())
+	b.WriteString(m.tree.View().Content)
 	b.WriteString("\n\n")
 
 	// Show focused node info
@@ -133,5 +133,7 @@ func (m model) View() string {
 	b.WriteString("\n")
 	b.WriteString(helpStyle.Render("↑↓: navigate | →: expand | ←: collapse | Space: toggle | e: expand all | c: collapse all | q: quit"))
 
-	return b.String()
+	v := tea.NewView(b.String())
+	v.AltScreen = true
+	return v
 }

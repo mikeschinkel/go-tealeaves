@@ -1,6 +1,6 @@
 package teadep
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // PathViewerKeyMap defines the key bindings for dependency path navigation
 type PathViewerKeyMap struct {
@@ -22,7 +22,7 @@ func DefaultPathViewerKeyMap() PathViewerKeyMap {
 			key.WithHelp("↓/j", "move down"),
 		),
 		OpenDropdown: key.NewBinding(
-			key.WithKeys(" ", "right"),
+			key.WithKeys("space", "right"),
 			key.WithHelp("space/→", "show alternatives"),
 		),
 		Select: key.NewBinding(

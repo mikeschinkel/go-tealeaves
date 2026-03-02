@@ -1,6 +1,6 @@
 package teatree
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // TreeKeyMap defines the key bindings for tree navigation
 type TreeKeyMap struct {
@@ -31,7 +31,7 @@ func DefaultTreeKeyMap() TreeKeyMap {
 			key.WithHelp("←/h", "collapse/up to parent"),
 		),
 		Toggle: key.NewBinding(
-			key.WithKeys("enter", " "),
+			key.WithKeys("enter", "space"),
 			key.WithHelp("enter/space", "toggle expand/collapse"),
 		),
 	}

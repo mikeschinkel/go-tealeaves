@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 // testItem implements ListItem for testing
@@ -84,7 +84,7 @@ func TestListModel_Open_NoActiveItem(t *testing.T) {
 func TestListModel_KeyUp(t *testing.T) {
 	m := newTestListModel(testItems())
 	// Cursor starts at 1 (active item). Move up.
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	if m.Cursor() != 0 {
 		t.Errorf("expected cursor=0 after Up, got %d", m.Cursor())
 	}
@@ -93,7 +93,7 @@ func TestListModel_KeyUp(t *testing.T) {
 	}
 
 	// At top, Up should stay at 0
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyUp})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
 	if m.Cursor() != 0 {
 		t.Errorf("expected cursor=0 (clamped), got %d", m.Cursor())
 	}
@@ -102,19 +102,19 @@ func TestListModel_KeyUp(t *testing.T) {
 func TestListModel_KeyDown(t *testing.T) {
 	m := newTestListModel(testItems())
 	// Start at 1, move down
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	if m.Cursor() != 2 {
 		t.Errorf("expected cursor=2, got %d", m.Cursor())
 	}
 
 	// Move to last
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	if m.Cursor() != 3 {
 		t.Errorf("expected cursor=3, got %d", m.Cursor())
 	}
 
 	// At bottom, stays at last
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	if m.Cursor() != 3 {
 		t.Errorf("expected cursor=3 (clamped), got %d", m.Cursor())
 	}
@@ -122,7 +122,7 @@ func TestListModel_KeyDown(t *testing.T) {
 
 func TestListModel_KeySpace(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeySpace})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
 
 	// Modal should stay open
 	if !m.IsOpen() {
@@ -142,7 +142,7 @@ func TestListModel_KeySpace(t *testing.T) {
 func TestListModel_KeyEnter(t *testing.T) {
 	m := newTestListModel(testItems())
 	// Cursor at active item (1), Enter should close
-	_, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	_, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	// cmd is tea.Batch, execute it
 	if cmd == nil {
@@ -152,7 +152,7 @@ func TestListModel_KeyEnter(t *testing.T) {
 
 func TestListModel_KeyNew(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'a'}})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: 'a', Text: "a"})
 
 	msg := extractMsg(cmd)
 	_, ok := msg.(NewItemRequestedMsg)
@@ -167,7 +167,7 @@ func TestListModel_KeyNew(t *testing.T) {
 
 func TestListModel_KeyEdit(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
 
 	if !m.isEditing {
 		t.Error("expected isEditing=true after 'e'")
@@ -179,7 +179,7 @@ func TestListModel_KeyEdit(t *testing.T) {
 
 func TestListModel_KeyDelete(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'d'}})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: 'd', Text: "d"})
 
 	msg := extractMsg(cmd)
 	del, ok := msg.(DeleteItemRequestedMsg[testItem])
@@ -193,13 +193,13 @@ func TestListModel_KeyDelete(t *testing.T) {
 
 func TestListModel_KeyHelp(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'?'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: '?', Text: "?"})
 	if !m.showHelp {
 		t.Error("expected showHelp=true after '?'")
 	}
 
 	// Toggle off
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'?'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: '?', Text: "?"})
 	if m.showHelp {
 		t.Error("expected showHelp=false after second '?'")
 	}
@@ -208,13 +208,13 @@ func TestListModel_KeyHelp(t *testing.T) {
 func TestListModel_HelpVisibleEscClosesHelp(t *testing.T) {
 	m := newTestListModel(testItems())
 	// Open help
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'?'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: '?', Text: "?"})
 	if !m.showHelp {
 		t.Fatal("expected help visible")
 	}
 
 	// Esc closes help, not the modal
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 	if m.showHelp {
 		t.Error("expected help closed after Esc")
 	}
@@ -225,7 +225,7 @@ func TestListModel_HelpVisibleEscClosesHelp(t *testing.T) {
 
 func TestListModel_KeyCancel(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after Esc")
@@ -240,13 +240,13 @@ func TestListModel_KeyCancel(t *testing.T) {
 func TestListModel_EditEnterCompletes(t *testing.T) {
 	m := newTestListModel(testItems())
 	// Enter edit mode
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
 	// Type new text (first keystroke overwrites)
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'N'}})
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'w'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'N', Text: "N"})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'w', Text: "w"})
 	// Complete edit
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEnter})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 
 	if m.isEditing {
 		t.Error("expected isEditing=false after Enter")
@@ -263,11 +263,11 @@ func TestListModel_EditEnterCompletes(t *testing.T) {
 
 func TestListModel_EditEscCancels(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
 	// Type something
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'X'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'X', Text: "X"})
 	// Cancel
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 
 	if m.isEditing {
 		t.Error("expected isEditing=false after Esc")
@@ -279,13 +279,13 @@ func TestListModel_EditEscCancels(t *testing.T) {
 
 func TestListModel_EditFirstKeystrokeOverwrites(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
 	// editOverwrite should be true
 	if !m.editOverwrite {
 		t.Error("expected editOverwrite=true initially")
 	}
 	// First keystroke
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'X'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'X', Text: "X"})
 	if m.editBuffer != "X" {
 		t.Errorf("expected editBuffer='X' after overwrite, got %q", m.editBuffer)
 	}
@@ -296,11 +296,11 @@ func TestListModel_EditFirstKeystrokeOverwrites(t *testing.T) {
 
 func TestListModel_EditSubsequentInsertion(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
 	// First keystroke overwrites
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'A'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'A', Text: "A"})
 	// Subsequent inserts
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'B'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'B', Text: "B"})
 	if m.editBuffer != "AB" {
 		t.Errorf("expected editBuffer='AB', got %q", m.editBuffer)
 	}
@@ -308,26 +308,99 @@ func TestListModel_EditSubsequentInsertion(t *testing.T) {
 
 func TestListModel_EditCursorMovement(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'e'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
 	// Disable overwrite by moving cursor
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRight})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
 	if m.editOverwrite {
 		t.Error("expected editOverwrite=false after cursor move")
 	}
 
 	// editBuffer should be "Beta", cursor at 1
 	// Backspace at position 1
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyBackspace})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyBackspace})
 	if m.editBuffer != "eta" {
 		t.Errorf("expected 'eta' after backspace, got %q", m.editBuffer)
+	}
+}
+
+// --- Migration-sensitive tests (v1→v2 regression guards) ---
+
+// LST-EDIT-SPACE: Guards tea.KeySpace branch in updateEditing (list_model.go:372-384)
+// Space in edit mode must insert a space character into the edit buffer.
+func TestListModel_EditSpaceInsertion(t *testing.T) {
+	m := newTestListModel(testItems())
+	// Enter edit mode (cursor on "Beta")
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
+	if !m.isEditing {
+		t.Fatal("expected isEditing=true")
+	}
+
+	// First keystroke overwrites: type "A"
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'A', Text: "A"})
+	if m.editBuffer != "A" {
+		t.Fatalf("expected editBuffer='A', got %q", m.editBuffer)
+	}
+
+	// Space should insert at cursor position (after "A")
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeySpace, Text: " "})
+	if m.editBuffer != "A " {
+		t.Errorf("expected editBuffer='A ', got %q", m.editBuffer)
+	}
+	if m.editCursor != 2 {
+		t.Errorf("expected editCursor=2 after space, got %d", m.editCursor)
+	}
+
+	// Type "B" after space
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'B', Text: "B"})
+	if m.editBuffer != "A B" {
+		t.Errorf("expected editBuffer='A B', got %q", m.editBuffer)
+	}
+}
+
+// LST-EDIT-DELETE: Guards keyMsg.Type == tea.KeyDelete branch in updateEditing (list_model.go:342-350)
+// Delete key in edit mode must remove the character at cursor position.
+func TestListModel_EditDeleteKey(t *testing.T) {
+	m := newTestListModel(testItems())
+	// Enter edit mode (cursor on "Beta")
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
+	if !m.isEditing {
+		t.Fatal("expected isEditing=true")
+	}
+
+	// Move cursor right to disable overwrite, cursor is at position 0 in "Beta"
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
+	if m.editOverwrite {
+		t.Fatal("expected editOverwrite=false after cursor move")
+	}
+	// Now cursor=1 within "Beta"
+
+	// Move cursor to position 0 (left)
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyLeft})
+	if m.editCursor != 0 {
+		t.Fatalf("expected editCursor=0, got %d", m.editCursor)
+	}
+
+	// Delete at position 0 should remove 'B' → "eta"
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDelete})
+	if m.editBuffer != "eta" {
+		t.Errorf("expected editBuffer='eta' after delete, got %q", m.editBuffer)
+	}
+	if m.editCursor != 0 {
+		t.Errorf("expected editCursor=0 (unchanged after delete), got %d", m.editCursor)
+	}
+
+	// Delete again at position 0 should remove 'e' → "ta"
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDelete})
+	if m.editBuffer != "ta" {
+		t.Errorf("expected editBuffer='ta' after second delete, got %q", m.editBuffer)
 	}
 }
 
 func TestListModel_SetItems(t *testing.T) {
 	m := newTestListModel(testItems())
 	// Move cursor to position 3
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 
 	// Replace with fewer items
 	newItems := []testItem{
@@ -377,13 +450,13 @@ func TestListModel_SetCursorToLast(t *testing.T) {
 func TestListModel_View_Open(t *testing.T) {
 	m := newTestListModel(testItems())
 	view := m.View()
-	if view == "" {
+	if view.Content == "" {
 		t.Error("expected non-empty view when open")
 	}
-	if !strings.Contains(view, "Test List") {
+	if !strings.Contains(view.Content, "Test List") {
 		t.Error("expected view to contain title")
 	}
-	if !strings.Contains(view, "Alpha") {
+	if !strings.Contains(view.Content, "Alpha") {
 		t.Error("expected view to contain item label 'Alpha'")
 	}
 }
@@ -391,16 +464,16 @@ func TestListModel_View_Open(t *testing.T) {
 func TestListModel_View_ActiveItem(t *testing.T) {
 	m := newTestListModel(testItems())
 	view := m.View()
-	if !strings.Contains(view, "ACTIVE") {
+	if !strings.Contains(view.Content, "ACTIVE") {
 		t.Error("expected view to show ACTIVE indicator for active item")
 	}
 }
 
 func TestListModel_View_HelpVisor(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, _ = m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'?'}})
+	m, _ = m.Update(tea.KeyPressMsg{Code: '?', Text: "?"})
 	view := m.View()
-	if !strings.Contains(view, "Keyboard Shortcuts") {
+	if !strings.Contains(view.Content, "Keyboard Shortcuts") {
 		t.Error("expected help visor to contain 'Keyboard Shortcuts'")
 	}
 }

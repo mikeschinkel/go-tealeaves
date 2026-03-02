@@ -3,9 +3,9 @@ package teadd
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 // ModelArgs contains initialization arguments for DropdownModel
@@ -107,7 +107,7 @@ func (m DropdownModel) Init() tea.Cmd {
 // Update implements tea.Model (FOLLOWS ClearPath)
 func (m DropdownModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
 	var selected OptionSelectedMsg
 	var sizeMsg tea.WindowSizeMsg
@@ -116,8 +116,8 @@ func (m DropdownModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		goto end // Not open = nil cmd = didn't handle
 	}
 
-	// Try as KeyMsg first
-	keyMsg, ok = msg.(tea.KeyMsg)
+	// Try as KeyPressMsg first
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if ok {
 		switch {
 		case key.Matches(keyMsg, m.Keys.Up):
@@ -172,7 +172,8 @@ end:
 }
 
 // View implements tea.Model (FOLLOWS ClearPath)
-func (m DropdownModel) View() (view string) {
+func (m DropdownModel) View() tea.View {
+	var view string
 	var pos popupPosition
 	var err error
 
@@ -193,7 +194,7 @@ func (m DropdownModel) View() (view string) {
 	}
 
 end:
-	return view
+	return tea.NewView(view)
 }
 
 // Open opens the dropdown and calculates adjusted position

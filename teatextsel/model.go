@@ -5,9 +5,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/textarea"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/textarea"
+	tea "charm.land/bubbletea/v2"
 )
 
 // Model wraps textarea.Model with text selection and clipboard support
@@ -136,7 +136,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
-	keyMsg, isKey := msg.(tea.KeyMsg)
+	keyMsg, isKey := msg.(tea.KeyPressMsg)
 	if !isKey {
 		// Not a key message - pass to textarea
 		m.Model, cmd = m.Model.Update(msg)
@@ -219,7 +219,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	}
 
 	// In single-line mode, block Enter key to prevent newlines
-	if m.singleLine && keyMsg.Type == tea.KeyEnter {
+	if m.singleLine && keyMsg.Code == tea.KeyEnter {
 		return m, nil
 	}
 
@@ -540,23 +540,18 @@ func (m *Model) moveCursorTo(row, col int) {
 	}
 
 	// Move to correct column
-	m.Model.SetCursor(col)
+	m.Model.SetCursorColumn(col)
 }
 
 // isTypingKey returns true if the key would insert text
-func isTypingKey(msg tea.KeyMsg) bool {
-	// Runes are typing keys
-	if len(msg.Runes) > 0 {
-		return true
-	}
-
-	// Space is a typing key
-	if msg.Type == tea.KeySpace {
+func isTypingKey(msg tea.KeyPressMsg) bool {
+	// Text input (runes, space) are typing keys
+	if msg.Text != "" {
 		return true
 	}
 
 	// Enter is a typing key (inserts newline)
-	if msg.Type == tea.KeyEnter {
+	if msg.Code == tea.KeyEnter {
 		return true
 	}
 
@@ -564,12 +559,12 @@ func isTypingKey(msg tea.KeyMsg) bool {
 }
 
 // isCursorMovement returns true if the key moves the cursor without shift
-func isCursorMovement(msg tea.KeyMsg) bool {
-	switch msg.Type {
+func isCursorMovement(msg tea.KeyPressMsg) bool {
+	switch msg.Code {
 	case tea.KeyLeft, tea.KeyRight, tea.KeyUp, tea.KeyDown,
 		tea.KeyHome, tea.KeyEnd, tea.KeyPgUp, tea.KeyPgDown:
 		// Only clear selection if not extending (shift not held)
-		return !strings.Contains(msg.String(), "shift")
+		return !msg.Mod.Contains(tea.ModShift)
 	}
 	return false
 }

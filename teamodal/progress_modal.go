@@ -3,9 +3,9 @@ package teamodal
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
@@ -88,7 +88,7 @@ func (m ProgressModal) Init() tea.Cmd {
 // Update implements tea.Model
 func (m ProgressModal) Update(msg tea.Msg) (ProgressModal, tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
 	var sizeMsg tea.WindowSizeMsg
 
@@ -96,7 +96,7 @@ func (m ProgressModal) Update(msg tea.Msg) (ProgressModal, tea.Cmd) {
 		goto end
 	}
 
-	keyMsg, ok = msg.(tea.KeyMsg)
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if ok {
 		switch {
 		case key.Matches(keyMsg, m.Keys.Cancel):
@@ -127,7 +127,9 @@ end:
 }
 
 // View renders the modal
-func (m ProgressModal) View() (view string) {
+func (m ProgressModal) View() tea.View {
+	var view string
+
 	if !m.isOpen {
 		goto end
 	}
@@ -135,7 +137,7 @@ func (m ProgressModal) View() (view string) {
 	view = m.renderModal()
 
 end:
-	return view
+	return tea.NewView(view)
 }
 
 // Open opens the modal and returns updated model
@@ -189,7 +191,7 @@ func (m ProgressModal) OverlayModal(background string) (view string) {
 		goto end
 	}
 
-	modalView = m.View()
+	modalView = m.View().Content
 	row = m.lastRow
 	col = m.lastCol
 

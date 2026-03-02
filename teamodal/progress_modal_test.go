@@ -4,7 +4,7 @@ import (
 	"strings"
 	"testing"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 func newTestProgressModal(bgEnabled bool) ProgressModal {
@@ -49,7 +49,7 @@ func TestProgressModal_Close(t *testing.T) {
 
 func TestProgressModal_EscCancels(t *testing.T) {
 	m := newTestProgressModal(false)
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after Esc")
@@ -63,7 +63,7 @@ func TestProgressModal_EscCancels(t *testing.T) {
 
 func TestProgressModal_BackgroundKey(t *testing.T) {
 	m := newTestProgressModal(true)
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'b'}})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: 'b', Text: "b"})
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after 'b'")
@@ -77,7 +77,7 @@ func TestProgressModal_BackgroundKey(t *testing.T) {
 
 func TestProgressModal_BackgroundDisabled(t *testing.T) {
 	m := newTestProgressModal(false)
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyRunes, Runes: []rune{'b'}})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: 'b', Text: "b"})
 
 	// Should remain open when background is disabled
 	if !m.IsOpen() {
@@ -91,7 +91,7 @@ func TestProgressModal_BackgroundDisabled(t *testing.T) {
 func TestProgressModal_ClosedIgnoresInput(t *testing.T) {
 	m := newTestProgressModal(false)
 	m = m.Close()
-	m, cmd := m.Update(tea.KeyMsg{Type: tea.KeyEsc})
+	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 	if cmd != nil {
 		t.Error("expected nil cmd when modal is closed")
 	}
@@ -102,10 +102,10 @@ func TestProgressModal_ClosedIgnoresInput(t *testing.T) {
 func TestProgressModal_View_Open(t *testing.T) {
 	m := newTestProgressModal(false)
 	view := m.View()
-	if !strings.Contains(view, "Commit Message") {
+	if !strings.Contains(view.Content, "Commit Message") {
 		t.Error("expected view to contain title")
 	}
-	if !strings.Contains(view, "cancel") || !strings.Contains(view, "esc") {
+	if !strings.Contains(view.Content, "cancel") || !strings.Contains(view.Content, "esc") {
 		t.Error("expected view to contain cancel hint")
 	}
 }
@@ -114,7 +114,7 @@ func TestProgressModal_View_BackgroundHint(t *testing.T) {
 	t.Run("Enabled", func(t *testing.T) {
 		m := newTestProgressModal(true)
 		view := m.View()
-		if !strings.Contains(view, "Background") {
+		if !strings.Contains(view.Content, "Background") {
 			t.Error("expected 'Background' hint when enabled")
 		}
 	})
@@ -122,7 +122,7 @@ func TestProgressModal_View_BackgroundHint(t *testing.T) {
 	t.Run("Disabled", func(t *testing.T) {
 		m := newTestProgressModal(false)
 		view := m.View()
-		if strings.Contains(view, "Background") {
+		if strings.Contains(view.Content, "Background") {
 			t.Error("expected no 'Background' hint when disabled")
 		}
 	})

@@ -3,7 +3,7 @@ package teautils
 import (
 	"testing"
 
-	"github.com/charmbracelet/bubbles/key"
+	"charm.land/bubbles/v2/key"
 )
 
 func TestFormatKeyDisplay_SingleKey(t *testing.T) {
@@ -41,7 +41,7 @@ func TestFormatKeyDisplay_Deduplication(t *testing.T) {
 
 func TestFormatKeyDisplay_CustomDisplayKeys(t *testing.T) {
 	meta := KeyMeta{
-		Binding:     key.NewBinding(key.WithKeys(" ")),
+		Binding:     key.NewBinding(key.WithKeys("space")),
 		DisplayKeys: []string{"Space"},
 	}
 	result := FormatKeyDisplay(meta)

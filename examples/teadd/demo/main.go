@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mikeschinkel/go-cliutil"
 	"github.com/mikeschinkel/go-tealeaves/teadd"
@@ -67,7 +67,7 @@ func main() {
 	// This is needed in GoLand terminal for debugging, but is not harmful if not needed.
 	teadd.EnsureTermGetSize(os.Stdout.Fd())
 
-	p := tea.NewProgram(initialModel(), tea.WithAltScreen())
+	p := tea.NewProgram(initialModel())
 	if _, err := p.Run(); err != nil {
 		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
@@ -119,7 +119,7 @@ func (m exampleModel) updateConfiguring(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.screenHeight = msg.Height
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -252,7 +252,7 @@ func (m exampleModel) updateDemonstrating(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Dropdown didn't handle - parent processes
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -270,7 +270,7 @@ func (m exampleModel) updateDemonstrating(msg tea.Msg) (tea.Model, tea.Cmd) {
 			m.currentField = 0
 			m.configComplete = [5]bool{false, false, false, false, false}
 			return m, nil
-		case " ", "enter", "down", "right":
+		case "space", "enter", "down", "right":
 			// Open dropdown if closed
 			if !m.dropdown.IsOpen {
 				m.dropdown, cmd = m.dropdown.Open()
@@ -381,11 +381,16 @@ func (m exampleModel) setupDemo() exampleModel {
 	return m
 }
 
-func (m exampleModel) View() string {
+func (m exampleModel) View() tea.View {
+	var content string
 	if m.mode == modeConfiguring {
-		return m.viewConfiguring()
+		content = m.viewConfiguring()
+	} else {
+		content = m.viewDemonstrating()
 	}
-	return m.viewDemonstrating()
+	v := tea.NewView(content)
+	v.AltScreen = true
+	return v
 }
 
 func (m exampleModel) viewConfiguring() string {
@@ -547,7 +552,7 @@ func (m exampleModel) viewDemonstrating() string {
 
 	// Overlay dropdown if open
 	if m.dropdown.IsOpen {
-		dropdownView := m.dropdown.View()
+		dropdownView := m.dropdown.View().Content
 		// Adjust dropdown row to be relative to screenArea (which starts at screen row 1)
 		// Menu bar is at screen row 0, screenArea starts at screen row 1
 		relativeRow := m.dropdown.Row - 1

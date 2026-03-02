@@ -6,8 +6,8 @@ import (
 	"strings"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teanotify"
 )
 
@@ -43,7 +43,7 @@ func main() {
 		notify: notify,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -64,7 +64,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		return m, notifyCmd
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -101,9 +101,9 @@ var (
 	descStyle  = lipgloss.NewStyle().Foreground(lipgloss.Color("245"))
 )
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if m.width == 0 {
-		return "Loading..."
+		return tea.NewView("Loading...")
 	}
 
 	var content strings.Builder
@@ -147,5 +147,7 @@ func (m model) View() string {
 	}
 
 	fullContent := strings.Join(lines, "\n")
-	return m.notify.Render(fullContent)
+	v := tea.NewView(m.notify.Render(fullContent))
+	v.AltScreen = true
+	return v
 }

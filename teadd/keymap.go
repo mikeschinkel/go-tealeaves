@@ -1,6 +1,6 @@
 package teadd
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // DropdownKeyMap defines the key bindings for dropdown menus
 type DropdownKeyMap struct {

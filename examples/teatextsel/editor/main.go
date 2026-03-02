@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teatextsel"
 )
 
@@ -31,7 +31,7 @@ func main() {
 		editor: editor,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
@@ -61,7 +61,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.editor.SetHeight(editorHeight)
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		// Ctrl+Q to quit (since Ctrl+C is used for copy)
 		if msg.String() == "ctrl+q" {
 			m.quitting = true
@@ -73,9 +73,9 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
 	if m.quitting {
-		return ""
+		return tea.NewView("")
 	}
 
 	var b strings.Builder
@@ -83,7 +83,7 @@ func (m model) View() string {
 	b.WriteString("TeaTextSel Editor Example\n")
 	b.WriteString("==========================\n\n")
 
-	b.WriteString(m.editor.View())
+	b.WriteString(m.editor.View().Content)
 	b.WriteString("\n\n")
 
 	// Status line
@@ -101,5 +101,7 @@ func (m model) View() string {
 		b.WriteString(helpStyle.Render("Shift+Arrows: select | Ctrl+A: select all | Ctrl+C/X/V: copy/cut/paste | Ctrl+Q: quit"))
 	}
 
-	return b.String()
+	v := tea.NewView(b.String())
+	v.AltScreen = true
+	return v
 }

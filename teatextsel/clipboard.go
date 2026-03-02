@@ -3,7 +3,7 @@ package teatextsel
 import (
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"golang.design/x/clipboard"
 )
 

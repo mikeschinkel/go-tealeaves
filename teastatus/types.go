@@ -1,8 +1,8 @@
 package teastatus
 
 import (
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	"charm.land/lipgloss/v2"
 )
 
 // MenuItem represents a single key-action entry in the left menu area.

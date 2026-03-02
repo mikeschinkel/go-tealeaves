@@ -4,9 +4,9 @@ import (
 	"log/slog"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
@@ -158,7 +158,7 @@ func (m ListModel[T]) Init() tea.Cmd {
 // Update implements tea.Model (FOLLOWS ClearPath)
 func (m ListModel[T]) Update(msg tea.Msg) (ListModel[T], tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
 	var sizeMsg tea.WindowSizeMsg
 
@@ -171,8 +171,8 @@ func (m ListModel[T]) Update(msg tea.Msg) (ListModel[T], tea.Cmd) {
 		return m.updateEditing(msg)
 	}
 
-	// Try as KeyMsg first
-	keyMsg, ok = msg.(tea.KeyMsg)
+	// Try as KeyPressMsg first
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if ok {
 		switch {
 		case key.Matches(keyMsg, m.Keys.Up):
@@ -278,15 +278,16 @@ end:
 // updateEditing handles key events when in inline edit mode
 func (m ListModel[T]) updateEditing(msg tea.Msg) (ListModel[T], tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
+	var inputRunes []rune
 
-	keyMsg, ok = msg.(tea.KeyMsg)
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if !ok {
 		goto end
 	}
 
-	switch keyMsg.Type {
+	switch keyMsg.Code {
 	case tea.KeyEnter:
 		// Complete the edit
 		item := m.items[m.cursor]
@@ -299,7 +300,7 @@ func (m ListModel[T]) updateEditing(msg tea.Msg) (ListModel[T], tea.Cmd) {
 		cmd = func() tea.Msg { return EditCompletedMsg[T]{Item: item, NewLabel: newLabel} }
 		goto end
 
-	case tea.KeyEsc:
+	case tea.KeyEscape:
 		// Cancel the edit
 		m.isEditing = false
 		m.editBuffer = ""
@@ -348,37 +349,25 @@ func (m ListModel[T]) updateEditing(msg tea.Msg) (ListModel[T], tea.Cmd) {
 		}
 		cmd = func() tea.Msg { return nil }
 		goto end
+	}
 
-	case tea.KeyRunes:
-		// Insert typed character(s)
+	// Handle text input (runes + space, unified in v2)
+	if keyMsg.Text != "" {
+		inputRunes = []rune(keyMsg.Text)
 		if m.editOverwrite {
 			// First keystroke: overwrite entire buffer
-			m.editBuffer = string(keyMsg.Runes)
-			m.editCursor = len(keyMsg.Runes)
+			m.editBuffer = keyMsg.Text
+			m.editCursor = len(inputRunes)
 			m.editOverwrite = false
 		} else {
 			// Insert at cursor position
 			runes := []rune(m.editBuffer)
-			newRunes := make([]rune, 0, len(runes)+len(keyMsg.Runes))
+			newRunes := make([]rune, 0, len(runes)+len(inputRunes))
 			newRunes = append(newRunes, runes[:m.editCursor]...)
-			newRunes = append(newRunes, keyMsg.Runes...)
+			newRunes = append(newRunes, inputRunes...)
 			newRunes = append(newRunes, runes[m.editCursor:]...)
 			m.editBuffer = string(newRunes)
-			m.editCursor += len(keyMsg.Runes)
-		}
-		cmd = func() tea.Msg { return nil }
-		goto end
-
-	case tea.KeySpace:
-		// Insert space
-		if m.editOverwrite {
-			m.editBuffer = " "
-			m.editCursor = 1
-			m.editOverwrite = false
-		} else {
-			runes := []rune(m.editBuffer)
-			m.editBuffer = string(runes[:m.editCursor]) + " " + string(runes[m.editCursor:])
-			m.editCursor++
+			m.editCursor += len(inputRunes)
 		}
 		cmd = func() tea.Msg { return nil }
 		goto end
@@ -389,7 +378,9 @@ end:
 }
 
 // View implements tea.Model (FOLLOWS ClearPath)
-func (m ListModel[T]) View() (view string) {
+func (m ListModel[T]) View() tea.View {
+	var view string
+
 	if !m.isOpen {
 		goto end
 	}
@@ -397,7 +388,7 @@ func (m ListModel[T]) View() (view string) {
 	view = m.renderModal()
 
 end:
-	return view
+	return tea.NewView(view)
 }
 
 // Open opens the modal and returns updated model
@@ -547,7 +538,7 @@ func (m ListModel[T]) OverlayModal(background string) (view string) {
 		goto end
 	}
 
-	modalView = m.View()
+	modalView = m.View().Content
 	row = m.lastRow
 	col = m.lastCol
 

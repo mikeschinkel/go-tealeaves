@@ -4,9 +4,9 @@ import (
 	"strings"
 	"unicode"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
@@ -173,7 +173,7 @@ func (m ChoiceModel) Init() tea.Cmd {
 // Update implements tea.Model (FOLLOWS ClearPath)
 func (m ChoiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
 	var sizeMsg tea.WindowSizeMsg
 	var pressedRune rune
@@ -184,7 +184,7 @@ func (m ChoiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		goto end
 	}
 
-	keyMsg, ok = msg.(tea.KeyMsg)
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if ok {
 		switch {
 		case key.Matches(keyMsg, m.Keys.NextButton):
@@ -216,8 +216,8 @@ func (m ChoiceModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 
 		// Check for hotkey press
-		if keyMsg.Type == tea.KeyRunes && len(keyMsg.Runes) == 1 {
-			pressedRune = unicode.ToLower(keyMsg.Runes[0])
+		if len(keyMsg.Text) == 1 {
+			pressedRune = unicode.ToLower([]rune(keyMsg.Text)[0])
 			for i, opt = range m.options {
 				if opt.Hotkey == 0 {
 					continue
@@ -247,7 +247,8 @@ end:
 }
 
 // View implements tea.Model (FOLLOWS ClearPath)
-func (m ChoiceModel) View() (view string) {
+func (m ChoiceModel) View() tea.View {
+	var view string
 	var err error
 
 	if !m.isOpen {
@@ -261,7 +262,7 @@ func (m ChoiceModel) View() (view string) {
 	}
 
 end:
-	return view
+	return tea.NewView(view)
 }
 
 // Open opens the modal and returns updated model
@@ -309,7 +310,7 @@ func (m ChoiceModel) OverlayModal(background string) (view string) {
 		goto end
 	}
 
-	modalView = m.View()
+	modalView = m.View().Content
 	row = m.lastRow
 	col = m.lastCol
 	view = OverlayModal(background, modalView, row, col)

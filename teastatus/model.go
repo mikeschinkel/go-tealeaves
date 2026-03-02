@@ -3,7 +3,7 @@ package teastatus
 import (
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
 )
 
@@ -65,7 +65,8 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View implements tea.Model. Renders the two-zone status bar.
-func (m Model) View() (view string) {
+func (m Model) View() tea.View {
+	var view string
 	var left string
 	var right string
 	var leftWidth int
@@ -98,5 +99,5 @@ func (m Model) View() (view string) {
 	view = m.Styles.BarStyle.Render(sb.String())
 
 end:
-	return view
+	return tea.NewView(view)
 }

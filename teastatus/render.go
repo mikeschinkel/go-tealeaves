@@ -3,7 +3,7 @@ package teastatus
 import (
 	"strings"
 
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // renderMenuItems renders the left-side menu items as "[key] label  [key] label  ..."

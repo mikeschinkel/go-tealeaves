@@ -1,7 +1,7 @@
 package teatree
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // NodeProvider defines the interface for customizing node rendering

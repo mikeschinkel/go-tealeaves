@@ -5,9 +5,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 type model struct {
@@ -23,22 +23,24 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c", "esc":
 			return m, tea.Quit
 		}
 	case tea.WindowSizeMsg:
-		m.viewport.Width = msg.Width
-		m.viewport.Height = msg.Height - 4 // Header (2 lines) + help text (2 lines)
+		m.viewport.SetWidth(msg.Width)
+		m.viewport.SetHeight(msg.Height - 4) // Header (2 lines) + help text (2 lines)
 	}
 
 	m.viewport, cmd = m.viewport.Update(msg)
 	return m, cmd
 }
 
-func (m model) View() string {
-	return m.header + m.viewport.View() + "\n  ↑/↓ scroll, q quit | Format: bg/fg (e.g., 53/015 = background 53, foreground 15)"
+func (m model) View() tea.View {
+	v := tea.NewView(m.header + m.viewport.View() + "\n  ↑/↓ scroll, q quit | Format: bg/fg (e.g., 53/015 = background 53, foreground 15)")
+	v.AltScreen = true
+	return v
 }
 
 // Common foreground colors to test against each background
@@ -100,7 +102,7 @@ func main() {
 	header := buildHeader()
 	content := buildColorContent()
 
-	vp := viewport.New(8+sampleWidth*len(fgColors)+5, 20)
+	vp := viewport.New(viewport.WithWidth(8+sampleWidth*len(fgColors)+5), viewport.WithHeight(20))
 	vp.SetContent(content)
 
 	m := model{
@@ -108,7 +110,7 @@ func main() {
 		header:   header,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen())
+	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
 		fmt.Println("Error:", err)
 		os.Exit(1)

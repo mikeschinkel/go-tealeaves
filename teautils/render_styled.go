@@ -1,7 +1,7 @@
 package teautils
 
 import (
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/lipgloss/v2"
 )
 
 // RenderAlignedLine renders text with a style and wraps it in alignment.

@@ -3,9 +3,9 @@ package teatree
 import (
 	"strings"
 
-	"github.com/charmbracelet/bubbles/key"
-	"github.com/charmbracelet/bubbles/viewport"
-	tea "github.com/charmbracelet/bubbletea"
+	"charm.land/bubbles/v2/key"
+	"charm.land/bubbles/v2/viewport"
+	tea "charm.land/bubbletea/v2"
 )
 
 // Model is the BubbleTea model for the tree
@@ -27,7 +27,7 @@ func NewModel[T any](tree *Tree[T], height int) Model[T] {
 		Keys:     DefaultTreeKeyMap(),
 		tree:     tree,
 		renderer: renderer,
-		viewport: viewport.New(width, height),
+		viewport: viewport.New(viewport.WithWidth(width), viewport.WithHeight(height)),
 		height:   height,
 		ready:    true,
 	}
@@ -43,7 +43,7 @@ func (m Model[T]) Update(msg tea.Msg) (Model[T], tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch {
 		case key.Matches(msg, m.Keys.Up):
 			if m.tree.MoveUp() {
@@ -95,8 +95,8 @@ func (m Model[T]) Update(msg tea.Msg) (Model[T], tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.viewport.Width = msg.Width
-		m.viewport.Height = msg.Height
+		m.viewport.SetWidth(msg.Width)
+		m.viewport.SetHeight(msg.Height)
 		m = m.updateViewportContent()
 		return m, nil
 	}
@@ -108,9 +108,9 @@ func (m Model[T]) Update(msg tea.Msg) (Model[T], tea.Cmd) {
 }
 
 // View implements tea.Model
-func (m Model[T]) View() string {
+func (m Model[T]) View() tea.View {
 	if !m.ready {
-		return "Initializing..."
+		return tea.NewView("Initializing...")
 	}
 
 	// Render content without horizontal padding (viewport pads to maxWidth)
@@ -118,14 +118,14 @@ func (m Model[T]) View() string {
 	lines := m.renderer.RenderToLines()
 
 	// Apply vertical scrolling from viewport (YOffset)
-	start := m.viewport.YOffset
-	end := start + m.viewport.Height
+	start := m.viewport.YOffset()
+	end := start + m.viewport.Height()
 
 	if end < 0 {
-		return ""
+		return tea.NewView("")
 	}
 	if start >= len(lines) {
-		return ""
+		return tea.NewView("")
 	}
 	if end > len(lines) {
 		end = len(lines)
@@ -136,7 +136,7 @@ func (m Model[T]) View() string {
 	// TODO: Add horizontal scrolling support for deep paths if needed
 	// (viewport.XOffset is unexported, so we'd need to track it ourselves)
 
-	return joinLines(visibleLines)
+	return tea.NewView(joinLines(visibleLines))
 }
 
 // joinLines joins lines with newlines, handling empty slices
@@ -186,13 +186,13 @@ func (m Model[T]) ensureFocusedVisible() Model[T] {
 
 	// Scroll viewport to show focused line
 	// If focused line is above viewport, scroll up
-	if focusedIndex < m.viewport.YOffset {
-		m.viewport.YOffset = focusedIndex
+	if focusedIndex < m.viewport.YOffset() {
+		m.viewport.SetYOffset(focusedIndex)
 	}
 
 	// If focused line is below viewport, scroll down
-	if focusedIndex >= m.viewport.YOffset+m.viewport.Height {
-		m.viewport.YOffset = focusedIndex - m.viewport.Height + 1
+	if focusedIndex >= m.viewport.YOffset()+m.viewport.Height() {
+		m.viewport.SetYOffset(focusedIndex - m.viewport.Height() + 1)
 	}
 	return m
 }
@@ -206,8 +206,8 @@ func (m Model[T]) Tree() *Tree[T] {
 func (m Model[T]) SetSize(width, height int) Model[T] {
 	m.width = width
 	m.height = height
-	m.viewport.Width = width
-	m.viewport.Height = height
+	m.viewport.SetWidth(width)
+	m.viewport.SetHeight(height)
 	m = m.updateViewportContent()
 	return m
 }

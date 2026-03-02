@@ -3,9 +3,9 @@ package teadep
 import (
 	"fmt"
 
-	"github.com/charmbracelet/bubbles/key"
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
+	"charm.land/bubbles/v2/key"
+	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teadd"
 )
 
@@ -122,7 +122,7 @@ func (m PathViewerModel) Init() tea.Cmd {
 //goland:noinspection GoAssignmentToReceiver
 func (m PathViewerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
-	var keyMsg tea.KeyMsg
+	var keyMsg tea.KeyPressMsg
 	var ok bool
 	var handled bool
 
@@ -159,7 +159,7 @@ func (m PathViewerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	// Process key messages
-	keyMsg, ok = msg.(tea.KeyMsg)
+	keyMsg, ok = msg.(tea.KeyPressMsg)
 	if !ok {
 		goto end
 	}
@@ -187,7 +187,8 @@ end:
 }
 
 // View implements tea.Model (FOLLOWS ClearPath)
-func (m PathViewerModel) View() (view string) {
+func (m PathViewerModel) View() tea.View {
+	var view string
 	var lines []string
 	var line string
 	var i int
@@ -242,7 +243,7 @@ func (m PathViewerModel) View() (view string) {
 
 	// Overlay dropdown if open
 	if m.DropdownOpen {
-		dropdownView = m.Dropdown.View()
+		dropdownView = m.Dropdown.View().Content
 		view = teadd.OverlayDropdown(view, dropdownView, m.Dropdown.Row, m.Dropdown.Col)
 		goto end
 	}
@@ -250,7 +251,7 @@ func (m PathViewerModel) View() (view string) {
 	goto end
 
 end:
-	return view
+	return tea.NewView(view)
 }
 
 // handleDropdownSelection processes dropdown item selection

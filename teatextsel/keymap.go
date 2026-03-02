@@ -1,6 +1,6 @@
 package teatextsel
 
-import "github.com/charmbracelet/bubbles/key"
+import "charm.land/bubbles/v2/key"
 
 // SelectionKeyMap defines key bindings for text selection and clipboard operations
 type SelectionKeyMap struct {

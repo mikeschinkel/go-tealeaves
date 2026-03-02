@@ -6,7 +6,7 @@ import (
 	"testing"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 )
 
 // --- Helpers ---
@@ -263,8 +263,8 @@ func TestInit_ReturnsNilCmd(t *testing.T) {
 func TestView_ReturnsEmptyString(t *testing.T) {
 	m := newTestModel()
 	s := m.View()
-	if s != "" {
-		t.Errorf("expected empty string from View, got %q", s)
+	if s.Content != "" {
+		t.Errorf("expected empty string from View, got %q", s.Content)
 	}
 }
 
@@ -387,7 +387,7 @@ func TestUpdate_EscKey_WithAllowEscToClose(t *testing.T) {
 		t.Fatal("expected activeNotice to be set")
 	}
 
-	esc := tea.KeyMsg{Type: tea.KeyEscape}
+	esc := tea.KeyPressMsg{Code: tea.KeyEscape}
 	out, _ := m.Update(esc)
 	if out.activeNotice != nil {
 		t.Error("expected activeNotice to be cleared by Esc")
@@ -401,7 +401,7 @@ func TestUpdate_EscKey_WithoutAllowEscToClose(t *testing.T) {
 		t.Fatal("expected activeNotice to be set")
 	}
 
-	esc := tea.KeyMsg{Type: tea.KeyEscape}
+	esc := tea.KeyPressMsg{Code: tea.KeyEscape}
 	out, _ := m.Update(esc)
 	if out.activeNotice == nil {
 		t.Error("expected activeNotice to NOT be cleared without allowEscToClose")
@@ -410,7 +410,7 @@ func TestUpdate_EscKey_WithoutAllowEscToClose(t *testing.T) {
 
 func TestUpdate_EscKey_NoActiveNotice(t *testing.T) {
 	m := newTestModel().WithAllowEscToClose()
-	esc := tea.KeyMsg{Type: tea.KeyEscape}
+	esc := tea.KeyPressMsg{Code: tea.KeyEscape}
 	_, cmd := m.Update(esc)
 	if cmd != nil {
 		t.Error("expected cmd to be nil with no active notice")
@@ -421,7 +421,7 @@ func TestUpdate_NonEscKey_NotDismissed(t *testing.T) {
 	m := newTestModel().WithAllowEscToClose()
 	m, _ = activateNotice(t, m, InfoKey, "test")
 
-	enter := tea.KeyMsg{Type: tea.KeyEnter}
+	enter := tea.KeyPressMsg{Code: tea.KeyEnter}
 	out, _ := m.Update(enter)
 	if out.activeNotice == nil {
 		t.Error("expected activeNotice to remain active after non-Esc key")

@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	tea "github.com/charmbracelet/bubbletea"
+	tea "charm.land/bubbletea/v2"
 	"github.com/mikeschinkel/go-cliutil"
 	"github.com/mikeschinkel/go-tealeaves/teamodal"
 )
@@ -120,7 +120,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.listModal = m.listModal.Open()
 		return m, nil
 
-	case tea.KeyMsg:
+	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
@@ -142,7 +142,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m model) View() (view string) {
+func (m model) View() tea.View {
+	var view string
 	var baseView strings.Builder
 	var lines []string
 
@@ -187,7 +188,10 @@ func (m model) View() (view string) {
 	}
 
 end:
-	return view
+	v := tea.NewView(view)
+	v.AltScreen = true
+	v.MouseMode = tea.MouseModeCellMotion
+	return v
 }
 
 // setActiveTask sets the specified task as active and clears active on others
@@ -254,7 +258,7 @@ func main() {
 		height:       24,
 	}
 
-	p := tea.NewProgram(m, tea.WithAltScreen(), tea.WithMouseCellMotion())
+	p := tea.NewProgram(m)
 
 	if _, err := p.Run(); err != nil {
 		cliutil.Stderr("Error: %v\n", err)

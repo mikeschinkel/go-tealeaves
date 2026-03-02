@@ -1,6 +1,6 @@
 package teadep
 
-import "github.com/charmbracelet/lipgloss"
+import "charm.land/lipgloss/v2"
 
 // DefaultPathStyle returns default path item styling
 func DefaultPathStyle() lipgloss.Style {

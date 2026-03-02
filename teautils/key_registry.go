@@ -1,7 +1,7 @@
 package teautils
 
 import (
-	"github.com/charmbracelet/bubbles/key"
+	"charm.land/bubbles/v2/key"
 	"github.com/mikeschinkel/go-dt/dtx"
 )
 
