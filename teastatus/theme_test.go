@@ -8,7 +8,7 @@ import (
 
 func TestWithTheme_AppliesStyles(t *testing.T) {
 	theme := teautils.NewTheme(teautils.DarkPalette())
-	m := New().WithTheme(theme)
+	m := NewStatusBarModel().WithTheme(theme)
 
 	if m.Styles.MenuKeyStyle.GetForeground() == nil {
 		t.Error("themed MenuKeyStyle has no foreground")
@@ -22,7 +22,7 @@ func TestWithTheme_AppliesStyles(t *testing.T) {
 }
 
 func TestWithTheme_PreservesNonStyleFields(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	origSep := m.Styles.MenuSeparator
 	origKind := m.Styles.SeparatorKind
 
@@ -40,7 +40,7 @@ func TestWithTheme_PreservesNonStyleFields(t *testing.T) {
 func TestWithTheme_ThenWithStyles_Overrides(t *testing.T) {
 	theme := teautils.NewTheme(teautils.DarkPalette())
 	custom := DefaultStyles()
-	m := New().WithTheme(theme).WithStyles(custom)
+	m := NewStatusBarModel().WithTheme(theme).WithStyles(custom)
 
 	// WithStyles should override WithTheme
 	if m.Styles.MenuKeyStyle.GetForeground() != custom.MenuKeyStyle.GetForeground() {

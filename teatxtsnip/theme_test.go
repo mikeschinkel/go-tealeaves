@@ -7,7 +7,7 @@ import (
 )
 
 func TestModel_WithTheme(t *testing.T) {
-	m := New()
+	m := NewTextSnipModel(nil)
 	theme := teautils.NewTheme(teautils.DarkPalette())
 	m = m.WithTheme(theme)
 

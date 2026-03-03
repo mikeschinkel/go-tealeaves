@@ -9,7 +9,7 @@ import (
 )
 
 func newTestModel() Model {
-	m := New()
+	m := NewTextSnipModel(nil)
 	m.Model.SetWidth(80)
 	m.Model.SetHeight(10)
 	m.Model.SetValue("Hello World\nSecond line\nThird line")
@@ -21,27 +21,27 @@ func newTestModel() Model {
 
 // --- Layer 1: Model Tests ---
 
-func TestNew(t *testing.T) {
-	m := New()
+func TestNewTextSnipModel(t *testing.T) {
+	m := NewTextSnipModel(nil)
 	if m.HasSelection() {
 		t.Error("expected no selection initially")
 	}
 	if m.IsSingleLine() {
-		t.Error("expected IsSingleLine=false for New()")
+		t.Error("expected IsSingleLine=false for NewTextSnipModel(nil)")
 	}
 }
 
-func TestNewSingleLine(t *testing.T) {
-	m := NewSingleLine()
+func TestNewTextSnipModel_SingleLine(t *testing.T) {
+	m := NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
 	if !m.IsSingleLine() {
 		t.Error("expected IsSingleLine=true")
 	}
 }
 
-func TestNewFromTextarea(t *testing.T) {
+func TestNewTextSnipModel_FromTextarea(t *testing.T) {
 	ta := textarea.New()
 	ta.SetValue("existing content")
-	m := NewFromTextarea(ta)
+	m := NewTextSnipModel(&TextSnipModelArgs{Textarea: &ta})
 
 	if m.Value() != "existing content" {
 		t.Errorf("expected value='existing content', got %q", m.Value())
@@ -266,7 +266,7 @@ func TestModel_TypingReplacesSelection(t *testing.T) {
 }
 
 func TestModel_SingleLine_BlocksEnter(t *testing.T) {
-	m := NewSingleLine()
+	m := NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
 	m.Model.SetValue("test")
 	m.Model.Focus()
 
@@ -279,7 +279,7 @@ func TestModel_SingleLine_BlocksEnter(t *testing.T) {
 }
 
 func TestModel_SingleLine_BlocksVerticalSelection(t *testing.T) {
-	m := NewSingleLine()
+	m := NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
 	m.Model.SetValue("test content")
 	m.Model.Focus()
 

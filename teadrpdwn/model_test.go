@@ -16,7 +16,7 @@ func testOptions() []Option {
 }
 
 func newTestDropdown(options []Option) DropdownModel {
-	m := NewModel(options, 5, 10, &ModelArgs{
+	m := NewDropdownModel(options, 5, 10, &ModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
@@ -34,7 +34,7 @@ func extractMsg(cmd tea.Cmd) tea.Msg {
 // --- Layer 1 Tests ---
 
 func TestNewModel_Defaults(t *testing.T) {
-	m := NewModel(testOptions(), 5, 10, nil)
+	m := NewDropdownModel(testOptions(), 5, 10, nil)
 	if m.IsOpen {
 		t.Error("expected IsOpen=false by default")
 	}
@@ -51,21 +51,21 @@ func TestNewModel_Defaults(t *testing.T) {
 
 func TestNewModel_WithOptions(t *testing.T) {
 	opts := testOptions()
-	m := NewModel(opts, 0, 0, nil)
+	m := NewDropdownModel(opts, 0, 0, nil)
 	if len(m.Options) != 3 {
 		t.Errorf("expected 3 options, got %d", len(m.Options))
 	}
 }
 
 func TestNewModel_EmptyOptions(t *testing.T) {
-	m := NewModel([]Option{}, 0, 0, nil)
+	m := NewDropdownModel([]Option{}, 0, 0, nil)
 	if len(m.Options) != 0 {
 		t.Errorf("expected 0 options, got %d", len(m.Options))
 	}
 }
 
 func TestDropdownModel_Open(t *testing.T) {
-	m := NewModel(testOptions(), 5, 10, &ModelArgs{
+	m := NewDropdownModel(testOptions(), 5, 10, &ModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
@@ -84,7 +84,7 @@ func TestDropdownModel_Close(t *testing.T) {
 }
 
 func TestDropdownModel_UpdateWhenClosed(t *testing.T) {
-	m := NewModel(testOptions(), 5, 10, nil)
+	m := NewDropdownModel(testOptions(), 5, 10, nil)
 	// Not opened — closed by default
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	updated := result.(DropdownModel)
@@ -219,7 +219,7 @@ func TestDropdownModel_ScrollOffset(t *testing.T) {
 	for i := 0; i < 20; i++ {
 		manyOptions = append(manyOptions, Option{Text: strings.Repeat("x", 5), Value: i})
 	}
-	m := NewModel(manyOptions, 5, 10, &ModelArgs{
+	m := NewDropdownModel(manyOptions, 5, 10, &ModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
@@ -236,7 +236,7 @@ func TestDropdownModel_ScrollOffset(t *testing.T) {
 }
 
 func TestDropdownModel_WithPosition(t *testing.T) {
-	m := NewModel(testOptions(), 0, 0, nil)
+	m := NewDropdownModel(testOptions(), 0, 0, nil)
 	m = m.WithPosition(10, 20)
 	if m.FieldRow != 10 {
 		t.Errorf("expected FieldRow=10, got %d", m.FieldRow)
@@ -271,7 +271,7 @@ func TestDropdownModel_WithOptions(t *testing.T) {
 }
 
 func TestDropdownModel_WithScreenSize(t *testing.T) {
-	m := NewModel(testOptions(), 0, 0, nil)
+	m := NewDropdownModel(testOptions(), 0, 0, nil)
 	m = m.WithScreenSize(100, 50)
 	if m.ScreenWidth != 100 {
 		t.Errorf("expected ScreenWidth=100, got %d", m.ScreenWidth)
@@ -284,7 +284,7 @@ func TestDropdownModel_WithScreenSize(t *testing.T) {
 // --- Layer 2 Tests ---
 
 func TestDropdownModel_View_Closed(t *testing.T) {
-	m := NewModel(testOptions(), 0, 0, nil)
+	m := NewDropdownModel(testOptions(), 0, 0, nil)
 	view := m.View()
 	if view.Content != "" {
 		t.Errorf("expected empty view when closed, got %q", view.Content)

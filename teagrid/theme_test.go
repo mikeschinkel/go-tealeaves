@@ -8,7 +8,7 @@ import (
 
 func TestWithTheme_AppliesGridStyles(t *testing.T) {
 	cols := []Column{NewColumn("id", "ID", 5)}
-	m := New(cols)
+	m := NewGridModel(cols)
 
 	theme := teautils.NewTheme(teautils.DarkPalette())
 	m = m.WithTheme(theme)
@@ -24,7 +24,7 @@ func TestWithTheme_AppliesGridStyles(t *testing.T) {
 func TestWithTheme_ThenWithHighlightStyle_Overrides(t *testing.T) {
 	cols := []Column{NewColumn("id", "ID", 5)}
 	theme := teautils.NewTheme(teautils.DarkPalette())
-	m := New(cols).WithTheme(theme).WithHighlightStyle(defaultHighlightStyle)
+	m := NewGridModel(cols).WithTheme(theme).WithHighlightStyle(defaultHighlightStyle)
 
 	// WithHighlightStyle should override theme
 	if m.highlightStyle.GetBackground() != defaultHighlightStyle.GetBackground() {

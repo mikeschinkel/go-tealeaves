@@ -17,11 +17,16 @@ type Model struct {
 	width      int
 }
 
-// New creates a new status bar Model with default styles.
-func New() Model {
+// NewStatusBarModel creates a new status bar Model with default styles.
+func NewStatusBarModel() Model {
 	return Model{
 		Styles: DefaultStyles(),
 	}
+}
+
+// Deprecated: Use NewStatusBarModel instead.
+func New() Model {
+	return NewStatusBarModel()
 }
 
 // WithStyles returns a copy with the given styles override.

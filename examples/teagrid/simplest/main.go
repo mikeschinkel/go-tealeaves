@@ -20,7 +20,7 @@ type model struct {
 
 func newModel() model {
 	return model{
-		simpleTable: teagrid.New([]teagrid.Column{
+		simpleTable: teagrid.NewGridModel([]teagrid.Column{
 			teagrid.NewColumn(columnKeyName, "Name", 13),
 			teagrid.NewColumn(columnKeyElement, "Element", 10),
 		}).WithRows([]teagrid.Row{

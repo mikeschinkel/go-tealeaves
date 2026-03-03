@@ -60,7 +60,7 @@ func main() {
 		node.Expand()
 	}
 
-	treeModel := teatree.NewModel(tree, 20)
+	treeModel := teatree.NewTreeModel(tree, 20)
 
 	m := model{
 		tree: treeModel,

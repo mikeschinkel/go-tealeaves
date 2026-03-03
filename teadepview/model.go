@@ -384,7 +384,7 @@ func (m PathViewerModel) handleOpenDropdown() (model PathViewerModel, cmd tea.Cm
 	row = model.SelectedLevel + 3 // Account for title/padding + 1 row below
 	col = 2                       // Indent
 
-	model.Dropdown = teadrpdwn.NewModel(teadrpdwn.ToOptions(items), row, col, &teadrpdwn.ModelArgs{
+	model.Dropdown = teadrpdwn.NewDropdownModel(teadrpdwn.ToOptions(items), row, col, &teadrpdwn.ModelArgs{
 		ScreenWidth:  model.Width,
 		ScreenHeight: model.Height,
 	})

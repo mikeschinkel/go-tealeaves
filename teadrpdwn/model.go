@@ -55,11 +55,11 @@ type DropdownModel struct {
 	SelectedStyle lipgloss.Style
 }
 
-// NewModel creates a new DropdownModel
+// NewDropdownModel creates a new DropdownModel
 // items: dropdown items to display
 // fieldRow, fieldCol: field position (reference point for dropdown positioning)
 // args: configuration arguments (screen size, margins, styling)
-func NewModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) (m DropdownModel) {
+func NewDropdownModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) (m DropdownModel) {
 	if args == nil {
 		args = &ModelArgs{}
 	}
@@ -97,6 +97,11 @@ func NewModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) (m Drop
 	}
 
 	return m
+}
+
+// Deprecated: Use NewDropdownModel instead.
+func NewModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) DropdownModel {
+	return NewDropdownModel(options, fieldRow, fieldCol, args)
 }
 
 // Init implements tea.Model - returns nil (no initial command)

@@ -21,8 +21,8 @@ type Model[T any] struct {
 	theme    *teautils.Theme
 }
 
-// NewModel creates a new BubbleTea model for the tree
-func NewModel[T any](tree *Tree[T], height int) Model[T] {
+// NewTreeModel creates a new BubbleTea model for the tree
+func NewTreeModel[T any](tree *Tree[T], height int) Model[T] {
 	renderer := NewRenderer(tree)
 	width := renderer.GetMaxLineWidth()
 	return Model[T]{
@@ -33,6 +33,11 @@ func NewModel[T any](tree *Tree[T], height int) Model[T] {
 		height:   height,
 		ready:    true,
 	}
+}
+
+// Deprecated: Use NewTreeModel instead.
+func NewModel[T any](tree *Tree[T], height int) Model[T] {
+	return NewTreeModel(tree, height)
 }
 
 // Init implements tea.Model

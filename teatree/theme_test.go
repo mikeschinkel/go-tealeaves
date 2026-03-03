@@ -9,7 +9,7 @@ import (
 func TestModel_WithTheme(t *testing.T) {
 	root := NewNode("1", "root", "data")
 	tree := NewTree([]*Node[string]{root}, nil)
-	m := NewModel(tree, 10)
+	m := NewTreeModel(tree, 10)
 
 	if m.Theme() != nil {
 		t.Error("expected nil theme before WithTheme")

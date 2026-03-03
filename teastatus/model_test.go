@@ -25,7 +25,7 @@ func testIndicators() []StatusIndicator {
 // --- Layer 1 Tests ---
 
 func TestNew(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	// Should have default styles (non-zero)
 	if m.Styles.MenuSeparator == "" {
 		t.Error("expected non-empty MenuSeparator in default styles")
@@ -33,7 +33,7 @@ func TestNew(t *testing.T) {
 }
 
 func TestModel_SetSize(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	m = m.SetSize(80)
 	if m.width != 80 {
 		t.Errorf("expected width=80, got %d", m.width)
@@ -41,7 +41,7 @@ func TestModel_SetSize(t *testing.T) {
 }
 
 func TestModel_SetMenuItems(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	items := testMenuItems()
 	m = m.SetMenuItems(items)
 	if len(m.menuItems) != 2 {
@@ -50,7 +50,7 @@ func TestModel_SetMenuItems(t *testing.T) {
 }
 
 func TestModel_SetIndicators(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	indicators := testIndicators()
 	m = m.SetIndicators(indicators)
 	if len(m.indicators) != 2 {
@@ -59,7 +59,7 @@ func TestModel_SetIndicators(t *testing.T) {
 }
 
 func TestModel_Update_SetMenuItemsMsg(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	items := testMenuItems()
 	result, cmd := m.Update(SetMenuItemsMsg{Items: items})
 	m = result.(Model)
@@ -73,7 +73,7 @@ func TestModel_Update_SetMenuItemsMsg(t *testing.T) {
 }
 
 func TestModel_Update_SetIndicatorsMsg(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	indicators := testIndicators()
 	result, cmd := m.Update(SetIndicatorsMsg{Indicators: indicators})
 	m = result.(Model)
@@ -87,7 +87,7 @@ func TestModel_Update_SetIndicatorsMsg(t *testing.T) {
 }
 
 func TestModel_Update_UnknownMsg(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	m = m.SetMenuItems(testMenuItems())
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 	updated := result.(Model)
@@ -103,7 +103,7 @@ func TestModel_Update_UnknownMsg(t *testing.T) {
 // --- Layer 2 Tests ---
 
 func TestModel_View_Empty(t *testing.T) {
-	m := New().SetSize(80)
+	m := NewStatusBarModel().SetSize(80)
 	view := m.View()
 	// Should render something (bar background) even with no items
 	// At minimum it shouldn't panic
@@ -111,7 +111,7 @@ func TestModel_View_Empty(t *testing.T) {
 }
 
 func TestModel_View_MenuItems(t *testing.T) {
-	m := New().SetSize(80).SetMenuItems(testMenuItems())
+	m := NewStatusBarModel().SetSize(80).SetMenuItems(testMenuItems())
 	view := m.View()
 	if !strings.Contains(view.Content, "?") {
 		t.Error("expected view to contain key '?'")
@@ -128,7 +128,7 @@ func TestModel_View_MenuItems(t *testing.T) {
 }
 
 func TestModel_View_Indicators(t *testing.T) {
-	m := New().SetSize(80).SetIndicators(testIndicators())
+	m := NewStatusBarModel().SetSize(80).SetIndicators(testIndicators())
 	view := m.View()
 	if !strings.Contains(view.Content, "Ready") {
 		t.Error("expected view to contain 'Ready'")
@@ -139,7 +139,7 @@ func TestModel_View_Indicators(t *testing.T) {
 }
 
 func TestModel_View_BothZones(t *testing.T) {
-	m := New().SetSize(80).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
+	m := NewStatusBarModel().SetSize(80).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
 	view := m.View()
 
 	// Both menu and indicators should be present
@@ -157,7 +157,7 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 	t.Run("PipeSeparator", func(t *testing.T) {
 		styles := DefaultStyles()
 		styles.SeparatorKind = PipeSeparator
-		m := New().WithStyles(styles).SetSize(80).SetIndicators(indicators)
+		m := NewStatusBarModel().WithStyles(styles).SetSize(80).SetIndicators(indicators)
 		view := m.View()
 		if !strings.Contains(view.Content, "|") {
 			t.Error("expected pipe separator in view")
@@ -167,7 +167,7 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 	t.Run("BracketSeparator", func(t *testing.T) {
 		styles := DefaultStyles()
 		styles.SeparatorKind = BracketSeparator
-		m := New().WithStyles(styles).SetSize(80).SetIndicators(indicators)
+		m := NewStatusBarModel().WithStyles(styles).SetSize(80).SetIndicators(indicators)
 		view := m.View()
 		if !strings.Contains(view.Content, "[Ready]") {
 			t.Error("expected bracket-wrapped indicator in view")
@@ -177,7 +177,7 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 	t.Run("SpaceSeparator", func(t *testing.T) {
 		styles := DefaultStyles()
 		styles.SeparatorKind = SpaceSeparator
-		m := New().WithStyles(styles).SetSize(80).SetIndicators(indicators)
+		m := NewStatusBarModel().WithStyles(styles).SetSize(80).SetIndicators(indicators)
 		view := m.View()
 		if !strings.Contains(view.Content, "Ready") {
 			t.Error("expected indicator text in view")
@@ -189,7 +189,7 @@ func TestModel_View_SeparatorKinds(t *testing.T) {
 }
 
 func TestModel_View_Truncation(t *testing.T) {
-	m := New().SetSize(5).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
+	m := NewStatusBarModel().SetSize(5).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
 	view := m.View()
 	// With width=5, content will be too wide for both zones.
 	// Should still render without panicking.
@@ -199,7 +199,7 @@ func TestModel_View_Truncation(t *testing.T) {
 }
 
 func TestModel_Init(t *testing.T) {
-	m := New()
+	m := NewStatusBarModel()
 	cmd := m.Init()
 	if cmd != nil {
 		t.Error("expected Init() to return nil")
@@ -207,7 +207,7 @@ func TestModel_Init(t *testing.T) {
 }
 
 func TestModel_View_ZeroWidth(t *testing.T) {
-	m := New().SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
+	m := NewStatusBarModel().SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
 	// width is 0 (never set) — should render left zone only, no panic
 	view := m.View()
 	if view.Content == "" {
@@ -221,7 +221,7 @@ func TestModel_View_ZeroWidth(t *testing.T) {
 }
 
 func TestModel_View_NegativeWidth(t *testing.T) {
-	m := New().SetSize(-1).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
+	m := NewStatusBarModel().SetSize(-1).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
 	view := m.View()
 	// Negative width should not panic
 	if view.Content == "" {
@@ -252,7 +252,7 @@ func TestFormatKey_CtrlC(t *testing.T) {
 }
 
 func TestIndicatorStyle_CustomColor(t *testing.T) {
-	m := New().SetSize(80)
+	m := NewStatusBarModel().SetSize(80)
 	customStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("196"))
 	indicators := []StatusIndicator{
 		NewStatusIndicator("Custom").WithStyle(customStyle),

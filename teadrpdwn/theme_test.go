@@ -9,7 +9,7 @@ import (
 func TestDropdownModel_WithTheme(t *testing.T) {
 	theme := teautils.NewTheme(teautils.DarkPalette())
 	opts := []Option{{Text: "A"}, {Text: "B"}}
-	m := NewModel(opts, 0, 0, nil).WithTheme(theme)
+	m := NewDropdownModel(opts, 0, 0, nil).WithTheme(theme)
 
 	if m.SelectedStyle.GetBackground() == nil {
 		t.Error("themed SelectedStyle has no background")

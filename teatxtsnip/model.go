@@ -28,56 +28,71 @@ type Model struct {
 	Logger *slog.Logger
 }
 
-// New creates a new Model wrapping a textarea.Model
-func New() Model {
-	ta := textarea.New()
-	ta.Prompt = "" // Remove the default "> " prompt
-	return Model{
-		Model:        ta,
-		selection:    NewSelection(),
-		selectionKey: DefaultSelectionKeyMap(),
-	}
+// TextSnipModelArgs contains optional configuration for NewTextSnipModel.
+type TextSnipModelArgs struct {
+	// Textarea provides an existing textarea.Model to wrap.
+	// If nil, a fresh textarea is created.
+	Textarea *textarea.Model
+
+	// SingleLine configures single-line input mode: height=1,
+	// no line numbers, and vertical selection keys disabled.
+	SingleLine bool
 }
 
-// NewSingleLine creates a single-line input with selection and clipboard support.
-// This is an alternative to textinput.Model that supports Ctrl+C/X/V clipboard operations.
-// The textarea is configured to prevent newlines and display as a single line.
-func NewSingleLine() Model {
-	ta := textarea.New()
-	ta.SetHeight(1)
-	ta.ShowLineNumbers = false
-	ta.Prompt = "" // Remove the default "> " prompt
-	// Disable soft wrap to behave like a single-line input
-	ta.SetWidth(80) // Default width, can be overridden with SetWidth()
+// NewTextSnipModel creates a new Model with optional configuration.
+// Pass nil for default multi-line behavior.
+func NewTextSnipModel(args *TextSnipModelArgs) Model {
+	if args == nil {
+		args = &TextSnipModelArgs{}
+	}
 
-	// Create a keymap that doesn't include multi-line selection operations
+	var ta textarea.Model
+	if args.Textarea != nil {
+		ta = *args.Textarea
+	} else {
+		ta = textarea.New()
+		ta.Prompt = "" // Remove the default "> " prompt
+	}
+
 	km := DefaultSelectionKeyMap()
-	// Disable multi-line selection keys for single-line input
-	km.SelectUp.SetEnabled(false)
-	km.SelectDown.SetEnabled(false)
-	km.SelectToStart.SetEnabled(false)
-	km.SelectToEnd.SetEnabled(false)
+
+	if args.SingleLine {
+		ta.SetHeight(1)
+		ta.ShowLineNumbers = false
+		ta.SetWidth(80) // Default width, can be overridden with SetWidth()
+		// Disable multi-line selection keys for single-line input
+		km.SelectUp.SetEnabled(false)
+		km.SelectDown.SetEnabled(false)
+		km.SelectToStart.SetEnabled(false)
+		km.SelectToEnd.SetEnabled(false)
+	}
 
 	return Model{
 		Model:        ta,
 		selection:    NewSelection(),
 		selectionKey: km,
-		singleLine:   true,
+		singleLine:   args.SingleLine,
 	}
+}
+
+// Deprecated: Use NewTextSnipModel(nil) instead.
+func New() Model {
+	return NewTextSnipModel(nil)
+}
+
+// Deprecated: Use NewTextSnipModel(&TextSnipModelArgs{SingleLine: true}) instead.
+func NewSingleLine() Model {
+	return NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
+}
+
+// Deprecated: Use NewTextSnipModel(&TextSnipModelArgs{Textarea: &ta}) instead.
+func NewFromTextarea(ta textarea.Model) Model {
+	return NewTextSnipModel(&TextSnipModelArgs{Textarea: &ta})
 }
 
 // IsSingleLine returns true if this is a single-line input
 func (m Model) IsSingleLine() bool {
 	return m.singleLine
-}
-
-// NewFromTextarea creates a Model from an existing textarea.Model
-func NewFromTextarea(ta textarea.Model) Model {
-	return Model{
-		Model:        ta,
-		selection:    NewSelection(),
-		selectionKey: DefaultSelectionKeyMap(),
-	}
 }
 
 // SelectionKeyMap returns the current selection key map

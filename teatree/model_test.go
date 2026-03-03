@@ -9,12 +9,12 @@ import (
 
 func newTestModel() Model[string] {
 	tree, _ := buildTestTree()
-	return NewModel(tree, 10)
+	return NewTreeModel(tree, 10)
 }
 
 // --- Layer 1: Model Tests ---
 
-func TestNewModel(t *testing.T) {
+func TestNewTreeModel(t *testing.T) {
 	m := newTestModel()
 	if m.Tree() == nil {
 		t.Fatal("expected tree to be set")
@@ -190,7 +190,7 @@ func TestModel_SetFocusedNode(t *testing.T) {
 func TestModel_WindowSizeMsg_ViewportSync(t *testing.T) {
 	tree, _ := buildTestTree()
 	tree.ExpandAll() // 6 visible nodes
-	m := NewModel(tree, 10)
+	m := NewTreeModel(tree, 10)
 
 	// Send WindowSizeMsg with specific dimensions
 	m, _ = m.Update(tea.WindowSizeMsg{Width: 60, Height: 4})
@@ -220,7 +220,7 @@ func TestModel_WindowSizeMsg_ViewportSync(t *testing.T) {
 func TestModel_ScrollAfterResize(t *testing.T) {
 	tree, _ := buildTestTree()
 	tree.ExpandAll() // 6 visible nodes: Root1, Child1, GC1, GC2, Child2, Root2
-	m := NewModel(tree, 3)
+	m := NewTreeModel(tree, 3)
 	m = m.SetSize(80, 3) // Only 3 lines visible
 
 	// Navigate down 4 times to scroll the viewport
@@ -315,7 +315,7 @@ func TestModel_View_Scrolling(t *testing.T) {
 	// Create a model with very small viewport
 	tree, _ := buildTestTree()
 	tree.ExpandAll()
-	m := NewModel(tree, 3) // Only 3 lines visible
+	m := NewTreeModel(tree, 3) // Only 3 lines visible
 
 	view := m.View()
 	lines := strings.Split(view.Content, "\n")

@@ -7,7 +7,7 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// Model is the main grid model. Create using New().
+// Model is the main grid model. Create using NewGridModel().
 type Model struct {
 	// Data
 	columns  []Column
@@ -96,10 +96,10 @@ var (
 	defaultCellCursorStyle = lipgloss.NewStyle().Reverse(true)
 )
 
-// New creates a new grid with the given columns.
+// NewGridModel creates a new grid with the given columns.
 // Defaults: left-aligned text, visible highlight (purple), cell cursor is
 // Reverse, rounded borders, no right-align on baseStyle (fixes v0.1.0 #1).
-func New(columns []Column) Model {
+func NewGridModel(columns []Column) Model {
 	filterInput := textinput.New()
 	filterInput.Prompt = "/"
 
@@ -124,6 +124,11 @@ func New(columns []Column) Model {
 	m.recalculateWidth()
 
 	return m
+}
+
+// Deprecated: Use NewGridModel instead.
+func New(columns []Column) Model {
+	return NewGridModel(columns)
 }
 
 // Init initializes the grid per the Bubble Tea architecture.

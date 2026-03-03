@@ -20,7 +20,7 @@ type model struct {
 var helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 
 func main() {
-	editor := teatxtsnip.New()
+	editor := teatxtsnip.NewTextSnipModel(nil)
 	editor.SetWidth(76)
 	editor.SetHeight(15)
 	editor.ShowLineNumbers = true

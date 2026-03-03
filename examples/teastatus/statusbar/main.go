@@ -34,7 +34,7 @@ func main() {
 		teastatus.NewStatusIndicator("3 files"),
 	}
 
-	sb := teastatus.New().
+	sb := teastatus.NewStatusBarModel().
 		SetMenuItems(menuItems).
 		SetIndicators(indicators)
 
