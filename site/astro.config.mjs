@@ -55,6 +55,7 @@ export default defineConfig({
 						{ label: 'Overlay Compositing', slug: 'patterns/overlay-compositing' },
 						{ label: 'Wither Methods', slug: 'patterns/wither-methods' },
 						{ label: 'Key Registry', slug: 'patterns/key-registry' },
+						{ label: 'Theming', slug: 'patterns/theming' },
 					],
 				},
 				{
@@ -79,6 +80,7 @@ export default defineConfig({
 					items: [
 						{ label: 'Best Practices', slug: 'reference/best-practices' },
 						{ label: 'Roadmap', slug: 'reference/roadmap' },
+						{ label: 'Module Structure', slug: 'reference/modules' },
 						{ label: 'Charm v2 Migration', slug: 'migration/charm-v2' },
 						{ label: 'Contributing', slug: 'contributing' },
 						{ label: 'Why Tea Leaves?', slug: 'guides/why-tea-leaves' },

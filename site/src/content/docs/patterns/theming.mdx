@@ -1,0 +1,90 @@
+---
+title: Theming
+description: Apply consistent colors across all Tea Leaves components using the Palette, Theme, and teacolor systems.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+Tea Leaves provides a three-layer theming system that lets you apply consistent colors across all components:
+
+1. **teacolor** — Named color constants (ANSI 256 + hex values)
+2. **Palette** — Semantic color slots (TextPrimary, AccentPrimary, StatusSuccess, etc.)
+3. **Theme** — Component-specific style groups derived from a Palette
+
+## Quick Start
+
+```go
+import "github.com/mikeschinkel/go-tealeaves/teautils"
+
+// Use adaptive palette (auto-detects dark/light terminal)
+theme := teautils.DefaultTheme()
+
+// Apply to any component
+grid := teagrid.NewGridModel(columns).WithTheme(theme)
+statusBar := teastatus.NewStatusBarModel().WithTheme(theme)
+modal := teamodal.NewModal(args).WithTheme(theme)
+```
+
+## Color Constants
+
+The `teautils/teacolor` subpackage provides named constants for all 256 ANSI colors plus curated semantic aliases:
+
+```go
+import "github.com/mikeschinkel/go-tealeaves/teautils/teacolor"
+
+// ANSI 256 indexed colors
+teacolor.Color0   // Black
+teacolor.Color46  // Green
+
+// Standard ANSI names (colors 0-15)
+teacolor.Red, teacolor.BrightCyan
+
+// Curated semantic names
+teacolor.Coral, teacolor.SlateGray, teacolor.Teal
+```
+
+## Palette
+
+A `Palette` contains ~30 semantic color slots:
+
+```go
+palette := teautils.DarkPalette()   // Dark terminal colors
+palette := teautils.LightPalette()  // Light terminal colors
+palette := teautils.AdaptivePalette() // Auto-detect
+```
+
+Key slots: `TextPrimary`, `TextSecondary`, `AccentPrimary`, `FocusBg`, `StatusSuccess`, `StatusError`, `ButtonFocusBg`, `DiffTintPositive`, `DiffTintNegative`.
+
+## Theme
+
+A `Theme` derives lipgloss styles from a Palette and organizes them by component:
+
+```go
+theme := teautils.NewTheme(palette)
+// theme.StatusBar — StatusBarTheme
+// theme.Modal     — ModalTheme
+// theme.Grid      — GridTheme
+// theme.Dropdown  — DropdownTheme
+// theme.HelpVisor — HelpVisorTheme
+// theme.List      — ListTheme
+```
+
+## WithTheme() on Components
+
+Every Tea Leaves component supports `WithTheme()`:
+
+| Component | Method |
+|-----------|--------|
+| teagrid | `model.WithTheme(theme)` |
+| teastatus | `model.WithTheme(theme)` |
+| teanotify | `model.WithTheme(theme)` |
+| teamodal | `model.WithTheme(theme)` |
+| teadrpdwn | `model.WithTheme(theme)` |
+| teadepview | `model.WithTheme(theme)` |
+| teatree | `model.WithTheme(theme)` |
+| teatxtsnip | `model.WithTheme(theme)` |
+| teadiffr | `NewThemedTUIRenderer(theme)` |
+
+<Aside type="tip">
+`WithTheme()` is opt-in. Unthemed components use their existing default styles. Individual `With*Style()` methods still take precedence over theme styles.
+</Aside>

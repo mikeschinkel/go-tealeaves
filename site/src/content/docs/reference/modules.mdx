@@ -1,0 +1,55 @@
+---
+title: Module Structure
+description: How Tea Leaves organizes 10 components as independent Go modules with separate versioning.
+---
+
+Tea Leaves uses a **multi-module monorepo** layout. Each component is a standalone Go module with its own `go.mod`, version tags, and dependency tree.
+
+## Directory Layout
+
+```
+go-tealeaves/
+├── teadrpdwn/     # Dropdown selection
+├── teagrid/       # Data grid
+├── teamodal/      # Modal dialogs + list + choice
+├── teanotify/     # Toast notifications
+├── teatree/       # Tree view
+├── teatxtsnip/    # Text selection + clipboard
+├── teastatus/     # Status bar
+├── teadepview/    # Dependency path viewer
+├── teadiffr/      # Diff rendering
+├── teautils/      # Shared utilities + theming
+│   └── teacolor/  # Named color constants (subpackage)
+├── examples/      # Per-component examples
+├── site/          # Documentation site (Astro/Starlight)
+└── go.work        # Workspace for local development
+```
+
+## Versioning
+
+Each module is tagged independently using the pattern `<module>/v0.X.Y`:
+
+```
+teadrpdwn/v0.3.0
+teagrid/v0.3.0
+teamodal/v0.3.0
+...
+```
+
+This means upgrading one component never forces upgrades to others.
+
+## Dependency Graph
+
+Most components depend only on `teautils` for shared helpers. `teadepview` also depends on `teadrpdwn` for its dropdown UI. No other cross-component dependencies exist.
+
+```
+teadrpdwn ──► teautils
+teagrid ────► teautils
+teamodal ───► teautils
+teanotify ──► teautils
+teatree ────► teautils
+teatxtsnip ─► teautils
+teastatus ──► teautils
+teadepview ─► teautils, teadrpdwn
+teadiffr ───► teautils
+```
