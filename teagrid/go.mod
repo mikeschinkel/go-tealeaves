@@ -1,12 +1,13 @@
 module github.com/mikeschinkel/go-tealeaves/teagrid
 
-go 1.25.3
+go 1.25.5
 
 require (
 	charm.land/bubbles/v2 v2.0.0
 	charm.land/bubbletea/v2 v2.0.0
 	charm.land/lipgloss/v2 v2.0.0
 	github.com/charmbracelet/x/ansi v0.11.6
+	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0
 	github.com/stretchr/testify v1.11.1
 )
 
@@ -22,6 +23,8 @@ require (
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
 	github.com/mattn/go-runewidth v0.0.20 // indirect
+	github.com/mikeschinkel/go-dt v0.5.0 // indirect
+	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
