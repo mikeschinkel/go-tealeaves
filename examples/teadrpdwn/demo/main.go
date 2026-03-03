@@ -366,7 +366,9 @@ func (m exampleModel) setupDemo() exampleModel {
 
 	// Create dropdown - pass adjusted field position
 	// Set margins to exclude menu bar (top) and status bar (bottom)
-	m.dropdown = teadrpdwn.NewDropdownModel(items, m.fieldRow, m.fieldCol, &teadrpdwn.ModelArgs{
+	m.dropdown = teadrpdwn.NewDropdownModel(items, &teadrpdwn.DropdownModelArgs{
+		FieldRow:     m.fieldRow,
+		FieldCol:     m.fieldCol,
 		ScreenWidth:  m.screenWidth,
 		ScreenHeight: m.screenHeight,
 		TopMargin:    1, // Menu bar at row 0

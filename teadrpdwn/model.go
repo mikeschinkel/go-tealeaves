@@ -8,19 +8,26 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// ModelArgs contains initialization arguments for DropdownModel
-type ModelArgs struct {
+// DropdownModelArgs contains initialization arguments for NewDropdownModel.
+type DropdownModelArgs struct {
+	// FieldRow is the row position of the field that triggers the dropdown.
+	FieldRow int
+	// FieldCol is the column position of the field that triggers the dropdown.
+	FieldCol int
+
 	ScreenWidth  int
 	ScreenHeight int
 	TopMargin    int // Don't position dropdown above this row (e.g., 1 to avoid menu bar)
 	BottomMargin int // Don't position dropdown below screenHeight - bottomMargin (e.g., 1 to avoid status bar)
 
 	// Styling (optional - defaults will be used if not provided)
-	BorderStyle lipgloss.Style
-	ItemStyle   lipgloss.Style
-
+	BorderStyle   lipgloss.Style
+	ItemStyle     lipgloss.Style
 	SelectedStyle lipgloss.Style
 }
+
+// Deprecated: Use DropdownModelArgs instead.
+type ModelArgs = DropdownModelArgs
 
 // DropdownModel is a Bubble Tea model for popup selection
 type DropdownModel struct {
@@ -55,20 +62,18 @@ type DropdownModel struct {
 	SelectedStyle lipgloss.Style
 }
 
-// NewDropdownModel creates a new DropdownModel
-// items: dropdown items to display
-// fieldRow, fieldCol: field position (reference point for dropdown positioning)
-// args: configuration arguments (screen size, margins, styling)
-func NewDropdownModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) (m DropdownModel) {
+// NewDropdownModel creates a new DropdownModel.
+// Pass nil args for defaults (field position 0,0).
+func NewDropdownModel(options []Option, args *DropdownModelArgs) (m DropdownModel) {
 	if args == nil {
-		args = &ModelArgs{}
+		args = &DropdownModelArgs{}
 	}
 	m = DropdownModel{
 		Keys:          DefaultDropdownKeyMap(),
-		FieldRow:      fieldRow,
-		FieldCol:      fieldCol,
-		Row:           fieldRow + 1, // Initial position: below field
-		Col:           fieldCol,
+		FieldRow:      args.FieldRow,
+		FieldCol:      args.FieldCol,
+		Row:           args.FieldRow + 1, // Initial position: below field
+		Col:           args.FieldCol,
 		Options:       options,
 		Selected:      0,
 		IsOpen:        false,
@@ -99,9 +104,14 @@ func NewDropdownModel(options []Option, fieldRow, fieldCol int, args *ModelArgs)
 	return m
 }
 
-// Deprecated: Use NewDropdownModel instead.
+// Deprecated: Use NewDropdownModel with DropdownModelArgs.FieldRow/FieldCol instead.
 func NewModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) DropdownModel {
-	return NewDropdownModel(options, fieldRow, fieldCol, args)
+	if args == nil {
+		args = &DropdownModelArgs{}
+	}
+	args.FieldRow = fieldRow
+	args.FieldCol = fieldCol
+	return NewDropdownModel(options, args)
 }
 
 // Init implements tea.Model - returns nil (no initial command)

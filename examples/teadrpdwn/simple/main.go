@@ -36,7 +36,10 @@ func main() {
 
 	// Create dropdown at row 3, col 18 (after "     Fruit Selected: ")
 	// Screen dimensions will be set automatically from tea.WindowSizeMsg
-	dropdown := teadrpdwn.NewDropdownModel(items, 3, 18, nil)
+	dropdown := teadrpdwn.NewDropdownModel(items, &teadrpdwn.DropdownModelArgs{
+		FieldRow: 3,
+		FieldCol: 18,
+	})
 
 	initialModel := model{
 		dropdown:     dropdown,
