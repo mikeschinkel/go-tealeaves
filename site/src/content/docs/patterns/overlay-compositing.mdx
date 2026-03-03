@@ -105,7 +105,7 @@ func OverlayDropdown(background, foreground string, row, col int) string {
 
 ## Usage in your View()
 
-Both `teadd` and `teamodal` provide overlay functions. Use them in your `View()` method:
+Both `teadrpdwn` and `teamodal` provide overlay functions. Use them in your `View()` method:
 
 <Tabs>
   <TabItem label="Modal overlay">
@@ -128,7 +128,7 @@ Both `teadd` and `teamodal` provide overlay functions. Use them in your `View()`
 
         if m.dropdown.IsOpen {
             dropdownView := m.dropdown.View()
-            return teadd.OverlayDropdown(
+            return teadrpdwn.OverlayDropdown(
                 baseView, dropdownView,
                 m.dropdown.Row+2, m.dropdown.Col+3,
             )
@@ -176,11 +176,11 @@ The `teautils` package provides `CenterModal()` and `CalculateCenter()` helpers 
 
 ## Reference implementations
 
-- `teadd/overlay_dropdown.go` — Dropdown overlay
+- `teadrpdwn/overlay_dropdown.go` — Dropdown overlay
 - `teamodal/overlay_modal.go` — Modal overlay (identical logic, different context)
 
 ## Related
 
 - [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — How modals consume keyboard input
-- [teadd component](/go-tealeaves/components/teadrpdwn/) — Dropdown with overlay
+- [teadrpdwn component](/go-tealeaves/components/teadrpdwn/) — Dropdown with overlay
 - [teamodal component](/go-tealeaves/components/teamodal/) — Modal with overlay

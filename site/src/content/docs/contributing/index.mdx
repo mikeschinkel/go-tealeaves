@@ -9,7 +9,7 @@ import { Steps } from '@astrojs/starlight/components';
 
 Use [GitHub Issues](https://github.com/mikeschinkel/go-tealeaves/issues) to report bugs or request features.
 
-- **Include the package name** in the issue title (e.g., `teadd: overlay breaks with styled background` or `teamodal: ESC propagates through closed modal`).
+- **Include the package name** in the issue title (e.g., `teadrpdwn: overlay breaks with styled background` or `teamodal: ESC propagates through closed modal`).
 - **For bugs**, include:
   - Go version (`go version`)
   - Operating system and terminal emulator
@@ -67,8 +67,8 @@ When making changes:
 - Run `make tidy` to ensure all modules are consistent after dependency changes.
 - If your change spans multiple packages, respect the dependency order:
   - `teautils` must be updated before `teamodal` (teamodal depends on teautils)
-  - `teadd` must be updated before `teadep` (teadep depends on teadd)
-  - All other packages (`teastatus`, `teatextsel`, `teatree`, `teanotify`, `teagrid`) are independent of each other.
+  - `teadrpdwn` must be updated before `teadepview` (teadepview depends on teadrpdwn)
+  - All other packages (`teastatus`, `teatxtsnip`, `teatree`, `teanotify`, `teagrid`) are independent of each other.
 
 ## Code style
 

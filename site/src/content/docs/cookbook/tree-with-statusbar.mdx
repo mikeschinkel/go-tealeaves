@@ -80,7 +80,7 @@ func main() {
         node.Expand()
     }
 
-    treeModel := teatree.NewModel(tree, 20)
+    treeModel := teatree.NewTreeModel(tree, 20)
 
     // Build the status bar with key menus
     helpBinding := key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "Help"))
@@ -88,7 +88,7 @@ func main() {
     collapseBinding := key.NewBinding(key.WithKeys("c"), key.WithHelp("c", "Collapse all"))
     quitBinding := key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit"))
 
-    sb := teastatus.New().
+    sb := teastatus.NewStatusBarModel().
         SetMenuItems([]teastatus.MenuItem{
             teastatus.NewMenuItemFromBinding(helpBinding, "Help"),
             teastatus.NewMenuItemFromBinding(expandBinding, "Expand all"),

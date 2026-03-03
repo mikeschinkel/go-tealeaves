@@ -28,7 +28,7 @@ import (
 
 func main() {
 	items := teadrpdwn.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
-	dropdown := teadrpdwn.NewModel(items, 3, 18, nil)
+	dropdown := teadrpdwn.NewDropdownModel(items, 3, 18, nil)
 
 	p := tea.NewProgram(model{dropdown: dropdown}, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -54,7 +54,7 @@ func main() {
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NewModel` | `NewModel(options []Option, row, col int, args *ModelArgs) DropdownModel` | Create a dropdown at the given row and column position |
+| `NewDropdownModel` | `NewDropdownModel(options []Option, row, col int, args *DropdownModelArgs) DropdownModel` | Create a dropdown at the given row and column position |
 | `ToOptions` | `ToOptions(items []string) []Option` | Convert a string slice into a slice of `Option` values |
 | `OverlayDropdown` | `OverlayDropdown(background, foreground string, row, col int) string` | ANSI-aware overlay compositing of foreground onto background |
 | `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr)` | Initialize terminal size detection for above/below positioning |
@@ -67,7 +67,7 @@ func main() {
 | `DropdownKeyMap` | Key bindings configuration (Cancel, Down, Select, Up) |
 | `Option` | A selectable option with `Text` and `Value` fields |
 | `OptionSelectedMsg` | Message sent when the user selects an option |
-| `ModelArgs` | Optional configuration arguments for `NewModel` |
+| `DropdownModelArgs` | Optional configuration arguments for `NewDropdownModel` |
 
 ## Configuration
 

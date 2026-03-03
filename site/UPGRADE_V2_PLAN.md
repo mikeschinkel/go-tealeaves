@@ -89,11 +89,11 @@ Each page covers:
 - Links to the module's README and example apps.
 
 Pages to create:
-- `src/content/docs/reference/teadd.md` — Dropdown component
-- `src/content/docs/reference/teadep.md` — Dependency dropdown
+- `src/content/docs/reference/teadrpdwn.md` — Dropdown component
+- `src/content/docs/reference/teadepview.md` — Dependency dropdown
 - `src/content/docs/reference/teamodal.md` — Modal dialogs (confirm, choice, list, progress)
 - `src/content/docs/reference/teastatus.md` — Status bar
-- `src/content/docs/reference/teatextsel.md` — Text selection
+- `src/content/docs/reference/teatxtsnip.md` — Text selection
 - `src/content/docs/reference/teatree.md` — Tree navigation
 - `src/content/docs/reference/teautils.md` — Utility components (key registry, help visor)
 - `src/content/docs/reference/teanotify.md` — Notifications

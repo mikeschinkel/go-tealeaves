@@ -16,7 +16,7 @@ go get github.com/mikeschinkel/go-tealeaves/teastatus
 ## Quick example
 
 ```go
-sb := teastatus.New()
+sb := teastatus.NewStatusBarModel()
 
 sb = sb.SetMenuItems([]teastatus.MenuItem{
     {Key: "?", Label: "Help"},
@@ -52,7 +52,7 @@ return contentView + "\n" + sb.View()
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `New` | `New() Model` | Create a status bar with default styles |
+| `NewStatusBarModel` | `NewStatusBarModel() Model` | Create a status bar with default styles |
 | `NewStatusIndicator` | `NewStatusIndicator(text string) StatusIndicator` | Create an indicator with text |
 | `NewMenuItemFromBinding` | `NewMenuItemFromBinding(binding key.Binding, label string) MenuItem` | Create a menu item from a Charm key binding |
 | `RenderMenuLine` | `RenderMenuLine(items []MenuItem, styles Styles) string` | Render menu items as a formatted string (useful outside the status bar) |

@@ -23,7 +23,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Then dropdown
     dropdown, cmd := m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadd.DropdownModel)
+        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
         return m, cmd
     }
 
@@ -44,7 +44,7 @@ func (m model) View() string {
 
     // Dropdown overlay (lower z-order)
     if m.dropdown.IsOpen {
-        view = teadd.OverlayDropdown(view, m.dropdown.View(), row, col)
+        view = teadrpdwn.OverlayDropdown(view, m.dropdown.View(), row, col)
     }
 
     // Modal overlay (higher z-order)

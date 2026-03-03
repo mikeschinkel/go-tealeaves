@@ -108,7 +108,7 @@ The map-based row format means column order in data does not need to match colum
   </TabItem>
   <TabItem label="teagrid">
     ```go
-    t := teagrid.New(columns).
+    t := teagrid.NewGridModel(columns).
         WithRows(rows).
         WithBaseStyle(
             lipgloss.NewStyle().
@@ -142,7 +142,7 @@ The map-based row format means column order in data does not need to match colum
   </TabItem>
   <TabItem label="teagrid">
     ```go
-    t := teagrid.New(columns).
+    t := teagrid.NewGridModel(columns).
         WithRows(rows).
         WithPageSize(10).
         Focused(true)

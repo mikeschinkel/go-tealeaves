@@ -33,7 +33,7 @@ Tea Leaves uses **non-nil `tea.Cmd` as a consumption signal** — no state check
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     dropdown, cmd := m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadd.DropdownModel)
+        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
         return m, cmd  // Dropdown consumed it — done!
     }
     // Parent processes normally
@@ -68,7 +68,7 @@ Most component libraries ship as a single import — you get everything or nothi
 Tea Leaves is **9 independent Go modules**. Import only what you need:
 
 ```go
-// Just need a dropdown? Import only teadd
+// Just need a dropdown? Import only teadrpdwn
 go get github.com/mikeschinkel/go-tealeaves/teadrpdwn
 
 // Need modals too? Add teamodal

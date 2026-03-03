@@ -34,7 +34,7 @@ const (
 
 func main() {
 	m := model{
-		table: teagrid.New([]teagrid.Column{
+		table: teagrid.NewGridModel([]teagrid.Column{
 			teagrid.NewColumn(columnKeyName, "Name", 13),
 			teagrid.NewColumn(columnKeyElement, "Element", 10),
 		}).WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left)).WithRows([]teagrid.Row{
@@ -83,7 +83,7 @@ func (m model) View() string {
 
 ### Constructors
 
-- **`New(columns []Column) Model`** — Create a grid with the given column definitions.
+- **`NewGridModel(columns []Column) Model`** — Create a grid with the given column definitions.
 - **`NewColumn(key, title string, width int) Column`** — Create a column with a key, display title, and fixed width.
 - **`NewRow(data RowData) Row`** — Create a row from a map of column keys to values.
 

@@ -49,7 +49,7 @@ This approach has several problems:
         // Let dropdown handle message first
         dropdown, cmd := m.dropdown.Update(msg)
         if cmd != nil {
-            m.dropdown = dropdown.(teadd.DropdownModel)
+            m.dropdown = dropdown.(teadrpdwn.DropdownModel)
             return m, cmd  // Dropdown consumed it — done!
         }
 
@@ -128,7 +128,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Each modal gets a chance to consume
     dropdown, cmd := m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadd.DropdownModel)
+        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
         return m, cmd
     }
 
@@ -158,6 +158,6 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 ## Related
 
-- [teadd component](/go-tealeaves/components/teadrpdwn/) — Dropdown uses this pattern
+- [teadrpdwn component](/go-tealeaves/components/teadrpdwn/) — Dropdown uses this pattern
 - [teamodal component](/go-tealeaves/components/teamodal/) — Modals use this pattern
 - [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — How overlays render on top of content

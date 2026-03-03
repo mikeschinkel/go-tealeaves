@@ -80,7 +80,7 @@ func newModel() model {
 
     return model{
         table: teagrid.
-            New(columns).
+            NewGridModel(columns).
             Filtered(true).
             Focused(true).
             WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left)).
@@ -156,7 +156,7 @@ Only columns marked as filterable contribute to the filter match. In this exampl
 Call `Filtered(true)` on the grid model to enable the built-in filter input:
 
 ```go
-teagrid.New(columns).Filtered(true)
+teagrid.NewGridModel(columns).Filtered(true)
 ```
 
 This registers the `/` key to activate the filter input and enables the built-in case-insensitive substring matching.
