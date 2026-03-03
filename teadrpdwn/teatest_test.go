@@ -2,7 +2,7 @@
 // Disabled: teatest (charmbracelet/x/exp/teatest) has no v2 equivalent yet.
 // Re-enable when charm.land ships a v2-compatible teatest package.
 
-package teadd
+package teadrpdwn
 
 import (
 	"io"

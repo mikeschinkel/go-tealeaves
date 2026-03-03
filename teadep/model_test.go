@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/mikeschinkel/go-tealeaves/teadd"
+	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 )
 
 func extractMsg(cmd tea.Cmd) tea.Msg {
@@ -232,7 +232,7 @@ func TestPathViewer_DropdownSelection(t *testing.T) {
 	}
 
 	// Send OptionSelectedMsg for second alternative (C, index=1)
-	result, cmd := m.Update(teadd.OptionSelectedMsg{
+	result, cmd := m.Update(teadrpdwn.OptionSelectedMsg{
 		Index: 1,
 		Text:  "C",
 	})
@@ -275,7 +275,7 @@ func TestPathViewer_DropdownCancellation(t *testing.T) {
 	}
 
 	// Cancel dropdown
-	result, _ = m.Update(teadd.DropdownCancelledMsg{})
+	result, _ = m.Update(teadrpdwn.DropdownCancelledMsg{})
 	m = result.(PathViewerModel)
 
 	if m.DropdownOpen {

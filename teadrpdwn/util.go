@@ -1,4 +1,4 @@
-package teadd
+package teadrpdwn
 
 import (
 	"github.com/charmbracelet/x/ansi"

@@ -4,7 +4,7 @@ go 1.25.3
 
 require (
 	github.com/mikeschinkel/go-dt v0.5.0
-	github.com/mikeschinkel/go-tealeaves/teadd v0.0.0
+	github.com/mikeschinkel/go-tealeaves/teadrpdwn v0.0.0
 	golang.org/x/term v0.27.0
 )
 
@@ -32,6 +32,6 @@ require (
 	golang.org/x/sys v0.41.0 // indirect
 )
 
-replace github.com/mikeschinkel/go-tealeaves/teadd => ../teadd
+replace github.com/mikeschinkel/go-tealeaves/teadrpdwn => ../teadrpdwn
 
 replace github.com/mikeschinkel/go-dt => /Users/mikeschinkel/Projects/go-pkgs/go-dt

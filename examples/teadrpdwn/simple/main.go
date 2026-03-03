@@ -7,11 +7,11 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mikeschinkel/go-tealeaves/teadd"
+	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 )
 
 type model struct {
-	dropdown     teadd.DropdownModel
+	dropdown     teadrpdwn.DropdownModel
 	selected     string
 	quitting     bool
 	hasSelection bool
@@ -28,15 +28,15 @@ var (
 )
 
 func main() {
-	items := teadd.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
+	items := teadrpdwn.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
 
 	// Ensure that term.GetSize() is initialized before continuing.
 	// This is needed in GoLand terminal for debugging, but is not harmful if not needed.
-	teadd.EnsureTermGetSize(os.Stdout.Fd())
+	teadrpdwn.EnsureTermGetSize(os.Stdout.Fd())
 
 	// Create dropdown at row 3, col 18 (after "     Fruit Selected: ")
 	// Screen dimensions will be set automatically from tea.WindowSizeMsg
-	dropdown := teadd.NewModel(items, 3, 18, nil)
+	dropdown := teadrpdwn.NewModel(items, 3, 18, nil)
 
 	initialModel := model{
 		dropdown:     dropdown,
@@ -69,13 +69,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Let dropdown handle message first
 	dropdown, cmd := m.dropdown.Update(msg)
 	if cmd != nil {
-		m.dropdown = dropdown.(teadd.DropdownModel)
+		m.dropdown = dropdown.(teadrpdwn.DropdownModel)
 		return m, cmd
 	}
 
 	// Dropdown didn't handle - process message
 	switch msg := msg.(type) {
-	case teadd.OptionSelectedMsg:
+	case teadrpdwn.OptionSelectedMsg:
 		m.selected = msg.Text
 		m.hasSelection = true
 		m.dropdown, _ = m.dropdown.Close()
@@ -153,7 +153,7 @@ func (m model) View() tea.View {
 	if m.dropdown.IsOpen {
 		dropdownView := m.dropdown.View().Content
 		// Adjust for border (1 row) + padding (1 row top, 2 cols left)
-		baseView = teadd.OverlayDropdown(baseView, dropdownView, m.dropdown.Row+2, m.dropdown.Col+3)
+		baseView = teadrpdwn.OverlayDropdown(baseView, dropdownView, m.dropdown.Row+2, m.dropdown.Col+3)
 	}
 
 	v := tea.NewView(baseView)

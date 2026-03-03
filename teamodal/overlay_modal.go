@@ -8,7 +8,7 @@ import (
 
 // OverlayModal overlays modal view on background view at specified position.
 // Uses ANSI-aware string operations to correctly handle styled text.
-// This follows the proven pattern from teadd (same as OverlayDropdown).
+// This follows the proven pattern from teadrpdwn (same as OverlayDropdown).
 //
 // Parameters:
 //   - background: The base view (fully rendered string with ANSI codes)
@@ -51,7 +51,7 @@ func OverlayModal(background, foreground string, row, col int) string {
 }
 
 // overlayLine overlays foreground onto background at column position (ANSI-aware).
-// This follows the pattern from teadd: split into left + overlay + right.
+// This follows the pattern from teadrpdwn: split into left + overlay + right.
 //
 // The key insight: Standard Go string operations (len, slicing) count ANSI escape
 // codes as characters, which breaks positioning. We use ansi.StringWidth() for
@@ -65,7 +65,7 @@ func overlayLine(background, foreground string, col int) string {
 	fgWidth := ansi.StringWidth(foreground)
 
 	// Build: left part of background + foreground + right part of background
-	// This is the same pattern as teadd's overlayLine()
+	// This is the same pattern as teadrpdwn's overlayLine()
 	var result strings.Builder
 
 	// Left part: truncate background to col width

@@ -1,4 +1,4 @@
-package teadd
+package teadrpdwn
 
 // Position represents field position for testing permutations
 type Position int

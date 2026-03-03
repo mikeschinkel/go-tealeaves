@@ -6,7 +6,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mikeschinkel/go-tealeaves/teadd"
+	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 )
 
 // PathViewerModel is a Bubble Tea model for dependency path visualization
@@ -32,7 +32,7 @@ type PathViewerModel struct {
 	InsertLine bool `json:"insert_line,omitempty"`
 
 	// Dropdown for alternatives
-	Dropdown     teadd.DropdownModel `json:"dropdown"`
+	Dropdown     teadrpdwn.DropdownModel `json:"dropdown"`
 	DropdownOpen bool                `json:"dropdown_open,omitempty"`
 
 	// Styling (public for customization)
@@ -134,14 +134,14 @@ func (m PathViewerModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Height = t.Height
 		goto end
 
-	case teadd.OptionSelectedMsg:
+	case teadrpdwn.OptionSelectedMsg:
 		// Handle dropdown selection
 		if !m.DropdownOpen {
 			goto end
 		}
 		m, cmd = m.handleDropdownSelection(t)
 		goto end
-	case teadd.DropdownCancelledMsg:
+	case teadrpdwn.DropdownCancelledMsg:
 		// Handle dropdown cancellation
 		if !m.DropdownOpen {
 			goto end
@@ -244,7 +244,7 @@ func (m PathViewerModel) View() tea.View {
 	// Overlay dropdown if open
 	if m.DropdownOpen {
 		dropdownView = m.Dropdown.View().Content
-		view = teadd.OverlayDropdown(view, dropdownView, m.Dropdown.Row, m.Dropdown.Col)
+		view = teadrpdwn.OverlayDropdown(view, dropdownView, m.Dropdown.Row, m.Dropdown.Col)
 		goto end
 	}
 
@@ -255,7 +255,7 @@ end:
 }
 
 // handleDropdownSelection processes dropdown item selection
-func (m PathViewerModel) handleDropdownSelection(selectedMsg teadd.OptionSelectedMsg) (model PathViewerModel, cmd tea.Cmd) {
+func (m PathViewerModel) handleDropdownSelection(selectedMsg teadrpdwn.OptionSelectedMsg) (model PathViewerModel, cmd tea.Cmd) {
 	var currentNode *Tree
 	var alternatives []*Tree
 	var newNode *Tree
@@ -309,7 +309,7 @@ func (m PathViewerModel) handleDropdownInput(msg tea.Msg) (model PathViewerModel
 
 	model = m
 	dropdown, cmd = model.Dropdown.Update(msg)
-	model.Dropdown = dropdown.(teadd.DropdownModel)
+	model.Dropdown = dropdown.(teadrpdwn.DropdownModel)
 	handled = cmd != nil
 
 	return model, cmd, handled
@@ -384,7 +384,7 @@ func (m PathViewerModel) handleOpenDropdown() (model PathViewerModel, cmd tea.Cm
 	row = model.SelectedLevel + 3 // Account for title/padding + 1 row below
 	col = 2                       // Indent
 
-	model.Dropdown = teadd.NewModel(teadd.ToOptions(items), row, col, &teadd.ModelArgs{
+	model.Dropdown = teadrpdwn.NewModel(teadrpdwn.ToOptions(items), row, col, &teadrpdwn.ModelArgs{
 		ScreenWidth:  model.Width,
 		ScreenHeight: model.Height,
 	})

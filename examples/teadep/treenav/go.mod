@@ -3,8 +3,8 @@ module github.com/mikeschinkel/go-tealeaves/examples/teadep/treenav
 go 1.25.3
 
 require (
-	github.com/mikeschinkel/go-tealeaves/teadd v0.0.0
 	github.com/mikeschinkel/go-tealeaves/teadep v0.0.0
+	github.com/mikeschinkel/go-tealeaves/teadrpdwn v0.0.0
 )
 
 require (
@@ -35,6 +35,6 @@ require (
 
 replace github.com/mikeschinkel/go-tealeaves/teadep => ../../../teadep
 
-replace github.com/mikeschinkel/go-tealeaves/teadd => ../../../teadd
+replace github.com/mikeschinkel/go-tealeaves/teadrpdwn => ../../../teadrpdwn
 
 replace github.com/mikeschinkel/go-dt => /Users/mikeschinkel/Projects/go-pkgs/go-dt

@@ -9,7 +9,7 @@ import (
 	"charm.land/lipgloss/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/mikeschinkel/go-cliutil"
-	"github.com/mikeschinkel/go-tealeaves/teadd"
+	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 )
 
 const (
@@ -54,7 +54,7 @@ type exampleModel struct {
 	selectedStartOpen  bool
 
 	// Demo state
-	dropdown      teadd.DropdownModel
+	dropdown      teadrpdwn.DropdownModel
 	selectedValue string // Currently selected dropdown value
 	fieldRow      int    // Field position (independent of dropdown position)
 	fieldCol      int    // Field column position
@@ -65,7 +65,7 @@ type exampleModel struct {
 func main() {
 	// Ensure that term.GetSize() is initialized before continuing.
 	// This is needed in GoLand terminal for debugging, but is not harmful if not needed.
-	teadd.EnsureTermGetSize(os.Stdout.Fd())
+	teadrpdwn.EnsureTermGetSize(os.Stdout.Fd())
 
 	p := tea.NewProgram(initialModel())
 	if _, err := p.Run(); err != nil {
@@ -236,7 +236,7 @@ func (m exampleModel) updateDemonstrating(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	// Handle dropdown messages first
 	switch msg := msg.(type) {
-	case teadd.OptionSelectedMsg:
+	case teadrpdwn.OptionSelectedMsg:
 		// Update selected value
 		m.selectedValue = msg.Text
 		m.dropdown, cmd = m.dropdown.Close()
@@ -246,7 +246,7 @@ func (m exampleModel) updateDemonstrating(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Let dropdown handle input
 	dropdown, cmd = m.dropdown.Update(msg)
 	if cmd != nil {
-		m.dropdown = dropdown.(teadd.DropdownModel)
+		m.dropdown = dropdown.(teadrpdwn.DropdownModel)
 		return m, cmd
 	}
 
@@ -366,7 +366,7 @@ func (m exampleModel) setupDemo() exampleModel {
 
 	// Create dropdown - pass adjusted field position
 	// Set margins to exclude menu bar (top) and status bar (bottom)
-	m.dropdown = teadd.NewModel(items, m.fieldRow, m.fieldCol, &teadd.ModelArgs{
+	m.dropdown = teadrpdwn.NewModel(items, m.fieldRow, m.fieldCol, &teadrpdwn.ModelArgs{
 		ScreenWidth:  m.screenWidth,
 		ScreenHeight: m.screenHeight,
 		TopMargin:    1, // Menu bar at row 0
@@ -556,7 +556,7 @@ func (m exampleModel) viewDemonstrating() string {
 		// Adjust dropdown row to be relative to screenArea (which starts at screen row 1)
 		// Menu bar is at screen row 0, screenArea starts at screen row 1
 		relativeRow := m.dropdown.Row - 1
-		screenArea = teadd.OverlayDropdown(screenArea, dropdownView, relativeRow, m.dropdown.Col)
+		screenArea = teadrpdwn.OverlayDropdown(screenArea, dropdownView, relativeRow, m.dropdown.Col)
 	}
 
 	// Combine vertically
@@ -629,7 +629,7 @@ func (m exampleModel) buildScreenContent() string {
 	return strings.Join(lines, "\n")
 }
 
-func generateItems(widthType string, count, screenWidth int) []teadd.Option {
+func generateItems(widthType string, count, screenWidth int) []teadrpdwn.Option {
 	var allItems []string
 
 	switch widthType {
@@ -708,7 +708,7 @@ func generateItems(widthType string, count, screenWidth int) []teadd.Option {
 	if count > len(allItems) {
 		count = len(allItems)
 	}
-	return teadd.ToOptions(allItems[:count])
+	return teadrpdwn.ToOptions(allItems[:count])
 }
 
 func calculateFieldPosition(horizontal, vertical, width, height int) (row, col int) {

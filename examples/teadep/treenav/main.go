@@ -5,7 +5,7 @@ import (
 	"os"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/mikeschinkel/go-tealeaves/teadd"
+	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 	"github.com/mikeschinkel/go-tealeaves/teadep"
 )
 
@@ -18,7 +18,7 @@ type model struct {
 func main() {
 	// Ensure that term.GetSize() is initialized before continuing.
 	// This is needed in GoLand terminal for debugging, but is not harmful if not needed.
-	teadd.EnsureTermGetSize(os.Stdout.Fd())
+	teadrpdwn.EnsureTermGetSize(os.Stdout.Fd())
 
 	// Build dependency tree from generated code
 	root := ExampleTree()

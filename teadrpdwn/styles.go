@@ -1,4 +1,4 @@
-package teadd
+package teadrpdwn
 
 import "charm.land/lipgloss/v2"
 

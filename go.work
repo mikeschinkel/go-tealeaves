@@ -2,8 +2,8 @@ go 1.25.7
 
 use (
 	./cmd/color-viewer
-	./examples/teadd/demo
-	./examples/teadd/simple
+	./examples/teadrpdwn/demo
+	./examples/teadrpdwn/simple
 	./examples/teadep/treenav
 	./examples/teagrid/filtering
 	./examples/teagrid/scrolling
@@ -18,7 +18,7 @@ use (
 	./examples/teatextsel/editor
 	./examples/teatree/filetree
 	./examples/teautils/keyhelp
-	./teadd
+	./teadrpdwn
 	./teadep
 	./teagrid
 	./teamodal
