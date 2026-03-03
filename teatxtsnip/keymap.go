@@ -1,4 +1,4 @@
-package teatextsel
+package teatxtsnip
 
 import "charm.land/bubbles/v2/key"
 

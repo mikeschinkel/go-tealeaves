@@ -1,4 +1,4 @@
-package teatextsel
+package teatxtsnip
 
 import (
 	"log/slog"

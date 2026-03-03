@@ -1,4 +1,4 @@
-package teatextsel
+package teatxtsnip
 
 // Position represents a cursor position in the textarea
 type Position struct {

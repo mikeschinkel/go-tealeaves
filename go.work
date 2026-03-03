@@ -15,7 +15,7 @@ use (
 	./examples/teamodal/vertical
 	./examples/teanotify/simple
 	./examples/teastatus/statusbar
-	./examples/teatextsel/editor
+	./examples/teatxtsnip/editor
 	./examples/teatree/filetree
 	./examples/teautils/keyhelp
 	./teadrpdwn
@@ -24,7 +24,7 @@ use (
 	./teamodal
 	./teanotify
 	./teastatus
-	./teatextsel
+	./teatxtsnip
 	./teatree
 	./teautils
 )
