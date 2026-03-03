@@ -1,5 +1,7 @@
 package teautils
 
+// EXTRACTION-BOUNDARY: tealayout
+
 import (
 	"strings"
 

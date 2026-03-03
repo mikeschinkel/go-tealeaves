@@ -1,5 +1,7 @@
 package teautils
 
+// EXTRACTION-BOUNDARY: teakeys
+
 import (
 	"charm.land/bubbles/v2/key"
 	"github.com/mikeschinkel/go-dt/dtx"
