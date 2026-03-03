@@ -1,4 +1,4 @@
-package teadep
+package teadepview
 
 // Tree is a navigation wrapper around a Node
 // Provides parent/child relationships for tree traversal

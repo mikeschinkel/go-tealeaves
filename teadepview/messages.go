@@ -1,4 +1,4 @@
-package teadep
+package teadepview
 
 // SelectNodeMsg sent when user confirms selection with Enter on a leaf node
 type SelectNodeMsg struct {

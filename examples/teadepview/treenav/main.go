@@ -6,11 +6,11 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
-	"github.com/mikeschinkel/go-tealeaves/teadep"
+	"github.com/mikeschinkel/go-tealeaves/teadepview"
 )
 
 type model struct {
-	pathViewer teadep.PathViewerModel
+	pathViewer teadepview.PathViewerModel
 	width      int
 	height     int
 }
@@ -27,12 +27,12 @@ func main() {
 	metadata := analyzeTree(root, kindDeterminer)
 
 	// Create selector that captures metadata in closure
-	selector := func(parent *teadep.Tree, children []*teadep.Tree) (*teadep.Tree, error) {
+	selector := func(parent *teadepview.Tree, children []*teadepview.Tree) (*teadepview.Tree, error) {
 		return selectBestChild(parent, children, metadata)
 	}
 
 	// Create path viewer with selector (metadata captured in closure)
-	pathViewer := teadep.NewPathViewer(root, teadep.PathViewerArgs{
+	pathViewer := teadepview.NewPathViewer(root, teadepview.PathViewerArgs{
 		SelectorFunc: selector,
 		Prompt:       "Select a Commit Target:",
 	})
@@ -69,7 +69,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.height = msg.Height
 		// Let pathViewer handle the size update via its Update method
 		pathViewer, cmd = m.pathViewer.Update(msg)
-		m.pathViewer = pathViewer.(teadep.PathViewerModel)
+		m.pathViewer = pathViewer.(teadepview.PathViewerModel)
 		return m, cmd
 
 	case tea.KeyPressMsg:
@@ -78,18 +78,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		}
 
-	case teadep.SelectNodeMsg:
+	case teadepview.SelectNodeMsg:
 		fmt.Printf("Selected: %s\n", msg.Tree.Node.DisplayName())
 		return m, tea.Quit
 
-	case teadep.ChangeNodeMsg:
+	case teadepview.ChangeNodeMsg:
 		// Alternative was selected, path updated automatically
 		return m, nil
 	}
 
 	// Delegate to path viewer
 	pathViewer, cmd = m.pathViewer.Update(msg)
-	m.pathViewer = pathViewer.(teadep.PathViewerModel)
+	m.pathViewer = pathViewer.(teadepview.PathViewerModel)
 	return m, cmd
 }
 
@@ -111,11 +111,11 @@ func (m model) View() tea.View {
 // Priority: Executables > Libraries > Tests
 // Then by reference count (higher better)
 // Then by max depth (longer better)
-func selectBestChild(parent *teadep.Tree, children []*teadep.Tree, meta map[*teadep.Tree]*nodeMeta) (*teadep.Tree, error) {
-	var best *teadep.Tree
+func selectBestChild(parent *teadepview.Tree, children []*teadepview.Tree, meta map[*teadepview.Tree]*nodeMeta) (*teadepview.Tree, error) {
+	var best *teadepview.Tree
 	var bestMeta *nodeMeta
 	var childMeta *nodeMeta
-	var child *teadep.Tree
+	var child *teadepview.Tree
 
 	if len(children) == 0 {
 		return nil, fmt.Errorf("no children")
@@ -171,7 +171,7 @@ func selectBestChild(parent *teadep.Tree, children []*teadep.Tree, meta map[*tea
 }
 
 // kindDeterminer determines module kind based on the node type
-func kindDeterminer(node teadep.Node) (kind int, ok bool) {
+func kindDeterminer(node teadepview.Node) (kind int, ok bool) {
 	var en *exampleNode
 	var isExample bool
 

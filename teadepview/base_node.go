@@ -1,4 +1,4 @@
-package teadep
+package teadepview
 
 // BaseNode provides common functionality for node implementations
 // Apps should embed this in their custom node types

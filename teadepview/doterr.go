@@ -38,7 +38,7 @@
 //   - Combine([]error) bundles independent failures into a single error that unwraps
 //     to its members, preserving order.
 
-package teadep
+package teadepview
 
 import (
 	"crypto/rand"

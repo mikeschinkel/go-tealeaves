@@ -1,6 +1,6 @@
 package main
 
-import "github.com/mikeschinkel/go-tealeaves/teadep"
+import "github.com/mikeschinkel/go-tealeaves/teadepview"
 
 // nodeMeta contains pre-computed information about a tree node
 type nodeMeta struct {
@@ -11,14 +11,14 @@ type nodeMeta struct {
 }
 
 // analyzeTree performs a complete analysis of the tree and returns metadata for each node
-func analyzeTree(t *teadep.Tree, determineKind func(teadep.Node) (int, bool)) map[*teadep.Tree]*nodeMeta {
-	meta := make(map[*teadep.Tree]*nodeMeta)
+func analyzeTree(t *teadepview.Tree, determineKind func(teadepview.Node) (int, bool)) map[*teadepview.Tree]*nodeMeta {
+	meta := make(map[*teadepview.Tree]*nodeMeta)
 
 	// Pass 1: Calculate max depths (bottom-up)
 	calculateDepths(t, meta)
 
 	// Pass 2: Count references (top-down, tracking visited to handle shared dependencies)
-	visited := make(map[*teadep.Tree]bool)
+	visited := make(map[*teadepview.Tree]bool)
 	countReferences(t, meta, visited)
 
 	// Pass 3: Determine module kinds (if callback provided)
@@ -30,9 +30,9 @@ func analyzeTree(t *teadep.Tree, determineKind func(teadep.Node) (int, bool)) ma
 }
 
 // calculateDepths computes MaxDepth for each node (bottom-up traversal)
-func calculateDepths(t *teadep.Tree, meta map[*teadep.Tree]*nodeMeta) (maxDepth int) {
+func calculateDepths(t *teadepview.Tree, meta map[*teadepview.Tree]*nodeMeta) (maxDepth int) {
 	var childDepth int
-	var child *teadep.Tree
+	var child *teadepview.Tree
 
 	if t == nil {
 		goto end
@@ -66,8 +66,8 @@ end:
 }
 
 // countReferences counts how many times each node is referenced in the tree
-func countReferences(t *teadep.Tree, meta map[*teadep.Tree]*nodeMeta, visited map[*teadep.Tree]bool) {
-	var child *teadep.Tree
+func countReferences(t *teadepview.Tree, meta map[*teadepview.Tree]*nodeMeta, visited map[*teadepview.Tree]bool) {
+	var child *teadepview.Tree
 
 	if t == nil {
 		goto end
@@ -102,8 +102,8 @@ end:
 }
 
 // determineKinds sets ModuleKind for each node using the provided callback
-func determineKinds(t *teadep.Tree, meta map[*teadep.Tree]*nodeMeta, determiner func(teadep.Node) (int, bool)) {
-	var child *teadep.Tree
+func determineKinds(t *teadepview.Tree, meta map[*teadepview.Tree]*nodeMeta, determiner func(teadepview.Node) (int, bool)) {
+	var child *teadepview.Tree
 	var kind int
 	var ok bool
 

@@ -1,12 +1,12 @@
 package main
 
 import (
-	"github.com/mikeschinkel/go-tealeaves/teadep"
+	"github.com/mikeschinkel/go-tealeaves/teadepview"
 )
 
 // ExampleTree returns a sample dependency tree for demonstration.
 // This represents a fictional Go project with several modules.
-func ExampleTree() *teadep.Tree {
+func ExampleTree() *teadepview.Tree {
 	return exampleTree
 }
 
@@ -19,14 +19,14 @@ const (
 
 // exampleNode embeds BaseNode and adds a Kind field for the example
 type exampleNode struct {
-	*teadep.BaseNode
+	*teadepview.BaseNode
 	Kind    int
 	KindSet bool
 }
 
-func newNode(name string, kind int, deps ...teadep.Node) *exampleNode {
+func newNode(name string, kind int, deps ...teadepview.Node) *exampleNode {
 	return &exampleNode{
-		BaseNode: teadep.NewBaseNode(name, &teadep.BaseNodeArgs{
+		BaseNode: teadepview.NewBaseNode(name, &teadepview.BaseNodeArgs{
 			Dependencies: deps,
 		}),
 		Kind:    kind,
@@ -34,7 +34,7 @@ func newNode(name string, kind int, deps ...teadep.Node) *exampleNode {
 	}
 }
 
-var exampleTree *teadep.Tree
+var exampleTree *teadepview.Tree
 
 func init() {
 	// Leaf dependencies (no deps of their own)
@@ -72,13 +72,13 @@ func init() {
 	)
 
 	// Root: the repository containing all modules
-	repoNode := teadep.NewBaseNode("git@github.com:example/myapp.git", &teadep.BaseNodeArgs{
-		Dependencies: []teadep.Node{
+	repoNode := teadepview.NewBaseNode("git@github.com:example/myapp.git", &teadepview.BaseNodeArgs{
+		Dependencies: []teadepview.Node{
 			cliModule,
 			coreModule,
 			testModule,
 		},
 	})
 
-	exampleTree = teadep.NewTree(repoNode)
+	exampleTree = teadepview.NewTree(repoNode)
 }

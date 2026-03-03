@@ -1,4 +1,4 @@
-package teadep
+package teadepview
 
 // SelectorFunc is a function that chooses the best child to follow
 // Given a parent tree node and its children, returns which child to select for the path

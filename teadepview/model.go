@@ -1,4 +1,4 @@
-package teadep
+package teadepview
 
 import (
 	"fmt"
