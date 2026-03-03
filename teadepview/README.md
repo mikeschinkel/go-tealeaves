@@ -1,10 +1,10 @@
-# teadep - Bubble Tea Dependency Path Viewer
+# teadepview - Bubble Tea Dependency Path Viewer
 
 A standalone Bubble Tea component for visualizing dependency paths with interactive branch selection.
 
 ## Overview
 
-teadep displays **one dependency path at a time** (from project to leaf dependency) with dropdown navigation for alternate dependencies at each level. It's designed to help users navigate complex dependency trees without overwhelming them with the full graph.
+teadepview displays **one dependency path at a time** (from project to leaf dependency) with dropdown navigation for alternate dependencies at each level. It's designed to help users navigate complex dependency trees without overwhelming them with the full graph.
 
 ## Features
 
@@ -18,7 +18,7 @@ teadep displays **one dependency path at a time** (from project to leaf dependen
 ## Installation
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teadep
+go get github.com/mikeschinkel/go-tealeaves/teadepviewview
 ```
 
 ## Quick Start
@@ -27,18 +27,18 @@ go get github.com/mikeschinkel/go-tealeaves/teadep
 package main
 
 import (
-	"github.com/mikeschinkel/go-tealeaves/teadep"
+	"github.com/mikeschinkel/go-tealeaves/teadepview"
 	tea "github.com/charmbracelet/bubbletea"
 )
 
 func main() {
 	// Build your dependency tree
-	root := teadep.DependencyNode{
+	root := teadepview.DependencyNode{
 		DisplayName: "[R] ~/Projects/myproject",
-		Children: []teadep.DependencyNode{
+		Children: []teadepview.DependencyNode{
 			{
 				DisplayName: "[RM] ~/Projects/go-pkgs/mylib",
-				Alternatives: []teadep.DependencyNode{
+				Alternatives: []teadepview.DependencyNode{
 					{DisplayName: "[RM] ~/Projects/go-pkgs/altlib"},
 				},
 			},
@@ -46,14 +46,14 @@ func main() {
 	}
 
 	// Define selection strategy
-	selectChild := func(parent teadep.DependencyNode, children []teadep.DependencyNode) (teadep.DependencyNode, error) {
+	selectChild := func(parent teadepview.DependencyNode, children []teadepview.DependencyNode) (teadepview.DependencyNode, error) {
 		// Return first child (simplest)
 		// Or implement custom logic: longest path, most in-flux, etc.
 		return children[0], nil
 	}
 
 	// Create viewer
-	viewer, _ := teadep.NewPathViewer(root, selectChild)
+	viewer, _ := teadepview.NewPathViewer(root, selectChild)
 
 	// Run with Bubble Tea
 	tea.NewProgram(viewer).Run()
@@ -133,8 +133,8 @@ type ChangeDependencyMsg struct {
 
 ```go
 // Functional options for customization
-teadep.WithPathStyle(style lipgloss.Style)
-teadep.WithSelectedStyle(style lipgloss.Style)
+teadepview.WithPathStyle(style lipgloss.Style)
+teadepview.WithSelectedStyle(style lipgloss.Style)
 ```
 
 ## Path Selection Algorithm

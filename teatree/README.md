@@ -49,7 +49,7 @@ func main() {
 
     // Create tree and model
     tree := teatree.NewTree([]*teatree.Node[ItemData]{root}, nil)
-    model := teatree.NewModel(tree, 20)
+    model := teatree.NewTreeModel(tree, 20)
 
     // Run
     p := tea.NewProgram(model)
@@ -132,7 +132,7 @@ tree := teatree.NewTree(roots, &teatree.TreeArgs[T]{
 Bubble Tea model wrapping a Tree with keyboard input and viewport scrolling.
 
 ```go
-model := teatree.NewModel(tree, height)
+model := teatree.NewTreeModel(tree, height)
 ```
 
 | Method | Description |

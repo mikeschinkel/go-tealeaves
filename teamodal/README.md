@@ -508,14 +508,14 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 ## Design
 
-TeaModal follows the same proven patterns as teadd:
+TeaModal follows the same proven patterns as teadrpdwn:
 
 - **Modal Message Consumption**: Non-nil cmd signals "I handled this", nil signals "not for me"
 - **String Compositing**: ANSI-aware overlay using `OverlayModal()`
 - **ClearPath Style**: Single return, goto end, no else
 - **Functional Options**: Methods return new model values
 
-See [teadd documentation](../teadd/README.md) for more on these patterns.
+See [teadrpdwn documentation](../teadrpdwn/README.md) for more on these patterns.
 
 ## Examples
 

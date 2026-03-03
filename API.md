@@ -7,10 +7,10 @@
 ### Package: `color-viewer`
 - Path: `./cmd/color-viewer`
 
-## Module: `./teadd`
+## Module: `./teadrpdwn`
 
-### Package: `teadd`
-- Path: `./teadd`
+### Package: `teadrpdwn`
+- Path: `./teadrpdwn`
 
 #### Vars
 - `ErrDropdown = errors.New("dropdown error")`
@@ -69,10 +69,12 @@
     - `WithScreenSize(width int, height int) DropdownModel`
     - `WithTopMargin(margin int) DropdownModel`
 
-- `ModelArgs struct{}`
+- `DropdownModelArgs struct{}`
   - Properties
     - `BorderStyle lipgloss.Style`
     - `BottomMargin int`
+    - `FieldCol int`
+    - `FieldRow int`
     - `ItemStyle lipgloss.Style`
     - `ScreenHeight int`
     - `ScreenWidth int`
@@ -92,10 +94,10 @@
 
 - `Position int`
 
-## Module: `./teadep`
+## Module: `./teadepview`
 
-### Package: `teadep`
-- Path: `./teadep`
+### Package: `teadepview`
+- Path: `./teadepview`
 
 #### Vars
 - `ErrDependency = errors.New("dependency error")`
@@ -154,7 +156,7 @@
 - `PathViewerModel struct{}`
   - Properties
     - `BorderStyle lipgloss.Style`
-    - `Dropdown teadd.DropdownModel`
+    - `Dropdown teadrpdwn.DropdownModel`
     - `DropdownOpen bool`
     - `Height int`
     - `InsertLine bool`
@@ -813,10 +815,10 @@
     - `MenuSeparator string`
     - `SeparatorKind SeparatorKind`
 
-## Module: `./teatextsel`
+## Module: `./teatxtsnip`
 
-### Package: `teatextsel`
-- Path: `./teatextsel`
+### Package: `teatxtsnip`
+- Path: `./teatxtsnip`
 
 #### Vars
 - `SelectionStyle = lipgloss.NewStyle().
@@ -1129,23 +1131,23 @@
     - `Register(meta KeyMeta) (err error)`
     - `RegisterMany(metas []KeyMeta) (err error)`
 
-## Module: `./examples/teadd/demo`
+## Module: `./examples/teadrpdwn/demo`
 
 ### Package: `demo`
-- Path: `./examples/teadd/demo`
+- Path: `./examples/teadrpdwn/demo`
 
-## Module: `./examples/teadd/simple`
+## Module: `./examples/teadrpdwn/simple`
 
 ### Package: `simple`
-- Path: `./examples/teadd/simple`
+- Path: `./examples/teadrpdwn/simple`
 
-## Module: `./examples/teadep/treenav`
+## Module: `./examples/teadepview/treenav`
 
 ### Package: `treenav`
-- Path: `./examples/teadep/treenav`
+- Path: `./examples/teadepview/treenav`
 
 #### Funcs
-- `ExampleTree() *teadep.Tree`
+- `ExampleTree() *teadepview.Tree`
 
 ## Module: `./examples/teagrid/filtering`
 
@@ -1206,10 +1208,10 @@
 ### Package: `statusbar`
 - Path: `./examples/teastatus/statusbar`
 
-## Module: `./examples/teatextsel/editor`
+## Module: `./examples/teatxtsnip/editor`
 
 ### Package: `editor`
-- Path: `./examples/teatextsel/editor`
+- Path: `./examples/teatxtsnip/editor`
 
 ## Module: `./examples/teatree/filetree`
 

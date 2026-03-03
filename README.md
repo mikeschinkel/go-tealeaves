@@ -10,17 +10,20 @@ go-tealeaves is a multi-module repository of independently importable Bubble Tea
 
 | Package | Import Path | Description |
 |---------|------------|-------------|
-| **teadd** | `github.com/mikeschinkel/go-tealeaves/teadd` | Dropdown selection with intelligent positioning |
-| **teadep** | `github.com/mikeschinkel/go-tealeaves/teadep` | Interactive dependency path viewer |
+| **teadrpdwn** | `github.com/mikeschinkel/go-tealeaves/teadrpdwn` | Dropdown selection with intelligent positioning |
+| **teadepview** | `github.com/mikeschinkel/go-tealeaves/teadepview` | Interactive dependency path viewer |
+| **teadiffr** | `github.com/mikeschinkel/go-tealeaves/teadiffr` | Diff rendering for terminal UIs |
+| **teagrid** | `github.com/mikeschinkel/go-tealeaves/teagrid` | Data grid/table with sorting, filtering, pagination |
 | **teamodal** | `github.com/mikeschinkel/go-tealeaves/teamodal` | Modal dialogs (Yes/No, OK, choice lists) |
+| **teanotify** | `github.com/mikeschinkel/go-tealeaves/teanotify` | Toast-style notification overlays |
 | **teastatus** | `github.com/mikeschinkel/go-tealeaves/teastatus` | Two-zone status bar (menu items + indicators) |
-| **teatextsel** | `github.com/mikeschinkel/go-tealeaves/teatextsel` | Text area with selection and clipboard support |
+| **teatxtsnip** | `github.com/mikeschinkel/go-tealeaves/teatxtsnip` | Text area with selection and clipboard support |
 | **teatree** | `github.com/mikeschinkel/go-tealeaves/teatree` | Generic tree view with customizable node rendering |
 | **teautils** | `github.com/mikeschinkel/go-tealeaves/teautils` | Key registry, help visor, positioning utilities |
 
 ## Package Details
 
-### teadd — Dropdown
+### teadrpdwn — Dropdown
 
 Full-screen dropdown/popup with automatic positioning. Displays above or below the anchor point based on available terminal space. Supports scrolling, item truncation, and customizable styling.
 
@@ -29,7 +32,7 @@ Full-screen dropdown/popup with automatic positioning. Displays above or below t
 - Sends `OptionSelectedMsg` or `DropdownCancelledMsg`
 - Navigation: `Up`/`Down` to move, `Enter` to select, `Esc` to cancel
 
-### teadep — Dependency Path Viewer
+### teadepview — Dependency Path Viewer
 
 Visualizes a single path through a dependency tree with interactive navigation. At each level, a dropdown shows alternative nodes. Useful for exploring module dependency graphs.
 
@@ -37,6 +40,14 @@ Visualizes a single path through a dependency tree with interactive navigation. 
 - `DependencyNode` — tree node with alternatives and children
 - `ChildSelector` — strategy function for choosing the default child at each level
 - Navigation: `Up`/`Down` to move levels, `Space`/`Right` to open alternatives
+
+### teadiffr — Diff Renderer
+
+Renders file diffs in the terminal with syntax-highlighted additions, deletions, and context lines. Supports both unified and condensed diff formats.
+
+- `DiffRenderer` — interface for diff rendering strategies
+- `TUIRenderer` — terminal UI renderer implementation
+- `FileDiff`, `CondensedBlock`, `FileStatus` — diff data types
 
 ### teamodal — Modal Dialogs
 
@@ -56,7 +67,7 @@ Two-zone status bar: left side shows key-action menu items, right side shows tex
 - `StatusIndicator` — text with optional style
 - Separator styles: pipe (`|`), space, or bracket
 
-### teatextsel — Text Selection & Clipboard
+### teatxtsnip — Text Selection & Clipboard
 
 Wraps Bubble Tea's `textarea.Model` with text selection (Shift+Arrow) and clipboard operations (Ctrl+C/X/V). Includes word, line, and document selection. Falls back to an internal clipboard when system clipboard is unavailable. Supports single-line mode.
 
@@ -101,7 +112,7 @@ make build
 Each package is an independent module. Install the ones you need:
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teadd
+go get github.com/mikeschinkel/go-tealeaves/teadrpdwn
 go get github.com/mikeschinkel/go-tealeaves/teamodal
 go get github.com/mikeschinkel/go-tealeaves/teatree
 # etc.
@@ -115,14 +126,14 @@ The `examples/` directory contains runnable programs demonstrating each package:
 
 | Example | Package | Description |
 |---------|---------|-------------|
-| `teadd/simple` | teadd | Basic dropdown with fruit selection |
-| `teadd/demo` | teadd | Comprehensive dropdown with configuration modes |
-| `teadep/treenav` | teadep | Dependency tree path viewer |
+| `teadrpdwn/simple` | teadrpdwn | Basic dropdown with fruit selection |
+| `teadrpdwn/demo` | teadrpdwn | Comprehensive dropdown with configuration modes |
+| `teadepview/treenav` | teadepview | Dependency tree path viewer |
 | `teamodal/choices` | teamodal | Choice modal dialog |
 | `teamodal/editlist` | teamodal | List modal with task management |
 | `teamodal/various` | teamodal | Multiple modal dialog types |
 | `teastatus/statusbar` | teastatus | Status bar with menu items and indicators |
-| `teatextsel/editor` | teatextsel | Multi-line text editor with selection |
+| `teatxtsnip/editor` | teatxtsnip | Multi-line text editor with selection |
 | `teatree/filetree` | teatree | File tree with navigation |
 | `teautils/keyhelp` | teautils | Key registry with help modal overlay |
 
@@ -135,7 +146,7 @@ make build-examples
 Binaries are written to `./bin/examples/`. Run any example directly, e.g.:
 
 ```bash
-./bin/examples/teadd-demo
+./bin/examples/teadrpdwn-demo
 ./bin/examples/teatree-filetree
 ```
 
@@ -160,8 +171,8 @@ This is a multi-module Go repository. Each package is an independent Go module. 
 Most packages are standalone. Two have internal dependencies:
 
 ```
-teadep   --> teadd      (uses dropdown for alternative selection)
-teamodal --> teautils   (uses positioning utilities)
+teadepview --> teadrpdwn   (uses dropdown for alternative selection)
+teamodal   --> teautils    (uses positioning utilities)
 ```
 
 ### Cross-Cutting Documentation
