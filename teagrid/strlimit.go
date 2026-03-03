@@ -14,7 +14,8 @@ func limitStr(str string, maxLen int) string {
 	}
 
 	// Replace newlines with ellipsis
-	if idx := strings.Index(str, "\n"); idx > -1 {
+	idx := strings.Index(str, "\n")
+	if idx > -1 {
 		str = str[:idx] + "…"
 	}
 

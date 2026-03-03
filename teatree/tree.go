@@ -55,7 +55,8 @@ func WithProvider[T any](provider NodeProvider[T]) TreeOption[T] {
 func WithInitialFocus[T any](nodeID string) TreeOption[T] {
 	return func(t *Tree[T]) {
 		for _, root := range t.nodes {
-			if node := root.FindByID(nodeID); node != nil {
+			node := root.FindByID(nodeID)
+			if node != nil {
 				t.focusedNode = node
 				return
 			}
@@ -139,7 +140,8 @@ func (t *Tree[T]) IsFocusedNode(node *Node[T]) bool {
 // SetFocusedNode sets the focused node by ID
 func (t *Tree[T]) SetFocusedNode(nodeID string) bool {
 	for _, root := range t.nodes {
-		if node := root.FindByID(nodeID); node != nil {
+		node := root.FindByID(nodeID)
+		if node != nil {
 			t.focusedNode = node
 			return true
 		}
@@ -150,7 +152,8 @@ func (t *Tree[T]) SetFocusedNode(nodeID string) bool {
 // FindByID finds a node by ID in the tree
 func (t *Tree[T]) FindByID(nodeID string) *Node[T] {
 	for _, root := range t.nodes {
-		if node := root.FindByID(nodeID); node != nil {
+		node := root.FindByID(nodeID)
+		if node != nil {
 			return node
 		}
 	}

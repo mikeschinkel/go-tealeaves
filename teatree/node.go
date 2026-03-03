@@ -205,7 +205,8 @@ func (n *Node[T]) FindByID(id string) *Node[T] {
 	}
 
 	for _, child := range n.children {
-		if found := child.FindByID(id); found != nil {
+		found := child.FindByID(id)
+		if found != nil {
 			return found
 		}
 	}

@@ -179,9 +179,11 @@ func (m Model) WithCurrentPage(currentPage int) Model {
 		return m
 	}
 
+	maxPages := m.MaxPages()
 	if currentPage < 1 {
 		currentPage = 1
-	} else if maxPages := m.MaxPages(); currentPage > maxPages {
+	}
+	if currentPage > maxPages {
 		currentPage = maxPages
 	}
 
