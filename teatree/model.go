@@ -6,6 +6,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	"charm.land/bubbles/v2/viewport"
 	tea "charm.land/bubbletea/v2"
+	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
 // Model is the BubbleTea model for the tree
@@ -17,6 +18,7 @@ type Model[T any] struct {
 	width    int
 	height   int
 	ready    bool
+	theme    *teautils.Theme
 }
 
 // NewModel creates a new BubbleTea model for the tree

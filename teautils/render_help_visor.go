@@ -19,6 +19,18 @@ type HelpVisorStyle struct {
 	CategoryOrder []string // Preferred order for categories (unspecified go last)
 }
 
+// ThemedHelpVisorStyle returns a HelpVisorStyle derived from the given theme.
+func ThemedHelpVisorStyle(theme Theme) HelpVisorStyle {
+	return HelpVisorStyle{
+		TitleStyle:    theme.HelpVisor.TitleStyle,
+		CategoryStyle: theme.HelpVisor.CategoryStyle,
+		KeyStyle:      theme.HelpVisor.KeyStyle,
+		DescStyle:     theme.HelpVisor.DescStyle,
+		KeyColumnGap:  4,
+		CategoryOrder: []string{"Navigation", "Actions", "System", "Other"},
+	}
+}
+
 // DefaultHelpVisorStyle returns the default styling for help visor
 func DefaultHelpVisorStyle() HelpVisorStyle {
 	return HelpVisorStyle{

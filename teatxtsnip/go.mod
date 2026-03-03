@@ -1,8 +1,11 @@
 module github.com/mikeschinkel/go-tealeaves/teatxtsnip
 
-go 1.25.3
+go 1.25.5
 
-require golang.design/x/clipboard v0.7.0
+require (
+	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0
+	golang.design/x/clipboard v0.7.0
+)
 
 require (
 	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8 // indirect
@@ -10,6 +13,8 @@ require (
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/mikeschinkel/go-dt v0.5.0 // indirect
+	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
 )
 
 require (
