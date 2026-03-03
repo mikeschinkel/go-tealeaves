@@ -17,4 +17,9 @@
 //
 //	// In View():
 //	return model.Render(content)
+//
+// # Stability
+//
+// This package is provisional as of v0.3.0. The public API may change in
+// minor releases until promoted to stable.
 package teanotify

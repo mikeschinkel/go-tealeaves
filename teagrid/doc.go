@@ -24,9 +24,14 @@ Basic usage:
 		}),
 	}
 
-	grid := teagrid.New(columns).WithRows(rows)
+	grid := teagrid.NewGridModel(columns).WithRows(rows)
 
 	// Use it like any Bubble Tea v2 component in your view
 	grid.View()
+
+# Stability
+
+This package is provisional as of v0.3.0. The public API may change in
+minor releases until promoted to stable.
 */
 package teagrid
