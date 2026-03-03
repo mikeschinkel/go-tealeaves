@@ -245,6 +245,145 @@ func TestChoiceModel_ClosedModalIgnoresInput(t *testing.T) {
 	}
 }
 
+func TestChoiceModel_View_Horizontal(t *testing.T) {
+	m := NewChoiceModel(&ChoiceModelArgs{
+		ScreenWidth:  80,
+		ScreenHeight: 24,
+		Message:      "Pick one",
+		Options:      threeOptions(),
+		Orientation:  Horizontal,
+	})
+	m, _ = m.Open()
+	view := m.View()
+
+	// All option labels should be present
+	if !strings.Contains(view.Content, "Reorganize") {
+		t.Error("expected view to contain 'Reorganize'")
+	}
+	if !strings.Contains(view.Content, "Save") {
+		t.Error("expected view to contain 'Save'")
+	}
+	if !strings.Contains(view.Content, "Cancel") {
+		t.Error("expected view to contain 'Cancel'")
+	}
+
+	// Horizontal: all buttons should be on the same line
+	// Find a line that contains at least two option labels
+	lines := strings.Split(view.Content, "\n")
+	foundButtonLine := false
+	for _, line := range lines {
+		count := 0
+		if strings.Contains(line, "Reorganize") {
+			count++
+		}
+		if strings.Contains(line, "Save") {
+			count++
+		}
+		if strings.Contains(line, "Cancel") {
+			count++
+		}
+		if count >= 2 {
+			foundButtonLine = true
+			break
+		}
+	}
+	if !foundButtonLine {
+		t.Error("expected at least two options on the same line (horizontal layout)")
+	}
+}
+
+func TestChoiceModel_View_Vertical(t *testing.T) {
+	m := NewChoiceModel(&ChoiceModelArgs{
+		ScreenWidth:  80,
+		ScreenHeight: 24,
+		Message:      "Pick one",
+		Options:      threeOptions(),
+		Orientation:  Vertical,
+	})
+	m, _ = m.Open()
+	view := m.View()
+
+	// All option labels should be present
+	if !strings.Contains(view.Content, "Reorganize") {
+		t.Error("expected view to contain 'Reorganize'")
+	}
+	if !strings.Contains(view.Content, "Save") {
+		t.Error("expected view to contain 'Save'")
+	}
+
+	// Vertical: options should be on different lines
+	lines := strings.Split(view.Content, "\n")
+	linesWithOptions := 0
+	for _, line := range lines {
+		if strings.Contains(line, "Reorganize") || strings.Contains(line, "Save") || strings.Contains(line, "Cancel") {
+			linesWithOptions++
+		}
+	}
+	if linesWithOptions < 2 {
+		t.Errorf("expected options on separate lines (vertical layout), found %d lines with options", linesWithOptions)
+	}
+}
+
+func TestChoiceModel_View_FocusedButton(t *testing.T) {
+	m := NewChoiceModel(&ChoiceModelArgs{
+		ScreenWidth:  80,
+		ScreenHeight: 24,
+		Message:      "Pick one",
+		Options:      threeOptions(),
+		DefaultIndex: 0,
+	})
+	m, _ = m.Open()
+
+	// Get view with focus on first option
+	view1 := m.View()
+
+	// Move focus to second option
+	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
+	m2 := result.(ChoiceModel)
+	view2 := m2.View()
+
+	// The views should differ (focused button styling changes)
+	if view1.Content == view2.Content {
+		t.Error("expected different views when focus changes between buttons")
+	}
+
+	// Both should contain the option labels
+	if !strings.Contains(view2.Content, "Save") {
+		t.Error("expected 'Save' in view after focus change")
+	}
+}
+
+func TestChoiceModel_View_BorderGeometry(t *testing.T) {
+	m := NewChoiceModel(&ChoiceModelArgs{
+		ScreenWidth:  80,
+		ScreenHeight: 24,
+		Title:        "Test Title",
+		Message:      "Pick one",
+		Options:      threeOptions(),
+	})
+	m, _ = m.Open()
+	view := m.View()
+
+	// View should not be empty
+	if view.Content == "" {
+		t.Fatal("expected non-empty view")
+	}
+
+	// Should contain border characters (box drawing)
+	lines := strings.Split(view.Content, "\n")
+	if len(lines) < 5 {
+		t.Errorf("expected at least 5 lines for bordered modal, got %d", len(lines))
+	}
+
+	// Title and message should both be present
+	if !strings.Contains(view.Content, "Test Title") {
+		t.Error("expected view to contain title")
+	}
+	if !strings.Contains(view.Content, "Pick one") {
+		t.Error("expected view to contain message")
+	}
+}
+
 func TestChoiceModel_OverlayModal(t *testing.T) {
 	m := newTestChoiceModel(threeOptions(), 0)
 

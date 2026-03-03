@@ -249,6 +249,52 @@ func TestNode_HasGrandChildren(t *testing.T) {
 	}
 }
 
+func TestNode_SetName(t *testing.T) {
+	n := NewNode[string]("id1", "Original", "data")
+	if n.Name() != "Original" {
+		t.Errorf("expected Name='Original', got %q", n.Name())
+	}
+
+	n.SetName("Updated")
+	if n.Name() != "Updated" {
+		t.Errorf("expected Name='Updated' after SetName, got %q", n.Name())
+	}
+}
+
+func TestNode_SetExpanded(t *testing.T) {
+	n := NewNode[string]("id1", "Node", "data")
+	if n.IsExpanded() {
+		t.Error("expected not expanded initially")
+	}
+
+	n.SetExpanded(true)
+	if !n.IsExpanded() {
+		t.Error("expected expanded after SetExpanded(true)")
+	}
+
+	n.SetExpanded(false)
+	if n.IsExpanded() {
+		t.Error("expected not expanded after SetExpanded(false)")
+	}
+}
+
+func TestNode_SetVisible(t *testing.T) {
+	n := NewNode[string]("id1", "Node", "data")
+	if !n.IsVisible() {
+		t.Error("expected visible initially")
+	}
+
+	n.SetVisible(false)
+	if n.IsVisible() {
+		t.Error("expected not visible after SetVisible(false)")
+	}
+
+	n.SetVisible(true)
+	if !n.IsVisible() {
+		t.Error("expected visible after SetVisible(true)")
+	}
+}
+
 func TestNode_Text_FallsBackToName(t *testing.T) {
 	n := NewNode[string]("n", "NodeName", "")
 	if n.Text() != "NodeName" {

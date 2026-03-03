@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 func newTestOKModal() ModalModel {
@@ -401,4 +402,145 @@ func TestModalModel_CustomLabels_Withers(t *testing.T) {
 	if !strings.Contains(view.Content, "Got it") {
 		t.Error("expected custom OK label 'Got it' in view")
 	}
+}
+
+func TestModalModel_Alignment(t *testing.T) {
+	t.Run("DefaultIsCenter", func(t *testing.T) {
+		m := NewOKModal("Test", nil)
+		if m.TitleAlign() != lipgloss.Center {
+			t.Errorf("expected default TitleAlign=Center, got %v", m.TitleAlign())
+		}
+		if m.MessageAlign() != lipgloss.Center {
+			t.Errorf("expected default MessageAlign=Center, got %v", m.MessageAlign())
+		}
+		if m.ButtonAlign() != lipgloss.Center {
+			t.Errorf("expected default ButtonAlign=Center, got %v", m.ButtonAlign())
+		}
+	})
+
+	t.Run("WithTextAlign", func(t *testing.T) {
+		m := NewOKModal("Test", nil)
+		m = m.WithTextAlign(lipgloss.Left)
+		if m.TitleAlign() != lipgloss.Left {
+			t.Errorf("expected TitleAlign=Left after WithTextAlign, got %v", m.TitleAlign())
+		}
+		if m.MessageAlign() != lipgloss.Left {
+			t.Errorf("expected MessageAlign=Left after WithTextAlign, got %v", m.MessageAlign())
+		}
+		// ButtonAlign should still be Center (WithTextAlign only affects title+message)
+		if m.ButtonAlign() != lipgloss.Center {
+			t.Errorf("expected ButtonAlign still Center, got %v", m.ButtonAlign())
+		}
+	})
+
+	t.Run("IndividualAlignOverrides", func(t *testing.T) {
+		m := NewOKModal("Test", nil)
+		m = m.WithTextAlign(lipgloss.Left)
+		m = m.WithTitleAlign(lipgloss.Right)
+		m = m.WithButtonAlign(lipgloss.Left)
+		if m.TitleAlign() != lipgloss.Right {
+			t.Errorf("expected TitleAlign=Right, got %v", m.TitleAlign())
+		}
+		if m.MessageAlign() != lipgloss.Left {
+			t.Errorf("expected MessageAlign=Left, got %v", m.MessageAlign())
+		}
+		if m.ButtonAlign() != lipgloss.Left {
+			t.Errorf("expected ButtonAlign=Left, got %v", m.ButtonAlign())
+		}
+	})
+
+	t.Run("AlignmentViaArgs", func(t *testing.T) {
+		// Note: lipgloss.Left == 0.0, which is indistinguishable from "not set"
+		// in the Args struct. Use Right (1.0) for TextAlign to test via constructor.
+		// For Left alignment, use the WithTextAlign wither instead.
+		m := NewOKModal("Test", &ModelArgs{
+			ScreenWidth:  80,
+			ScreenHeight: 24,
+			TextAlign:    lipgloss.Right,
+			TitleAlign:   lipgloss.Center,
+		})
+		// TitleAlign overrides TextAlign
+		if m.TitleAlign() != lipgloss.Center {
+			t.Errorf("expected TitleAlign=Center from args, got %v", m.TitleAlign())
+		}
+		// MessageAlign inherits from TextAlign
+		if m.MessageAlign() != lipgloss.Right {
+			t.Errorf("expected MessageAlign=Right from TextAlign, got %v", m.MessageAlign())
+		}
+	})
+
+	t.Run("LeftAlignedRender", func(t *testing.T) {
+		m := NewOKModal("Test message", &ModelArgs{
+			ScreenWidth:  80,
+			ScreenHeight: 24,
+		})
+		m = m.WithTextAlign(lipgloss.Left)
+		m, _ = m.Open()
+		view := m.View()
+		if !strings.Contains(view.Content, "Test message") {
+			t.Error("expected left-aligned view to contain message")
+		}
+	})
+}
+
+func TestModalModel_CustomStyles(t *testing.T) {
+	t.Run("WithersSaveStyles", func(t *testing.T) {
+		m := NewOKModal("Test", nil)
+		customBorder := lipgloss.NewStyle().Border(lipgloss.DoubleBorder())
+		customTitle := lipgloss.NewStyle().Bold(true)
+		customMsg := lipgloss.NewStyle().Italic(true)
+		customBtn := lipgloss.NewStyle().Foreground(lipgloss.Color("196"))
+		customFocusBtn := lipgloss.NewStyle().Background(lipgloss.Color("46"))
+
+		m = m.WithBorderStyle(customBorder)
+		m = m.WithTitleStyle(customTitle)
+		m = m.WithMessageStyle(customMsg)
+		m = m.WithButtonStyle(customBtn)
+		m = m.WithFocusedButtonStyle(customFocusBtn)
+
+		if m.BorderStyle().String() != customBorder.String() {
+			t.Error("expected custom border style to persist")
+		}
+		if m.TitleStyle().String() != customTitle.String() {
+			t.Error("expected custom title style to persist")
+		}
+		if m.MessageStyle().String() != customMsg.String() {
+			t.Error("expected custom message style to persist")
+		}
+		if m.ButtonStyle().String() != customBtn.String() {
+			t.Error("expected custom button style to persist")
+		}
+		if m.FocusedButtonStyle().String() != customFocusBtn.String() {
+			t.Error("expected custom focused button style to persist")
+		}
+	})
+
+	t.Run("StylesViaArgs", func(t *testing.T) {
+		customBorder := lipgloss.NewStyle().Border(lipgloss.DoubleBorder())
+		m := NewOKModal("Test", &ModelArgs{
+			ScreenWidth:  80,
+			ScreenHeight: 24,
+			BorderStyle:  customBorder,
+		})
+		if m.BorderStyle().String() != customBorder.String() {
+			t.Error("expected border style from args to persist")
+		}
+	})
+
+	t.Run("CustomStyledRender", func(t *testing.T) {
+		m := NewOKModal("Styled test", &ModelArgs{
+			ScreenWidth:  80,
+			ScreenHeight: 24,
+		})
+		m = m.WithTitleStyle(lipgloss.NewStyle().Bold(true))
+		m = m.WithTitle("Bold Title")
+		m, _ = m.Open()
+		view := m.View()
+		if !strings.Contains(view.Content, "Styled test") {
+			t.Error("expected view to contain message with custom styles")
+		}
+		if !strings.Contains(view.Content, "Bold Title") {
+			t.Error("expected view to contain styled title")
+		}
+	})
 }

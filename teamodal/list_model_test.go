@@ -469,6 +469,116 @@ func TestListModel_View_ActiveItem(t *testing.T) {
 	}
 }
 
+func TestListModel_Scrolling(t *testing.T) {
+	// Create more items than maxVisible (3)
+	manyItems := []testItem{
+		{id: "1", label: "Item-1"},
+		{id: "2", label: "Item-2"},
+		{id: "3", label: "Item-3"},
+		{id: "4", label: "Item-4"},
+		{id: "5", label: "Item-5"},
+		{id: "6", label: "Item-6"},
+	}
+	m := NewListModel(manyItems, &ListModelArgs{
+		ScreenWidth:  80,
+		ScreenHeight: 24,
+		Title:        "Scroll Test",
+		MaxVisible:   3,
+	})
+	m = m.Open()
+
+	// Initially offset should be 0, cursor at 0
+	if m.Offset() != 0 {
+		t.Errorf("expected offset=0 initially, got %d", m.Offset())
+	}
+
+	// Move cursor down past maxVisible
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	// cursor=3, should trigger scroll (offset should adjust)
+	if m.Cursor() != 3 {
+		t.Errorf("expected cursor=3, got %d", m.Cursor())
+	}
+	if m.Offset() == 0 {
+		t.Error("expected offset > 0 after scrolling past viewport")
+	}
+
+	// Continue to bottom
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	if m.Cursor() != 5 {
+		t.Errorf("expected cursor=5, got %d", m.Cursor())
+	}
+
+	// Now scroll back up
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyUp})
+	if m.Cursor() != 0 {
+		t.Errorf("expected cursor=0 after scrolling up, got %d", m.Cursor())
+	}
+	if m.Offset() != 0 {
+		t.Errorf("expected offset=0 at top, got %d", m.Offset())
+	}
+}
+
+func TestListModel_View_SelectedItem(t *testing.T) {
+	m := newTestListModel(testItems())
+	// Cursor is on Beta (active item, index 1)
+	view := m.View()
+
+	// Should have the cursor indicator character
+	if !strings.Contains(view.Content, "\u25b6") {
+		t.Error("expected view to contain cursor indicator (▶)")
+	}
+
+	// Move cursor to Gamma (index 2)
+	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
+	view = m.View()
+	if !strings.Contains(view.Content, "Gamma") {
+		t.Error("expected view to contain 'Gamma'")
+	}
+}
+
+func TestListModel_View_EditMode(t *testing.T) {
+	m := newTestListModel(testItems())
+	// Enter edit mode
+	m, _ = m.Update(tea.KeyPressMsg{Code: 'e', Text: "e"})
+	if !m.isEditing {
+		t.Fatal("expected isEditing=true")
+	}
+
+	view := m.View()
+	if view.Content == "" {
+		t.Fatal("expected non-empty view in edit mode")
+	}
+
+	// The footer should change to show edit-mode keys
+	if !strings.Contains(view.Content, "accept") {
+		t.Error("expected edit-mode footer with 'accept' hint")
+	}
+}
+
+func TestListModel_View_StatusMessage(t *testing.T) {
+	m := newTestListModel(testItems())
+	m = m.SetStatus("Item saved")
+	view := m.View()
+
+	if !strings.Contains(view.Content, "Item saved") {
+		t.Error("expected view to contain status message 'Item saved'")
+	}
+
+	// Clear status
+	m = m.ClearStatus()
+	view = m.View()
+	if strings.Contains(view.Content, "Item saved") {
+		t.Error("expected status message cleared from view")
+	}
+}
+
 func TestListModel_View_HelpVisor(t *testing.T) {
 	m := newTestListModel(testItems())
 	m, _ = m.Update(tea.KeyPressMsg{Code: '?', Text: "?"})

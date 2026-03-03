@@ -212,6 +212,84 @@ func TestTree_SetFocusedNode(t *testing.T) {
 	}
 }
 
+func TestTree_FirstNode(t *testing.T) {
+	tree, nodes := buildTestTree()
+	first := tree.FirstNode()
+	if first == nil {
+		t.Fatal("expected non-nil FirstNode")
+	}
+	if first != nodes[0] {
+		t.Errorf("expected FirstNode to be root1, got %q", first.ID())
+	}
+
+	// Empty tree returns nil
+	emptyTree := NewTree[string](nil, nil)
+	if emptyTree.FirstNode() != nil {
+		t.Error("expected nil FirstNode for empty tree")
+	}
+}
+
+func TestTree_IsFocusedNode(t *testing.T) {
+	tree, nodes := buildTestTree()
+	root1 := nodes[0]
+	root2 := nodes[1]
+
+	// Initial focus is on root1
+	if !tree.IsFocusedNode(root1) {
+		t.Error("expected root1 to be focused initially")
+	}
+	if tree.IsFocusedNode(root2) {
+		t.Error("expected root2 to not be focused initially")
+	}
+
+	// Move focus to root2
+	tree.MoveDown()
+	if tree.IsFocusedNode(root1) {
+		t.Error("expected root1 to not be focused after MoveDown")
+	}
+	if !tree.IsFocusedNode(root2) {
+		t.Error("expected root2 to be focused after MoveDown")
+	}
+}
+
+func TestTree_SetNodes_InvalidatesFocus(t *testing.T) {
+	tree, _ := buildTestTree()
+	// Focus is on root1
+	if tree.FocusedNode().ID() != "root1" {
+		t.Fatalf("expected initial focus on root1, got %q", tree.FocusedNode().ID())
+	}
+
+	// Replace with completely different nodes
+	newRoot := NewNode[string]("new1", "NewRoot", "new")
+	tree.SetNodes([]*Node[string]{newRoot})
+
+	// Focus should have been reset to the new first node
+	focused := tree.FocusedNode()
+	if focused == nil {
+		t.Fatal("expected focus to be set after SetNodes")
+	}
+	if focused.ID() != "new1" {
+		t.Errorf("expected focus on 'new1' after SetNodes, got %q", focused.ID())
+	}
+}
+
+func TestTree_SetNodes_PreservesFocus(t *testing.T) {
+	tree, nodes := buildTestTree()
+	// Move focus to root2
+	tree.MoveDown()
+	if tree.FocusedNode().ID() != "root2" {
+		t.Fatalf("expected focus on root2, got %q", tree.FocusedNode().ID())
+	}
+
+	// Replace with nodes that still include root2
+	tree.SetNodes(nodes)
+
+	// Focus should be preserved since root2 is still in the tree
+	if tree.FocusedNode().ID() != "root2" {
+		t.Errorf("expected focus preserved on 'root2', got %q", tree.FocusedNode().ID())
+	}
+}
+
 func TestTree_FindByID(t *testing.T) {
 	tree, _ := buildTestTree()
 

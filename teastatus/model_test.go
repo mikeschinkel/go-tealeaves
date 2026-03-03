@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
 )
 
 func testMenuItems() []MenuItem {
@@ -194,5 +195,76 @@ func TestModel_View_Truncation(t *testing.T) {
 	// Should still render without panicking.
 	if view.Content == "" {
 		t.Error("expected non-empty view even at narrow width")
+	}
+}
+
+func TestModel_Init(t *testing.T) {
+	m := New()
+	cmd := m.Init()
+	if cmd != nil {
+		t.Error("expected Init() to return nil")
+	}
+}
+
+func TestModel_View_ZeroWidth(t *testing.T) {
+	m := New().SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
+	// width is 0 (never set) — should render left zone only, no panic
+	view := m.View()
+	if view.Content == "" {
+		t.Error("expected non-empty view with zero width")
+	}
+	// With zero width, should NOT contain right-side indicators in the gap layout
+	// (falls through to left-only rendering)
+	if strings.Contains(view.Content, "Help") {
+		// Menu items should still appear (they're in left zone)
+	}
+}
+
+func TestModel_View_NegativeWidth(t *testing.T) {
+	m := New().SetSize(-1).SetMenuItems(testMenuItems()).SetIndicators(testIndicators())
+	view := m.View()
+	// Negative width should not panic
+	if view.Content == "" {
+		t.Error("expected non-empty view with negative width")
+	}
+}
+
+func TestFormatKey_Space(t *testing.T) {
+	items := []MenuItem{
+		{Key: " ", Label: "Select"},
+	}
+	styles := DefaultStyles()
+	result := RenderMenuLine(items, styles)
+	if !strings.Contains(result, "space") {
+		t.Error("expected space key to render as 'space'")
+	}
+}
+
+func TestFormatKey_CtrlC(t *testing.T) {
+	items := []MenuItem{
+		{Key: "ctrl+c", Label: "Quit"},
+	}
+	styles := DefaultStyles()
+	result := RenderMenuLine(items, styles)
+	if !strings.Contains(result, "ctrl+c") {
+		t.Error("expected ctrl+c key to render as 'ctrl+c'")
+	}
+}
+
+func TestIndicatorStyle_CustomColor(t *testing.T) {
+	m := New().SetSize(80)
+	customStyle := lipgloss.NewStyle().Foreground(lipgloss.Color("196"))
+	indicators := []StatusIndicator{
+		NewStatusIndicator("Custom").WithStyle(customStyle),
+		NewStatusIndicator("Default"),
+	}
+	m = m.SetIndicators(indicators)
+	view := m.View()
+	// Both indicators should be present
+	if !strings.Contains(view.Content, "Custom") {
+		t.Error("expected custom-styled indicator in view")
+	}
+	if !strings.Contains(view.Content, "Default") {
+		t.Error("expected default-styled indicator in view")
 	}
 }

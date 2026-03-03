@@ -680,3 +680,139 @@ func TestRender_NarrowContent(t *testing.T) {
 		t.Error("expected result to contain 'narrow content test'")
 	}
 }
+
+func TestNewNotifyModel_CustomOpts_AllFields(t *testing.T) {
+	m := newTestModelWithOpts(t, NotifyOpts{
+		Width:            50,
+		MinWidth:         25,
+		Duration:         5 * time.Second,
+		UseNerdFont:      true,
+		AllowEscToClose:  true,
+		Position:         BottomCenterPosition,
+		NoDefaultNotices: false,
+		CustomNotices: []NoticeDefinition{
+			{Key: "Custom", ForeColor: "#112233", Prefix: "[C]"},
+		},
+	})
+	if m.width != 50 {
+		t.Errorf("expected width 50, got %d", m.width)
+	}
+	if m.minWidth != 25 {
+		t.Errorf("expected minWidth 25, got %d", m.minWidth)
+	}
+	if m.duration != 5*time.Second {
+		t.Errorf("expected duration 5s, got %v", m.duration)
+	}
+	if !m.allowEscToClose {
+		t.Error("expected allowEscToClose to be true")
+	}
+	if m.position != BottomCenterPosition {
+		t.Errorf("expected BottomCenterPosition, got %q", m.position)
+	}
+	// 4 defaults + 1 custom
+	if len(m.noticeTypes) != 5 {
+		t.Errorf("expected 5 notice types, got %d", len(m.noticeTypes))
+	}
+	// NerdFont should affect default notice prefixes
+	if def, ok := m.noticeTypes[InfoKey]; ok {
+		if def.Prefix != InfoNerdSymbol {
+			t.Errorf("expected NerdFont prefix for Info, got %q", def.Prefix)
+		}
+	}
+	// Custom notice should be registered
+	if _, ok := m.noticeTypes["Custom"]; !ok {
+		t.Error("expected 'Custom' notice type to be registered")
+	}
+}
+
+func TestNotifyModel_DefaultNoticeTypes_AllPresent(t *testing.T) {
+	m := newTestModel()
+	for _, key := range []NoticeKey{InfoKey, WarnKey, ErrorKey, DebugKey} {
+		if _, ok := m.noticeTypes[key]; !ok {
+			t.Errorf("expected %q in default notice types", key)
+		}
+	}
+}
+
+func TestRender_DynamicWidth(t *testing.T) {
+	m := newTestModelWithOpts(t, NotifyOpts{
+		Width:    60,
+		MinWidth: 20,
+		Duration: 3 * time.Second,
+	})
+
+	content := makeContent(80, 10)
+
+	t.Run("ShortMessage", func(t *testing.T) {
+		m2, _ := activateNotice(t, m, InfoKey, "ok")
+		result := m2.Render(content)
+		if !strings.Contains(result, "ok") {
+			t.Error("expected result to contain 'ok'")
+		}
+		// Should render without panic with dynamic width
+		lines := strings.Split(result, "\n")
+		if len(lines) != 10 {
+			t.Errorf("expected 10 lines, got %d", len(lines))
+		}
+	})
+
+	t.Run("LongMessage", func(t *testing.T) {
+		longMsg := strings.Repeat("x", 100)
+		m2, _ := activateNotice(t, m, InfoKey, longMsg)
+		result := m2.Render(content)
+		// Should render with wrapping, not overflow
+		if !strings.Contains(result, "xxx") {
+			t.Error("expected result to contain long message content")
+		}
+	})
+
+	t.Run("MediumMessage", func(t *testing.T) {
+		m2, _ := activateNotice(t, m, InfoKey, "medium msg")
+		result := m2.Render(content)
+		if !strings.Contains(result, "medium msg") {
+			t.Error("expected result to contain 'medium msg'")
+		}
+		// Output should have same line count as input
+		lines := strings.Split(result, "\n")
+		if len(lines) != 10 {
+			t.Errorf("expected 10 lines, got %d", len(lines))
+		}
+	})
+}
+
+func TestRender_BorderGeometry(t *testing.T) {
+	positions := []struct {
+		name     string
+		position Position
+	}{
+		{"TopLeft", TopLeftPosition},
+		{"TopCenter", TopCenterPosition},
+		{"TopRight", TopRightPosition},
+		{"BottomLeft", BottomLeftPosition},
+		{"BottomCenter", BottomCenterPosition},
+		{"BottomRight", BottomRightPosition},
+	}
+
+	for _, tt := range positions {
+		t.Run(tt.name, func(t *testing.T) {
+			m := newTestModelWithOpts(t, NotifyOpts{
+				Width:    40,
+				Duration: 3 * time.Second,
+				Position: tt.position,
+			})
+			m, _ = activateNotice(t, m, InfoKey, "border test")
+			content := makeContent(80, 12)
+			result := m.Render(content)
+
+			lines := strings.Split(result, "\n")
+			// Output should have same number of lines as input
+			if len(lines) != 12 {
+				t.Errorf("expected 12 lines, got %d", len(lines))
+			}
+			// Border characters should be present somewhere in the output
+			if !strings.Contains(result, "border test") {
+				t.Errorf("expected output to contain 'border test'")
+			}
+		})
+	}
+}

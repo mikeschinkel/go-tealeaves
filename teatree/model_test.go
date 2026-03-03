@@ -24,6 +24,27 @@ func TestNewModel(t *testing.T) {
 	}
 }
 
+func TestModel_Init(t *testing.T) {
+	m := newTestModel()
+	cmd := m.Init()
+	if cmd != nil {
+		t.Error("expected Init() to return nil")
+	}
+}
+
+func TestModel_Update_UnknownMsg(t *testing.T) {
+	m := newTestModel()
+	// A custom message type should be delegated to viewport without error
+	type customMsg struct{}
+	m, cmd := m.Update(customMsg{})
+	// Should not panic, and model should remain functional
+	if m.Tree() == nil {
+		t.Error("expected tree to still be set after unknown msg")
+	}
+	// cmd may or may not be nil (viewport may return something), but no panic
+	_ = cmd
+}
+
 func TestModel_KeyUp(t *testing.T) {
 	m := newTestModel()
 	// Expand root1 so we have more nodes to navigate
