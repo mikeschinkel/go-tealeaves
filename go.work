@@ -18,6 +18,7 @@ use (
 	./examples/teatxtsnip/editor
 	./examples/teatree/filetree
 	./examples/teautils/keyhelp
+	./teadiffr
 	./teadrpdwn
 	./teadepview
 	./teagrid
