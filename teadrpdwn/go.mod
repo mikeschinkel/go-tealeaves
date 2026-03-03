@@ -1,10 +1,11 @@
 module github.com/mikeschinkel/go-tealeaves/teadrpdwn
 
-go 1.25.3
+go 1.25.5
 
 require (
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/mikeschinkel/go-dt v0.5.0
+	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0
 	golang.org/x/term v0.27.0
 )
 
@@ -14,6 +15,7 @@ require (
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
 )
 
 require (
