@@ -1,16 +1,16 @@
 ---
-title: "teadd — Dropdown"
+title: "teadrpdwn — Dropdown"
 description: Dropdown selection component with intelligent above/below positioning based on available terminal space.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teadd` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern.
+Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teadrpdwn` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern.
 
 ## Install
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teadd
+go get github.com/mikeschinkel/go-tealeaves/teadrpdwn
 ```
 
 ## Quick example
@@ -23,12 +23,12 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mikeschinkel/go-tealeaves/teadd"
+	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 )
 
 func main() {
-	items := teadd.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
-	dropdown := teadd.NewModel(items, 3, 18, nil)
+	items := teadrpdwn.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
+	dropdown := teadrpdwn.NewModel(items, 3, 18, nil)
 
 	p := tea.NewProgram(model{dropdown: dropdown}, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -110,7 +110,7 @@ m.dropdown = m.dropdown.
 
 ## Related
 
-- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — The non-nil `tea.Cmd` pattern used by teadd
+- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — The non-nil `tea.Cmd` pattern used by teadrpdwn
 - [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — How `OverlayDropdown()` renders on top of styled content
 - [Wither Methods](/go-tealeaves/patterns/wither-methods/) — The immutable update pattern used by `With*()` methods
 - [teamodal](/go-tealeaves/components/teamodal/) — Modal dialogs that use the same consumption and overlay patterns

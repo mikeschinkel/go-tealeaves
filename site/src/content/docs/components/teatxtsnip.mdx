@@ -1,16 +1,16 @@
 ---
-title: "teatextsel — Text Selection"
+title: "teatxtsnip — Text Selection"
 description: Text area component with Shift+Arrow selection, clipboard operations (Ctrl+C/X/V), and line number display.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatextsel` wraps the standard textarea with all of this functionality.
+Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatxtsnip` wraps the standard textarea with all of this functionality.
 
 ## Install
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teatextsel
+go get github.com/mikeschinkel/go-tealeaves/teatxtsnip
 ```
 
 ## Quick example
@@ -23,11 +23,11 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mikeschinkel/go-tealeaves/teatextsel"
+	"github.com/mikeschinkel/go-tealeaves/teatxtsnip"
 )
 
 func main() {
-	editor := teatextsel.New()
+	editor := teatxtsnip.New()
 	editor.SetWidth(60)
 	editor.SetHeight(20)
 	editor.SetValue("Hello, world!\nSelect me with Shift+Arrow keys.")
@@ -40,7 +40,7 @@ func main() {
 	}
 }
 
-type model struct{ editor teatextsel.Model }
+type model struct{ editor teatxtsnip.Model }
 
 func (m model) Init() tea.Cmd                           { return nil }
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -162,5 +162,5 @@ Using Ctrl+C for copy requires `tea.WithoutSignalHandler()` on your `tea.Program
 
 ## Related
 
-- [teadd](/go-tealeaves/components/teadd/) — Dropdown component for option selection
+- [teadd](/go-tealeaves/components/teadrpdwn/) — Dropdown component for option selection
 - [teamodal](/go-tealeaves/components/teamodal/) — Modal dialogs including list modals with inline editing

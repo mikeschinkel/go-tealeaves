@@ -121,7 +121,7 @@ case teadep.ChangeNodeMsg:
 | `Space` / `Right` | Open alternatives dropdown for the current level |
 | `Enter` | Confirm selection on a leaf node (sends `SelectNodeMsg`) |
 
-When the alternatives dropdown is open, it captures input and uses the standard [teadd](/go-tealeaves/components/teadd/) keyboard shortcuts (up/down/enter/esc).
+When the alternatives dropdown is open, it captures input and uses the standard [teadd](/go-tealeaves/components/teadrpdwn/) keyboard shortcuts (up/down/enter/esc).
 
 ## The SelectorFunc
 
@@ -154,6 +154,6 @@ The function can capture any context it needs via closure -- metadata maps, conf
 
 ## Related
 
-- [teadd](/go-tealeaves/components/teadd/) -- Dropdown component used internally for alternative selection
+- [teadd](/go-tealeaves/components/teadrpdwn/) -- Dropdown component used internally for alternative selection
 - [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) -- How the dropdown renders on top of the path viewer
 - [Wither Methods](/go-tealeaves/patterns/wither-methods/) -- The immutable update pattern used by `With*()` methods
