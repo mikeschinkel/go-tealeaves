@@ -237,8 +237,8 @@ func (m PathViewerModel) View() tea.View {
 
 	// Apply border
 	view = m.BorderStyle.
-		Width(m.Width - 2).
-		Height(m.Height - 2).
+		Width(m.Width).
+		Height(m.Height).
 		Render(baseView)
 
 	// Overlay dropdown if open
