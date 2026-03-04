@@ -573,8 +573,8 @@ func (m exampleModel) buildScreenArea() string {
 	borderStyle := lipgloss.NewStyle().
 		BorderStyle(lipgloss.RoundedBorder()).
 		BorderForeground(lipgloss.Color("240")).
-		Width(m.screenWidth - 2).
-		Height(m.screenHeight - 3) // Account for menu and status bars
+		Width(m.screenWidth).
+		Height(m.screenHeight - 2) // Account for menu and status bars
 
 	// Build the content for inside the border
 	content := m.buildScreenContent()
