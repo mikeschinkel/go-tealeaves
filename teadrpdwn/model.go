@@ -381,8 +381,8 @@ func (m DropdownModel) renderDropdown(pos popupPosition) (view string, err error
 
 	// Apply border
 	view = m.BorderStyle.
-		Width(pos.width - 2).
-		Height(pos.height - 2).
+		Width(pos.width).
+		Height(pos.height).
 		Render(content)
 
 end:
