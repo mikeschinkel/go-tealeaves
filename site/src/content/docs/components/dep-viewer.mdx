@@ -1,9 +1,11 @@
 ---
-title: "teadepview — Dep Viewer"
+title: "Dep Viewer"
 description: Interactive dependency path viewer for exploring module dependency graphs with dropdown-based level selection.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teadepview` · **Type:** `PathViewerModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teadepview`
 
 Dependency graphs are complex -- navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `teadepview` provides an interactive path viewer that renders a single root-to-leaf path through a dependency tree, with dropdown selection for choosing alternative dependencies at any level. It integrates `teadrpdwn` internally for the dropdown and uses a configurable `SelectorFunc` to determine the "best" path.
 
@@ -121,7 +123,7 @@ case teadepview.ChangeNodeMsg:
 | `Space` / `Right` | Open alternatives dropdown for the current level |
 | `Enter` | Confirm selection on a leaf node (sends `SelectNodeMsg`) |
 
-When the alternatives dropdown is open, it captures input and uses the standard [teadrpdwn](/go-tealeaves/components/teadrpdwn/) keyboard shortcuts (up/down/enter/esc).
+When the alternatives dropdown is open, it captures input and uses the standard [Dropdown](/go-tealeaves/components/dropdown/) keyboard shortcuts (up/down/enter/esc).
 
 ## The SelectorFunc
 
@@ -154,6 +156,6 @@ The function can capture any context it needs via closure -- metadata maps, conf
 
 ## Related
 
-- [teadrpdwn](/go-tealeaves/components/teadrpdwn/) -- Dropdown component used internally for alternative selection
-- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) -- How the dropdown renders on top of the path viewer
-- [Wither Methods](/go-tealeaves/patterns/wither-methods/) -- The immutable update pattern used by `With*()` methods
+- [Dropdown](/go-tealeaves/components/dropdown/) -- Dropdown component used internally for alternative selection
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) -- How the dropdown renders on top of the path viewer
+- [Wither Methods](/go-tealeaves/guides/wither-methods/) -- The immutable update pattern used by `With*()` methods

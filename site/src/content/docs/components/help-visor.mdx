@@ -1,0 +1,65 @@
+---
+title: "Help Visor"
+description: Configurable help overlay styling for displaying categorized key bindings in Bubble Tea applications.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teautils` · **Type:** `HelpVisorStyle` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teautils`
+
+The `HelpVisorStyle` type configures how help overlays are rendered. It is used by components that display categorized key help (such as the [List Modal](/go-tealeaves/components/list-modal/)).
+
+## Quick Example
+
+```go
+style := teautils.DefaultHelpVisorStyle()
+
+// Customize
+style.TitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("99"))
+style.CategoryOrder = []string{"Navigation", "Actions", "System", "Other"}
+style.KeyColumnGap = 4
+```
+
+## Features
+
+- Configurable title, category, key, and description styles
+- Category ordering with preferred order list
+- Adjustable key column gap
+- Default style with sensible defaults via `DefaultHelpVisorStyle()`
+
+## API Reference
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `HelpVisorStyle` | Styling for help visor rendering: `TitleStyle`, `CategoryStyle`, `KeyStyle`, `DescStyle`, `KeyColumnGap`, `CategoryOrder` |
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultHelpVisorStyle` | `DefaultHelpVisorStyle() HelpVisorStyle` | Create a help visor style with sensible defaults |
+
+### Style Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `TitleStyle` | `lipgloss.Style` | Style for the help visor title |
+| `CategoryStyle` | `lipgloss.Style` | Style for category headings |
+| `KeyStyle` | `lipgloss.Style` | Style for key binding display |
+| `DescStyle` | `lipgloss.Style` | Style for key description text |
+| `KeyColumnGap` | `int` | Gap between key and description columns |
+| `CategoryOrder` | `[]string` | Preferred order for category display |
+
+## Known Limitations
+
+<Aside type="caution">
+- `HelpVisorStyle` is a styling configuration type, not a standalone component. It is used by components like `ListModel` that render help overlays internally.
+</Aside>
+
+## Related
+
+- [Key Registry](/go-tealeaves/components/key-registry/) — Centralized key binding management
+- [List Modal](/go-tealeaves/components/list-modal/) — List dialog that includes a built-in help visor
+- [Status Bar](/go-tealeaves/components/status-bar/) — Status bar for persistent key display

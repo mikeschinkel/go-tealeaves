@@ -1,0 +1,84 @@
+---
+title: "Progress Modal"
+description: Progress indicator dialog for long-running operations with optional background/cancel support.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teamodal` · **Type:** `ProgressModal` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+
+Progress indicator for long-running operations with optional background and cancel support. Displays "Generating *Title*..." with Cancel and optional Background hints.
+
+## Quick Example
+
+```go
+modal := teamodal.NewProgressModal(&teamodal.ProgressModalArgs{
+    Title:             "Commit Message",
+    BackgroundEnabled: true,
+})
+
+// Open it
+m.modal, cmd = m.modal.Open()
+
+// In View()
+if m.modal.IsOpen() {
+    return m.modal.OverlayModal(backgroundView)
+}
+
+// Handle responses
+case teamodal.ProgressCancelledMsg:
+    // User pressed Esc
+case teamodal.ProgressBackgroundMsg:
+    // User pressed 'b' to send to background
+```
+
+## Features
+
+- Displays progress text with spinner
+- Cancel with Esc key
+- Optional background mode (press `b` to send operation to background)
+- ANSI-aware overlay compositing via `OverlayModal()`
+- Non-nil `tea.Cmd` message consumption signal (see [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/))
+- Auto-centering on screen based on `SetSize()` dimensions
+
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewProgressModal` | `NewProgressModal(args *ProgressModalArgs) ProgressModal` | Create a progress indicator dialog |
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `ProgressModal` | Progress indicator with cancel/background support |
+| `ProgressModalArgs` | Configuration: `Title`, `BackgroundEnabled` |
+
+### Messages
+
+| Message | When sent |
+|---------|-----------|
+| `ProgressBackgroundMsg` | `b` pressed in progress modal |
+| `ProgressCancelledMsg` | Esc pressed in progress modal |
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Esc` | Cancel operation |
+| `b` | Send to background (when enabled) |
+
+## Known Limitations
+
+<Aside type="caution">
+- Requires screen size to be set via `SetSize()` for correct centering.
+- The progress indicator does not track percentage — it is a simple spinner with text.
+</Aside>
+
+## Related
+
+- [Confirmation Modal](/go-tealeaves/components/confirmation-modal/) — Simple Yes/No and OK dialogs
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How overlays render on top of styled content

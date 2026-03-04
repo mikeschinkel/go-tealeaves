@@ -1,9 +1,11 @@
 ---
-title: Theming
+title: "Theming"
 description: Apply consistent colors across all Tea Leaves components using the Palette, Theme, and teacolor systems.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teautils` · **Type:** `Theme` / `Palette` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teautils`
 
 Tea Leaves provides a three-layer theming system that lets you apply consistent colors across all components:
 
@@ -88,3 +90,9 @@ Every Tea Leaves component supports `WithTheme()`:
 <Aside type="tip">
 `WithTheme()` is opt-in. Unthemed components use their existing default styles. Individual `With*Style()` methods still take precedence over theme styles.
 </Aside>
+
+## Related
+
+- [Key Registry](/go-tealeaves/components/key-registry/) — Key binding management in teautils
+- [Help Visor](/go-tealeaves/components/help-visor/) — Help overlay styling in teautils
+- [Positioning](/go-tealeaves/components/positioning/) — Positioning utilities in teautils

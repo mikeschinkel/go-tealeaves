@@ -1,9 +1,11 @@
 ---
-title: "teagrid — Data Grid"
+title: "Data Grid"
 description: Tabular data display component with sorting, filtering, pagination, row selection, and flexible column widths.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teagrid` · **Type:** `Model` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teagrid`
 
 Displaying tabular data in the terminal with sorting, filtering, pagination, and row selection requires extensive custom code. `teagrid` provides a ready-made data grid component that handles all of these concerns out of the box, letting you focus on your data rather than table rendering logic.
 
@@ -102,7 +104,7 @@ func (m model) View() string {
 
 ## Configuration
 
-Configure the grid using `With*()` wither methods. These return the updated model rather than mutating in place (see [Wither Methods](/go-tealeaves/patterns/wither-methods/)).
+Configure the grid using `With*()` wither methods. These return the updated model rather than mutating in place (see [Wither Methods](/go-tealeaves/guides/wither-methods/)).
 
 - **`WithRows(rows []Row)`** — Set row data.
 - **`WithColumns(cols []Column)`** — Update column definitions.

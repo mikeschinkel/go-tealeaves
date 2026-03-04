@@ -1,9 +1,11 @@
 ---
-title: "teatree — Tree View"
+title: "Tree View"
 description: Generic tree view component with expand/collapse, keyboard navigation, viewport scrolling, and pluggable node providers.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teatree` · **Type:** `Model[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
 
 File trees, directory browsers, and hierarchical navigation require expand/collapse state, viewport scrolling for large trees, and customizable node rendering. Building these from scratch each time is tedious and error-prone. `teatree` provides a generic tree view component that handles all of this out of the box, with pluggable node providers so you control how each node is rendered.
 
@@ -116,5 +118,5 @@ Three built-in expander control styles determine how expandable nodes display th
 ## Related
 
 - [Architecture](/go-tealeaves/guides/architecture/) — Design philosophy behind the multi-module structure
-- [Wither Methods](/go-tealeaves/patterns/wither-methods/) — The immutable update pattern used by `With*()` methods
-- [teautils](/go-tealeaves/components/teautils/) — Key registry and positioning utilities used alongside tree views
+- [Wither Methods](/go-tealeaves/guides/wither-methods/) — The immutable update pattern used by `With*()` methods
+- [Key Registry](/go-tealeaves/components/key-registry/) — Key registry and positioning utilities used alongside tree views

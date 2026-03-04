@@ -1,0 +1,60 @@
+---
+title: "Positioning"
+description: ANSI-aware positioning and measurement functions for centering modals and measuring rendered views.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teautils` · **Type:** (functions) · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teautils`
+
+Functions for centering modals and measuring rendered views with ANSI-aware width calculations. Used internally by modal and dropdown components, and available for custom overlay positioning.
+
+## Quick Example
+
+```go
+// Measure a rendered view (ANSI-aware)
+width, height := teautils.MeasureRenderedView(renderedModal)
+
+// Calculate centered position
+row, col := teautils.CalculateCenter(screenW, screenH, width, height)
+
+// Or do both at once (with a slight upward shift for visual balance)
+width, height, row, col := teautils.CenterModal(renderedModal, screenW, screenH)
+```
+
+## Features
+
+- ANSI-aware width measurement (handles lipgloss escape codes correctly)
+- Modal centering with clamping to screen bounds
+- Combined measure-and-center convenience function
+- Upward visual shift in `CenterModal` for better perceived centering
+
+## API Reference
+
+### Positioning Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `CalculateCenter` | `CalculateCenter(screenW, screenH, modalW, modalH int) (row, col int)` | Compute row/col to center a modal on screen (clamped to 0) |
+| `MeasureRenderedView` | `MeasureRenderedView(renderedView string) (width, height int)` | Measure ANSI-aware width and line count of a rendered string |
+| `CenterModal` | `CenterModal(renderedView string, screenW, screenH int) (width, height, row, col int)` | Measure and center in one call (shifts up 1 row for visual balance) |
+
+### Display Helpers
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `RenderAlignedLine` | `RenderAlignedLine(text string, style lipgloss.Style, width int, align lipgloss.Position) string` | Render styled text with horizontal alignment within a width |
+| `RenderCenteredLine` | `RenderCenteredLine(text string, style lipgloss.Style, width int) string` | Convenience wrapper for center-aligned rendering |
+| `ApplyBoxBorder` | `ApplyBoxBorder(borderStyle lipgloss.Style, content string) string` | Apply a border with `Padding(1, 2)` to content |
+
+## Known Limitations
+
+<Aside type="caution">
+- `MeasureRenderedView` counts ANSI-aware character widths but does not account for terminal-specific font rendering differences.
+</Aside>
+
+## Related
+
+- [Confirmation Modal](/go-tealeaves/components/confirmation-modal/) — Modal dialogs that use positioning utilities
+- [Dropdown](/go-tealeaves/components/dropdown/) — Dropdown component with overlay positioning
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — The rendering technique for overlays

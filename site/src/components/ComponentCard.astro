@@ -5,15 +5,17 @@ interface Props {
   label: string;
   href: string;
   description: string;
+  type?: string;
 }
 
-const { icon, name, label, href, description } = Astro.props;
+const { icon, name, label, href, description, type } = Astro.props;
 ---
 
 <a class="comp-card" href={href}>
   <img class="comp-card-icon" src={icon} alt="" width="40" height="40" loading="lazy" />
   <div class="comp-card-body">
     <span class="comp-card-name">{name}</span>
+    {type && <span class="comp-card-type">{type}</span>}
     <span class="comp-card-label">{label} Component</span>
     <span class="comp-card-desc">{description}</span>
   </div>
@@ -62,6 +64,12 @@ const { icon, name, label, href, description } = Astro.props;
     font-size: 1.2rem;
     color: #fff;
     line-height: 1.2;
+  }
+  .comp-card-type {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.82rem;
+    color: #94a3b8;
+    letter-spacing: 0.01em;
   }
   .comp-card-label {
     font-size: 0.95rem;

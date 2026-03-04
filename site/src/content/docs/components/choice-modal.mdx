@@ -1,0 +1,103 @@
+---
+title: "Choice Modal"
+description: Multi-option selection dialog with hotkey support and horizontal or vertical layout.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teamodal` · **Type:** `ChoiceModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+
+Multi-option selection dialog with hotkey support and configurable horizontal or vertical layout. Each option can have a label, hotkey character, and string ID. Hotkeys trigger selection immediately without needing Tab + Enter.
+
+## Quick Example
+
+```go
+modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
+    Title:   "How should we proceed?",
+    Message: "There are unsaved changes in 3 files.",
+    Options: []teamodal.ChoiceOption{
+        {Label: "Save & Exit", Hotkey: 's', ID: "save"},
+        {Label: "Discard",     Hotkey: 'd', ID: "discard"},
+        {Label: "Continue",    Hotkey: 'c', ID: "continue"},
+    },
+    DefaultIndex: 0,
+    Orientation:  teamodal.Horizontal,
+})
+
+// Open it
+m.modal, cmd = m.modal.Open()
+
+// In View()
+if m.modal.IsOpen() {
+    return m.modal.OverlayModal(backgroundView)
+}
+
+// Handle responses
+case teamodal.ChoiceSelectedMsg:
+    selectedID := msg.OptionID
+    selectedIndex := msg.Index
+case teamodal.ChoiceCancelledMsg:
+    // User pressed Esc
+```
+
+## Features
+
+- Horizontal or vertical option layout (`teamodal.Horizontal` / `teamodal.Vertical`)
+- Hotkey-driven selection (case-insensitive) — single keypress selects immediately
+- Tab/Arrow key navigation between options
+- ANSI-aware overlay compositing via `OverlayModal()`
+- Custom styling for title, message, buttons, border, and focus states
+- Non-nil `tea.Cmd` message consumption signal (see [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/))
+- Auto-centering on screen based on `SetSize()` dimensions
+
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewChoiceModel` | `NewChoiceModel(args *ChoiceModelArgs) ChoiceModel` | Create a multi-option choice dialog |
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `ChoiceModel` | Multi-option choice dialog with hotkeys |
+| `ChoiceOption` | Option with `Label`, `Hotkey` (rune), and `ID` (string) fields |
+| `ChoiceModelArgs` | Configuration: `Title`, `Message`, `Options`, `DefaultIndex`, `Orientation` |
+
+### Messages
+
+| Message | When sent |
+|---------|-----------|
+| `ChoiceSelectedMsg` | Choice option selected — contains `Index` and `OptionID` |
+| `ChoiceCancelledMsg` | Choice modal cancelled with Esc |
+
+## Configuration
+
+`ChoiceModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration.
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Right` / `Down` | Next option |
+| `Shift+Tab` / `Left` / `Up` | Previous option |
+| `Enter` | Select focused option |
+| Hotkey (e.g. `s`, `d`) | Select option directly |
+| `Esc` | Cancel |
+
+## Known Limitations
+
+<Aside type="caution">
+- Modal width is determined by content — there is no explicit width control.
+- Requires screen size to be set via `SetSize()` for correct centering.
+- Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
+</Aside>
+
+## Related
+
+- [Confirmation Modal](/go-tealeaves/components/confirmation-modal/) — Simple Yes/No and OK dialogs
+- [List Modal](/go-tealeaves/components/list-modal/) — Editable list dialog
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How overlays render on top of styled content

@@ -1,0 +1,135 @@
+---
+title: "Confirmation Modal"
+description: Yes/No and OK confirmation dialogs with ANSI-aware overlay rendering, button focus, and mouse support.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teamodal` · **Type:** `ModalModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+
+Binary Yes/No and single-button OK dialogs for confirmations and alerts. Renders as a centered overlay on top of your application content using ANSI-aware compositing. Supports keyboard and mouse interaction, custom button labels, and styled borders.
+
+## Quick Example
+
+```go
+// Create a Yes/No confirmation
+modal := teamodal.NewYesNoModal("Save changes before exiting?", &teamodal.ModelArgs{
+    Title:      "Unsaved Changes",
+    DefaultYes: true,
+    YesLabel:   "Save",
+    NoLabel:    "Discard",
+})
+
+// Open it
+m.modal, cmd = m.modal.Open()
+
+// In View() — overlay on background
+if m.modal.IsOpen() {
+    return m.modal.OverlayModal(backgroundView)
+}
+
+// Handle responses
+case teamodal.AnsweredYesMsg:
+    // User confirmed
+case teamodal.AnsweredNoMsg:
+    // User cancelled
+```
+
+### OK Modal
+
+Single-button acknowledgment dialog:
+
+```go
+modal := teamodal.NewOKModal("Operation completed successfully.", &teamodal.ModelArgs{
+    Title:   "Done",
+    OKLabel: "Got it",
+})
+```
+
+Sends `ClosedMsg` when the user presses Enter or Esc.
+
+## Features
+
+- ANSI-aware overlay compositing via `OverlayModal()`
+- Button focus with Tab/Shift+Tab and arrow keys
+- Mouse click support for buttons (requires `tea.WithMouseCellMotion()`)
+- Custom styling for title, message, buttons, border, and focus states
+- Non-nil `tea.Cmd` message consumption signal (see [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/))
+- Multiline message support with `\n`
+- Auto-centering on screen based on `SetSize()` dimensions
+
+## API Reference
+
+### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewYesNoModal` | `NewYesNoModal(message string, args *ModelArgs) ModalModel` | Create a Yes/No confirmation dialog |
+| `NewOKModal` | `NewOKModal(message string, args *ModelArgs) ModalModel` | Create an OK acknowledgment dialog |
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `ModalModel` | Yes/No and OK dialogs — implements `tea.Model` |
+| `ModelArgs` | Configuration: `Title`, `DefaultYes`, `YesLabel`, `NoLabel`, `OKLabel`, style fields |
+
+### Messages
+
+| Message | When sent |
+|---------|-----------|
+| `AnsweredYesMsg` | User selects Yes button |
+| `AnsweredNoMsg` | User selects No button (or presses Esc on Yes/No modal) |
+| `ClosedMsg` | OK dialog closed (Enter or Esc) |
+
+## Configuration
+
+```go
+modal := teamodal.NewYesNoModal("message", &teamodal.ModelArgs{
+    Title:              "Title",
+    DefaultYes:         true,
+    YesLabel:           "Confirm",
+    NoLabel:            "Cancel",
+    TitleStyle:         lipgloss.NewStyle().Bold(true),
+    MessageStyle:       lipgloss.NewStyle(),
+    ButtonStyle:        lipgloss.NewStyle(),
+    FocusedButtonStyle: lipgloss.NewStyle().Bold(true),
+    BorderStyle:        lipgloss.NewStyle(),
+})
+
+// Wither methods for post-construction updates
+modal = modal.
+    WithTitle("New Title").
+    WithMessage("New message").
+    WithTextAlign(lipgloss.Left).
+    SetSize(width, height)
+```
+
+Uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration.
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Tab` / `Shift+Tab` | Switch button focus |
+| `Left` / `Right` | Switch button focus |
+| `Enter` | Activate focused button |
+| `Esc` | Cancel (same as No) |
+
+## Known Limitations
+
+<Aside type="caution">
+- Modal width is determined by content — there is no explicit width control.
+- Requires screen size to be set via `SetSize()` for correct centering. Call it on `tea.WindowSizeMsg`.
+- Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
+- The `OverlayModal()` function assumes the background view fills the full screen.
+</Aside>
+
+## Related
+
+- [Choice Modal](/go-tealeaves/components/choice-modal/) — Multi-option selection dialog
+- [List Modal](/go-tealeaves/components/list-modal/) — Editable list dialog
+- [Progress Modal](/go-tealeaves/components/progress-modal/) — Progress indicator dialog
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How `OverlayModal()` renders on top of styled content
+- [Wither Methods](/go-tealeaves/guides/wither-methods/) — The immutable update pattern used by `With*()` methods

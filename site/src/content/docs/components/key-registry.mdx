@@ -1,0 +1,146 @@
+---
+title: "Key Registry"
+description: Centralized key binding management with namespace validation, category grouping, help modal integration, and status bar support.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teautils` · **Type:** `KeyRegistry` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teautils`
+
+Centralized registry for key bindings with namespace validation, category grouping, and integration with help modals and status bars. Eliminates scattered key binding definitions and keeps help text, status bar labels, and bindings in sync.
+
+## Quick Example
+
+```go
+registry := teautils.NewKeyRegistry()
+
+registry.MustRegisterMany([]teautils.KeyMeta{
+    {
+        ID:        teautils.MustParseKeyIdentifier("nav.up"),
+        Binding:   key.NewBinding(key.WithKeys("up", "k"), key.WithHelp("up/k", "Move up")),
+        HelpModal: true,
+        Category:  "Navigation",
+        HelpText:  "Move cursor up one line",
+    },
+    {
+        ID:             teautils.MustParseKeyIdentifier("sys.quit"),
+        Binding:        key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit")),
+        StatusBar:      true,
+        StatusBarLabel: "Quit",
+        HelpModal:      true,
+        Category:       "System",
+        HelpText:       "Quit the application",
+    },
+})
+```
+
+## Features
+
+- Centralized key binding storage with metadata
+- Dot-separated namespace validation (e.g., `nav.up`, `action.delete`, `sys.quit`)
+- Category grouping for organized help display
+- Status bar integration — filter keys marked for status bar display
+- Help modal integration — filter keys marked for help modal display
+- Key display formatting utilities
+
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewKeyRegistry` | `NewKeyRegistry() *KeyRegistry` | Create a new empty registry |
+
+### Registry Methods
+
+| Method | Description |
+|--------|-------------|
+| `Register(meta KeyMeta) error` | Add or update a key binding with metadata |
+| `MustRegister(meta KeyMeta)` | Like `Register` but panics on error |
+| `RegisterMany(metas []KeyMeta) error` | Add multiple key bindings (fails on first error) |
+| `MustRegisterMany(metas []KeyMeta)` | Like `RegisterMany` but panics on error |
+| `Get(id KeyIdentifier) (*KeyMeta, error)` | Retrieve a key by its identifier |
+| `Clear()` | Remove all keys (useful when switching views) |
+| `ForStatusBar() []KeyMeta` | Get keys marked for status bar display, in registration order |
+| `ForHelpModal() []KeyMeta` | Get keys marked for help modal display |
+| `ByCategory() map[string][]KeyMeta` | Get keys grouped by category |
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `KeyRegistry` | Centralized registry for key bindings and display metadata |
+| `KeyMeta` | Key binding metadata: `ID`, `Binding`, `Category`, `HelpText`, `StatusBar`, `StatusBarLabel`, `HelpModal`, `DisplayKeys` |
+| `KeyIdentifier` | Dot-separated namespace string (e.g., `"nav.up"`, `"action.delete"`) |
+
+### Key Identifier Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `ParseKeyIdentifier` | `ParseKeyIdentifier(s string) (KeyIdentifier, error)` | Validate and create a `KeyIdentifier` from a string |
+| `MustParseKeyIdentifier` | `MustParseKeyIdentifier(s string) KeyIdentifier` | Like `ParseKeyIdentifier` but panics on error |
+
+### Display Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `FormatKeyDisplay` | `FormatKeyDisplay(k KeyMeta) string` | Format key bindings as `[Key1]/[Key2]` display strings |
+| `ProperCaseShortcut` | `ProperCaseShortcut(s string) string` | Title-case each part of a shortcut: `ctrl+c` becomes `Ctrl+C` |
+| `GetSortedCategories` | `GetSortedCategories(keysByCategory map[string][]KeyMeta, preferredOrder []string) []string` | Sort categories by preferred order, then alphabetically |
+
+## Namespace Validation
+
+Key identifiers use dot-separated namespaces. The parser validates format at registration time:
+
+```go
+// Valid identifiers
+teautils.MustParseKeyIdentifier("nav.up")
+teautils.MustParseKeyIdentifier("action.delete")
+teautils.MustParseKeyIdentifier("sys.help")
+
+// Invalid — panics at registration
+teautils.MustParseKeyIdentifier("")           // empty
+teautils.MustParseKeyIdentifier("up")         // no namespace
+teautils.MustParseKeyIdentifier("nav.")       // trailing dot
+```
+
+## Integration with Status Bar
+
+The registry produces `teastatus.MenuItem` values for the status bar:
+
+```go
+statusKeys := registry.ForStatusBar()
+menuItems := make([]teastatus.MenuItem, len(statusKeys))
+for i, km := range statusKeys {
+    menuItems[i] = teastatus.NewMenuItemFromBinding(
+        km.Binding,
+        km.StatusBarLabel,
+    )
+}
+sb := teastatus.NewStatusBarModel().SetMenuItems(menuItems)
+```
+
+## KeyMeta Fields
+
+| Field | Type | Purpose |
+|-------|------|---------|
+| `ID` | `KeyIdentifier` | Namespaced identifier (e.g., `nav.up`) |
+| `Binding` | `key.Binding` | Charm key binding with keys and help text |
+| `Category` | `string` | Grouping for help display |
+| `HelpText` | `string` | Detailed description for help modal |
+| `HelpModal` | `bool` | Include in help modal listing |
+| `StatusBar` | `bool` | Include in status bar |
+| `StatusBarLabel` | `string` | Short label for status bar display |
+| `DisplayKeys` | `string` | Override display (e.g., "Ctrl+C" instead of "ctrl+c") |
+
+## Known Limitations
+
+<Aside type="caution">
+- `KeyIdentifier` validation requires dot-separated namespace format (e.g., `"nav.up"`). Single-segment identifiers like `"quit"` are rejected — use `"sys.quit"` instead.
+</Aside>
+
+## Related
+
+- [Status Bar](/go-tealeaves/components/status-bar/) — Status bar component that consumes `ForStatusBar()` output
+- [Help Visor](/go-tealeaves/components/help-visor/) — Help overlay that displays categorized key bindings
+- [Composing Components](/go-tealeaves/guides/composition/) — Using components together

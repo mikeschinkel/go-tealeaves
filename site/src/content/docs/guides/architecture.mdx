@@ -84,13 +84,13 @@ m.modal = m.modal.SetSize(width, height)
 m.dropdown = m.dropdown.WithMaxItems(10)
 ```
 
-See [Wither pattern](/patterns/wither-pattern/) for a detailed explanation.
+See [Wither Methods](/go-tealeaves/guides/wither-methods/) for a detailed explanation.
 
 ### tea.Cmd message consumption
 
 When a child component returns a non-nil `tea.Cmd` from its `Update()` method, that signals the message has been consumed. The parent should stop processing the message and return immediately. This convention prevents multiple components from acting on the same keypress or event.
 
-See [Modal message consumption](/patterns/modal-consumption/) for the full pattern.
+See [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) for the full pattern.
 
 ## Communication contract
 

@@ -204,7 +204,7 @@ if cmd != nil {
 }
 ```
 
-See [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) for the full rationale.
+See [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) for the full rationale.
 
 ### Overlay positioning
 
@@ -221,7 +221,7 @@ return teadrpdwn.OverlayDropdown(
 
 The dropdown automatically decides whether to open above or below the field based on available terminal space. The `DisplayAbove` field tells you which direction it chose, so you can adjust the field indicator accordingly.
 
-See [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) for details on how ANSI-aware string operations make this work correctly with styled text.
+See [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) for details on how ANSI-aware string operations make this work correctly with styled text.
 
 ### Field position
 
@@ -233,6 +233,6 @@ When your layout is dynamic (e.g., the form content changes height), calculate t
 
 ## Related
 
-- [teadrpdwn component](/go-tealeaves/components/teadrpdwn/) -- Full API reference
-- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) -- The consumption pattern used here
-- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) -- How `OverlayDropdown()` works
+- [Dropdown component](/go-tealeaves/components/dropdown/) -- Full API reference
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) -- The consumption pattern used here
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) -- How `OverlayDropdown()` works

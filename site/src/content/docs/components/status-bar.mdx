@@ -1,9 +1,11 @@
 ---
-title: "teastatus — Status Bar"
+title: "Status Bar"
 description: Two-zone status bar with key-action menu items on the left and text indicators on the right.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teastatus` · **Type:** `Model` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teastatus`
 
 Status bars with key menus on the left and indicators on the right require manual layout calculations -- measuring ANSI-aware string widths, computing gap sizes, and formatting key labels with consistent styling. `teastatus` provides a two-zone status bar that handles all of this in a single component: set your menu items and indicators, give it a width, and it renders the bar.
 
@@ -122,10 +124,10 @@ indicators := []teastatus.StatusIndicator{
 <Aside type="caution">
 - Single-line only -- there is no multi-line status bar support.
 - When the combined width of menu items and indicators exceeds the terminal width, the right-side indicators are dropped.
-- The bar does not handle its own key input -- it is purely a display component. Use it with [teautils KeyRegistry](/go-tealeaves/patterns/key-registry/) to generate menu items from registered bindings.
+- The bar does not handle its own key input -- it is purely a display component. Use it with the [Key Registry](/go-tealeaves/components/key-registry/) to generate menu items from registered bindings.
 </Aside>
 
 ## Related
 
-- [Key Registry](/go-tealeaves/patterns/key-registry/) -- Centralized key binding management that produces `MenuItem` values for teastatus
-- [teautils](/go-tealeaves/components/teautils/) -- Shared utilities including `FormatKeyDisplay()` for key label formatting
+- [Key Registry](/go-tealeaves/components/key-registry/) -- Centralized key binding management that produces `MenuItem` values for the status bar
+- [Positioning](/go-tealeaves/components/positioning/) -- Shared utilities including `FormatKeyDisplay()` for key label formatting

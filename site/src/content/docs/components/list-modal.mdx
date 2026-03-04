@@ -1,0 +1,113 @@
+---
+title: "List Modal"
+description: Generic editable list dialog with cursor navigation, inline editing, and CRUD operations.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teamodal` · **Type:** `ListModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+
+Generic editable list dialog with cursor navigation, inline editing, and CRUD operations. The type parameter `T` must implement the `ListItem` interface (`ID()`, `Label()`, `IsActive()`). Includes a built-in help visor toggled with `?`.
+
+## Quick Example
+
+```go
+modal := teamodal.NewListModel[MyItem](items, &teamodal.ListModelArgs{
+    Title:      "Select a Profile",
+    MaxVisible: 8,
+    LabelWidth: 20,
+})
+
+// Open it
+m.modal, cmd = m.modal.Open()
+
+// In View()
+if m.modal.IsOpen() {
+    return m.modal.OverlayModal(backgroundView)
+}
+
+// Handle responses
+case teamodal.ItemSelectedMsg[MyItem]:
+    // Space pressed — preview-select without closing
+case teamodal.ListAcceptedMsg[MyItem]:
+    // Enter pressed — accept selection and close
+case teamodal.ListCancelledMsg:
+    // Esc pressed — close without selection
+case teamodal.NewItemRequestedMsg:
+    // 'a' pressed — request new item creation
+case teamodal.DeleteItemRequestedMsg[MyItem]:
+    // 'd' pressed — contains Item to delete
+case teamodal.EditCompletedMsg[MyItem]:
+    // Inline edit completed — contains Item and NewLabel
+```
+
+## Features
+
+- Generic `ListModel[T]` with type-safe item handling
+- Inline editing with overwrite-on-first-keystroke behavior
+- Scrollable list viewport with scrollbar indicator
+- Built-in help visor overlay for discoverability (toggle with `?`)
+- CRUD operations: add (`a`), edit (`e`/`F2`), delete (`d`)
+- ANSI-aware overlay compositing via `OverlayModal()`
+- Non-nil `tea.Cmd` message consumption signal (see [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/))
+- Auto-centering on screen based on `SetSize()` dimensions
+
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewListModel` | `NewListModel[T ListItem](items []T, args *ListModelArgs) ListModel[T]` | Create an editable list dialog |
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `ListModel[T]` | Generic editable list dialog — `T` must implement `ListItem` |
+| `ListItem` | Interface: `ID() string`, `Label() string`, `IsActive() bool` |
+| `ListModelArgs` | Configuration: `Title`, `MaxVisible`, `LabelWidth` |
+
+### Messages
+
+| Message | When sent |
+|---------|-----------|
+| `ItemSelectedMsg[T]` | Space pressed in list — preview-select without closing |
+| `ListAcceptedMsg[T]` | Enter pressed in list — accept selection and close |
+| `ListCancelledMsg` | Esc pressed in list — close without selection |
+| `NewItemRequestedMsg` | `a` pressed in list — request new item creation |
+| `DeleteItemRequestedMsg[T]` | `d` pressed in list — contains `Item` to delete |
+| `EditCompletedMsg[T]` | Inline edit completed — contains `Item` and `NewLabel` |
+
+## Configuration
+
+`ListModel` provides both wither methods and setter methods (`SetSize`, `SetItems`, `SetTitle`, etc.).
+
+## Keyboard Shortcuts
+
+| Key | Action |
+|-----|--------|
+| `Up` / `k` | Move cursor up |
+| `Down` / `j` | Move cursor down |
+| `Space` | Preview-select (mark active, stay open) |
+| `Enter` | Accept selection and close |
+| `a` | Add new item |
+| `e` / `F2` | Edit item inline |
+| `d` | Delete item |
+| `?` | Toggle help visor |
+| `Esc` | Cancel and close |
+
+## Known Limitations
+
+<Aside type="caution">
+- Modal width is determined by content — there is no explicit width control.
+- Requires screen size to be set via `SetSize()` for correct centering.
+- Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
+</Aside>
+
+## Related
+
+- [Confirmation Modal](/go-tealeaves/components/confirmation-modal/) — Simple Yes/No and OK dialogs
+- [Choice Modal](/go-tealeaves/components/choice-modal/) — Multi-option selection dialog
+- [Help Visor](/go-tealeaves/components/help-visor/) — The help overlay used by list modals
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern

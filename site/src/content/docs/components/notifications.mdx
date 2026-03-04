@@ -1,9 +1,11 @@
 ---
-title: "teanotify — Notifications"
+title: "Notifications"
 description: Toast-style notification component with auto-dismiss, color fade animation, and 6 configurable screen positions.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teanotify` · **Type:** `NotifyModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teanotify`
 
 Toast/notification UIs in the terminal require overlay rendering, timed auto-dismiss, and multiple positioning options. Building this from scratch for each project is wasteful. `teanotify` provides a ready-made notification component that handles all of these concerns, letting you focus on your application logic.
 
@@ -57,7 +59,7 @@ return m.notify.Render(fullContent)
 
 ## Configuration
 
-Configure the notification using `With*()` wither methods. These return the updated model rather than mutating in place (see [Wither Methods](/go-tealeaves/patterns/wither-methods/)).
+Configure the notification using `With*()` wither methods. These return the updated model rather than mutating in place (see [Wither Methods](/go-tealeaves/guides/wither-methods/)).
 
 - **`WithPosition(pos Position)`** — Change position at runtime.
 - **`WithMinWidth(w int)`** — Set minimum notification width.
@@ -95,5 +97,5 @@ Configure the notification using `With*()` wither methods. These return the upda
 
 ## Related
 
-- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — The rendering technique used by `teanotify` to place notifications on top of terminal content.
-- [teastatus](/go-tealeaves/components/teastatus/) — Status bar component for persistent indicators alongside transient notifications.
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — The rendering technique used by notifications to place content on top of terminal output.
+- [Status Bar](/go-tealeaves/components/status-bar/) — Status bar component for persistent indicators alongside transient notifications.

@@ -1,11 +1,13 @@
 ---
-title: "teadrpdwn — Dropdown"
+title: "Dropdown"
 description: Dropdown selection component with intelligent above/below positioning based on available terminal space.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
-Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teadrpdwn` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern.
+> **Module:** `teadrpdwn` · **Type:** `DropdownModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teadrpdwn`
+
+Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teadrpdwn` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) pattern.
 
 ## Install
 
@@ -44,7 +46,7 @@ func main() {
 - ANSI-aware overlay compositing via `OverlayDropdown()`
 - Keyboard navigation (up/down/enter/esc)
 - Scrollable option list when items exceed visible area
-- Non-nil `tea.Cmd` consumption signal (see [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) pattern)
+- Non-nil `tea.Cmd` consumption signal (see [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) pattern)
 - Configurable border and item styles
 - Terminal size auto-detection
 
@@ -71,7 +73,7 @@ func main() {
 
 ## Configuration
 
-`DropdownModel` uses the [Wither Methods](/go-tealeaves/patterns/wither-methods/) pattern for configuration:
+`DropdownModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration:
 
 ```go
 m.dropdown = m.dropdown.
@@ -110,7 +112,7 @@ m.dropdown = m.dropdown.
 
 ## Related
 
-- [Modal Message Consumption](/go-tealeaves/patterns/modal-consumption/) — The non-nil `tea.Cmd` pattern used by teadrpdwn
-- [Overlay Compositing](/go-tealeaves/patterns/overlay-compositing/) — How `OverlayDropdown()` renders on top of styled content
-- [Wither Methods](/go-tealeaves/patterns/wither-methods/) — The immutable update pattern used by `With*()` methods
-- [teamodal](/go-tealeaves/components/teamodal/) — Modal dialogs that use the same consumption and overlay patterns
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` pattern used by the dropdown
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How `OverlayDropdown()` renders on top of styled content
+- [Wither Methods](/go-tealeaves/guides/wither-methods/) — The immutable update pattern used by `With*()` methods
+- [Confirmation Modal](/go-tealeaves/components/confirmation-modal/) — Modal dialogs that use the same consumption and overlay patterns

@@ -1,9 +1,11 @@
 ---
-title: "teatxtsnip — Text Selection"
+title: "Text Selection"
 description: Text area component with Shift+Arrow selection, clipboard operations (Ctrl+C/X/V), and line number display.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teatxtsnip` · **Type:** `Model` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatxtsnip`
 
 Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatxtsnip` wraps the standard textarea with all of this functionality.
 
@@ -162,5 +164,5 @@ Using Ctrl+C for copy requires `tea.WithoutSignalHandler()` on your `tea.Program
 
 ## Related
 
-- [teadrpdwn](/go-tealeaves/components/teadrpdwn/) — Dropdown component for option selection
-- [teamodal](/go-tealeaves/components/teamodal/) — Modal dialogs including list modals with inline editing
+- [Dropdown](/go-tealeaves/components/dropdown/) — Dropdown component for option selection
+- [Confirmation Modal](/go-tealeaves/components/confirmation-modal/) — Modal dialogs including list modals with inline editing

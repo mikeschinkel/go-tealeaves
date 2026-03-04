@@ -30,32 +30,50 @@ export default defineConfig({
 						{ label: 'Quick Start', slug: 'guides/quick-start' },
 						{ label: 'Architecture', slug: 'guides/architecture' },
 						{ label: 'Composing Components', slug: 'guides/composition' },
+						{ label: 'Modal Message Consumption', slug: 'guides/modal-consumption' },
+						{ label: 'Wither Methods', slug: 'guides/wither-methods' },
 					],
 				},
 				{
 					label: 'Components',
 					items: [
 						{ label: 'Overview', slug: 'components' },
-						{ label: 'teadrpdwn — Dropdown', slug: 'components/teadrpdwn' },
-						{ label: 'teagrid — Data Grid', slug: 'components/teagrid' },
-						{ label: 'teamodal — Modals', slug: 'components/teamodal' },
-						{ label: 'teanotify — Notifications', slug: 'components/teanotify' },
-						{ label: 'teatree — Tree View', slug: 'components/teatree' },
-						{ label: 'teatxtsnip — Text Snippets', slug: 'components/teatxtsnip' },
-						{ label: 'teastatus — Status Bar', slug: 'components/teastatus' },
-						{ label: 'teadepview — Dep Viewer', slug: 'components/teadepview' },
-						{ label: 'teadiffr — Diff Renderer', slug: 'components/teadiffr' },
-						{ label: 'teautils — Utilities', slug: 'components/teautils' },
-					],
-				},
-				{
-					label: 'Patterns',
-					items: [
-						{ label: 'Modal Message Consumption', slug: 'patterns/modal-consumption' },
-						{ label: 'Overlay Compositing', slug: 'patterns/overlay-compositing' },
-						{ label: 'Wither Methods', slug: 'patterns/wither-methods' },
-						{ label: 'Key Registry', slug: 'patterns/key-registry' },
-						{ label: 'Theming', slug: 'patterns/theming' },
+						{
+							label: 'Dialogs',
+							items: [
+								{ label: 'Confirmation Modal', slug: 'components/confirmation-modal' },
+								{ label: 'Choice Modal', slug: 'components/choice-modal' },
+								{ label: 'List Modal', slug: 'components/list-modal' },
+								{ label: 'Progress Modal', slug: 'components/progress-modal' },
+								{ label: 'Dropdown', slug: 'components/dropdown' },
+							],
+						},
+						{
+							label: 'Views',
+							items: [
+								{ label: 'Data Grid', slug: 'components/data-grid' },
+								{ label: 'Tree View', slug: 'components/tree-view' },
+								{ label: 'Diff Renderer', slug: 'components/diff-renderer' },
+								{ label: 'Dep Viewer', slug: 'components/dep-viewer' },
+							],
+						},
+						{
+							label: 'App Chrome',
+							items: [
+								{ label: 'Status Bar', slug: 'components/status-bar' },
+								{ label: 'Notifications', slug: 'components/notifications' },
+								{ label: 'Help Visor', slug: 'components/help-visor' },
+							],
+						},
+						{
+							label: 'Utilities',
+							items: [
+								{ label: 'Key Registry', slug: 'components/key-registry' },
+								{ label: 'Theming', slug: 'components/theming' },
+								{ label: 'Positioning', slug: 'components/positioning' },
+								{ label: 'Text Selection', slug: 'components/text-selection' },
+							],
+						},
 					],
 				},
 				{
@@ -79,8 +97,9 @@ export default defineConfig({
 					collapsed: true,
 					items: [
 						{ label: 'Best Practices', slug: 'reference/best-practices' },
+						{ label: 'Module Reference', slug: 'reference/modules' },
 						{ label: 'Roadmap', slug: 'reference/roadmap' },
-						{ label: 'Module Structure', slug: 'reference/modules' },
+						{ label: 'Overlay Compositing', slug: 'reference/overlay-compositing' },
 						{ label: 'Charm v2 Migration', slug: 'migration/charm-v2' },
 						{ label: 'Contributing', slug: 'contributing' },
 						{ label: 'Why Tea Leaves?', slug: 'guides/why-tea-leaves' },
