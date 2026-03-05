@@ -205,18 +205,24 @@ main:has(.hero) .sl-markdown-content code:not(pre code) {
 .comp-filter {
 	display: flex;
 	flex-wrap: wrap;
+	align-items: center;
 	gap: 0.5rem;
 	margin-top: 1rem;
 	margin-bottom: 1rem;
 }
 .comp-tab {
-	padding: 0.35rem 1rem;
+	box-sizing: border-box;
+	height: 2rem;
+	padding: 0 1rem;
+	margin: 0;
 	border-radius: 9999px;
 	border: 1px solid #475569;
 	background: transparent;
 	color: #94a3b8;
+	font-family: inherit;
 	font-size: 0.85rem;
 	font-weight: 500;
+	line-height: 1;
 	cursor: pointer;
 	transition: all 0.15s ease;
 }
