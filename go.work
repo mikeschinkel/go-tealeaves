@@ -4,7 +4,6 @@ use (
 	./cmd/color-viewer
 	./examples/teadrpdwn/demo
 	./examples/teadrpdwn/simple
-	./examples/teadepview/treenav
 	./examples/teagrid/filtering
 	./examples/teagrid/scrolling
 	./examples/teagrid/simplest
@@ -20,9 +19,9 @@ use (
 	./examples/teatree/filetree
 	./examples/teautils/keyhelp
 	./teadiffr
+	./teadiffview
 	./teahilite
 	./teadrpdwn
-	./teadepview
 	./teagrid
 	./teamodal
 	./teanotify
