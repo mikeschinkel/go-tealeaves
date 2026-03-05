@@ -5,7 +5,7 @@ description: Text area component with Shift+Arrow selection, clipboard operation
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teatxtsnip` · **Type:** `Model` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatxtsnip`
+> **Module:** `teatxtsnip` · **Type:** `TextSnipModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatxtsnip`
 
 Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatxtsnip` wraps the standard textarea with all of this functionality.
 
@@ -29,7 +29,7 @@ import (
 )
 
 func main() {
-	editor := teatxtsnip.New()
+	editor := teatxtsnip.NewTextSnipModel(nil)
 	editor.SetWidth(60)
 	editor.SetHeight(20)
 	editor.SetValue("Hello, world!\nSelect me with Shift+Arrow keys.")
@@ -42,7 +42,7 @@ func main() {
 	}
 }
 
-type model struct{ editor teatxtsnip.Model }
+type model struct{ editor teatxtsnip.TextSnipModel }
 
 func (m model) Init() tea.Cmd                           { return nil }
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -62,7 +62,7 @@ func (m model) View() string { return m.editor.View() }
 - Ctrl+A select all
 - Ctrl+C copy, Ctrl+X cut, Ctrl+V paste (system clipboard with internal fallback)
 - Selection highlighting with configurable `SelectionStyle`
-- Single-line mode via `NewSingleLine()` for input fields with clipboard support
+- Single-line mode via `NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})` for input fields with clipboard support
 - Wraps `charmbracelet/bubbles/textarea.Model` — all standard textarea features remain available
 - Customizable key bindings via `SelectionKeyMap`
 
@@ -72,15 +72,13 @@ func (m model) View() string { return m.editor.View() }
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `New` | `New() Model` | Create a textarea with selection and clipboard support |
-| `NewSingleLine` | `NewSingleLine() Model` | Create a single-line input with clipboard support (alternative to `textinput.Model`) |
-| `NewFromTextarea` | `NewFromTextarea(ta textarea.Model) Model` | Wrap an existing `textarea.Model` with selection support |
+| `NewTextSnipModel` | `NewTextSnipModel(args *TextSnipModelArgs) TextSnipModel` | Create a textarea with selection and clipboard support |
 
 ### Key types
 
 | Type | Description |
 |------|-------------|
-| `Model` | Main component — embeds `textarea.Model` with selection and clipboard |
+| `TextSnipModel` | Main component — embeds `textarea.Model` with selection and clipboard |
 | `Selection` | Selection state with `Active` bool and `Start`/`End` positions |
 | `Position` | Cursor position with `Row` and `Col` int fields |
 | `SelectionKeyMap` | Key bindings for all selection and clipboard operations |
@@ -92,21 +90,21 @@ func (m model) View() string { return m.editor.View() }
 | `Selection() Selection` | Get the current selection state |
 | `HasSelection() bool` | Check if there is an active non-empty selection |
 | `SelectedText() string` | Get the currently selected text |
-| `SetSelection(sel Selection) Model` | Set selection state (for save/restore between contexts) |
-| `ClearSelection() Model` | Clear the current selection |
-| `Copy() Model` | Copy selected text to clipboard |
-| `Cut() Model` | Copy selected text to clipboard and delete it |
-| `Paste() (Model, tea.Cmd)` | Insert clipboard text, replacing any selection |
+| `SetSelection(sel Selection) TextSnipModel` | Set selection state (for save/restore between contexts) |
+| `ClearSelection() TextSnipModel` | Clear the current selection |
+| `Copy() TextSnipModel` | Copy selected text to clipboard |
+| `Cut() TextSnipModel` | Copy selected text to clipboard and delete it |
+| `Paste() (TextSnipModel, tea.Cmd)` | Insert clipboard text, replacing any selection |
 | `IsSingleLine() bool` | Check if this is a single-line input |
 
 ### Configuration
 
 | Method | Description |
 |--------|-------------|
-| `SetSelectionKeyMap(km SelectionKeyMap) Model` | Replace the selection key bindings |
-| `SetLogger(logger *slog.Logger) Model` | Set an optional logger for debugging |
+| `SetSelectionKeyMap(km SelectionKeyMap) TextSnipModel` | Replace the selection key bindings |
+| `SetLogger(logger *slog.Logger) TextSnipModel` | Set an optional logger for debugging |
 
-Since `Model` embeds `textarea.Model`, all standard textarea methods are available: `SetWidth()`, `SetHeight()`, `SetValue()`, `Value()`, `Focus()`, `Blur()`, `ShowLineNumbers`, and so on.
+Since `TextSnipModel` embeds `textarea.Model`, all standard textarea methods are available: `SetWidth()`, `SetHeight()`, `SetValue()`, `Value()`, `Focus()`, `Blur()`, `ShowLineNumbers`, and so on.
 
 ## Keyboard shortcuts
 

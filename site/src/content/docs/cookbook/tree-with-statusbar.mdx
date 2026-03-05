@@ -44,8 +44,8 @@ const headerLines = 3
 const statusBarLines = 1
 
 type model struct {
-    tree      teatree.Model[teatree.File]
-    statusBar teastatus.Model
+    tree      teatree.TreeModel[teatree.File]
+    statusBar teastatus.StatusBarModel
     width     int
     height    int
 }

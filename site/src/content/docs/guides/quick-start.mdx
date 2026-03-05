@@ -48,7 +48,7 @@ Before you begin, make sure you have:
    )
 
    type model struct {
-       modal    teamodal.ModalModel
+       modal    teamodal.ConfirmModel
        result   string
        width    int
        height   int
@@ -57,7 +57,7 @@ Before you begin, make sure you have:
    func main() {
        modal := teamodal.NewYesNoModal(
            "Would you like to continue?",
-           &teamodal.ModelArgs{Title: "Quick Start"},
+           &teamodal.ConfirmModelArgs{Title: "Quick Start"},
        )
        m := model{modal: modal}
        p := tea.NewProgram(m, tea.WithAltScreen())
@@ -75,7 +75,7 @@ Before you begin, make sure you have:
 
        modal, cmd = m.modal.Update(msg)
        if cmd != nil {
-           m.modal = modal.(teamodal.ModalModel)
+           m.modal = modal.(teamodal.ConfirmModel)
            return m, cmd
        }
 

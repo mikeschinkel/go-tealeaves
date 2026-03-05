@@ -5,7 +5,7 @@ description: Two-zone status bar with key-action menu items on the left and text
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teastatus` · **Type:** `Model` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teastatus`
+> **Module:** `teastatus` · **Type:** `StatusBarModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teastatus`
 
 Status bars with key menus on the left and indicators on the right require manual layout calculations -- measuring ANSI-aware string widths, computing gap sizes, and formatting key labels with consistent styling. `teastatus` provides a two-zone status bar that handles all of this in a single component: set your menu items and indicators, give it a width, and it renders the bar.
 
@@ -54,7 +54,7 @@ return contentView + "\n" + sb.View()
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NewStatusBarModel` | `NewStatusBarModel() Model` | Create a status bar with default styles |
+| `NewStatusBarModel` | `NewStatusBarModel() StatusBarModel` | Create a status bar with default styles |
 | `NewStatusIndicator` | `NewStatusIndicator(text string) StatusIndicator` | Create an indicator with text |
 | `NewMenuItemFromBinding` | `NewMenuItemFromBinding(binding key.Binding, label string) MenuItem` | Create a menu item from a Charm key binding |
 | `RenderMenuLine` | `RenderMenuLine(items []MenuItem, styles Styles) string` | Render menu items as a formatted string (useful outside the status bar) |
@@ -63,7 +63,7 @@ return contentView + "\n" + sb.View()
 
 | Type | Description |
 |------|-------------|
-| `Model` | Main status bar component -- implements `tea.Model` |
+| `StatusBarModel` | Main status bar component -- implements `tea.Model` |
 | `MenuItem` | A key-action entry with `Key`, `Label`, and `Binding` fields |
 | `StatusIndicator` | A text indicator with `Text` and optional `Style` override |
 | `Styles` | Complete styling configuration for both zones |
@@ -87,10 +87,10 @@ sb = sb.
 
 | Method | Description |
 |--------|-------------|
-| `SetMenuItems(items []MenuItem) Model` | Replace the left-side menu items |
-| `SetIndicators(indicators []StatusIndicator) Model` | Replace the right-side indicators |
-| `SetSize(width int) Model` | Set the terminal width for gap calculation |
-| `WithStyles(styles Styles) Model` | Override the complete style configuration |
+| `SetMenuItems(items []MenuItem) StatusBarModel` | Replace the left-side menu items |
+| `SetIndicators(indicators []StatusIndicator) StatusBarModel` | Replace the right-side indicators |
+| `SetSize(width int) StatusBarModel` | Set the terminal width for gap calculation |
+| `WithStyles(styles Styles) StatusBarModel` | Override the complete style configuration |
 
 ### Indicator styles
 

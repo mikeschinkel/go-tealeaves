@@ -5,7 +5,7 @@ description: Generic tree view component with expand/collapse, keyboard navigati
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teatree` · **Type:** `Model[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
+> **Module:** `teatree` · **Type:** `TreeModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
 
 File trees, directory browsers, and hierarchical navigation require expand/collapse state, viewport scrolling for large trees, and customizable node rendering. Building these from scratch each time is tedious and error-prone. `teatree` provides a generic tree view component that handles all of this out of the box, with pluggable node providers so you control how each node is rendered.
 
@@ -58,7 +58,7 @@ treeModel := teatree.NewTreeModel(tree, 20)
 
 | Type | Description |
 |------|-------------|
-| `Model[T]` | Main tree component with generic type parameter |
+| `TreeModel[T]` | Main tree component with generic type parameter |
 | `Node[T]` | Tree node carrying generic data of type `T` |
 | `Tree[T]` | Tree data structure holding root nodes |
 | `NodeProvider[T]` | Interface for custom node rendering |

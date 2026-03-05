@@ -148,7 +148,7 @@ m.contextViewport, cmd = m.contextViewport.Update(msg)
 // teamodal returns tea.Model — type assert
 var updated tea.Model
 updated, cmd = m.modal.Update(msg)
-m.modal = updated.(teamodal.ModalModel)
+m.modal = updated.(teamodal.ConfirmModel)
 ```
 
 When unsure, check the component's method signature. The compiler will tell you.

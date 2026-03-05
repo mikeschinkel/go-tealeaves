@@ -5,7 +5,7 @@ description: Interactive dependency path viewer for exploring module dependency 
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teadepview` · **Type:** `PathViewerModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teadepview`
+> **Module:** `teatree` · **Type:** `DrillDownModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
 
 Dependency graphs are complex -- navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `teadepview` provides an interactive path viewer that renders a single root-to-leaf path through a dependency tree, with dropdown selection for choosing alternative dependencies at any level. It integrates `teadrpdwn` internally for the dropdown and uses a configurable `SelectorFunc` to determine the "best" path.
 
@@ -72,7 +72,7 @@ case teadepview.ChangeNodeMsg:
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NewPathViewer` | `NewPathViewer(root *Tree, args PathViewerArgs) PathViewerModel` | Create a path viewer from a tree root |
+| `NewPathViewer` | `NewPathViewer(root *Tree, args PathViewerArgs) DrillDownModel[T]` | Create a path viewer from a tree root |
 | `NewTree` | `NewTree(node Node) *Tree` | Build a `Tree` from a `Node`, recursively creating children |
 | `NewBaseNode` | `NewBaseNode(displayName string, args *BaseNodeArgs) *BaseNode` | Create a basic node implementation |
 
@@ -80,7 +80,7 @@ case teadepview.ChangeNodeMsg:
 
 | Type | Description |
 |------|-------------|
-| `PathViewerModel` | Main component -- implements `tea.Model` |
+| `DrillDownModel[T]` | Main component -- implements `tea.Model` |
 | `Node` | Interface: `DisplayName()`, `SetDisplayName()`, `Dependencies()`, `SetDependencies()` |
 | `BaseNode` | Default `Node` implementation with display name and dependencies |
 | `BaseNodeArgs` | Optional args for `NewBaseNode` (contains `Dependencies []Node`) |
@@ -93,10 +93,10 @@ case teadepview.ChangeNodeMsg:
 
 | Method | Description |
 |--------|-------------|
-| `Initialize() (PathViewerModel, error)` | Validate inputs and build the initial root-to-leaf path |
-| `WithPathStyle(style lipgloss.Style) PathViewerModel` | Set the style for non-selected path items |
-| `WithSelectedStyle(style lipgloss.Style) PathViewerModel` | Set the style for the currently selected level |
-| `WithBorderStyle(style lipgloss.Style) PathViewerModel` | Set the border style around the path viewer |
+| `Initialize() (DrillDownModel[T], error)` | Validate inputs and build the initial root-to-leaf path |
+| `WithPathStyle(style lipgloss.Style) DrillDownModel[T]` | Set the style for non-selected path items |
+| `WithSelectedStyle(style lipgloss.Style) DrillDownModel[T]` | Set the style for the currently selected level |
+| `WithBorderStyle(style lipgloss.Style) DrillDownModel[T]` | Set the border style around the path viewer |
 
 ### Tree methods
 
@@ -150,7 +150,7 @@ The function can capture any context it needs via closure -- metadata maps, conf
 
 <Aside type="caution">
 - `Initialize()` must be called after `NewPathViewer()` before the model can be used. Forgetting this will result in an empty path.
-- The tree structure is immutable after creation via `NewTree()`. To reflect changes in the dependency graph, rebuild the tree and create a new `PathViewerModel`.
+- The tree structure is immutable after creation via `NewTree()`. To reflect changes in the dependency graph, rebuild the tree and create a new `DrillDownModel`.
 - Root nodes have no alternatives (they cannot be swapped).
 </Aside>
 

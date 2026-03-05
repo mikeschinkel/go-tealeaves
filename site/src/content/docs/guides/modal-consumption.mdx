@@ -134,7 +134,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     modal, cmd := m.confirmModal.Update(msg)
     if cmd != nil {
-        m.confirmModal = modal.(teamodal.ModalModel)
+        m.confirmModal = modal.(teamodal.ConfirmModel)
         return m, cmd
     }
 

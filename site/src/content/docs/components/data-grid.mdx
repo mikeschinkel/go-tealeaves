@@ -5,7 +5,7 @@ description: Tabular data display component with sorting, filtering, pagination,
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teagrid` · **Type:** `Model` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teagrid`
+> **Module:** `teagrid` · **Type:** `GridModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teagrid`
 
 Displaying tabular data in the terminal with sorting, filtering, pagination, and row selection requires extensive custom code. `teagrid` provides a ready-made data grid component that handles all of these concerns out of the box, letting you focus on your data rather than table rendering logic.
 
@@ -50,7 +50,7 @@ func main() {
 	}
 }
 
-type model struct{ table teagrid.Model }
+type model struct{ table teagrid.GridModel }
 
 func (m model) Init() tea.Cmd { return nil }
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -85,7 +85,7 @@ func (m model) View() string {
 
 ### Constructors
 
-- **`NewGridModel(columns []Column) Model`** — Create a grid with the given column definitions.
+- **`NewGridModel(columns []Column) GridModel`** — Create a grid with the given column definitions.
 - **`NewColumn(key, title string, width int) Column`** — Create a column with a key, display title, and fixed width.
 - **`NewRow(data RowData) Row`** — Create a row from a map of column keys to values.
 
@@ -93,7 +93,7 @@ func (m model) View() string {
 
 | Type | Description |
 |------|-------------|
-| `Model` | Main grid component implementing `tea.Model` |
+| `GridModel` | Main grid component implementing `tea.Model` |
 | `Column` | Column definition with key, title, width, and style |
 | `Row` | Row data with `RowData` map and optional `Style` |
 | `RowData` | `map[string]any` mapping column keys to values |

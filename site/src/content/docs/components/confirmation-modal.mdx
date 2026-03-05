@@ -5,7 +5,7 @@ description: Yes/No and OK confirmation dialogs with ANSI-aware overlay renderin
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teamodal` · **Type:** `ModalModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+> **Module:** `teamodal` · **Type:** `ConfirmModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
 
 Binary Yes/No and single-button OK dialogs for confirmations and alerts. Renders as a centered overlay on top of your application content using ANSI-aware compositing. Supports keyboard and mouse interaction, custom button labels, and styled borders.
 
@@ -13,7 +13,7 @@ Binary Yes/No and single-button OK dialogs for confirmations and alerts. Renders
 
 ```go
 // Create a Yes/No confirmation
-modal := teamodal.NewYesNoModal("Save changes before exiting?", &teamodal.ModelArgs{
+modal := teamodal.NewYesNoModal("Save changes before exiting?", &teamodal.ConfirmModelArgs{
     Title:      "Unsaved Changes",
     DefaultYes: true,
     YesLabel:   "Save",
@@ -40,7 +40,7 @@ case teamodal.AnsweredNoMsg:
 Single-button acknowledgment dialog:
 
 ```go
-modal := teamodal.NewOKModal("Operation completed successfully.", &teamodal.ModelArgs{
+modal := teamodal.NewOKModal("Operation completed successfully.", &teamodal.ConfirmModelArgs{
     Title:   "Done",
     OKLabel: "Got it",
 })
@@ -64,15 +64,15 @@ Sends `ClosedMsg` when the user presses Enter or Esc.
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NewYesNoModal` | `NewYesNoModal(message string, args *ModelArgs) ModalModel` | Create a Yes/No confirmation dialog |
-| `NewOKModal` | `NewOKModal(message string, args *ModelArgs) ModalModel` | Create an OK acknowledgment dialog |
+| `NewYesNoModal` | `NewYesNoModal(message string, args *ConfirmModelArgs) ConfirmModel` | Create a Yes/No confirmation dialog |
+| `NewOKModal` | `NewOKModal(message string, args *ConfirmModelArgs) ConfirmModel` | Create an OK acknowledgment dialog |
 
 ### Key Types
 
 | Type | Description |
 |------|-------------|
-| `ModalModel` | Yes/No and OK dialogs — implements `tea.Model` |
-| `ModelArgs` | Configuration: `Title`, `DefaultYes`, `YesLabel`, `NoLabel`, `OKLabel`, style fields |
+| `ConfirmModel` | Yes/No and OK dialogs — implements `tea.Model` |
+| `ConfirmModelArgs` | Configuration: `Title`, `DefaultYes`, `YesLabel`, `NoLabel`, `OKLabel`, style fields |
 
 ### Messages
 
@@ -85,7 +85,7 @@ Sends `ClosedMsg` when the user presses Enter or Esc.
 ## Configuration
 
 ```go
-modal := teamodal.NewYesNoModal("message", &teamodal.ModelArgs{
+modal := teamodal.NewYesNoModal("message", &teamodal.ConfirmModelArgs{
     Title:              "Title",
     DefaultYes:         true,
     YesLabel:           "Confirm",
