@@ -13,9 +13,9 @@ import (
 	"github.com/charmbracelet/x/exp/teatest"
 )
 
-// treeProgram wraps Model[string] into a standalone tea.Model for teatest.
+// treeProgram wraps TreeModel[string] into a standalone tea.Model for teatest.
 type treeProgram struct {
-	model Model[string]
+	model TreeModel[string]
 }
 
 func newTreeProgram() treeProgram {

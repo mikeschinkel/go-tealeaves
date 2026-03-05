@@ -9,8 +9,11 @@ import (
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
-// Model is the BubbleTea model for the tree
-type Model[T any] struct {
+// TreeModel is the BubbleTea model for the tree.
+//
+// Deprecated name: This type was previously named Model. The deprecated
+// [NewModel] constructor is provided for backward compatibility.
+type TreeModel[T any] struct {
 	Keys     TreeKeyMap // Keyboard bindings
 	tree     *Tree[T]
 	renderer *Renderer[T]
@@ -22,10 +25,10 @@ type Model[T any] struct {
 }
 
 // NewTreeModel creates a new BubbleTea model for the tree
-func NewTreeModel[T any](tree *Tree[T], height int) Model[T] {
+func NewTreeModel[T any](tree *Tree[T], height int) TreeModel[T] {
 	renderer := NewRenderer(tree)
 	width := renderer.GetMaxLineWidth()
-	return Model[T]{
+	return TreeModel[T]{
 		Keys:     DefaultTreeKeyMap(),
 		tree:     tree,
 		renderer: renderer,
@@ -35,18 +38,13 @@ func NewTreeModel[T any](tree *Tree[T], height int) Model[T] {
 	}
 }
 
-// Deprecated: Use NewTreeModel instead.
-func NewModel[T any](tree *Tree[T], height int) Model[T] {
-	return NewTreeModel(tree, height)
-}
-
 // Init implements tea.Model
-func (m Model[T]) Init() tea.Cmd {
+func (m TreeModel[T]) Init() tea.Cmd {
 	return nil
 }
 
 // Update implements tea.Model
-func (m Model[T]) Update(msg tea.Msg) (Model[T], tea.Cmd) {
+func (m TreeModel[T]) Update(msg tea.Msg) (TreeModel[T], tea.Cmd) {
 	var cmd tea.Cmd
 
 	switch msg := msg.(type) {
@@ -115,7 +113,7 @@ func (m Model[T]) Update(msg tea.Msg) (Model[T], tea.Cmd) {
 }
 
 // View implements tea.Model
-func (m Model[T]) View() tea.View {
+func (m TreeModel[T]) View() tea.View {
 	if !m.ready {
 		return tea.NewView("Initializing...")
 	}
@@ -162,14 +160,14 @@ func joinLines(lines []string) string {
 }
 
 // updateViewportContent updates the viewport with the current tree rendering
-func (m Model[T]) updateViewportContent() Model[T] {
+func (m TreeModel[T]) updateViewportContent() TreeModel[T] {
 	m.viewport.SetContent(m.renderer.Render())
 	return m
 }
 
 // ensureFocusedVisible scrolls the viewport to ensure the focused node is visible
-// TODO Should this be pushed down to teatree.Model instead of being here?
-func (m Model[T]) ensureFocusedVisible() Model[T] {
+// TODO Should this be pushed down to teatree.TreeModel instead of being here?
+func (m TreeModel[T]) ensureFocusedVisible() TreeModel[T] {
 	m = m.updateViewportContent()
 
 	// Find the line index of the focused node
@@ -205,12 +203,12 @@ func (m Model[T]) ensureFocusedVisible() Model[T] {
 }
 
 // Tree returns the underlying tree
-func (m Model[T]) Tree() *Tree[T] {
+func (m TreeModel[T]) Tree() *Tree[T] {
 	return m.tree
 }
 
 // SetSize updates the model dimensions
-func (m Model[T]) SetSize(width, height int) Model[T] {
+func (m TreeModel[T]) SetSize(width, height int) TreeModel[T] {
 	m.width = width
 	m.height = height
 	m.viewport.SetWidth(width)
@@ -220,17 +218,17 @@ func (m Model[T]) SetSize(width, height int) Model[T] {
 }
 
 // MaxLineWidth returns the maximum line maxWidth needed to display all content
-func (m Model[T]) MaxLineWidth() int {
+func (m TreeModel[T]) MaxLineWidth() int {
 	return m.renderer.GetMaxLineWidth()
 }
 
 // FocusedNode returns the currently focused node
-func (m Model[T]) FocusedNode() (node *Node[T]) {
+func (m TreeModel[T]) FocusedNode() (node *Node[T]) {
 	return m.tree.FocusedNode()
 }
 
 // SetFocusedNode sets the focused node by ID
-func (m Model[T]) SetFocusedNode(nodeID string) Model[T] {
+func (m TreeModel[T]) SetFocusedNode(nodeID string) TreeModel[T] {
 	m.tree.SetFocusedNode(nodeID)
 	return m.ensureFocusedVisible()
 }

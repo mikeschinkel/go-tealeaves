@@ -12,7 +12,7 @@ import (
 )
 
 type model struct {
-	tree     teatree.Model[teatree.File]
+	tree     teatree.TreeModel[teatree.File]
 	width    int
 	height   int
 	quitting bool

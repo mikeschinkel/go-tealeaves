@@ -7,7 +7,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-func newTestModel() Model[string] {
+func newTestModel() TreeModel[string] {
 	tree, _ := buildTestTree()
 	return NewTreeModel(tree, 10)
 }
