@@ -1,0 +1,90 @@
+---
+interface Props {
+  icon: string;
+  name: string;
+  href: string;
+  description: string;
+  category?: string;
+  functions?: string;
+}
+
+const { icon, name, href, description, category, functions } = Astro.props;
+const funcList = functions ? functions.split(',').map(f => f.trim()) : [];
+---
+
+<a class="sys-card" href={href} data-category={category}>
+  <img class="sys-card-icon" src={icon} alt="" width="40" height="40" loading="lazy" />
+  <div class="sys-card-body">
+    <span class="sys-card-name">{name}</span>
+    <span class="sys-card-desc">{description}</span>
+    {funcList.length > 0 && (
+      <div class="sys-card-funcs">
+        {funcList.map(fn => <code class="sys-card-func">{fn}</code>)}
+      </div>
+    )}
+  </div>
+</a>
+
+<style>
+  .sys-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 1.25rem;
+    padding: 1.25rem 1.5rem;
+    border: 1px solid rgba(103, 232, 249, 0.2);
+    border-left: 3px solid rgba(103, 232, 249, 0.4);
+    border-radius: 0.5rem;
+    text-decoration: none;
+    color: inherit;
+    background: rgba(15, 23, 42, 0.6);
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+  }
+  .sys-card:hover {
+    border-color: rgba(103, 232, 249, 0.5);
+    border-left-color: #67e8f9;
+    background: rgba(15, 23, 42, 0.8);
+  }
+  .sys-card-icon {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    margin-top: 0;
+    object-fit: contain;
+    filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.2));
+  }
+  .sys-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+    flex: 1;
+  }
+  .sys-card-name {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff;
+    line-height: 1.2;
+    margin: 0;
+  }
+  .sys-card-desc {
+    font-size: 0.88rem;
+    color: #94a3b8;
+    line-height: 1.5;
+  }
+  .sys-card-funcs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.35rem;
+  }
+  .sys-card-func {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.72rem;
+    color: #a7f3d0;
+    background: rgba(16, 185, 129, 0.1);
+    padding: 0.1rem 0.4rem;
+    border-radius: 4px;
+    border: 1px solid rgba(16, 185, 129, 0.15);
+  }
+</style>

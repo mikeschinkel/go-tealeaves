@@ -14,24 +14,39 @@ hero:
 ---
 
 import ComponentCard from '../../components/ComponentCard.astro';
+import SystemCard from '../../components/SystemCard.astro';
+import CompFilter from '../../components/CompFilter.astro';
+import SysFilter from '../../components/SysFilter.astro';
 
 ## Components
 
+<CompFilter />
+
 <div class="comp-grid">
-  <ComponentCard icon="/go-tealeaves/icons/icon-teamodal.svg" name="Confirmation Modal" type="ConfirmModel" href="/go-tealeaves/components/confirmation-modal/" description="Yes/No and OK confirmation dialogs with overlay rendering." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teamodal.svg" name="Choice Modal" type="ChoiceModel" href="/go-tealeaves/components/choice-modal/" description="Multi-option selection with hotkeys and horizontal/vertical layout." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teamodal.svg" name="List Modal" type="ListModel[T]" href="/go-tealeaves/components/list-modal/" description="Editable list with inline editing, CRUD, and help visor." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teamodal.svg" name="Progress Modal" type="ProgressModal" href="/go-tealeaves/components/progress-modal/" description="Progress indicator with cancel and background support." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teadrpdwn.svg" name="Dropdown" type="DropdownModel" href="/go-tealeaves/components/dropdown/" description="Intelligent above/below positioning based on available terminal space." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teagrid.svg" name="Data Grid" type="GridModel" href="/go-tealeaves/components/data-grid/" description="Sorting, filtering, pagination, row selection, and flexible column widths." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teatree.svg" name="Tree View" type="TreeModel[T]" href="/go-tealeaves/components/tree-view/" description="Expand/collapse, keyboard nav, viewport scrolling, pluggable node providers." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teadiffr.svg" name="Diff Renderer" type="TUIRenderer" href="/go-tealeaves/components/diff-renderer/" description="Condensed diff rendering with colored additions and deletions." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teadepview.svg" name="Drill Down" type="DrillDownModel[T]" href="/go-tealeaves/components/dep-viewer/" description="Interactive dependency path viewer for module graphs." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teastatus.svg" name="Status Bar" type="StatusBarModel" href="/go-tealeaves/components/status-bar/" description="Two-zone status bar with key-action menus and text indicators." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teanotify.svg" name="Notifications" type="NotifyModel" href="/go-tealeaves/components/notifications/" description="Toast-style notifications with auto-dismiss, color fade, and 6 positions." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teautils.svg" name="Help Visor" type="HelpVisorStyle" href="/go-tealeaves/components/help-visor/" description="Configurable help overlay for categorized key bindings." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teautils.svg" name="Key Registry" type="KeyRegistry" href="/go-tealeaves/components/key-registry/" description="Centralized key binding management with namespace validation." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teautils.svg" name="Theming" type="Theme / Palette" href="/go-tealeaves/components/theming/" description="Consistent colors across all components with adaptive palettes." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teautils.svg" name="Positioning" type="(functions)" href="/go-tealeaves/components/positioning/" description="ANSI-aware centering, measurement, and display helpers." />
-  <ComponentCard icon="/go-tealeaves/icons/icon-teatxtsnip.svg" name="Text Selection" type="TextSnipModel" href="/go-tealeaves/components/text-selection/" description="Text area with Shift+Arrow selection and Ctrl+C/X/V clipboard." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teagrid.svg" name="Grid View" type="GridModel" href="/go-tealeaves/components/grid-view/" category="view" description="Sorting, filtering, pagination, row selection, and flexible column widths." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teatree.svg" name="Tree View" type="TreeModel[T]" href="/go-tealeaves/components/tree-view/" category="view" description="Expand/collapse, keyboard nav, viewport scrolling, pluggable node providers." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teadrldwn.svg" name="Drilldown View" type="DrillDownModel[T]" href="/go-tealeaves/components/drilldown-view/" category="view" description="Interactive path viewer for hierarchical data with dropdown level selection." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teastatus.svg" name="Status Bar" type="StatusBarModel" href="/go-tealeaves/components/statusbar-view/" category="system" description="Two-zone status bar with key-action menus and text indicators." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teanotify.svg" name="Notifications" type="NotifyModel" href="/go-tealeaves/components/notification-view/" category="system" description="Toast-style notifications with auto-dismiss, color fade, and 6 positions." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-confirm.svg" name="Confirm Dialog" type="ConfirmModel" href="/go-tealeaves/components/confirm-dialog/" category="dialog" description="Yes/No and OK confirmation dialogs with overlay rendering." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-choice.svg" name="Choice Dialog" type="ChoiceModel" href="/go-tealeaves/components/choice-dialog/" category="dialog" description="Multi-option selection with hotkeys and horizontal/vertical layout." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-list.svg" name="List Dialog" type="ListModel[T]" href="/go-tealeaves/components/list-dialog/" category="dialog" description="Editable list with inline editing, CRUD, and help visor." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-progress.svg" name="Progress Dialog" type="ProgressModel" href="/go-tealeaves/components/progress-dialog/" category="dialog" description="Progress indicator with cancel and background support." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teadrpdwn.svg" name="Dropdown Control" type="DropdownModel" href="/go-tealeaves/components/dropdown-control/" category="control" description="Intelligent above/below positioning based on available terminal space." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-teatextsel.svg" name="Text Selection" type="TextSnipModel" href="/go-tealeaves/components/text-selection/" category="text" description="Text area with Shift+Arrow selection and Ctrl+C/X/V clipboard." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-hilite.svg" name="Syntax Highlighting" type="Highlighter" href="/go-tealeaves/components/syntax-highlighting/" category="text" description="Chroma-based syntax highlighting for terminal UI code displays." />
+  <ComponentCard icon="/go-tealeaves/icons/icon-helpvisor.svg" name="Help Visor" type="HelpVisorModel" href="/go-tealeaves/components/help-visor/" category="system" description="Paginated keyboard shortcut overlay with category grouping." />
+</div>
+
+## System
+
+<SysFilter />
+
+<div class="sys-grid">
+  <SystemCard icon="/go-tealeaves/icons/icon-teastatus.svg" name="Status Bar" href="/go-tealeaves/components/statusbar-view/" category="component" description="Configurable two-zone status bar that integrates with the key registry to show available actions. Pairs with any component to provide persistent key-action menus and text indicators at the bottom of your TUI." />
+  <SystemCard icon="/go-tealeaves/icons/icon-teanotify.svg" name="Notifications" href="/go-tealeaves/components/notification-view/" category="component" description="Overlay notification system that renders toast messages over your application content. Integrates with any model via message passing — send a notification message and it handles positioning, auto-dismiss timing, and color fade animation." />
+  <SystemCard icon="/go-tealeaves/icons/icon-helpvisor.svg" name="Help Visor" href="/go-tealeaves/components/help-visor/" category="component" description="Paginated keyboard shortcut overlay that reads from the key registry and displays categorized bindings. Supports page navigation, configurable styles, and direct page access via digit keys." />
+  <SystemCard icon="/go-tealeaves/icons/icon-keyregistry.svg" name="Key Registry" href="/go-tealeaves/components/key-registry/" category="function" description="Centralized key binding management with namespace validation and conflict detection. Register keys from any component and query them for help displays, status bars, and runtime rebinding." functions="ParseKeyIdentifier(), FormatKeyDisplay(), ProperCaseShortcut(), GetSortedCategories()" />
+  <SystemCard icon="/go-tealeaves/icons/icon-theming.svg" name="Theming" href="/go-tealeaves/components/theming/" category="function" description="Adaptive color palettes that provide consistent styling across all Tea Leaves components. Define a theme once and every component automatically uses coordinated colors for borders, text, accents, and highlights." functions="DarkPalette(), LightPalette(), AdaptivePalette()" />
+  <SystemCard icon="/go-tealeaves/icons/icon-positioning.svg" name="Positioning" href="/go-tealeaves/components/positioning/" category="function" description="ANSI-aware measurement and centering utilities used internally by modals, dropdowns, and notifications. Handles terminal width calculation, horizontal/vertical centering, and display helpers that account for escape sequences." functions="CalculateCenter(), MeasureRenderedView(), CenterModal(), RenderAlignedLine(), RenderCenteredLine(), ApplyBoxBorder()" />
 </div>

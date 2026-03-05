@@ -201,6 +201,43 @@ main:has(.hero) .sl-markdown-content code:not(pre code) {
 	margin-top: 1rem;
 }
 
+/* Tab filter for component categories */
+.comp-filter {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin-top: 1rem;
+	margin-bottom: 1rem;
+}
+.comp-tab {
+	padding: 0.35rem 1rem;
+	border-radius: 9999px;
+	border: 1px solid #475569;
+	background: transparent;
+	color: #94a3b8;
+	font-size: 0.85rem;
+	font-weight: 500;
+	cursor: pointer;
+	transition: all 0.15s ease;
+}
+.comp-tab:hover {
+	border-color: #67e8f9;
+	color: #e2e8f0;
+}
+.comp-tab.active {
+	background: rgba(16, 185, 129, 0.15);
+	border-color: #10b981;
+	color: #10b981;
+}
+
+/* System section grid — 3-column like component grid */
+.sys-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	gap: 0.75rem;
+	margin-top: 1rem;
+}
+
 /* Tabs on dark splash page */
 main:has(.hero) starlight-tabs [role="tablist"] {
 	border-color: #475569;

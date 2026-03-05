@@ -1,0 +1,34 @@
+---
+// Client-side tab filter for component cards
+---
+
+<div class="comp-filter">
+  <button class="comp-tab active" data-filter="all">All</button>
+  <button class="comp-tab" data-filter="view">Views</button>
+  <button class="comp-tab" data-filter="dialog">Dialogs</button>
+  <button class="comp-tab" data-filter="control">Controls</button>
+  <button class="comp-tab" data-filter="text">Text</button>
+  <button class="comp-tab" data-filter="system">System</button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.comp-tab');
+    const cards = document.querySelectorAll('.comp-card');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const filter = tab.getAttribute('data-filter');
+        cards.forEach(card => {
+          const el = card as HTMLElement;
+          if (filter === 'all' || card.getAttribute('data-category') === filter) {
+            el.style.display = '';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>

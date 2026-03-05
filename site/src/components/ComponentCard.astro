@@ -2,21 +2,20 @@
 interface Props {
   icon: string;
   name: string;
-  label: string;
   href: string;
   description: string;
   type?: string;
+  category?: string;
 }
 
-const { icon, name, label, href, description, type } = Astro.props;
+const { icon, name, href, description, type, category } = Astro.props;
 ---
 
-<a class="comp-card" href={href}>
+<a class="comp-card" href={href} data-category={category}>
   <img class="comp-card-icon" src={icon} alt="" width="40" height="40" loading="lazy" />
   <div class="comp-card-body">
     <span class="comp-card-name">{name}</span>
-    {type && <span class="comp-card-type">{type}</span>}
-    <span class="comp-card-label">{label} Component</span>
+    {type && <span class="comp-card-type"><span class="comp-card-type-prefix">Type: </span>{type}</span>}
     <span class="comp-card-desc">{description}</span>
   </div>
 </a>
@@ -67,15 +66,15 @@ const { icon, name, label, href, description, type } = Astro.props;
   }
   .comp-card-type {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-    font-size: 0.82rem;
-    color: #94a3b8;
+    font-size: 0.95rem;
+    color: #e2e8f0;
     letter-spacing: 0.01em;
   }
-  .comp-card-label {
-    font-size: 0.95rem;
+  .comp-card-type-prefix {
+    font-family: ui-sans-serif, system-ui, -apple-system, sans-serif;
+    font-size: 0.85rem;
+    color: #059669;
     font-weight: 500;
-    color: #34d399;
-    letter-spacing: 0.02em;
   }
   .comp-card-desc {
     font-size: 0.88rem;

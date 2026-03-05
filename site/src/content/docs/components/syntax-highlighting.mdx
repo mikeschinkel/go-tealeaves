@@ -1,0 +1,30 @@
+---
+title: "Syntax Highlighting"
+description: Chroma-based syntax highlighting for terminal UI code displays.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teahilite` · **Type:** `Highlighter` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teahilite`
+
+Syntax highlighting for terminal UI applications using the Chroma library. Provides configurable language detection, theme selection, and ANSI-rendered output suitable for embedding in Bubble Tea views.
+
+<Aside type="caution">
+This module is under active development. API may change.
+</Aside>
+
+## Quick Example
+
+```go
+import "github.com/mikeschinkel/go-tealeaves/teahilite"
+
+h := teahilite.New(teahilite.WithTheme("monokai"))
+highlighted := h.Highlight("package main\n\nfunc main() {}", "go")
+```
+
+## Features
+
+- **Chroma integration** — full language support via the Chroma syntax highlighting library
+- **Terminal output** — renders highlighted code as ANSI escape sequences for TUI display
+- **Theme selection** — choose from available Chroma themes
+- **Language detection** — automatic or explicit language specification

@@ -39,39 +39,46 @@ export default defineConfig({
 					items: [
 						{ label: 'Overview', slug: 'components' },
 						{
-							label: 'Dialogs',
-							items: [
-								{ label: 'Confirmation Modal', slug: 'components/confirmation-modal' },
-								{ label: 'Choice Modal', slug: 'components/choice-modal' },
-								{ label: 'List Modal', slug: 'components/list-modal' },
-								{ label: 'Progress Modal', slug: 'components/progress-modal' },
-								{ label: 'Dropdown', slug: 'components/dropdown' },
-							],
-						},
-						{
 							label: 'Views',
 							items: [
-								{ label: 'Data Grid', slug: 'components/data-grid' },
+								{ label: 'Grid View', slug: 'components/grid-view' },
 								{ label: 'Tree View', slug: 'components/tree-view' },
-								{ label: 'Diff Renderer', slug: 'components/diff-renderer' },
-								{ label: 'Dep Viewer', slug: 'components/dep-viewer' },
+								{ label: 'Drilldown View', slug: 'components/drilldown-view' },
+								{ label: 'Status Bar', slug: 'components/statusbar-view' },
+								{ label: 'Notifications', slug: 'components/notification-view' },
 							],
 						},
 						{
-							label: 'App Chrome',
+							label: 'Dialogs',
 							items: [
-								{ label: 'Status Bar', slug: 'components/status-bar' },
-								{ label: 'Notifications', slug: 'components/notifications' },
+								{ label: 'Confirm Dialog', slug: 'components/confirm-dialog' },
+								{ label: 'Choice Dialog', slug: 'components/choice-dialog' },
+								{ label: 'List Dialog', slug: 'components/list-dialog' },
+								{ label: 'Progress Dialog', slug: 'components/progress-dialog' },
+							],
+						},
+						{
+							label: 'Controls',
+							items: [
+								{ label: 'Dropdown Control', slug: 'components/dropdown-control' },
+							],
+						},
+						{
+							label: 'Text',
+							items: [
+								{ label: 'Text Selection', slug: 'components/text-selection' },
+								{ label: 'Syntax Highlighting', slug: 'components/syntax-highlighting' },
+							],
+						},
+						{
+							label: 'System',
+							items: [
+								{ label: 'Status Bar', slug: 'components/statusbar-view' },
+								{ label: 'Notifications', slug: 'components/notification-view' },
 								{ label: 'Help Visor', slug: 'components/help-visor' },
-							],
-						},
-						{
-							label: 'Utilities',
-							items: [
 								{ label: 'Key Registry', slug: 'components/key-registry' },
 								{ label: 'Theming', slug: 'components/theming' },
 								{ label: 'Positioning', slug: 'components/positioning' },
-								{ label: 'Text Selection', slug: 'components/text-selection' },
 							],
 						},
 					],

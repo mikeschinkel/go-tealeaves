@@ -1,0 +1,31 @@
+---
+// Client-side tab filter for system cards
+---
+
+<div class="comp-filter">
+  <button class="sys-tab comp-tab active" data-filter="all">All</button>
+  <button class="sys-tab comp-tab" data-filter="component">Components</button>
+  <button class="sys-tab comp-tab" data-filter="function">Functions</button>
+</div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    const tabs = document.querySelectorAll('.sys-tab');
+    const cards = document.querySelectorAll('.sys-card');
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        const filter = tab.getAttribute('data-filter');
+        cards.forEach(card => {
+          const el = card as HTMLElement;
+          if (filter === 'all' || card.getAttribute('data-category') === filter) {
+            el.style.display = '';
+          } else {
+            el.style.display = 'none';
+          }
+        });
+      });
+    });
+  });
+</script>
