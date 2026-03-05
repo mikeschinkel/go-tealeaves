@@ -9,12 +9,12 @@ import (
 )
 
 // View renders the grid as a tea.View (Charm v2).
-func (m Model) View() tea.View {
+func (m GridModel) View() tea.View {
 	return tea.NewView(m.render())
 }
 
 // render produces the complete grid string.
-func (m Model) render() string {
+func (m GridModel) render() string {
 	var sections []string
 
 	// Header
@@ -49,7 +49,7 @@ func (m Model) render() string {
 }
 
 // renderDataRows renders all visible data rows for the current page.
-func (m Model) renderDataRows() string {
+func (m GridModel) renderDataRows() string {
 	visibleRows := m.GetVisibleRows()
 	if len(visibleRows) == 0 {
 		return ""
@@ -71,7 +71,7 @@ func (m Model) renderDataRows() string {
 
 // renderRow renders a single data row with borders and styling.
 // Cursor/highlight are applied at render time — no row rebuilding needed.
-func (m Model) renderRow(row Row, rowIndex int) string {
+func (m GridModel) renderRow(row Row, rowIndex int) string {
 	bc := m.border
 	outerBorder := bc.HasOuterBorder()
 	innerDivider := bc.HasInnerDividers()
@@ -108,7 +108,7 @@ func (m Model) renderRow(row Row, rowIndex int) string {
 //
 // Style cascade: base → column → row → rowStyleFunc → cellValue style
 // → row highlight overlay → cell cursor overlay
-func (m Model) renderCell(row Row, col Column, rowIndex, colIndex int, isHighlightedRow, isCursorCell bool) string {
+func (m GridModel) renderCell(row Row, col Column, rowIndex, colIndex int, isHighlightedRow, isCursorCell bool) string {
 	// 1. base → column → row
 	cellStyle := col.style.Inherit(m.baseStyle)
 	cellStyle = row.Style.Inherit(cellStyle)
@@ -191,7 +191,7 @@ func (m Model) renderCell(row Row, col Column, rowIndex, colIndex int, isHighlig
 }
 
 // renderSpans renders rich text spans, truncating to fit width.
-func (m Model) renderSpans(spans []Span, maxWidth int) string {
+func (m GridModel) renderSpans(spans []Span, maxWidth int) string {
 	var result strings.Builder
 	remaining := maxWidth
 
@@ -217,7 +217,7 @@ func (m Model) renderSpans(spans []Span, maxWidth int) string {
 }
 
 // renderBottomBorder renders the bottom border line.
-func (m Model) renderBottomBorder() string {
+func (m GridModel) renderBottomBorder() string {
 	bc := m.border
 	chars := bc.Chars
 	style := bc.Outer.Style

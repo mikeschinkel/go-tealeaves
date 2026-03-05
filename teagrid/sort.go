@@ -20,7 +20,7 @@ type SortColumn struct {
 }
 
 // SortByAsc sets the primary sort column in ascending order.
-func (m Model) SortByAsc(columnKey string) Model {
+func (m GridModel) SortByAsc(columnKey string) GridModel {
 	m.sortOrder = []SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionAsc},
 	}
@@ -29,7 +29,7 @@ func (m Model) SortByAsc(columnKey string) Model {
 }
 
 // SortByDesc sets the primary sort column in descending order.
-func (m Model) SortByDesc(columnKey string) Model {
+func (m GridModel) SortByDesc(columnKey string) GridModel {
 	m.sortOrder = []SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionDesc},
 	}
@@ -38,7 +38,7 @@ func (m Model) SortByDesc(columnKey string) Model {
 }
 
 // ThenSortByAsc adds a secondary ascending sort.
-func (m Model) ThenSortByAsc(columnKey string) Model {
+func (m GridModel) ThenSortByAsc(columnKey string) GridModel {
 	m.sortOrder = append([]SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionAsc},
 	}, m.sortOrder...)
@@ -47,7 +47,7 @@ func (m Model) ThenSortByAsc(columnKey string) Model {
 }
 
 // ThenSortByDesc adds a secondary descending sort.
-func (m Model) ThenSortByDesc(columnKey string) Model {
+func (m GridModel) ThenSortByDesc(columnKey string) GridModel {
 	m.sortOrder = append([]SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionDesc},
 	}, m.sortOrder...)

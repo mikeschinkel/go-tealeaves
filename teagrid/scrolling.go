@@ -1,18 +1,18 @@
 package teagrid
 
-func (m *Model) scrollRight() {
+func (m *GridModel) scrollRight() {
 	if m.horizontalScrollOffsetCol < m.maxHorizontalColumnIndex {
 		m.horizontalScrollOffsetCol++
 	}
 }
 
-func (m *Model) scrollLeft() {
+func (m *GridModel) scrollLeft() {
 	if m.horizontalScrollOffsetCol > 0 {
 		m.horizontalScrollOffsetCol--
 	}
 }
 
-func (m *Model) recalculateLastHorizontalColumn() {
+func (m *GridModel) recalculateLastHorizontalColumn() {
 	if m.viewportWidth == 0 {
 		m.maxHorizontalColumnIndex = 0
 		return

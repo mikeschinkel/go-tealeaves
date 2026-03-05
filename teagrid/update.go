@@ -7,7 +7,7 @@ import (
 
 // Update handles messages per the Bubble Tea architecture.
 // Uses tea.KeyPressMsg (Charm v2) instead of tea.KeyMsg (v1).
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m GridModel) Update(msg tea.Msg) (GridModel, tea.Cmd) {
 	if !m.focused {
 		return m, nil
 	}
@@ -26,7 +26,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) handleKeyPress(msg tea.KeyPressMsg) (Model, tea.Cmd) {
+func (m GridModel) handleKeyPress(msg tea.KeyPressMsg) (GridModel, tea.Cmd) {
 	// Filter input handling — when filter is focused, keys go to the text input
 	if m.filterTextInput.Focused() {
 		return m.handleFilterInput(msg)
@@ -96,7 +96,7 @@ func (m Model) handleKeyPress(msg tea.KeyPressMsg) (Model, tea.Cmd) {
 	return m, nil
 }
 
-func (m Model) handleFilterInput(msg tea.KeyPressMsg) (Model, tea.Cmd) {
+func (m GridModel) handleFilterInput(msg tea.KeyPressMsg) (GridModel, tea.Cmd) {
 	if key.Matches(msg, m.keyMap.FilterBlur) {
 		m.filterTextInput.Blur()
 		m.appendUserEvent(UserEventFilterInputUnfocused{})
@@ -111,7 +111,7 @@ func (m Model) handleFilterInput(msg tea.KeyPressMsg) (Model, tea.Cmd) {
 	return m, cmd
 }
 
-func (m Model) moveDown() Model {
+func (m GridModel) moveDown() GridModel {
 	previousIndex := m.rowCursorIndex
 	totalRows := len(m.GetVisibleRows())
 
@@ -139,7 +139,7 @@ func (m Model) moveDown() Model {
 	return m
 }
 
-func (m Model) moveUp() Model {
+func (m GridModel) moveUp() GridModel {
 	previousIndex := m.rowCursorIndex
 	totalRows := len(m.GetVisibleRows())
 
@@ -167,7 +167,7 @@ func (m Model) moveUp() Model {
 	return m
 }
 
-func (m Model) moveCellRight() Model {
+func (m GridModel) moveCellRight() GridModel {
 	if len(m.columns) == 0 {
 		return m
 	}
@@ -180,7 +180,7 @@ func (m Model) moveCellRight() Model {
 	return m
 }
 
-func (m Model) moveCellLeft() Model {
+func (m GridModel) moveCellLeft() GridModel {
 	if len(m.columns) == 0 {
 		return m
 	}
@@ -193,7 +193,7 @@ func (m Model) moveCellLeft() Model {
 	return m
 }
 
-func (m Model) selectCell() Model {
+func (m GridModel) selectCell() GridModel {
 	rows := m.GetVisibleRows()
 	if len(rows) == 0 || m.rowCursorIndex >= len(rows) {
 		return m
@@ -223,7 +223,7 @@ func (m Model) selectCell() Model {
 	return m
 }
 
-func (m Model) toggleRowSelection() Model {
+func (m GridModel) toggleRowSelection() GridModel {
 	rows := m.GetVisibleRows()
 	if len(rows) == 0 || m.rowCursorIndex >= len(rows) {
 		return m

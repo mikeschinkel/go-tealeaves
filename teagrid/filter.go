@@ -16,7 +16,7 @@ type FilterFuncInput struct {
 // FilterFunc returns true if the row should be visible, false to hide it.
 type FilterFunc func(FilterFuncInput) bool
 
-func (m Model) getFilteredRows(rows []Row) []Row {
+func (m GridModel) getFilteredRows(rows []Row) []Row {
 	filterValue := m.filterTextInput.Value()
 	if !m.filtered || filterValue == "" {
 		return rows

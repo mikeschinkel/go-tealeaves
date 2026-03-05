@@ -8,14 +8,14 @@ import (
 )
 
 func TestRenderFooterHidden(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 10)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 10)}).
 		WithFooterVisibility(false)
 
 	assert.Equal(t, "", m.renderFooter())
 }
 
 func TestRenderFooterZeroHeightWhenHidden(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 10)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 10)}).
 		WithFooterVisibility(false)
 
 	// Hidden footer = zero height = empty string
@@ -29,7 +29,7 @@ func TestRenderFooterWithPagination(t *testing.T) {
 		rows[i] = NewRow(RowData{"x": i})
 	}
 
-	m := New([]Column{NewColumn("x", "X", 10)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 10)}).
 		WithRows(rows).
 		WithPageSize(10)
 
@@ -38,7 +38,7 @@ func TestRenderFooterWithPagination(t *testing.T) {
 }
 
 func TestRenderFooterWithStaticText(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 10)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 10)}).
 		WithStaticFooter("Total: 42")
 
 	footer := m.renderFooter()
@@ -50,7 +50,7 @@ func TestRenderFooterIndependentStyle(t *testing.T) {
 	baseStyle := lipgloss.NewStyle().Bold(true)
 	footerStyle := lipgloss.NewStyle().Italic(true)
 
-	m := New([]Column{NewColumn("x", "X", 10)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 10)}).
 		WithBaseStyle(baseStyle).
 		WithFooterStyle(footerStyle).
 		WithStaticFooter("info")
@@ -60,7 +60,7 @@ func TestRenderFooterIndependentStyle(t *testing.T) {
 }
 
 func TestComposeFooterZones(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 10)})
+	m := NewGridModel([]Column{NewColumn("x", "X", 10)})
 
 	t.Run("both zones", func(t *testing.T) {
 		result := m.composeFooterZones("filter", "1/3", 20)

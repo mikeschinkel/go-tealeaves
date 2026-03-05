@@ -87,7 +87,7 @@ func TestGetFilteredRows(t *testing.T) {
 		NewRow(RowData{"name": "Charlie"}),
 	}
 
-	m := New(cols).WithRows(rows).Filtered(true)
+	m := NewGridModel(cols).WithRows(rows).Filtered(true)
 	m.filterTextInput.SetValue("ali")
 
 	filtered := m.getFilteredRows(rows)

@@ -16,7 +16,7 @@ const (
 )
 
 type model struct {
-	table teagrid.Model
+	table teagrid.GridModel
 }
 
 type book struct {
@@ -52,7 +52,7 @@ func newModel() model {
 
 	return model{
 		table: teagrid.
-			New(columns).
+			NewGridModel(columns).
 			Filtered(true).
 			Focused(true).
 			WithPageSize(10).

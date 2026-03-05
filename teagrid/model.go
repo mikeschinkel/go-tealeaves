@@ -7,8 +7,8 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-// Model is the main grid model. Create using NewGridModel().
-type Model struct {
+// GridModel is the main grid model. Create using NewGridModel().
+type GridModel struct {
 	// Data
 	columns  []Column
 	rows     []Row
@@ -99,11 +99,11 @@ var (
 // NewGridModel creates a new grid with the given columns.
 // Defaults: left-aligned text, visible highlight (purple), cell cursor is
 // Reverse, rounded borders, no right-align on baseStyle (fixes v0.1.0 #1).
-func NewGridModel(columns []Column) Model {
+func NewGridModel(columns []Column) GridModel {
 	filterInput := textinput.New()
 	filterInput.Prompt = "/"
 
-	m := Model{
+	m := GridModel{
 		columns:            make([]Column, len(columns)),
 		metadata:           make(map[string]any),
 		keyMap:             DefaultKeyMap(),
@@ -126,20 +126,15 @@ func NewGridModel(columns []Column) Model {
 	return m
 }
 
-// Deprecated: Use NewGridModel instead.
-func New(columns []Column) Model {
-	return NewGridModel(columns)
-}
-
 // Init initializes the grid per the Bubble Tea architecture.
-func (m Model) Init() tea.Cmd {
+func (m GridModel) Init() tea.Cmd {
 	return nil
 }
 
 // SetSize sets the viewport dimensions and auto-configures the grid.
 // Width triggers flex column resolution and fill/scroll mode.
 // Height triggers automatic page size computation.
-func (m Model) SetSize(width, height int) Model {
+func (m GridModel) SetSize(width, height int) GridModel {
 	m.viewportWidth = width
 	m.viewportHeight = height
 	m.recalculateWidth()

@@ -12,7 +12,7 @@ func TestComputeNaturalWidth(t *testing.T) {
 			NewColumn("a", "A", 10),
 			NewColumn("b", "B", 20),
 		}
-		m := New(cols)
+		m := NewGridModel(cols)
 		// RenderWidth: (1+10+0) + (1+20+0) = 11 + 21 = 32
 		// Outer border: 2
 		// Inner divider: 1
@@ -25,7 +25,7 @@ func TestComputeNaturalWidth(t *testing.T) {
 			NewColumn("a", "A", 10),
 			NewColumn("b", "B", 20),
 		}
-		m := New(cols).WithBorder(Borderless())
+		m := NewGridModel(cols).WithBorder(Borderless())
 		// RenderWidth: 11 + 21 = 32
 		// No borders
 		assert.Equal(t, 32, m.computeNaturalWidth())
@@ -36,7 +36,7 @@ func TestComputeNaturalWidth(t *testing.T) {
 			NewColumn("a", "A", 10),
 			NewFlexColumn("b", "B", 1),
 		}
-		m := New(cols)
+		m := NewGridModel(cols)
 		// Fixed: 11
 		// Flex minimum: 1 + 1 + 0 = 2 (paddingLeft=1, content=1, paddingRight=0)
 		// Outer: 2, Inner: 1
@@ -50,7 +50,7 @@ func TestComputeTotalWidth(t *testing.T) {
 		NewColumn("a", "A", 10),
 		NewColumn("b", "B", 20),
 	}
-	m := New(cols)
+	m := NewGridModel(cols)
 
 	assert.Equal(t, 35, m.computeTotalWidth())
 }
@@ -100,25 +100,25 @@ func TestUpdateColumnWidthsNoFlex(t *testing.T) {
 
 func TestChromeHeight(t *testing.T) {
 	t.Run("full chrome with rounded borders", func(t *testing.T) {
-		m := New([]Column{NewColumn("x", "X", 10)})
+		m := NewGridModel([]Column{NewColumn("x", "X", 10)})
 		// outer=2, header=1, header_sep=1, footer=1, footer_sep=1 = 6
 		assert.Equal(t, 6, m.chromeHeight())
 	})
 
 	t.Run("borderless", func(t *testing.T) {
-		m := New([]Column{NewColumn("x", "X", 10)}).WithBorder(Borderless())
+		m := NewGridModel([]Column{NewColumn("x", "X", 10)}).WithBorder(Borderless())
 		// header=1, footer=1 = 2
 		assert.Equal(t, 2, m.chromeHeight())
 	})
 
 	t.Run("no header", func(t *testing.T) {
-		m := New([]Column{NewColumn("x", "X", 10)}).WithHeaderVisibility(false)
+		m := NewGridModel([]Column{NewColumn("x", "X", 10)}).WithHeaderVisibility(false)
 		// outer=2, footer=1, footer_sep=1 = 4
 		assert.Equal(t, 4, m.chromeHeight())
 	})
 
 	t.Run("no footer", func(t *testing.T) {
-		m := New([]Column{NewColumn("x", "X", 10)}).WithFooterVisibility(false)
+		m := NewGridModel([]Column{NewColumn("x", "X", 10)}).WithFooterVisibility(false)
 		// outer=2, header=1, header_sep=1 = 4
 		assert.Equal(t, 4, m.chromeHeight())
 	})

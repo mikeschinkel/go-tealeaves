@@ -1,17 +1,17 @@
 package teagrid
 
 // PageSize returns the current page size, or 0 if pagination is disabled.
-func (m *Model) PageSize() int {
+func (m *GridModel) PageSize() int {
 	return m.pageSize
 }
 
 // CurrentPage returns the current page number (1-indexed).
-func (m *Model) CurrentPage() int {
+func (m *GridModel) CurrentPage() int {
 	return m.currentPage + 1
 }
 
 // MaxPages returns the total number of pages.
-func (m *Model) MaxPages() int {
+func (m *GridModel) MaxPages() int {
 	totalRows := len(m.GetVisibleRows())
 	if m.pageSize == 0 || totalRows == 0 {
 		return 1
@@ -20,13 +20,13 @@ func (m *Model) MaxPages() int {
 }
 
 // TotalRows returns the total row count across all pages.
-func (m *Model) TotalRows() int {
+func (m *GridModel) TotalRows() int {
 	return len(m.GetVisibleRows())
 }
 
 // VisibleIndices returns the start and end indices (0-based, inclusive)
 // of the currently visible page of rows.
-func (m *Model) VisibleIndices() (start, end int) {
+func (m *GridModel) VisibleIndices() (start, end int) {
 	totalRows := len(m.GetVisibleRows())
 
 	if m.pageSize == 0 {
@@ -43,7 +43,7 @@ func (m *Model) VisibleIndices() (start, end int) {
 	return start, end
 }
 
-func (m *Model) pageDown() {
+func (m *GridModel) pageDown() {
 	if m.pageSize == 0 || len(m.GetVisibleRows()) <= m.pageSize {
 		return
 	}
@@ -62,7 +62,7 @@ func (m *Model) pageDown() {
 	m.rowCursorIndex = m.currentPage * m.pageSize
 }
 
-func (m *Model) pageUp() {
+func (m *GridModel) pageUp() {
 	if m.pageSize == 0 || len(m.GetVisibleRows()) <= m.pageSize {
 		return
 	}
@@ -81,17 +81,17 @@ func (m *Model) pageUp() {
 	m.rowCursorIndex = m.currentPage * m.pageSize
 }
 
-func (m *Model) pageFirst() {
+func (m *GridModel) pageFirst() {
 	m.currentPage = 0
 	m.rowCursorIndex = 0
 }
 
-func (m *Model) pageLast() {
+func (m *GridModel) pageLast() {
 	m.currentPage = m.MaxPages() - 1
 	m.rowCursorIndex = m.currentPage * m.pageSize
 }
 
-func (m *Model) expectedPageForRowIndex(rowIndex int) int {
+func (m *GridModel) expectedPageForRowIndex(rowIndex int) int {
 	if m.pageSize == 0 {
 		return 0
 	}

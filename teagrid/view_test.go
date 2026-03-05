@@ -19,7 +19,7 @@ func TestViewBasicRender(t *testing.T) {
 		NewRow(RowData{"name": "Bob", "age": 25}),
 	}
 
-	m := New(cols).WithRows(rows)
+	m := NewGridModel(cols).WithRows(rows)
 	output := m.render()
 
 	assert.Contains(t, output, "Alice")
@@ -36,7 +36,7 @@ func TestViewBorderless(t *testing.T) {
 		NewRow(RowData{"x": "hello"}),
 	}
 
-	m := New(cols).WithRows(rows).WithBorder(Borderless())
+	m := NewGridModel(cols).WithRows(rows).WithBorder(Borderless())
 	output := m.render()
 
 	// Should not contain any border characters
@@ -51,7 +51,7 @@ func TestViewNoRows(t *testing.T) {
 		NewColumn("x", "X", 5),
 	}
 
-	m := New(cols)
+	m := NewGridModel(cols)
 	output := m.render()
 
 	// Should at least render header
@@ -66,7 +66,7 @@ func TestViewFormatStringOnHeaders(t *testing.T) {
 		NewRow(RowData{"pct": 75.5}),
 	}
 
-	m := New(cols).WithRows(rows)
+	m := NewGridModel(cols).WithRows(rows)
 	output := m.render()
 
 	// Format string should apply to data
@@ -81,7 +81,7 @@ func TestViewPadding(t *testing.T) {
 		NewRow(RowData{"x": "hi"}),
 	}
 
-	m := New(cols).WithRows(rows).WithBorder(Borderless()).WithHeaderVisibility(false)
+	m := NewGridModel(cols).WithRows(rows).WithBorder(Borderless()).WithHeaderVisibility(false)
 	output := m.render()
 
 	// With padding(2,1), content "hi" should have spaces around it
@@ -97,7 +97,7 @@ func TestViewAlignment(t *testing.T) {
 		NewRow(RowData{"x": "hi"}),
 	}
 
-	m := New(cols).WithRows(rows).WithBorder(Borderless()).WithHeaderVisibility(false)
+	m := NewGridModel(cols).WithRows(rows).WithBorder(Borderless()).WithHeaderVisibility(false)
 	output := m.render()
 
 	// Right-aligned "hi" in 10-char width should have leading spaces
@@ -112,7 +112,7 @@ func TestViewHiddenHeader(t *testing.T) {
 		NewRow(RowData{"x": "data"}),
 	}
 
-	m := New(cols).WithRows(rows).WithHeaderVisibility(false)
+	m := NewGridModel(cols).WithRows(rows).WithHeaderVisibility(false)
 	output := m.render()
 
 	// Header text should not appear
@@ -137,7 +137,7 @@ func TestViewMissingData(t *testing.T) {
 		NewRow(RowData{"x": "present"}), // y is missing
 	}
 
-	m := New(cols).WithRows(rows).WithMissingDataIndicator("N/A")
+	m := NewGridModel(cols).WithRows(rows).WithMissingDataIndicator("N/A")
 	output := m.render()
 
 	assert.Contains(t, output, "present")
@@ -155,7 +155,7 @@ func TestViewCellValue(t *testing.T) {
 		}),
 	}
 
-	m := New(cols).WithRows(rows)
+	m := NewGridModel(cols).WithRows(rows)
 	output := m.render()
 
 	assert.Contains(t, output, "styled")
@@ -175,7 +175,7 @@ func TestViewSpans(t *testing.T) {
 		}),
 	}
 
-	m := New(cols).WithRows(rows)
+	m := NewGridModel(cols).WithRows(rows)
 	output := m.render()
 
 	assert.Contains(t, output, "hello")

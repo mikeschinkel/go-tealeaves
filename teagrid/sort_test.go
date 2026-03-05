@@ -13,7 +13,7 @@ func TestSortByAsc(t *testing.T) {
 		NewRow(RowData{"name": "Alice"}),
 		NewRow(RowData{"name": "Bob"}),
 	}
-	m := New([]Column{NewColumn("name", "Name", 10)}).
+	m := NewGridModel([]Column{NewColumn("name", "Name", 10)}).
 		WithRows(rows).
 		SortByAsc("name")
 
@@ -29,7 +29,7 @@ func TestSortByDesc(t *testing.T) {
 		NewRow(RowData{"name": "Charlie"}),
 		NewRow(RowData{"name": "Bob"}),
 	}
-	m := New([]Column{NewColumn("name", "Name", 10)}).
+	m := NewGridModel([]Column{NewColumn("name", "Name", 10)}).
 		WithRows(rows).
 		SortByDesc("name")
 
@@ -45,7 +45,7 @@ func TestSortNumeric(t *testing.T) {
 		NewRow(RowData{"score": 3}),
 		NewRow(RowData{"score": 42}),
 	}
-	m := New([]Column{NewColumn("score", "Score", 10)}).
+	m := NewGridModel([]Column{NewColumn("score", "Score", 10)}).
 		WithRows(rows).
 		SortByAsc("score")
 
@@ -61,7 +61,7 @@ func TestSortWithSortValue(t *testing.T) {
 		NewRow(RowData{"date": NewCellValueWithSortKey("Mar 15", 3, lipgloss.NewStyle())}),
 		NewRow(RowData{"date": NewCellValueWithSortKey("Feb 14", 2, lipgloss.NewStyle())}),
 	}
-	m := New([]Column{NewColumn("date", "Date", 10)}).
+	m := NewGridModel([]Column{NewColumn("date", "Date", 10)}).
 		WithRows(rows).
 		SortByAsc("date")
 
@@ -80,7 +80,7 @@ func TestThenSortBy(t *testing.T) {
 		NewRow(RowData{"dept": "A", "name": "Bob"}),
 		NewRow(RowData{"dept": "A", "name": "Alice"}),
 	}
-	m := New([]Column{
+	m := NewGridModel([]Column{
 		NewColumn("dept", "Dept", 10),
 		NewColumn("name", "Name", 10),
 	}).WithRows(rows).

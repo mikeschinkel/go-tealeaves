@@ -15,7 +15,7 @@ const (
 )
 
 type model struct {
-	simpleTable teagrid.Model
+	simpleTable teagrid.GridModel
 }
 
 func newModel() model {

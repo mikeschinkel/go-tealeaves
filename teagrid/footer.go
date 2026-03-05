@@ -10,7 +10,7 @@ import (
 // renderFooter renders the two-zone footer (filter left, pagination right).
 // The footer style is independent from baseStyle (fixes v0.1.0 #3, #9).
 // A hidden footer produces zero height (fixes v0.1.0 hidden footer space).
-func (m Model) renderFooter() string {
+func (m GridModel) renderFooter() string {
 	if !m.hasFooter() {
 		return ""
 	}
@@ -79,7 +79,7 @@ func (m Model) renderFooter() string {
 }
 
 // composeFooterZones arranges the left and right zones within the given width.
-func (m Model) composeFooterZones(left, right string, width int) string {
+func (m GridModel) composeFooterZones(left, right string, width int) string {
 	leftWidth := lipgloss.Width(left)
 	rightWidth := lipgloss.Width(right)
 
@@ -115,7 +115,7 @@ func (m Model) composeFooterZones(left, right string, width int) string {
 }
 
 // renderFooterSeparator renders the line between data rows and footer.
-func (m Model) renderFooterSeparator() string {
+func (m GridModel) renderFooterSeparator() string {
 	bc := m.border
 	chars := bc.Chars
 	style := bc.Footer.Style

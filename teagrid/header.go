@@ -9,7 +9,7 @@ import (
 
 // renderHeaders renders the header row with border characters inserted as
 // literal strings rather than via lipgloss border styles.
-func (m Model) renderHeaders() string {
+func (m GridModel) renderHeaders() string {
 	if !m.headerVisible {
 		return ""
 	}
@@ -70,7 +70,7 @@ func (m Model) renderHeaders() string {
 }
 
 // renderTopBorder renders the top border line with junctions.
-func (m Model) renderTopBorder() string {
+func (m GridModel) renderTopBorder() string {
 	bc := m.border
 	chars := bc.Chars
 	style := bc.Outer.Style
@@ -96,7 +96,7 @@ func (m Model) renderTopBorder() string {
 }
 
 // renderHeaderSeparator renders the line between header and data rows.
-func (m Model) renderHeaderSeparator() string {
+func (m GridModel) renderHeaderSeparator() string {
 	bc := m.border
 	chars := bc.Chars
 	style := bc.Header.Style

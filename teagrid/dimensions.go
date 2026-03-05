@@ -1,7 +1,7 @@
 package teagrid
 
 // recalculateWidth resolves flex column widths and scroll boundaries.
-func (m *Model) recalculateWidth() {
+func (m *GridModel) recalculateWidth() {
 	targetWidth := m.viewportWidth
 	if targetWidth > 0 {
 		updateColumnWidths(m.columns, targetWidth, m.border)
@@ -10,7 +10,7 @@ func (m *Model) recalculateWidth() {
 }
 
 // recalculatePageSize computes page size from viewport height minus chrome.
-func (m *Model) recalculatePageSize() {
+func (m *GridModel) recalculatePageSize() {
 	if m.viewportHeight == 0 {
 		return
 	}
@@ -27,7 +27,7 @@ func (m *Model) recalculatePageSize() {
 
 // chromeHeight estimates the non-data height consumed by borders,
 // header, and footer. Used for auto page size computation.
-func (m *Model) chromeHeight() int {
+func (m *GridModel) chromeHeight() int {
 	height := 0
 
 	if m.border.HasOuterBorder() {
@@ -53,7 +53,7 @@ func (m *Model) chromeHeight() int {
 
 // computeNaturalWidth returns the minimum width needed to display all columns
 // without flex expansion. Flex columns contribute their padding + 1 char minimum.
-func (m *Model) computeNaturalWidth() int {
+func (m *GridModel) computeNaturalWidth() int {
 	width := m.border.OuterWidth()
 
 	for i, col := range m.columns {
@@ -73,7 +73,7 @@ func (m *Model) computeNaturalWidth() int {
 
 // computeTotalWidth returns the total rendered width of the grid
 // after flex column resolution.
-func (m *Model) computeTotalWidth() int {
+func (m *GridModel) computeTotalWidth() int {
 	width := m.border.OuterWidth()
 
 	for i, col := range m.columns {

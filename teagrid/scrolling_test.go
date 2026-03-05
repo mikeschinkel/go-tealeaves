@@ -12,7 +12,7 @@ func TestScrollRight(t *testing.T) {
 		NewColumn("b", "B", 20),
 		NewColumn("c", "C", 20),
 	}
-	m := New(cols).SetSize(30, 24) // narrow viewport forces scrolling
+	m := NewGridModel(cols).SetSize(30, 24) // narrow viewport forces scrolling
 
 	assert.Equal(t, 0, m.horizontalScrollOffsetCol)
 
@@ -23,7 +23,7 @@ func TestScrollRight(t *testing.T) {
 }
 
 func TestScrollLeft(t *testing.T) {
-	m := New([]Column{NewColumn("a", "A", 20)})
+	m := NewGridModel([]Column{NewColumn("a", "A", 20)})
 	m.horizontalScrollOffsetCol = 2
 
 	m.scrollLeft()
@@ -40,7 +40,7 @@ func TestScrollNoOverflowNoScroll(t *testing.T) {
 	cols := []Column{
 		NewColumn("a", "A", 5),
 	}
-	m := New(cols).SetSize(80, 24)
+	m := NewGridModel(cols).SetSize(80, 24)
 
 	assert.Equal(t, 0, m.maxHorizontalColumnIndex)
 }
@@ -53,13 +53,13 @@ func TestVisibleColumns(t *testing.T) {
 	}
 
 	t.Run("all fit", func(t *testing.T) {
-		m := New(cols).SetSize(100, 24)
+		m := NewGridModel(cols).SetSize(100, 24)
 		visible := m.visibleColumns()
 		assert.Len(t, visible, 3)
 	})
 
 	t.Run("no viewport returns all", func(t *testing.T) {
-		m := New(cols)
+		m := NewGridModel(cols)
 		visible := m.visibleColumns()
 		assert.Len(t, visible, 3)
 	})
@@ -73,7 +73,7 @@ func TestHorizontalFreezeColumns(t *testing.T) {
 		NewColumn("c", "C", 20),
 	}
 
-	m := New(cols).
+	m := NewGridModel(cols).
 		WithHorizontalFreezeColumnCount(1).
 		SetSize(30, 24)
 

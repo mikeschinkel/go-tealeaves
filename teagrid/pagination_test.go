@@ -12,7 +12,7 @@ func TestPagination(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows).
 		WithPageSize(10)
 
@@ -28,7 +28,7 @@ func TestVisibleIndices(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows).
 		WithPageSize(10)
 
@@ -43,7 +43,7 @@ func TestPageDown(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows).
 		WithPageSize(10).
 		PageDown()
@@ -61,7 +61,7 @@ func TestPageUpWrapping(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows).
 		WithPageSize(10).
 		WithPaginationWrapping(true).
@@ -76,7 +76,7 @@ func TestPageUpNoWrapping(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows).
 		WithPageSize(10).
 		WithPaginationWrapping(false).
@@ -91,7 +91,7 @@ func TestPageFirstLast(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows).
 		WithPageSize(10)
 
@@ -108,7 +108,7 @@ func TestNoPagination(t *testing.T) {
 		rows[i] = NewRow(RowData{"i": i})
 	}
 
-	m := New([]Column{NewColumn("i", "I", 5)}).
+	m := NewGridModel([]Column{NewColumn("i", "I", 5)}).
 		WithRows(rows)
 
 	assert.Equal(t, 0, m.PageSize())

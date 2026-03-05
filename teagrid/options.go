@@ -14,7 +14,7 @@ type RowStyleFuncInput struct {
 }
 
 // WithRows sets the data rows.
-func (m Model) WithRows(rows []Row) Model {
+func (m GridModel) WithRows(rows []Row) GridModel {
 	m.rows = rows
 	m.visibleRowCacheUpdated = false
 
@@ -36,7 +36,7 @@ func (m Model) WithRows(rows []Row) Model {
 }
 
 // WithColumns sets the visible columns.
-func (m Model) WithColumns(columns []Column) Model {
+func (m GridModel) WithColumns(columns []Column) GridModel {
 	m.columns = make([]Column, len(columns))
 	copy(m.columns, columns)
 	m.recalculateWidth()
@@ -44,20 +44,20 @@ func (m Model) WithColumns(columns []Column) Model {
 }
 
 // WithKeyMap sets the key bindings.
-func (m Model) WithKeyMap(keyMap KeyMap) Model {
+func (m GridModel) WithKeyMap(keyMap KeyMap) GridModel {
 	m.keyMap = keyMap
 	return m
 }
 
 // WithRowStyleFunc sets a function for dynamic row styling.
 // Overrides HighlightStyle when set.
-func (m Model) WithRowStyleFunc(f func(RowStyleFuncInput) lipgloss.Style) Model {
+func (m GridModel) WithRowStyleFunc(f func(RowStyleFuncInput) lipgloss.Style) GridModel {
 	m.rowStyleFunc = f
 	return m
 }
 
 // WithHighlightedRow sets the highlighted row index.
-func (m Model) WithHighlightedRow(index int) Model {
+func (m GridModel) WithHighlightedRow(index int) GridModel {
 	m.rowCursorIndex = index
 
 	numRows := len(m.GetVisibleRows())
@@ -73,50 +73,50 @@ func (m Model) WithHighlightedRow(index int) Model {
 }
 
 // WithCellCursorMode enables or disables cell cursor navigation.
-func (m Model) WithCellCursorMode(enabled bool) Model {
+func (m GridModel) WithCellCursorMode(enabled bool) GridModel {
 	m.cellCursorMode = enabled
 	return m
 }
 
 // WithBaseStyle sets the base style for the grid.
-func (m Model) WithBaseStyle(style lipgloss.Style) Model {
+func (m GridModel) WithBaseStyle(style lipgloss.Style) GridModel {
 	m.baseStyle = style
 	return m
 }
 
 // WithHeaderStyle sets the header text style.
-func (m Model) WithHeaderStyle(style lipgloss.Style) Model {
+func (m GridModel) WithHeaderStyle(style lipgloss.Style) GridModel {
 	m.headerStyle = style
 	return m
 }
 
 // WithHighlightStyle sets the highlighted row style.
-func (m Model) WithHighlightStyle(style lipgloss.Style) Model {
+func (m GridModel) WithHighlightStyle(style lipgloss.Style) GridModel {
 	m.highlightStyle = style
 	return m
 }
 
 // WithCellCursorStyle sets the cell cursor style.
-func (m Model) WithCellCursorStyle(style lipgloss.Style) Model {
+func (m GridModel) WithCellCursorStyle(style lipgloss.Style) GridModel {
 	m.cellCursorStyle = style
 	return m
 }
 
 // WithFooterStyle sets the footer style (independent from baseStyle).
-func (m Model) WithFooterStyle(style lipgloss.Style) Model {
+func (m GridModel) WithFooterStyle(style lipgloss.Style) GridModel {
 	m.footerStyle = style
 	return m
 }
 
 // WithBorder sets the border configuration.
-func (m Model) WithBorder(border BorderConfig) Model {
+func (m GridModel) WithBorder(border BorderConfig) GridModel {
 	m.border = border
 	m.recalculateWidth()
 	return m
 }
 
 // Focused sets whether the grid receives input and shows cursor.
-func (m Model) Focused(focused bool) Model {
+func (m GridModel) Focused(focused bool) GridModel {
 	m.focused = focused
 	return m
 }
@@ -124,14 +124,14 @@ func (m Model) Focused(focused bool) Model {
 // WithSelectableRows enables or disables row selection.
 // Unlike v0.1.0, this does NOT auto-add a checkbox column.
 // Use WithSelectColumn(true) to add an explicit select column.
-func (m Model) WithSelectableRows(selectable bool) Model {
+func (m GridModel) WithSelectableRows(selectable bool) GridModel {
 	m.selectableRows = selectable
 	return m
 }
 
 // WithSelectColumn adds or removes a visible checkbox column for selection.
 // Unlike v0.1.0's SelectableRows, the checkbox column is opt-in.
-func (m Model) WithSelectColumn(show bool) Model {
+func (m GridModel) WithSelectColumn(show bool) GridModel {
 	hadSelectColumn := m.selectColumn && len(m.columns) > 0 &&
 		m.columns[0].key == selectColumnKey
 	m.selectColumn = show
@@ -150,7 +150,7 @@ func (m Model) WithSelectColumn(show bool) Model {
 }
 
 // WithPageSize sets the page size for pagination.
-func (m Model) WithPageSize(pageSize int) Model {
+func (m GridModel) WithPageSize(pageSize int) GridModel {
 	m.pageSize = pageSize
 
 	maxPages := m.MaxPages()
@@ -162,19 +162,19 @@ func (m Model) WithPageSize(pageSize int) Model {
 }
 
 // WithNoPagination disables pagination.
-func (m Model) WithNoPagination() Model {
+func (m GridModel) WithNoPagination() GridModel {
 	m.pageSize = 0
 	return m
 }
 
 // WithPaginationWrapping sets whether pagination wraps around.
-func (m Model) WithPaginationWrapping(wrapping bool) Model {
+func (m GridModel) WithPaginationWrapping(wrapping bool) GridModel {
 	m.paginationWrapping = wrapping
 	return m
 }
 
 // WithCurrentPage sets the current page (1-indexed).
-func (m Model) WithCurrentPage(currentPage int) Model {
+func (m GridModel) WithCurrentPage(currentPage int) GridModel {
 	if m.pageSize == 0 || currentPage == m.CurrentPage() {
 		return m
 	}
@@ -193,20 +193,20 @@ func (m Model) WithCurrentPage(currentPage int) Model {
 }
 
 // Filtered enables or disables filtering.
-func (m Model) Filtered(filtered bool) Model {
+func (m GridModel) Filtered(filtered bool) GridModel {
 	m.filtered = filtered
 	m.visibleRowCacheUpdated = false
 	return m
 }
 
 // StartFilterTyping focuses the filter text input.
-func (m Model) StartFilterTyping() Model {
+func (m GridModel) StartFilterTyping() GridModel {
 	m.filterTextInput.Focus()
 	return m
 }
 
 // WithFilterInput sets a custom text input for filtering.
-func (m Model) WithFilterInput(input textinput.Model) Model {
+func (m GridModel) WithFilterInput(input textinput.Model) GridModel {
 	if m.filterTextInput.Value() != input.Value() {
 		m.pageFirst()
 	}
@@ -216,7 +216,7 @@ func (m Model) WithFilterInput(input textinput.Model) Model {
 }
 
 // WithFilterInputValue sets the filter string directly.
-func (m Model) WithFilterInputValue(value string) Model {
+func (m GridModel) WithFilterInputValue(value string) GridModel {
 	if m.filterTextInput.Value() != value {
 		m.pageFirst()
 	}
@@ -227,93 +227,93 @@ func (m Model) WithFilterInputValue(value string) Model {
 }
 
 // WithFilterFunc sets a custom filter function.
-func (m Model) WithFilterFunc(fn FilterFunc) Model {
+func (m GridModel) WithFilterFunc(fn FilterFunc) GridModel {
 	m.filterFunc = fn
 	m.visibleRowCacheUpdated = false
 	return m
 }
 
 // WithFuzzyFilter enables fuzzy (subsequence) filtering.
-func (m Model) WithFuzzyFilter() Model {
+func (m GridModel) WithFuzzyFilter() GridModel {
 	return m.WithFilterFunc(filterFuncFuzzy)
 }
 
 // WithStaticFooter sets a static footer text.
-func (m Model) WithStaticFooter(footer string) Model {
+func (m GridModel) WithStaticFooter(footer string) GridModel {
 	m.staticFooter = footer
 	return m
 }
 
 // WithHeaderVisibility sets header visibility.
-func (m Model) WithHeaderVisibility(visible bool) Model {
+func (m GridModel) WithHeaderVisibility(visible bool) GridModel {
 	m.headerVisible = visible
 	return m
 }
 
 // WithFooterVisibility sets footer visibility.
-func (m Model) WithFooterVisibility(visible bool) Model {
+func (m GridModel) WithFooterVisibility(visible bool) GridModel {
 	m.footerVisible = visible
 	return m
 }
 
 // WithHorizontalFreezeColumnCount freezes columns for horizontal scrolling.
-func (m Model) WithHorizontalFreezeColumnCount(count int) Model {
+func (m GridModel) WithHorizontalFreezeColumnCount(count int) GridModel {
 	m.horizontalScrollFreezeColumnsCount = count
 	m.recalculateWidth()
 	return m
 }
 
 // ScrollRight scrolls one column right.
-func (m Model) ScrollRight() Model {
+func (m GridModel) ScrollRight() GridModel {
 	m.scrollRight()
 	return m
 }
 
 // ScrollLeft scrolls one column left.
-func (m Model) ScrollLeft() Model {
+func (m GridModel) ScrollLeft() GridModel {
 	m.scrollLeft()
 	return m
 }
 
 // PageDown goes to the next page.
-func (m Model) PageDown() Model {
+func (m GridModel) PageDown() GridModel {
 	m.pageDown()
 	return m
 }
 
 // PageUp goes to the previous page.
-func (m Model) PageUp() Model {
+func (m GridModel) PageUp() GridModel {
 	m.pageUp()
 	return m
 }
 
 // PageLast goes to the last page.
-func (m Model) PageLast() Model {
+func (m GridModel) PageLast() GridModel {
 	m.pageLast()
 	return m
 }
 
 // PageFirst goes to the first page.
-func (m Model) PageFirst() Model {
+func (m GridModel) PageFirst() GridModel {
 	m.pageFirst()
 	return m
 }
 
 // WithMissingDataIndicator sets text shown when a row has no data for a column.
-func (m Model) WithMissingDataIndicator(str string) Model {
+func (m GridModel) WithMissingDataIndicator(str string) GridModel {
 	m.missingDataIndicator = str
 	return m
 }
 
 // WithSelectedText sets the display text for selected/unselected states.
-func (m Model) WithSelectedText(unselected, selected string) Model {
+func (m GridModel) WithSelectedText(unselected, selected string) GridModel {
 	m.selectedText = selected
 	m.unselectedText = unselected
 	return m
 }
 
 // WithAllRowsDeselected clears all row selections.
-func (m Model) WithAllRowsDeselected() Model {
+func (m GridModel) WithAllRowsDeselected() GridModel {
 	rows := m.GetVisibleRows()
 	for i, row := range rows {
 		if row.selected {
@@ -325,19 +325,19 @@ func (m Model) WithAllRowsDeselected() Model {
 }
 
 // WithMinimumHeight sets the minimum total height including borders.
-func (m Model) WithMinimumHeight(height int) Model {
+func (m GridModel) WithMinimumHeight(height int) GridModel {
 	m.minimumHeight = height
 	return m
 }
 
 // WithMetadata sets grid-level metadata passed to filter and style functions.
-func (m Model) WithMetadata(metadata map[string]any) Model {
+func (m GridModel) WithMetadata(metadata map[string]any) GridModel {
 	m.metadata = metadata
 	return m
 }
 
 // WithOverflowIndicator enables or disables overflow indicators for scrolling.
-func (m Model) WithOverflowIndicator(enabled bool) Model {
+func (m GridModel) WithOverflowIndicator(enabled bool) GridModel {
 	m.overflowIndicator = enabled
 	return m
 }
@@ -346,14 +346,14 @@ func (m Model) WithOverflowIndicator(enabled bool) Model {
 
 // WithEditable enables or disables cell editing.
 // Stub: accepted but non-functional in v0.2.0.
-func (m Model) WithEditable(editable bool) Model {
+func (m GridModel) WithEditable(editable bool) GridModel {
 	m.editable = editable
 	return m
 }
 
 // WithCellValidator sets a validation function for cell edits.
 // Stub: accepted but unused in v0.2.0.
-func (m Model) WithCellValidator(fn CellValidatorFunc) Model {
+func (m GridModel) WithCellValidator(fn CellValidatorFunc) GridModel {
 	m.cellValidator = fn
 	return m
 }
@@ -361,13 +361,13 @@ func (m Model) WithCellValidator(fn CellValidatorFunc) Model {
 // --- Help key extensions ---
 
 // WithAdditionalShortHelpKeys adds extra key bindings to short help.
-func (m Model) WithAdditionalShortHelpKeys(keys []key.Binding) Model {
+func (m GridModel) WithAdditionalShortHelpKeys(keys []key.Binding) GridModel {
 	m.additionalShortHelpKeys = func() []key.Binding { return keys }
 	return m
 }
 
 // WithAdditionalFullHelpKeys adds extra key bindings to full help.
-func (m Model) WithAdditionalFullHelpKeys(keys []key.Binding) Model {
+func (m GridModel) WithAdditionalFullHelpKeys(keys []key.Binding) GridModel {
 	m.additionalFullHelpKeys = func() []key.Binding { return keys }
 	return m
 }

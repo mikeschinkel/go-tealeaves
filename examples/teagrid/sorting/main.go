@@ -16,7 +16,7 @@ const (
 )
 
 type model struct {
-	simpleTable   teagrid.Model
+	simpleTable   teagrid.GridModel
 	columnSortKey string
 }
 

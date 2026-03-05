@@ -25,7 +25,7 @@ func WithIndicators() OverflowConfig {
 
 // visibleColumns returns the columns that fit in the viewport,
 // accounting for frozen columns and horizontal scroll offset.
-func (m Model) visibleColumns() []Column {
+func (m GridModel) visibleColumns() []Column {
 	if m.viewportWidth == 0 || m.computeTotalWidth() <= m.viewportWidth {
 		return m.columns
 	}

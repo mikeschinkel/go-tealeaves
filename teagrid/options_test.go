@@ -12,13 +12,13 @@ func TestWithRows(t *testing.T) {
 		NewRow(RowData{"x": 1}),
 		NewRow(RowData{"x": 2}),
 	}
-	m := New([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
 
 	assert.Len(t, m.GetVisibleRows(), 2)
 }
 
 func TestWithRowsResetsCache(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows([]Row{NewRow(RowData{"x": 1})})
 
 	_ = m.GetVisibleRows() // populate cache
@@ -33,27 +33,27 @@ func TestWithRowsResetsCache(t *testing.T) {
 
 func TestWithBaseStyle(t *testing.T) {
 	style := lipgloss.NewStyle().Bold(true)
-	m := New([]Column{NewColumn("x", "X", 5)}).WithBaseStyle(style)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithBaseStyle(style)
 	assert.Equal(t, style, m.baseStyle)
 }
 
 func TestWithBorder(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithBorder(Borderless())
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithBorder(Borderless())
 	assert.False(t, m.border.HasOuterBorder())
 }
 
 func TestFocused(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).Focused(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).Focused(true)
 	assert.True(t, m.GetFocused())
 }
 
 func TestWithCellCursorMode(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithCellCursorMode(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithCellCursorMode(true)
 	assert.True(t, m.GetCellCursorMode())
 }
 
 func TestWithSelectableRows(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithSelectableRows(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithSelectableRows(true)
 	assert.True(t, m.selectableRows)
 	// v0.2.0: no auto-added column
 	assert.Len(t, m.columns, 1)
@@ -65,7 +65,7 @@ func TestWithHighlightedRow(t *testing.T) {
 		NewRow(RowData{"x": 2}),
 		NewRow(RowData{"x": 3}),
 	}
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		WithHighlightedRow(2)
 
@@ -77,7 +77,7 @@ func TestWithHighlightedRowClamped(t *testing.T) {
 		NewRow(RowData{"x": 1}),
 		NewRow(RowData{"x": 2}),
 	}
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		WithHighlightedRow(100)
 
@@ -85,28 +85,28 @@ func TestWithHighlightedRowClamped(t *testing.T) {
 }
 
 func TestWithHeaderVisibility(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithHeaderVisibility(false)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithHeaderVisibility(false)
 	assert.False(t, m.GetHeaderVisibility())
 }
 
 func TestWithFooterVisibility(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithFooterVisibility(false)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithFooterVisibility(false)
 	assert.False(t, m.GetFooterVisibility())
 }
 
 func TestWithMetadata(t *testing.T) {
 	meta := map[string]any{"theme": "dark"}
-	m := New([]Column{NewColumn("x", "X", 5)}).WithMetadata(meta)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithMetadata(meta)
 	assert.Equal(t, "dark", m.metadata["theme"])
 }
 
 func TestWithOverflowIndicator(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithOverflowIndicator(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithOverflowIndicator(true)
 	assert.True(t, m.overflowIndicator)
 }
 
 func TestImmutability(t *testing.T) {
-	original := New([]Column{NewColumn("x", "X", 5)})
+	original := NewGridModel([]Column{NewColumn("x", "X", 5)})
 	modified := original.Focused(true)
 
 	assert.False(t, original.focused)
@@ -114,12 +114,12 @@ func TestImmutability(t *testing.T) {
 }
 
 func TestWithEditableStub(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).WithEditable(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithEditable(true)
 	assert.True(t, m.editable)
 }
 
 func TestWithCellValidatorStub(t *testing.T) {
 	validator := func(columnKey string, value any) error { return nil }
-	m := New([]Column{NewColumn("x", "X", 5)}).WithCellValidator(validator)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithCellValidator(validator)
 	assert.NotNil(t, m.cellValidator)
 }

@@ -83,7 +83,7 @@ func maxLen(header string, field func(server) string) int {
 }
 
 type model struct {
-	table teagrid.Model
+	table teagrid.GridModel
 }
 
 func newModel() model {
@@ -110,7 +110,7 @@ func newModel() model {
 
 	return model{
 		table: teagrid.
-			New(columns).
+			NewGridModel(columns).
 			WithRows(rows).
 			WithHorizontalFreezeColumnCount(1).
 			WithStaticFooter("Scroll: shift+left/right | Navigate: up/down | Quit: q").

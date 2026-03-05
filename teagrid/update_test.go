@@ -13,7 +13,7 @@ func newKeyPress(keyStr string) tea.KeyPressMsg {
 }
 
 func TestUpdateNotFocused(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows([]Row{NewRow(RowData{"x": 1})})
 
 	updated, cmd := m.Update(tea.KeyPressMsg{})
@@ -28,7 +28,7 @@ func TestMoveDown(t *testing.T) {
 		NewRow(RowData{"x": 3}),
 	}
 
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		Focused(true)
 
@@ -50,7 +50,7 @@ func TestMoveUp(t *testing.T) {
 		NewRow(RowData{"x": 2}),
 	}
 
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		Focused(true)
 
@@ -67,7 +67,7 @@ func TestMoveDownEmitsEvent(t *testing.T) {
 		NewRow(RowData{"x": 2}),
 	}
 
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		Focused(true)
 
@@ -90,7 +90,7 @@ func TestMoveCellRight(t *testing.T) {
 		NewColumn("c", "C", 5),
 	}
 
-	m := New(cols).
+	m := NewGridModel(cols).
 		WithCellCursorMode(true).
 		Focused(true)
 
@@ -112,7 +112,7 @@ func TestMoveCellLeft(t *testing.T) {
 		NewColumn("b", "B", 5),
 	}
 
-	m := New(cols).
+	m := NewGridModel(cols).
 		WithCellCursorMode(true).
 		Focused(true)
 
@@ -125,7 +125,7 @@ func TestSelectCell(t *testing.T) {
 		NewRow(RowData{"name": "Alice", "age": 30}),
 	}
 
-	m := New([]Column{
+	m := NewGridModel([]Column{
 		NewColumn("name", "Name", 10),
 		NewColumn("age", "Age", 5),
 	}).WithRows(rows).
@@ -153,7 +153,7 @@ func TestToggleRowSelection(t *testing.T) {
 		NewRow(RowData{"x": 2}),
 	}
 
-	m := New([]Column{NewColumn("x", "X", 5)}).
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		WithSelectableRows(true).
 		Focused(true)
@@ -180,7 +180,7 @@ func TestToggleRowSelection(t *testing.T) {
 }
 
 func TestWindowSizeMsg(t *testing.T) {
-	m := New([]Column{NewColumn("x", "X", 5)}).Focused(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).Focused(true)
 
 	updated, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
 
