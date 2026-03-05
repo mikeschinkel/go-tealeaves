@@ -20,8 +20,8 @@ const (
 	ModalTypeYesNo
 )
 
-// ModelArgs contains initialization arguments for ModalModel
-type ModelArgs struct {
+// ConfirmModelArgs contains initialization arguments for ConfirmModel
+type ConfirmModelArgs struct {
 	ScreenWidth  int
 	ScreenHeight int
 	Title        string
@@ -45,8 +45,8 @@ type ModelArgs struct {
 	FocusedButtonStyle lipgloss.Style
 }
 
-// ModalModel is a Bubble Tea model for modal dialogs
-type ModalModel struct {
+// ConfirmModel is a Bubble Tea model for modal dialogs
+type ConfirmModel struct {
 	Keys ModalKeyMap // Keyboard bindings
 
 	// Content
@@ -85,23 +85,23 @@ type ModalModel struct {
 }
 
 // NewOKModal creates a new OK-only modal (alert dialog)
-func NewOKModal(message string, args *ModelArgs) (m ModalModel) {
-	m = newModalModel(message, ModalTypeOK, args)
+func NewOKModal(message string, args *ConfirmModelArgs) (m ConfirmModel) {
+	m = newConfirmModel(message, ModalTypeOK, args)
 	return m
 }
 
 // NewYesNoModal creates a new Yes/No confirmation modal
-func NewYesNoModal(message string, args *ModelArgs) (m ModalModel) {
-	m = newModalModel(message, ModalTypeYesNo, args)
+func NewYesNoModal(message string, args *ConfirmModelArgs) (m ConfirmModel) {
+	m = newConfirmModel(message, ModalTypeYesNo, args)
 	return m
 }
 
-func newModalModel(message string, modalType ModalType, args *ModelArgs) (m ModalModel) {
+func newConfirmModel(message string, modalType ModalType, args *ConfirmModelArgs) (m ConfirmModel) {
 	if args == nil {
-		args = &ModelArgs{}
+		args = &ConfirmModelArgs{}
 	}
 
-	m = ModalModel{
+	m = ConfirmModel{
 		Keys:               DefaultModalKeyMap(),
 		title:              args.Title,
 		message:            message,
@@ -184,12 +184,12 @@ func newModalModel(message string, modalType ModalType, args *ModelArgs) (m Moda
 }
 
 // Init implements tea.Model - returns nil (no initial command)
-func (m ModalModel) Init() tea.Cmd {
+func (m ConfirmModel) Init() tea.Cmd {
 	return nil
 }
 
 // Update implements tea.Model (FOLLOWS ClearPath)
-func (m ModalModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	var keyMsg tea.KeyPressMsg
 	var ok bool
@@ -289,7 +289,7 @@ end:
 }
 
 // View implements tea.Model (FOLLOWS ClearPath)
-func (m ModalModel) View() tea.View {
+func (m ConfirmModel) View() tea.View {
 	var view string
 	var err error
 
@@ -308,7 +308,7 @@ end:
 }
 
 // Open opens the modal and returns updated model
-func (m ModalModel) Open() (ModalModel, tea.Cmd) {
+func (m ConfirmModel) Open() (ConfirmModel, tea.Cmd) {
 	m.isOpen = true
 
 	// Pre-calculate modal dimensions and position for mouse click detection
@@ -321,20 +321,20 @@ func (m ModalModel) Open() (ModalModel, tea.Cmd) {
 }
 
 // Close closes the modal and returns updated model
-func (m ModalModel) Close() (ModalModel, tea.Cmd) {
+func (m ConfirmModel) Close() (ConfirmModel, tea.Cmd) {
 	m.isOpen = false
 	return m, nil
 }
 
 // SetSize sets screen dimensions
-func (m ModalModel) SetSize(width, height int) ModalModel {
+func (m ConfirmModel) SetSize(width, height int) ConfirmModel {
 	m.screenWidth = width
 	m.screenHeight = height
 	return m
 }
 
 // TitleAlign returns the title alignment (defaults to Center if not set)
-func (m ModalModel) TitleAlign() lipgloss.Position {
+func (m ConfirmModel) TitleAlign() lipgloss.Position {
 	if m.titleAlign == nil {
 		return lipgloss.Center
 	}
@@ -342,7 +342,7 @@ func (m ModalModel) TitleAlign() lipgloss.Position {
 }
 
 // MessageAlign returns the message alignment (defaults to Center if not set)
-func (m ModalModel) MessageAlign() lipgloss.Position {
+func (m ConfirmModel) MessageAlign() lipgloss.Position {
 	if m.messageAlign == nil {
 		return lipgloss.Center
 	}
@@ -350,7 +350,7 @@ func (m ModalModel) MessageAlign() lipgloss.Position {
 }
 
 // ButtonAlign returns the button alignment (defaults to Center if not set)
-func (m ModalModel) ButtonAlign() lipgloss.Position {
+func (m ConfirmModel) ButtonAlign() lipgloss.Position {
 	if m.buttonAlign == nil {
 		return lipgloss.Center
 	}
@@ -358,33 +358,33 @@ func (m ModalModel) ButtonAlign() lipgloss.Position {
 }
 
 // WithTextAlign sets the horizontal alignment for text content (title and message, not buttons)
-func (m ModalModel) WithTextAlign(align lipgloss.Position) ModalModel {
+func (m ConfirmModel) WithTextAlign(align lipgloss.Position) ConfirmModel {
 	m.titleAlign = &align
 	m.messageAlign = &align
 	return m
 }
 
 // WithTitleAlign sets the horizontal alignment for the title
-func (m ModalModel) WithTitleAlign(align lipgloss.Position) ModalModel {
+func (m ConfirmModel) WithTitleAlign(align lipgloss.Position) ConfirmModel {
 	m.titleAlign = &align
 	return m
 }
 
 // WithMessageAlign sets the horizontal alignment for the message
-func (m ModalModel) WithMessageAlign(align lipgloss.Position) ModalModel {
+func (m ConfirmModel) WithMessageAlign(align lipgloss.Position) ConfirmModel {
 	m.messageAlign = &align
 	return m
 }
 
 // WithButtonAlign sets the horizontal alignment for the buttons
-func (m ModalModel) WithButtonAlign(align lipgloss.Position) ModalModel {
+func (m ConfirmModel) WithButtonAlign(align lipgloss.Position) ConfirmModel {
 	m.buttonAlign = &align
 	return m
 }
 
 // OverlayModal renders the modal centered over the background view.
 // Handles positioning automatically based on screen dimensions.
-func (m ModalModel) OverlayModal(background string) (view string) {
+func (m ConfirmModel) OverlayModal(background string) (view string) {
 	var row, col int
 	var modalView string
 
@@ -409,7 +409,7 @@ end:
 }
 
 // renderModal creates the modal box view (FOLLOWS ClearPath)
-func (m ModalModel) renderModal() (view string, err error) {
+func (m ConfirmModel) renderModal() (view string, err error) {
 	var content strings.Builder
 	var titleLine string
 	var messageLine string
@@ -482,7 +482,7 @@ end:
 
 // calculateMessageWidth returns the width needed for the message.
 // For multi-line messages (containing \n), returns the max line width.
-func (m ModalModel) calculateMessageWidth() (width int) {
+func (m ConfirmModel) calculateMessageWidth() (width int) {
 	lines := strings.Split(m.message, "\n")
 	for _, line := range lines {
 		lineWidth := len([]rune(line))
@@ -494,7 +494,7 @@ func (m ModalModel) calculateMessageWidth() (width int) {
 }
 
 // calculateButtonWidth returns the total width needed for buttons
-func (m ModalModel) calculateButtonWidth() (width int) {
+func (m ConfirmModel) calculateButtonWidth() (width int) {
 	if m.typ == ModalTypeOK {
 		width = len([]rune(m.okLabel)) + 4 // +4 for button padding
 	} else if m.typ == ModalTypeYesNo {
@@ -506,7 +506,7 @@ func (m ModalModel) calculateButtonWidth() (width int) {
 }
 
 // renderButtons renders the button line (FOLLOWS ClearPath)
-func (m ModalModel) renderButtons() (line string) {
+func (m ConfirmModel) renderButtons() (line string) {
 	var yesButton string
 	var noButton string
 	var okButton string
@@ -542,77 +542,77 @@ end:
 // =============================================================================
 
 // Title returns the modal title
-func (m ModalModel) Title() string {
+func (m ConfirmModel) Title() string {
 	return m.title
 }
 
 // Message returns the modal message
-func (m ModalModel) Message() string {
+func (m ConfirmModel) Message() string {
 	return m.message
 }
 
 // Type returns the modal type
-func (m ModalModel) Type() ModalType {
+func (m ConfirmModel) Type() ModalType {
 	return m.typ
 }
 
 // YesLabel returns the Yes button label
-func (m ModalModel) YesLabel() string {
+func (m ConfirmModel) YesLabel() string {
 	return m.yesLabel
 }
 
 // NoLabel returns the No button label
-func (m ModalModel) NoLabel() string {
+func (m ConfirmModel) NoLabel() string {
 	return m.noLabel
 }
 
 // OKLabel returns the OK button label
-func (m ModalModel) OKLabel() string {
+func (m ConfirmModel) OKLabel() string {
 	return m.okLabel
 }
 
 // IsOpen returns whether the modal is currently open
-func (m ModalModel) IsOpen() bool {
+func (m ConfirmModel) IsOpen() bool {
 	return m.isOpen
 }
 
 // FocusButton returns the index of the currently focused button
-func (m ModalModel) FocusButton() int {
+func (m ConfirmModel) FocusButton() int {
 	return m.focusButton
 }
 
 // ScreenWidth returns the screen width
-func (m ModalModel) ScreenWidth() int {
+func (m ConfirmModel) ScreenWidth() int {
 	return m.screenWidth
 }
 
 // ScreenHeight returns the screen height
-func (m ModalModel) ScreenHeight() int {
+func (m ConfirmModel) ScreenHeight() int {
 	return m.screenHeight
 }
 
 // BorderStyle returns the border style
-func (m ModalModel) BorderStyle() lipgloss.Style {
+func (m ConfirmModel) BorderStyle() lipgloss.Style {
 	return m.borderStyle
 }
 
 // TitleStyle returns the title style
-func (m ModalModel) TitleStyle() lipgloss.Style {
+func (m ConfirmModel) TitleStyle() lipgloss.Style {
 	return m.titleStyle
 }
 
 // MessageStyle returns the message style
-func (m ModalModel) MessageStyle() lipgloss.Style {
+func (m ConfirmModel) MessageStyle() lipgloss.Style {
 	return m.messageStyle
 }
 
 // ButtonStyle returns the unfocused button style
-func (m ModalModel) ButtonStyle() lipgloss.Style {
+func (m ConfirmModel) ButtonStyle() lipgloss.Style {
 	return m.buttonStyle
 }
 
 // FocusedButtonStyle returns the focused button style
-func (m ModalModel) FocusedButtonStyle() lipgloss.Style {
+func (m ConfirmModel) FocusedButtonStyle() lipgloss.Style {
 	return m.focusedButtonStyle
 }
 
@@ -621,61 +621,61 @@ func (m ModalModel) FocusedButtonStyle() lipgloss.Style {
 // =============================================================================
 
 // WithTitle returns a copy with the specified title
-func (m ModalModel) WithTitle(title string) ModalModel {
+func (m ConfirmModel) WithTitle(title string) ConfirmModel {
 	m.title = title
 	return m
 }
 
 // WithMessage returns a copy with the specified message
-func (m ModalModel) WithMessage(message string) ModalModel {
+func (m ConfirmModel) WithMessage(message string) ConfirmModel {
 	m.message = message
 	return m
 }
 
 // WithYesLabel returns a copy with the specified Yes button label
-func (m ModalModel) WithYesLabel(label string) ModalModel {
+func (m ConfirmModel) WithYesLabel(label string) ConfirmModel {
 	m.yesLabel = label
 	return m
 }
 
 // WithNoLabel returns a copy with the specified No button label
-func (m ModalModel) WithNoLabel(label string) ModalModel {
+func (m ConfirmModel) WithNoLabel(label string) ConfirmModel {
 	m.noLabel = label
 	return m
 }
 
 // WithOKLabel returns a copy with the specified OK button label
-func (m ModalModel) WithOKLabel(label string) ModalModel {
+func (m ConfirmModel) WithOKLabel(label string) ConfirmModel {
 	m.okLabel = label
 	return m
 }
 
 // WithBorderStyle returns a copy with the specified border style
-func (m ModalModel) WithBorderStyle(style lipgloss.Style) ModalModel {
+func (m ConfirmModel) WithBorderStyle(style lipgloss.Style) ConfirmModel {
 	m.borderStyle = style
 	return m
 }
 
 // WithTitleStyle returns a copy with the specified title style
-func (m ModalModel) WithTitleStyle(style lipgloss.Style) ModalModel {
+func (m ConfirmModel) WithTitleStyle(style lipgloss.Style) ConfirmModel {
 	m.titleStyle = style
 	return m
 }
 
 // WithMessageStyle returns a copy with the specified message style
-func (m ModalModel) WithMessageStyle(style lipgloss.Style) ModalModel {
+func (m ConfirmModel) WithMessageStyle(style lipgloss.Style) ConfirmModel {
 	m.messageStyle = style
 	return m
 }
 
 // WithButtonStyle returns a copy with the specified button style
-func (m ModalModel) WithButtonStyle(style lipgloss.Style) ModalModel {
+func (m ConfirmModel) WithButtonStyle(style lipgloss.Style) ConfirmModel {
 	m.buttonStyle = style
 	return m
 }
 
 // WithFocusedButtonStyle returns a copy with the specified focused button style
-func (m ModalModel) WithFocusedButtonStyle(style lipgloss.Style) ModalModel {
+func (m ConfirmModel) WithFocusedButtonStyle(style lipgloss.Style) ConfirmModel {
 	m.focusedButtonStyle = style
 	return m
 }
@@ -685,7 +685,7 @@ func (m ModalModel) WithFocusedButtonStyle(style lipgloss.Style) ModalModel {
 // =============================================================================
 
 // isClickOnButton checks if click coordinates are within the button row
-func (m ModalModel) isClickOnButton(x, y int) bool {
+func (m ConfirmModel) isClickOnButton(x, y int) bool {
 	// Button row is: lastRow + height - 3
 	// -3 accounts for: border (1) + padding (1) + button line offset (1)
 	buttonRow := m.lastRow + m.height - 3
@@ -694,7 +694,7 @@ func (m ModalModel) isClickOnButton(x, y int) bool {
 
 // getHoveredButton determines which button (0=Yes, 1=No) the mouse is hovering over
 // Returns -1 if not hovering over a button
-func (m ModalModel) getHoveredButton(x, y int) int {
+func (m ConfirmModel) getHoveredButton(x, y int) int {
 	if m.typ != ModalTypeYesNo {
 		return -1
 	}
@@ -717,7 +717,7 @@ func (m ModalModel) getHoveredButton(x, y int) int {
 }
 
 // handleButtonClick determines which button was clicked and returns appropriate message
-func (m ModalModel) handleButtonClick(x, y int) tea.Cmd {
+func (m ConfirmModel) handleButtonClick(x, y int) tea.Cmd {
 	// For OK modals, any click on button row closes the modal
 	if m.typ == ModalTypeOK {
 		return func() tea.Msg { return ClosedMsg{} }
@@ -732,3 +732,4 @@ func (m ModalModel) handleButtonClick(x, y int) tea.Cmd {
 	// Clicked No button (or anywhere else on button row)
 	return func() tea.Msg { return AnsweredNoMsg{} }
 }
+

@@ -11,10 +11,10 @@ import (
 )
 
 type model struct {
-	confirmDialog   teamodal.ModalModel
-	alertDialog     teamodal.ModalModel
-	multilineDialog teamodal.ModalModel
-	styledDialog    teamodal.ModalModel
+	confirmDialog   teamodal.ConfirmModel
+	alertDialog     teamodal.ConfirmModel
+	multilineDialog teamodal.ConfirmModel
+	styledDialog    teamodal.ConfirmModel
 	currentModal    string // "confirm", "alert", "multiline", or "styled"
 	confirmed       bool
 	cancelled       bool
@@ -34,25 +34,25 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.currentModal == "confirm" {
 		modal, cmd = m.confirmDialog.Update(msg)
 		if cmd != nil {
-			m.confirmDialog = modal.(teamodal.ModalModel)
+			m.confirmDialog = modal.(teamodal.ConfirmModel)
 			return m, cmd
 		}
 	} else if m.currentModal == "alert" {
 		modal, cmd = m.alertDialog.Update(msg)
 		if cmd != nil {
-			m.alertDialog = modal.(teamodal.ModalModel)
+			m.alertDialog = modal.(teamodal.ConfirmModel)
 			return m, cmd
 		}
 	} else if m.currentModal == "multiline" {
 		modal, cmd = m.multilineDialog.Update(msg)
 		if cmd != nil {
-			m.multilineDialog = modal.(teamodal.ModalModel)
+			m.multilineDialog = modal.(teamodal.ConfirmModel)
 			return m, cmd
 		}
 	} else if m.currentModal == "styled" {
 		modal, cmd = m.styledDialog.Update(msg)
 		if cmd != nil {
-			m.styledDialog = modal.(teamodal.ModalModel)
+			m.styledDialog = modal.(teamodal.ConfirmModel)
 			return m, cmd
 		}
 	}
@@ -180,20 +180,20 @@ func main() {
 	// Ensure terminal size is available
 	teamodal.EnsureTermGetSize(os.Stdout.Fd())
 
-	confirmModal := teamodal.NewYesNoModal("Do you want to proceed with this operation?", &teamodal.ModelArgs{
+	confirmModal := teamodal.NewYesNoModal("Do you want to proceed with this operation?", &teamodal.ConfirmModelArgs{
 		Title:      "Confirmation Required",
 		DefaultYes: true,
 	})
 
-	alertModal := teamodal.NewOKModal("Operation completed successfully!", &teamodal.ModelArgs{
+	alertModal := teamodal.NewOKModal("Operation completed successfully!", &teamodal.ConfirmModelArgs{
 		Title: "Success",
 	})
 
-	multilineModal := teamodal.NewOKModal("This is a multi-line message.\n\nIt demonstrates that you can use \\n\nto create line breaks in your modal text.", &teamodal.ModelArgs{
+	multilineModal := teamodal.NewOKModal("This is a multi-line message.\n\nIt demonstrates that you can use \\n\nto create line breaks in your modal text.", &teamodal.ConfirmModelArgs{
 		Title: "Multi-line Example",
 	})
 
-	styledModal := teamodal.NewYesNoModal("This modal demonstrates custom styling.\n\nNotice the custom colors for title,\nmessage, and buttons!", &teamodal.ModelArgs{
+	styledModal := teamodal.NewYesNoModal("This modal demonstrates custom styling.\n\nNotice the custom colors for title,\nmessage, and buttons!", &teamodal.ConfirmModelArgs{
 		Title:      "Custom Styling",
 		DefaultYes: true,
 		TitleStyle: lipgloss.NewStyle().

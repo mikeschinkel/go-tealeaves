@@ -8,8 +8,8 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-func newTestOKModal() ModalModel {
-	m := NewOKModal("Test alert message", &ModelArgs{
+func newTestOKModal() ConfirmModel {
+	m := NewOKModal("Test alert message", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
@@ -17,8 +17,8 @@ func newTestOKModal() ModalModel {
 	return m
 }
 
-func newTestYesNoModal() ModalModel {
-	m := NewYesNoModal("Are you sure?", &ModelArgs{
+func newTestYesNoModal() ConfirmModel {
+	m := NewYesNoModal("Are you sure?", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		DefaultYes:   true,
@@ -30,7 +30,7 @@ func newTestYesNoModal() ModalModel {
 // --- Layer 1: OK Modal ---
 
 func TestNewOKModal(t *testing.T) {
-	m := NewOKModal("Alert!", &ModelArgs{
+	m := NewOKModal("Alert!", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
@@ -46,7 +46,7 @@ func TestNewOKModal(t *testing.T) {
 }
 
 func TestNewYesNoModal(t *testing.T) {
-	m := NewYesNoModal("Continue?", &ModelArgs{
+	m := NewYesNoModal("Continue?", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		DefaultYes:   true,
@@ -60,7 +60,7 @@ func TestNewYesNoModal(t *testing.T) {
 }
 
 func TestNewYesNoModal_DefaultNo(t *testing.T) {
-	m := NewYesNoModal("Continue?", &ModelArgs{
+	m := NewYesNoModal("Continue?", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		DefaultYes:   false,
@@ -70,15 +70,15 @@ func TestNewYesNoModal_DefaultNo(t *testing.T) {
 	}
 }
 
-func TestModalModel_Open(t *testing.T) {
-	m := NewOKModal("Test", &ModelArgs{ScreenWidth: 80, ScreenHeight: 24})
+func TestConfirmModel_Open(t *testing.T) {
+	m := NewOKModal("Test", &ConfirmModelArgs{ScreenWidth: 80, ScreenHeight: 24})
 	m, _ = m.Open()
 	if !m.IsOpen() {
 		t.Error("expected IsOpen=true after Open()")
 	}
 }
 
-func TestModalModel_Close(t *testing.T) {
+func TestConfirmModel_Close(t *testing.T) {
 	m := newTestOKModal()
 	m, _ = m.Close()
 	if m.IsOpen() {
@@ -86,7 +86,7 @@ func TestModalModel_Close(t *testing.T) {
 	}
 }
 
-func TestModalModel_SetSize(t *testing.T) {
+func TestConfirmModel_SetSize(t *testing.T) {
 	m := NewOKModal("Test", nil)
 	m = m.SetSize(120, 40)
 	if m.ScreenWidth() != 120 {
@@ -100,7 +100,7 @@ func TestModalModel_SetSize(t *testing.T) {
 func TestOKModal_EnterClosesAndSendsClosedMsg(t *testing.T) {
 	m := newTestOKModal()
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after Enter")
@@ -115,7 +115,7 @@ func TestOKModal_EnterClosesAndSendsClosedMsg(t *testing.T) {
 func TestOKModal_EscClosesAndSendsClosedMsg(t *testing.T) {
 	m := newTestOKModal()
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after Esc")
@@ -136,13 +136,13 @@ func TestYesNoModal_TabTogglesFocus(t *testing.T) {
 	}
 
 	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 	if m.FocusButton() != 1 {
 		t.Errorf("expected focus=1 after Tab, got %d", m.FocusButton())
 	}
 
 	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 	if m.FocusButton() != 0 {
 		t.Errorf("expected focus=0 after second Tab, got %d", m.FocusButton())
 	}
@@ -151,7 +151,7 @@ func TestYesNoModal_TabTogglesFocus(t *testing.T) {
 func TestYesNoModal_EnterOnYes(t *testing.T) {
 	m := newTestYesNoModal() // focus=0 (Yes)
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed")
@@ -167,10 +167,10 @@ func TestYesNoModal_EnterOnNo(t *testing.T) {
 	m := newTestYesNoModal()
 	// Move to No
 	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyTab})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed")
@@ -185,7 +185,7 @@ func TestYesNoModal_EnterOnNo(t *testing.T) {
 func TestYesNoModal_EscSendsAnsweredNo(t *testing.T) {
 	m := newTestYesNoModal()
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed")
@@ -202,14 +202,14 @@ func TestYesNoModal_ArrowKeysFocus(t *testing.T) {
 
 	// Right moves to No
 	result, _ := m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 	if m.FocusButton() != 1 {
 		t.Errorf("expected focus=1 after Right, got %d", m.FocusButton())
 	}
 
 	// Left moves to Yes
 	result, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyLeft})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 	if m.FocusButton() != 0 {
 		t.Errorf("expected focus=0 after Left, got %d", m.FocusButton())
 	}
@@ -224,7 +224,7 @@ func TestYesNoModal_MouseClickYes(t *testing.T) {
 		X:      m.lastCol + m.width/2 - 5,
 		Y:      m.lastRow + m.height - 3,
 	})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after mouse click")
@@ -245,7 +245,7 @@ func TestYesNoModal_MouseClickNo(t *testing.T) {
 		X:      m.lastCol + m.width/2 + 5,
 		Y:      m.lastRow + m.height - 3,
 	})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if m.IsOpen() {
 		t.Error("expected modal closed after mouse click")
@@ -272,7 +272,7 @@ func TestYesNoModal_MouseMotionHover(t *testing.T) {
 		X: m.lastCol + m.width/2 + 5,
 		Y: m.lastRow + m.height - 3,
 	})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	// Modal should remain open
 	if !m.IsOpen() {
@@ -295,7 +295,7 @@ func TestOKModal_MouseClickMiss(t *testing.T) {
 		X:      0,
 		Y:      0,
 	})
-	m = result.(ModalModel)
+	m = result.(ConfirmModel)
 
 	if !m.IsOpen() {
 		t.Error("expected modal to remain open when click misses buttons")
@@ -308,7 +308,7 @@ func TestOKModal_MouseClickMiss(t *testing.T) {
 	}
 }
 
-func TestModalModel_ClosedIgnoresInput(t *testing.T) {
+func TestConfirmModel_ClosedIgnoresInput(t *testing.T) {
 	m := newTestOKModal()
 	m, _ = m.Close()
 
@@ -320,7 +320,7 @@ func TestModalModel_ClosedIgnoresInput(t *testing.T) {
 
 // --- Layer 2 ---
 
-func TestModalModel_View_Closed(t *testing.T) {
+func TestConfirmModel_View_Closed(t *testing.T) {
 	m := NewOKModal("Test", nil)
 	view := m.View()
 	if view.Content != "" {
@@ -328,7 +328,7 @@ func TestModalModel_View_Closed(t *testing.T) {
 	}
 }
 
-func TestModalModel_View_OKOpen(t *testing.T) {
+func TestConfirmModel_View_OKOpen(t *testing.T) {
 	m := newTestOKModal()
 	view := m.View()
 	if !strings.Contains(view.Content, "Test alert message") {
@@ -339,7 +339,7 @@ func TestModalModel_View_OKOpen(t *testing.T) {
 	}
 }
 
-func TestModalModel_View_YesNoOpen(t *testing.T) {
+func TestConfirmModel_View_YesNoOpen(t *testing.T) {
 	m := newTestYesNoModal()
 	view := m.View()
 	if !strings.Contains(view.Content, "Are you sure?") {
@@ -353,7 +353,7 @@ func TestModalModel_View_YesNoOpen(t *testing.T) {
 	}
 }
 
-func TestModalModel_OverlayModal(t *testing.T) {
+func TestConfirmModel_OverlayModal(t *testing.T) {
 	m := newTestOKModal()
 
 	bgLines := make([]string, 24)
@@ -375,8 +375,8 @@ func TestModalModel_OverlayModal(t *testing.T) {
 	}
 }
 
-func TestModalModel_CustomLabels(t *testing.T) {
-	m := NewYesNoModal("Delete?", &ModelArgs{
+func TestConfirmModel_CustomLabels(t *testing.T) {
+	m := NewYesNoModal("Delete?", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		YesLabel:     "Delete",
@@ -393,8 +393,8 @@ func TestModalModel_CustomLabels(t *testing.T) {
 	}
 }
 
-func TestModalModel_CustomLabels_Withers(t *testing.T) {
-	m := NewOKModal("Test", &ModelArgs{ScreenWidth: 80, ScreenHeight: 24})
+func TestConfirmModel_CustomLabels_Withers(t *testing.T) {
+	m := NewOKModal("Test", &ConfirmModelArgs{ScreenWidth: 80, ScreenHeight: 24})
 	m = m.WithOKLabel("Got it")
 	m, _ = m.Open()
 
@@ -404,7 +404,7 @@ func TestModalModel_CustomLabels_Withers(t *testing.T) {
 	}
 }
 
-func TestModalModel_Alignment(t *testing.T) {
+func TestConfirmModel_Alignment(t *testing.T) {
 	t.Run("DefaultIsCenter", func(t *testing.T) {
 		m := NewOKModal("Test", nil)
 		if m.TitleAlign() != lipgloss.Center {
@@ -453,7 +453,7 @@ func TestModalModel_Alignment(t *testing.T) {
 		// Note: lipgloss.Left == 0.0, which is indistinguishable from "not set"
 		// in the Args struct. Use Right (1.0) for TextAlign to test via constructor.
 		// For Left alignment, use the WithTextAlign wither instead.
-		m := NewOKModal("Test", &ModelArgs{
+		m := NewOKModal("Test", &ConfirmModelArgs{
 			ScreenWidth:  80,
 			ScreenHeight: 24,
 			TextAlign:    lipgloss.Right,
@@ -470,7 +470,7 @@ func TestModalModel_Alignment(t *testing.T) {
 	})
 
 	t.Run("LeftAlignedRender", func(t *testing.T) {
-		m := NewOKModal("Test message", &ModelArgs{
+		m := NewOKModal("Test message", &ConfirmModelArgs{
 			ScreenWidth:  80,
 			ScreenHeight: 24,
 		})
@@ -483,7 +483,7 @@ func TestModalModel_Alignment(t *testing.T) {
 	})
 }
 
-func TestModalModel_CustomStyles(t *testing.T) {
+func TestConfirmModel_CustomStyles(t *testing.T) {
 	t.Run("WithersSaveStyles", func(t *testing.T) {
 		m := NewOKModal("Test", nil)
 		customBorder := lipgloss.NewStyle().Border(lipgloss.DoubleBorder())
@@ -517,7 +517,7 @@ func TestModalModel_CustomStyles(t *testing.T) {
 
 	t.Run("StylesViaArgs", func(t *testing.T) {
 		customBorder := lipgloss.NewStyle().Border(lipgloss.DoubleBorder())
-		m := NewOKModal("Test", &ModelArgs{
+		m := NewOKModal("Test", &ConfirmModelArgs{
 			ScreenWidth:  80,
 			ScreenHeight: 24,
 			BorderStyle:  customBorder,
@@ -528,7 +528,7 @@ func TestModalModel_CustomStyles(t *testing.T) {
 	})
 
 	t.Run("CustomStyledRender", func(t *testing.T) {
-		m := NewOKModal("Styled test", &ModelArgs{
+		m := NewOKModal("Styled test", &ConfirmModelArgs{
 			ScreenWidth:  80,
 			ScreenHeight: 24,
 		})

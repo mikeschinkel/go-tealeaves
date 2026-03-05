@@ -6,9 +6,9 @@ import (
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
-func TestModalModel_WithTheme(t *testing.T) {
+func TestConfirmModel_WithTheme(t *testing.T) {
 	theme := teautils.NewTheme(teautils.DarkPalette())
-	m := NewOKModal("test", &ModelArgs{
+	m := NewOKModal("test", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	}).WithTheme(theme)
@@ -24,9 +24,9 @@ func TestModalModel_WithTheme(t *testing.T) {
 	}
 }
 
-func TestModalModel_WithTheme_PreservesContent(t *testing.T) {
+func TestConfirmModel_WithTheme_PreservesContent(t *testing.T) {
 	theme := teautils.NewTheme(teautils.DarkPalette())
-	m := NewOKModal("hello", &ModelArgs{
+	m := NewOKModal("hello", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		Title:        "Test",

@@ -25,7 +25,7 @@ func (t Task) String() string { return t.label }
 // model is the main application model
 type model struct {
 	listModal     teamodal.ListModel[Task]
-	confirmModal  teamodal.ModalModel
+	confirmModal  teamodal.ConfirmModel
 	tasks         []Task
 	pendingDelete Task
 	statusMsg     string
@@ -46,7 +46,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	if m.confirmModal.IsOpen() {
 		confirmModel, cmd = m.confirmModal.Update(msg)
 		if cmd != nil {
-			m.confirmModal = confirmModel.(teamodal.ModalModel)
+			m.confirmModal = confirmModel.(teamodal.ConfirmModel)
 			return m, cmd
 		}
 	}
@@ -246,7 +246,7 @@ func main() {
 		MaxVisible: 8,
 	})
 
-	confirmModal := teamodal.NewYesNoModal("", &teamodal.ModelArgs{
+	confirmModal := teamodal.NewYesNoModal("", &teamodal.ConfirmModelArgs{
 		Title: "Confirm Delete",
 	})
 

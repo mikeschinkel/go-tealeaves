@@ -16,12 +16,12 @@ import (
 // --- OK Modal wrapper ---
 
 type okModalProgram struct {
-	modal ModalModel
+	modal ConfirmModel
 	done  bool
 }
 
 func newOKModalProgram() okModalProgram {
-	m := NewOKModal("Test alert message", &ModelArgs{
+	m := NewOKModal("Test alert message", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
@@ -39,7 +39,7 @@ func (p okModalProgram) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	result, cmd := p.modal.Update(msg)
-	p.modal = result.(ModalModel)
+	p.modal = result.(ConfirmModel)
 	return p, cmd
 }
 
@@ -50,12 +50,12 @@ func (p okModalProgram) View() tea.View {
 // --- YesNo Modal wrapper ---
 
 type yesNoModalProgram struct {
-	modal ModalModel
+	modal ConfirmModel
 	done  bool
 }
 
 func newYesNoModalProgram() yesNoModalProgram {
-	m := NewYesNoModal("Are you sure?", &ModelArgs{
+	m := NewYesNoModal("Are you sure?", &ConfirmModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		DefaultYes:   true,
@@ -74,7 +74,7 @@ func (p yesNoModalProgram) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	}
 
 	result, cmd := p.modal.Update(msg)
-	p.modal = result.(ModalModel)
+	p.modal = result.(ConfirmModel)
 	return p, cmd
 }
 
