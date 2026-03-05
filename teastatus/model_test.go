@@ -62,7 +62,7 @@ func TestModel_Update_SetMenuItemsMsg(t *testing.T) {
 	m := NewStatusBarModel()
 	items := testMenuItems()
 	result, cmd := m.Update(SetMenuItemsMsg{Items: items})
-	m = result.(Model)
+	m = result.(StatusBarModel)
 
 	if len(m.menuItems) != 2 {
 		t.Errorf("expected 2 menu items after msg, got %d", len(m.menuItems))
@@ -76,7 +76,7 @@ func TestModel_Update_SetIndicatorsMsg(t *testing.T) {
 	m := NewStatusBarModel()
 	indicators := testIndicators()
 	result, cmd := m.Update(SetIndicatorsMsg{Indicators: indicators})
-	m = result.(Model)
+	m = result.(StatusBarModel)
 
 	if len(m.indicators) != 2 {
 		t.Errorf("expected 2 indicators after msg, got %d", len(m.indicators))
@@ -90,7 +90,7 @@ func TestModel_Update_UnknownMsg(t *testing.T) {
 	m := NewStatusBarModel()
 	m = m.SetMenuItems(testMenuItems())
 	result, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
-	updated := result.(Model)
+	updated := result.(StatusBarModel)
 
 	if len(updated.menuItems) != 2 {
 		t.Errorf("expected menu items unchanged, got %d", len(updated.menuItems))

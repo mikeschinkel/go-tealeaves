@@ -7,7 +7,7 @@ import (
 )
 
 // renderMenuItems renders the left-side menu items as "[key] label  [key] label  ..."
-func (m Model) renderMenuItems() (rendered string) {
+func (m StatusBarModel) renderMenuItems() (rendered string) {
 	if len(m.menuItems) == 0 {
 		goto end
 	}
@@ -19,7 +19,7 @@ end:
 }
 
 // buildMenuString builds the formatted menu string from menu items.
-func (m Model) buildMenuString() string {
+func (m StatusBarModel) buildMenuString() string {
 	return RenderMenuLine(m.menuItems, m.Styles)
 }
 
@@ -39,7 +39,7 @@ func RenderMenuLine(items []MenuItem, styles Styles) string {
 }
 
 // renderIndicators renders the right-side indicators according to SeparatorKind.
-func (m Model) renderIndicators() (rendered string) {
+func (m StatusBarModel) renderIndicators() (rendered string) {
 	if len(m.indicators) == 0 {
 		goto end
 	}
@@ -56,7 +56,7 @@ end:
 }
 
 // renderSeparatedIndicators renders indicators with Pipe or Space separators.
-func (m Model) renderSeparatedIndicators() string {
+func (m StatusBarModel) renderSeparatedIndicators() string {
 	var parts []string
 	var sep string
 	var indicator StatusIndicator
@@ -78,7 +78,7 @@ func (m Model) renderSeparatedIndicators() string {
 }
 
 // renderBracketIndicators renders indicators wrapped as "[text]".
-func (m Model) renderBracketIndicators() string {
+func (m StatusBarModel) renderBracketIndicators() string {
 	var parts []string
 	var indicator StatusIndicator
 
@@ -92,7 +92,7 @@ func (m Model) renderBracketIndicators() string {
 
 // indicatorStyle returns the style to use for a given indicator.
 // Uses the indicator's own Style if non-zero, otherwise falls back to the default.
-func (m Model) indicatorStyle(indicator StatusIndicator) lipgloss.Style {
+func (m StatusBarModel) indicatorStyle(indicator StatusIndicator) lipgloss.Style {
 	// Check if indicator has a custom foreground color set
 	_, isNoColor := indicator.Style.GetForeground().(lipgloss.NoColor)
 	if !isNoColor {

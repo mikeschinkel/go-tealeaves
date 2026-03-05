@@ -6,7 +6,7 @@ import (
 
 // WithTheme returns a copy with styles derived from the given theme.
 // Individual WithStyles() calls take precedence over theme if called after.
-func (m Model) WithTheme(theme teautils.Theme) Model {
+func (m StatusBarModel) WithTheme(theme teautils.Theme) StatusBarModel {
 	m.Styles = Styles{
 		MenuKeyStyle:      theme.StatusBar.MenuKeyStyle,
 		MenuLabelStyle:    theme.StatusBar.MenuLabelStyle,

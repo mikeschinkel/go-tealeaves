@@ -7,59 +7,54 @@ import (
 	"github.com/charmbracelet/x/ansi"
 )
 
-// Model is a Bubble Tea model for a two-zone status bar.
+// StatusBarModel is a Bubble Tea model for a two-zone status bar.
 // Left zone: key-action menu items (e.g., "[?] Menu  [tab] Switch pane")
 // Right zone: text indicators (e.g., "DEPS IN-FLUX | 3 batches")
-type Model struct {
+type StatusBarModel struct {
 	Styles     Styles
 	menuItems  []MenuItem
 	indicators []StatusIndicator
 	width      int
 }
 
-// NewStatusBarModel creates a new status bar Model with default styles.
-func NewStatusBarModel() Model {
-	return Model{
+// NewStatusBarModel creates a new status bar StatusBarModel with default styles.
+func NewStatusBarModel() StatusBarModel {
+	return StatusBarModel{
 		Styles: DefaultStyles(),
 	}
 }
 
-// Deprecated: Use NewStatusBarModel instead.
-func New() Model {
-	return NewStatusBarModel()
-}
-
 // WithStyles returns a copy with the given styles override.
-func (m Model) WithStyles(styles Styles) Model {
+func (m StatusBarModel) WithStyles(styles Styles) StatusBarModel {
 	m.Styles = styles
 	return m
 }
 
 // SetSize sets the terminal width for the status bar.
-func (m Model) SetSize(width int) Model {
+func (m StatusBarModel) SetSize(width int) StatusBarModel {
 	m.width = width
 	return m
 }
 
 // SetMenuItems replaces the current menu items.
-func (m Model) SetMenuItems(items []MenuItem) Model {
+func (m StatusBarModel) SetMenuItems(items []MenuItem) StatusBarModel {
 	m.menuItems = items
 	return m
 }
 
 // SetIndicators replaces the current indicators.
-func (m Model) SetIndicators(indicators []StatusIndicator) Model {
+func (m StatusBarModel) SetIndicators(indicators []StatusIndicator) StatusBarModel {
 	m.indicators = indicators
 	return m
 }
 
 // Init implements tea.Model. No-op for status bar.
-func (m Model) Init() tea.Cmd {
+func (m StatusBarModel) Init() tea.Cmd {
 	return nil
 }
 
 // Update implements tea.Model. Handles SetMenuItemsMsg and SetIndicatorsMsg.
-func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+func (m StatusBarModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case SetMenuItemsMsg:
 		m.menuItems = msg.Items
@@ -70,7 +65,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 // View implements tea.Model. Renders the two-zone status bar.
-func (m Model) View() tea.View {
+func (m StatusBarModel) View() tea.View {
 	var view string
 	var left string
 	var right string
