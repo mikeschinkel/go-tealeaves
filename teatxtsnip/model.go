@@ -10,8 +10,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-// Model wraps textarea.Model with text selection and clipboard support
-type Model struct {
+// TextSnipModel wraps textarea.Model with text selection and clipboard support
+type TextSnipModel struct {
 	textarea.Model // Embedded textarea
 
 	// Selection state
@@ -39,9 +39,9 @@ type TextSnipModelArgs struct {
 	SingleLine bool
 }
 
-// NewTextSnipModel creates a new Model with optional configuration.
+// NewTextSnipModel creates a new TextSnipModel with optional configuration.
 // Pass nil for default multi-line behavior.
-func NewTextSnipModel(args *TextSnipModelArgs) Model {
+func NewTextSnipModel(args *TextSnipModelArgs) TextSnipModel {
 	if args == nil {
 		args = &TextSnipModelArgs{}
 	}
@@ -67,7 +67,7 @@ func NewTextSnipModel(args *TextSnipModelArgs) Model {
 		km.SelectToEnd.SetEnabled(false)
 	}
 
-	return Model{
+	return TextSnipModel{
 		Model:        ta,
 		selection:    NewSelection(),
 		selectionKey: km,
@@ -75,79 +75,64 @@ func NewTextSnipModel(args *TextSnipModelArgs) Model {
 	}
 }
 
-// Deprecated: Use NewTextSnipModel(nil) instead.
-func New() Model {
-	return NewTextSnipModel(nil)
-}
-
-// Deprecated: Use NewTextSnipModel(&TextSnipModelArgs{SingleLine: true}) instead.
-func NewSingleLine() Model {
-	return NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
-}
-
-// Deprecated: Use NewTextSnipModel(&TextSnipModelArgs{Textarea: &ta}) instead.
-func NewFromTextarea(ta textarea.Model) Model {
-	return NewTextSnipModel(&TextSnipModelArgs{Textarea: &ta})
-}
-
 // IsSingleLine returns true if this is a single-line input
-func (m Model) IsSingleLine() bool {
+func (m TextSnipModel) IsSingleLine() bool {
 	return m.singleLine
 }
 
 // SelectionKeyMap returns the current selection key map
-func (m Model) SelectionKeyMap() SelectionKeyMap {
+func (m TextSnipModel) SelectionKeyMap() SelectionKeyMap {
 	return m.selectionKey
 }
 
 // SetSelectionKeyMap sets the selection key map
-func (m Model) SetSelectionKeyMap(km SelectionKeyMap) Model {
+func (m TextSnipModel) SetSelectionKeyMap(km SelectionKeyMap) TextSnipModel {
 	m.selectionKey = km
 	return m
 }
 
 // Selection returns the current selection state
-func (m Model) Selection() Selection {
+func (m TextSnipModel) Selection() Selection {
 	return m.selection
 }
 
 // HasSelection returns true if there is an active non-empty selection
-func (m Model) HasSelection() bool {
+func (m TextSnipModel) HasSelection() bool {
 	return m.selection.Active && !m.selection.IsEmpty()
 }
 
 // ClearSelection clears the current selection
-func (m Model) ClearSelection() Model {
+func (m TextSnipModel) ClearSelection() TextSnipModel {
 	m.selection = m.selection.Clear()
 	return m
 }
 
 // SetSelection sets the selection state (for saving/restoring between contexts)
-func (m Model) SetSelection(sel Selection) Model {
+func (m TextSnipModel) SetSelection(sel Selection) TextSnipModel {
 	m.selection = sel
 	return m
 }
 
 // SetLogger sets an optional logger for debugging
-func (m Model) SetLogger(logger *slog.Logger) Model {
+func (m TextSnipModel) SetLogger(logger *slog.Logger) TextSnipModel {
 	m.Logger = logger
 	return m
 }
 
 // log logs a debug message if logger is set
-func (m Model) log(msg string, args ...any) {
+func (m TextSnipModel) log(msg string, args ...any) {
 	if m.Logger != nil {
 		m.Logger.Debug(msg, args...)
 	}
 }
 
 // Init implements tea.Model
-func (m Model) Init() tea.Cmd {
+func (m TextSnipModel) Init() tea.Cmd {
 	return nil
 }
 
 // Update implements tea.Model
-func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
+func (m TextSnipModel) Update(msg tea.Msg) (TextSnipModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var cmds []tea.Cmd
 
@@ -257,7 +242,7 @@ func (m Model) Update(msg tea.Msg) (Model, tea.Cmd) {
 }
 
 // cursorPosition returns the current cursor position
-func (m Model) cursorPosition() Position {
+func (m TextSnipModel) cursorPosition() Position {
 	return Position{
 		Row: m.Model.Line(),
 		Col: m.Model.LineInfo().CharOffset,
@@ -265,12 +250,12 @@ func (m Model) cursorPosition() Position {
 }
 
 // lines returns the textarea content as a slice of lines
-func (m Model) lines() []string {
+func (m TextSnipModel) lines() []string {
 	return strings.Split(m.Model.Value(), "\n")
 }
 
 // lineRunes returns the runes for a specific line
-func (m Model) lineRunes(row int) []rune {
+func (m TextSnipModel) lineRunes(row int) []rune {
 	lines := m.lines()
 	if row < 0 || row >= len(lines) {
 		return nil
@@ -279,23 +264,23 @@ func (m Model) lineRunes(row int) []rune {
 }
 
 // lineLength returns the length (in runes) of the given line
-func (m Model) lineLength(row int) int {
+func (m TextSnipModel) lineLength(row int) int {
 	return len(m.lineRunes(row))
 }
 
 // lineCount returns the number of lines
-func (m Model) lineCount() int {
+func (m TextSnipModel) lineCount() int {
 	return len(m.lines())
 }
 
 // selectAll selects all text
-func (m Model) selectAll() Model {
+func (m TextSnipModel) selectAll() TextSnipModel {
 	m.selection = SelectAll(m.lines())
 	return m
 }
 
 // extendSelectionLeft extends selection left by n characters
-func (m Model) extendSelectionLeft(n int) Model {
+func (m TextSnipModel) extendSelectionLeft(n int) TextSnipModel {
 	pos := m.cursorPosition()
 
 	// Start selection if not active
@@ -326,7 +311,7 @@ func (m Model) extendSelectionLeft(n int) Model {
 }
 
 // extendSelectionRight extends selection right by n characters
-func (m Model) extendSelectionRight(n int) Model {
+func (m TextSnipModel) extendSelectionRight(n int) TextSnipModel {
 	pos := m.cursorPosition()
 
 	// Start selection if not active
@@ -357,7 +342,7 @@ func (m Model) extendSelectionRight(n int) Model {
 }
 
 // extendSelectionUp extends selection up one line
-func (m Model) extendSelectionUp() Model {
+func (m TextSnipModel) extendSelectionUp() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -382,7 +367,7 @@ func (m Model) extendSelectionUp() Model {
 }
 
 // extendSelectionDown extends selection down one line
-func (m Model) extendSelectionDown() Model {
+func (m TextSnipModel) extendSelectionDown() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -408,7 +393,7 @@ func (m Model) extendSelectionDown() Model {
 }
 
 // extendSelectionWordLeft extends selection to the previous word boundary
-func (m Model) extendSelectionWordLeft() Model {
+func (m TextSnipModel) extendSelectionWordLeft() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -445,7 +430,7 @@ func (m Model) extendSelectionWordLeft() Model {
 }
 
 // extendSelectionWordRight extends selection to the next word boundary
-func (m Model) extendSelectionWordRight() Model {
+func (m TextSnipModel) extendSelectionWordRight() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -483,7 +468,7 @@ func (m Model) extendSelectionWordRight() Model {
 }
 
 // extendSelectionToLineStart extends selection to start of current line
-func (m Model) extendSelectionToLineStart() Model {
+func (m TextSnipModel) extendSelectionToLineStart() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -497,7 +482,7 @@ func (m Model) extendSelectionToLineStart() Model {
 }
 
 // extendSelectionToLineEnd extends selection to end of current line
-func (m Model) extendSelectionToLineEnd() Model {
+func (m TextSnipModel) extendSelectionToLineEnd() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -512,7 +497,7 @@ func (m Model) extendSelectionToLineEnd() Model {
 }
 
 // extendSelectionToStart extends selection to start of document
-func (m Model) extendSelectionToStart() Model {
+func (m TextSnipModel) extendSelectionToStart() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -526,7 +511,7 @@ func (m Model) extendSelectionToStart() Model {
 }
 
 // extendSelectionToEnd extends selection to end of document
-func (m Model) extendSelectionToEnd() Model {
+func (m TextSnipModel) extendSelectionToEnd() TextSnipModel {
 	pos := m.cursorPosition()
 
 	if !m.selection.Active {
@@ -542,7 +527,7 @@ func (m Model) extendSelectionToEnd() Model {
 }
 
 // moveCursorTo moves the textarea cursor to the specified position
-func (m *Model) moveCursorTo(row, col int) {
+func (m *TextSnipModel) moveCursorTo(row, col int) {
 	// Move to correct row
 	currentRow := m.Model.Line()
 	for currentRow < row && currentRow < m.lineCount()-1 {

@@ -11,7 +11,7 @@ import (
 )
 
 type model struct {
-	editor   teatxtsnip.Model
+	editor   teatxtsnip.TextSnipModel
 	width    int
 	height   int
 	quitting bool

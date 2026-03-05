@@ -13,7 +13,7 @@ var SelectionStyle = lipgloss.NewStyle().
 	Foreground(lipgloss.Color("232")) // Dark text
 
 // View renders the textarea with selection highlighting
-func (m Model) View() tea.View {
+func (m TextSnipModel) View() tea.View {
 	if !m.HasSelection() {
 		// No selection - use default textarea view
 		return tea.NewView(m.Model.View())
@@ -24,7 +24,7 @@ func (m Model) View() tea.View {
 }
 
 // renderWithSelection renders the textarea content with selection highlighting
-func (m Model) renderWithSelection() string {
+func (m TextSnipModel) renderWithSelection() string {
 	// Get the textarea's raw view
 	// We need to work with the textarea's internal rendering, but add selection highlighting
 	// Since textarea.Model doesn't expose its internal rendering details,
@@ -113,7 +113,7 @@ func (m Model) renderWithSelection() string {
 }
 
 // isPositionSelected returns true if the given position is within the selection
-func (m Model) isPositionSelected(pos Position, start, end Position) bool {
+func (m TextSnipModel) isPositionSelected(pos Position, start, end Position) bool {
 	// Before start
 	if pos.Row < start.Row {
 		return false
@@ -134,7 +134,7 @@ func (m Model) isPositionSelected(pos Position, start, end Position) bool {
 }
 
 // renderFocused applies focused styling to the content
-func (m Model) renderFocused(content string, width, height int) string {
+func (m TextSnipModel) renderFocused(content string, width, height int) string {
 	style := m.Model.Styles().Focused
 
 	// Apply prompt and line styling
@@ -159,7 +159,7 @@ func (m Model) renderFocused(content string, width, height int) string {
 }
 
 // renderBlurred applies blurred styling to the content
-func (m Model) renderBlurred(content string, width, height int) string {
+func (m TextSnipModel) renderBlurred(content string, width, height int) string {
 	style := m.Model.Styles().Blurred
 	return style.Base.Render(content)
 }

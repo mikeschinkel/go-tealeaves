@@ -23,7 +23,7 @@ func initClipboard() bool {
 }
 
 // Copy copies the selected text to the clipboard
-func (m Model) Copy() Model {
+func (m TextSnipModel) Copy() TextSnipModel {
 	if !m.HasSelection() {
 		return m
 	}
@@ -34,7 +34,7 @@ func (m Model) Copy() Model {
 }
 
 // Cut copies the selected text to clipboard and deletes it
-func (m Model) Cut() Model {
+func (m TextSnipModel) Cut() TextSnipModel {
 	if !m.HasSelection() {
 		m.log("Cut: no selection, returning early")
 		return m
@@ -59,7 +59,7 @@ func (m Model) Cut() Model {
 }
 
 // Paste inserts text from clipboard, replacing any selection
-func (m Model) Paste() (Model, tea.Cmd) {
+func (m TextSnipModel) Paste() (TextSnipModel, tea.Cmd) {
 	text := m.readFromClipboard()
 	if text == "" {
 		return m, nil
@@ -78,7 +78,7 @@ func (m Model) Paste() (Model, tea.Cmd) {
 }
 
 // SelectedText returns the currently selected text
-func (m Model) SelectedText() string {
+func (m TextSnipModel) SelectedText() string {
 	if !m.HasSelection() {
 		return ""
 	}
@@ -141,7 +141,7 @@ func (m Model) SelectedText() string {
 }
 
 // deleteSelection deletes the selected text and clears the selection
-func (m Model) deleteSelection() Model {
+func (m TextSnipModel) deleteSelection() TextSnipModel {
 	if !m.HasSelection() {
 		m.log("deleteSelection: no selection, returning early")
 		return m
@@ -223,7 +223,7 @@ func truncateForLog(s string, maxLen int) string {
 }
 
 // writeToClipboard writes text to system clipboard with fallback to internal
-func (m Model) writeToClipboard(text string) Model {
+func (m TextSnipModel) writeToClipboard(text string) TextSnipModel {
 	if initClipboard() {
 		clipboard.Write(clipboard.FmtText, []byte(text))
 	}
@@ -233,7 +233,7 @@ func (m Model) writeToClipboard(text string) Model {
 }
 
 // readFromClipboard reads text from system clipboard with fallback to internal
-func (m Model) readFromClipboard() string {
+func (m TextSnipModel) readFromClipboard() string {
 	if initClipboard() {
 		data := clipboard.Read(clipboard.FmtText)
 		if len(data) > 0 {

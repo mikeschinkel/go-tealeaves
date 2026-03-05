@@ -8,7 +8,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-func newTestModel() Model {
+func newTestModel() TextSnipModel {
 	m := NewTextSnipModel(nil)
 	m.Model.SetWidth(80)
 	m.Model.SetHeight(10)
