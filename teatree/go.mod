@@ -5,6 +5,7 @@ go 1.25.5
 require (
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/mikeschinkel/go-dt v0.5.0
+	github.com/mikeschinkel/go-tealeaves/teadrpdwn v0.0.0
 	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0
 )
 
@@ -15,6 +16,7 @@ require (
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
+	golang.org/x/term v0.27.0 // indirect
 )
 
 require (
@@ -31,5 +33,7 @@ require (
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 )
+
+replace github.com/mikeschinkel/go-tealeaves/teadrpdwn => ../teadrpdwn
 
 replace github.com/mikeschinkel/go-dt => /Users/mikeschinkel/Projects/go-pkgs/go-dt

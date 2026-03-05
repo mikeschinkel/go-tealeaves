@@ -1,11 +1,8 @@
-// Package teadepview provides a Bubble Tea v2 component for navigating
-// dependency trees using a path-breadcrumb interface with dropdown selection.
+// Deprecated: Package teadepview is deprecated. Use teatree.DrillDownModel[T]
+// instead, which provides the same drill-down path navigation with generic
+// type support and integration with teatree's Node[T] type.
 //
-// Users drill into a tree by selecting children at each level, with a
-// breadcrumb trail showing the current path.
-//
-// # Stability
-//
-// This package is provisional as of v0.3.0. The public API may change in
-// minor releases until promoted to stable.
+// Migration: Replace teadepview.PathViewerModel with teatree.DrillDownModel[T],
+// teadepview.Tree with teatree.Node[T], and teadepview.SelectorFunc with
+// teatree.DrillDownSelectorFunc[T].
 package teadepview

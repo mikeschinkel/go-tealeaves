@@ -16,9 +16,11 @@ use (
 	./examples/teanotify/simple
 	./examples/teastatus/statusbar
 	./examples/teatxtsnip/editor
+	./examples/teatree/drilldown
 	./examples/teatree/filetree
 	./examples/teautils/keyhelp
 	./teadiffr
+	./teahilite
 	./teadrpdwn
 	./teadepview
 	./teagrid
