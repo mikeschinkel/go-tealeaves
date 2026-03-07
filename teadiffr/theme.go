@@ -8,7 +8,7 @@ import (
 // given theme's palette. This is an alternative to NewTUIRenderer when using
 // the theming system.
 func NewThemedTUIRenderer(theme teautils.Theme) *TUIRenderer {
-	p := theme.Palette
+	p := theme.System
 	return &TUIRenderer{
 		FileHeaderColor:    p.TextMuted,
 		BlockHeaderColor:   p.AccentAlt,

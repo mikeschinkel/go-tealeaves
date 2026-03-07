@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewThemedTUIRenderer(t *testing.T) {
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	r := NewThemedTUIRenderer(theme)
 
 	if r.AddedColor == nil {
