@@ -1,7 +1,5 @@
 package teautils
 
-// EXTRACTION-BOUNDARY: teahelp
-
 import (
 	"sort"
 	"strings"

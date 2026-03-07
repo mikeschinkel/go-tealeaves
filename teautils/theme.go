@@ -5,9 +5,10 @@ import (
 )
 
 // Theme holds derived lipgloss.Style values for each component, built from
-// a Palette. Components accept Theme via WithTheme() to override their defaults.
+// a SystemPalette. Components accept Theme via WithTheme() to override their
+// defaults.
 type Theme struct {
-	Palette Palette
+	System SystemPalette
 
 	// Common styles derived from palette
 	Border        lipgloss.Style
@@ -21,12 +22,20 @@ type Theme struct {
 	ActiveItem    lipgloss.Style
 
 	// Component-specific style groups
-	StatusBar StatusBarTheme
-	HelpVisor HelpVisorTheme
-	Modal     ModalTheme
-	Dropdown  DropdownTheme
-	List      ListTheme
-	Grid      GridTheme
+	Breadcrumb BreadcrumbTheme
+	StatusBar  StatusBarTheme
+	HelpVisor  HelpVisorTheme
+	Modal      ModalTheme
+	Dropdown   DropdownTheme
+	List       ListTheme
+	Grid       GridTheme
+}
+
+// BreadcrumbTheme holds styles for the teacrumbs breadcrumb component.
+type BreadcrumbTheme struct {
+	ParentStyle    lipgloss.Style
+	CurrentStyle   lipgloss.Style
+	SeparatorStyle lipgloss.Style
 }
 
 // StatusBarTheme holds styles for the teastatus status bar component.
@@ -84,11 +93,13 @@ type GridTheme struct {
 	BorderStyle    lipgloss.Style
 }
 
-// NewTheme builds a Theme from a Palette, deriving all styles from the
-// palette's semantic color slots.
-func NewTheme(p Palette) Theme {
+// NewTheme builds a Theme from a SystemPalette, deriving all styles from the
+// palette's semantic color slots. Single-color styles use SemanticColor's cached
+// methods; multi-property styles chain from the cached base.
+func NewTheme(sys SystemPalette) Theme {
+	p := sys
 	return Theme{
-		Palette: p,
+		System: sys,
 
 		// Common styles
 		Border: lipgloss.NewStyle().
@@ -97,51 +108,36 @@ func NewTheme(p Palette) Theme {
 		BorderAccent: lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
 			BorderForeground(p.BorderAccent),
-		Title: lipgloss.NewStyle().
-			Foreground(p.Accent).
-			Bold(true),
-		Message: lipgloss.NewStyle().
-			Foreground(p.TextSecondary),
-		Button: lipgloss.NewStyle().
-			Foreground(p.ButtonFg),
-		FocusedButton: lipgloss.NewStyle().
-			Foreground(p.ButtonFocusFg).
-			Background(p.ButtonFocusBg),
-		Item: lipgloss.NewStyle().
-			Foreground(p.TextPrimary),
-		SelectedItem: lipgloss.NewStyle().
-			Foreground(p.SelectionFg).
-			Background(p.SelectionBg),
-		ActiveItem: lipgloss.NewStyle().
-			Foreground(p.Accent),
+		Title:         p.Accent.Foreground().Bold(true),
+		Message:       p.TextSecondary.Foreground(),
+		Button:        p.ButtonFg.Foreground(),
+		FocusedButton: p.ButtonFocusFg.Foreground().Background(p.ButtonFocusBg),
+		Item:          p.TextPrimary.Foreground(),
+		SelectedItem:  p.SelectionFg.Foreground().Background(p.SelectionBg),
+		ActiveItem:    p.Accent.Foreground(),
+
+		// Breadcrumb
+		Breadcrumb: BreadcrumbTheme{
+			ParentStyle:    p.TextMuted.Foreground(),
+			CurrentStyle:   p.Accent.Foreground().Bold(true),
+			SeparatorStyle: p.AccentSubtle.Foreground(),
+		},
 
 		// Status bar
 		StatusBar: StatusBarTheme{
-			MenuKeyStyle: lipgloss.NewStyle().
-				Foreground(p.AccentSubtle).
-				Bold(true),
-			MenuLabelStyle: lipgloss.NewStyle().
-				Foreground(p.TextSecondary),
-			IndicatorStyle: lipgloss.NewStyle().
-				Foreground(p.TextSecondary),
-			IndicatorSepStyle: lipgloss.NewStyle().
-				Foreground(p.TextDim),
-			BarStyle: lipgloss.NewStyle(),
+			MenuKeyStyle:      p.AccentSubtle.Foreground().Bold(true),
+			MenuLabelStyle:    p.TextSecondary.Foreground(),
+			IndicatorStyle:    p.TextSecondary.Foreground(),
+			IndicatorSepStyle: p.TextDim.Foreground(),
+			BarStyle:          lipgloss.NewStyle(),
 		},
 
 		// Help visor
 		HelpVisor: HelpVisorTheme{
-			TitleStyle: lipgloss.NewStyle().
-				Bold(true).
-				Foreground(p.AccentAlt),
-			CategoryStyle: lipgloss.NewStyle().
-				Bold(true).
-				Foreground(p.AccentAlt),
-			KeyStyle: lipgloss.NewStyle().
-				Foreground(p.AccentSubtle).
-				Bold(true),
-			DescStyle: lipgloss.NewStyle().
-				Foreground(p.TextSecondary),
+			TitleStyle:    p.AccentAlt.Foreground().Bold(true),
+			CategoryStyle: p.AccentAlt.Foreground().Bold(true),
+			KeyStyle:      p.AccentSubtle.Foreground().Bold(true),
+			DescStyle:     p.TextSecondary.Foreground(),
 		},
 
 		// Modal
@@ -149,20 +145,12 @@ func NewTheme(p Palette) Theme {
 			BorderStyle: lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder()).
 				BorderForeground(p.BorderAccent),
-			TitleStyle: lipgloss.NewStyle().
-				Foreground(p.Accent).
-				Bold(true),
-			MessageStyle: lipgloss.NewStyle().
-				Foreground(p.TextSecondary),
-			ButtonStyle: lipgloss.NewStyle().
-				Foreground(p.ButtonFg),
-			FocusedButtonStyle: lipgloss.NewStyle().
-				Foreground(p.ButtonFocusFg).
-				Background(p.ButtonFocusBg),
-			CancelKeyStyle: lipgloss.NewStyle().
-				Foreground(p.Accent),
-			CancelTextStyle: lipgloss.NewStyle().
-				Foreground(p.TextMuted),
+			TitleStyle:         p.Accent.Foreground().Bold(true),
+			MessageStyle:       p.TextSecondary.Foreground(),
+			ButtonStyle:        p.ButtonFg.Foreground(),
+			FocusedButtonStyle: p.ButtonFocusFg.Foreground().Background(p.ButtonFocusBg),
+			CancelKeyStyle:     p.Accent.Foreground(),
+			CancelTextStyle:    p.TextMuted.Foreground(),
 		},
 
 		// Dropdown
@@ -170,52 +158,33 @@ func NewTheme(p Palette) Theme {
 			BorderStyle: lipgloss.NewStyle().
 				Border(lipgloss.RoundedBorder()).
 				BorderForeground(p.Border),
-			ItemStyle: lipgloss.NewStyle().
-				Foreground(p.TextPrimary),
-			SelectedStyle: lipgloss.NewStyle().
-				Foreground(p.SelectionFg).
-				Background(p.SelectionBg),
+			ItemStyle:     p.TextPrimary.Foreground(),
+			SelectedStyle: p.SelectionFg.Foreground().Background(p.SelectionBg),
 		},
 
 		// List
 		List: ListTheme{
-			ItemStyle: lipgloss.NewStyle().
-				Foreground(p.TextSecondary),
-			SelectedItemStyle: lipgloss.NewStyle().
-				Foreground(p.SelectionFg).
-				Background(p.SelectionBg),
-			ActiveItemStyle: lipgloss.NewStyle().
-				Foreground(p.Accent),
-			FooterStyle: lipgloss.NewStyle().
-				Foreground(p.TextDim),
-			StatusStyle: lipgloss.NewStyle().
-				Foreground(p.StatusWarn),
-			EditItemStyle: lipgloss.NewStyle().
-				Foreground(p.EditFg).
-				Background(p.EditBg),
-			ScrollbarStyle: lipgloss.NewStyle().
-				Foreground(p.ScrollTrack),
-			ScrollThumbStyle: lipgloss.NewStyle().
-				Foreground(p.ScrollThumb),
+			ItemStyle:         p.TextSecondary.Foreground(),
+			SelectedItemStyle: p.SelectionFg.Foreground().Background(p.SelectionBg),
+			ActiveItemStyle:   p.Accent.Foreground(),
+			FooterStyle:       p.TextDim.Foreground(),
+			StatusStyle:       p.StatusWarn.Foreground(),
+			EditItemStyle:     p.EditFg.Foreground().Background(p.EditBg),
+			ScrollbarStyle:    p.ScrollTrack.Foreground(),
+			ScrollThumbStyle:  p.ScrollThumb.Foreground(),
 		},
 
 		// Grid
 		Grid: GridTheme{
-			HeaderStyle: lipgloss.NewStyle().
-				Bold(true).
-				Foreground(p.TextPrimary),
-			BaseStyle: lipgloss.NewStyle().
-				Foreground(p.TextSecondary),
-			HighlightStyle: lipgloss.NewStyle().
-				Background(p.SelectionBg).
-				Foreground(p.SelectionFg),
-			BorderStyle: lipgloss.NewStyle().
-				Foreground(p.Border),
+			HeaderStyle:    p.TextPrimary.Foreground().Bold(true),
+			BaseStyle:      p.TextSecondary.Foreground(),
+			HighlightStyle: p.SelectionFg.Foreground().Background(p.SelectionBg),
+			BorderStyle:    p.Border.Foreground(),
 		},
 	}
 }
 
-// DefaultTheme returns NewTheme(DefaultPalette()).
+// DefaultTheme returns NewTheme(DefaultSystemPalette()).
 func DefaultTheme() Theme {
-	return NewTheme(DefaultPalette())
+	return NewTheme(DefaultSystemPalette(nil))
 }

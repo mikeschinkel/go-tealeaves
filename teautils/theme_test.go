@@ -5,12 +5,12 @@ import (
 )
 
 func TestNewTheme_FromDarkPalette(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	// Verify palette is stored
-	if theme.Palette.TextPrimary == nil {
-		t.Error("theme.Palette.TextPrimary is nil")
+	if theme.System.TextPrimary.IsZero() {
+		t.Error("theme.System.TextPrimary is zero")
 	}
 
 	// Verify common styles are non-zero (have foreground set)
@@ -22,8 +22,23 @@ func TestNewTheme_FromDarkPalette(t *testing.T) {
 	}
 }
 
+func TestNewTheme_BreadcrumbStyles(t *testing.T) {
+	p := DarkSystemPalette(nil)
+	theme := NewTheme(p)
+
+	if theme.Breadcrumb.ParentStyle.GetForeground() == nil {
+		t.Error("Breadcrumb.ParentStyle has no foreground")
+	}
+	if theme.Breadcrumb.CurrentStyle.GetForeground() == nil {
+		t.Error("Breadcrumb.CurrentStyle has no foreground")
+	}
+	if theme.Breadcrumb.SeparatorStyle.GetForeground() == nil {
+		t.Error("Breadcrumb.SeparatorStyle has no foreground")
+	}
+}
+
 func TestNewTheme_StatusBarStyles(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	if theme.StatusBar.MenuKeyStyle.GetForeground() == nil {
@@ -38,7 +53,7 @@ func TestNewTheme_StatusBarStyles(t *testing.T) {
 }
 
 func TestNewTheme_HelpVisorStyles(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	if theme.HelpVisor.TitleStyle.GetForeground() == nil {
@@ -53,7 +68,7 @@ func TestNewTheme_HelpVisorStyles(t *testing.T) {
 }
 
 func TestNewTheme_ModalStyles(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	if theme.Modal.TitleStyle.GetForeground() == nil {
@@ -65,7 +80,7 @@ func TestNewTheme_ModalStyles(t *testing.T) {
 }
 
 func TestNewTheme_DropdownStyles(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	if theme.Dropdown.ItemStyle.GetForeground() == nil {
@@ -77,7 +92,7 @@ func TestNewTheme_DropdownStyles(t *testing.T) {
 }
 
 func TestNewTheme_ListStyles(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	if theme.List.ItemStyle.GetForeground() == nil {
@@ -92,7 +107,7 @@ func TestNewTheme_ListStyles(t *testing.T) {
 }
 
 func TestNewTheme_GridStyles(t *testing.T) {
-	p := DarkPalette()
+	p := DarkSystemPalette(nil)
 	theme := NewTheme(p)
 
 	if theme.Grid.HighlightStyle.GetBackground() == nil {
@@ -105,8 +120,8 @@ func TestNewTheme_GridStyles(t *testing.T) {
 
 func TestDefaultTheme_ReturnsValid(t *testing.T) {
 	theme := DefaultTheme()
-	if theme.Palette.TextPrimary == nil {
-		t.Error("DefaultTheme().Palette.TextPrimary is nil")
+	if theme.System.TextPrimary.IsZero() {
+		t.Error("DefaultTheme().System.TextPrimary is zero")
 	}
 	if theme.Title.GetForeground() == nil {
 		t.Error("DefaultTheme().Title has no foreground")
@@ -114,12 +129,12 @@ func TestDefaultTheme_ReturnsValid(t *testing.T) {
 }
 
 func TestNewTheme_FromLightPalette(t *testing.T) {
-	p := LightPalette()
+	p := LightSystemPalette(nil)
 	theme := NewTheme(p)
 
 	// Should use light palette colors
-	if theme.Palette.TextPrimary == nil {
-		t.Error("light theme.Palette.TextPrimary is nil")
+	if theme.System.TextPrimary.IsZero() {
+		t.Error("light theme.System.TextPrimary is zero")
 	}
 	if theme.Title.GetForeground() == nil {
 		t.Error("light theme.Title has no foreground")
