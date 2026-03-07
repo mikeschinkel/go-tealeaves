@@ -10,7 +10,7 @@ import (
 // selection highlight.
 func (m TextSnipModel) WithTheme(theme teautils.Theme) TextSnipModel {
 	SelectionStyle = lipgloss.NewStyle().
-		Background(theme.Palette.FocusBg).
-		Foreground(theme.Palette.TextPrimary)
+		Background(theme.System.FocusBg).
+		Foreground(theme.System.TextPrimary)
 	return m
 }
