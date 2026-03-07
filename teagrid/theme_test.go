@@ -10,7 +10,7 @@ func TestWithTheme_AppliesGridStyles(t *testing.T) {
 	cols := []Column{NewColumn("id", "ID", 5)}
 	m := NewGridModel(cols)
 
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m = m.WithTheme(theme)
 
 	if m.highlightStyle.GetBackground() == nil {
@@ -23,7 +23,7 @@ func TestWithTheme_AppliesGridStyles(t *testing.T) {
 
 func TestWithTheme_ThenWithHighlightStyle_Overrides(t *testing.T) {
 	cols := []Column{NewColumn("id", "ID", 5)}
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m := NewGridModel(cols).WithTheme(theme).WithHighlightStyle(defaultHighlightStyle)
 
 	// WithHighlightStyle should override theme
