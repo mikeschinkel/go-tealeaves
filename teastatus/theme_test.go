@@ -7,7 +7,7 @@ import (
 )
 
 func TestWithTheme_AppliesStyles(t *testing.T) {
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m := NewStatusBarModel().WithTheme(theme)
 
 	if m.Styles.MenuKeyStyle.GetForeground() == nil {
@@ -26,7 +26,7 @@ func TestWithTheme_PreservesNonStyleFields(t *testing.T) {
 	origSep := m.Styles.MenuSeparator
 	origKind := m.Styles.SeparatorKind
 
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m = m.WithTheme(theme)
 
 	if m.Styles.MenuSeparator != origSep {
@@ -38,7 +38,7 @@ func TestWithTheme_PreservesNonStyleFields(t *testing.T) {
 }
 
 func TestWithTheme_ThenWithStyles_Overrides(t *testing.T) {
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	custom := DefaultStyles()
 	m := NewStatusBarModel().WithTheme(theme).WithStyles(custom)
 
