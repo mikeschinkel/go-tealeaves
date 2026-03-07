@@ -9,6 +9,8 @@ import (
 	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
 )
 
+//DEBUG THIS
+
 // DrillDownModel is a Bubble Tea model for drill-down path navigation.
 // It displays a vertical breadcrumb trail from root to leaf, allowing the user
 // to navigate levels and switch between sibling nodes via a dropdown.
@@ -19,8 +21,8 @@ type DrillDownModel[T any] struct {
 	root *Node[T] // Complete tree root
 
 	// Path is a slice of pointers to nodes in the tree
-	Path          []*Node[T]              `json:"path,omitempty"`
-	SelectedLevel int                     `json:"selected_level,omitempty"`
+	Path          []*Node[T]               `json:"path,omitempty"`
+	SelectedLevel int                      `json:"selected_level,omitempty"`
 	SelectorFunc  DrillDownSelectorFunc[T] `json:"-"`
 
 	// Display state
