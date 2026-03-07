@@ -7,7 +7,7 @@ import (
 )
 
 func TestDropdownModel_WithTheme(t *testing.T) {
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	opts := []Option{{Text: "A"}, {Text: "B"}}
 	m := NewDropdownModel(opts, nil).WithTheme(theme)
 
