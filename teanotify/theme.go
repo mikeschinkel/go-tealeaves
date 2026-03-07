@@ -10,7 +10,7 @@ import (
 // Warn, Error, Debug). Custom notice types are unchanged.
 func (m NotifyModel) WithTheme(theme teautils.Theme) (out NotifyModel) {
 	out = m
-	p := theme.Palette
+	p := theme.System
 
 	colorMap := map[NoticeKey]colorful.Color{
 		InfoKey:  colorfulFromImageColor(p.StatusInfo),

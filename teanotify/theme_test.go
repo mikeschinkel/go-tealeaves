@@ -19,7 +19,7 @@ func TestWithTheme_UpdatesDefaultNoticeColors(t *testing.T) {
 
 	origInfo := m.noticeTypes[InfoKey].ForeColor
 
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m = m.WithTheme(theme)
 
 	newInfo := m.noticeTypes[InfoKey].ForeColor
@@ -46,7 +46,7 @@ func TestWithTheme_PreservesCustomNotices(t *testing.T) {
 		t.Fatalf("Initialize failed: %v", err)
 	}
 
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m = m.WithTheme(theme)
 
 	// Custom notice should be unchanged
@@ -61,7 +61,7 @@ func TestWithTheme_UninitializedModel(t *testing.T) {
 		Duration: time.Second,
 	})
 	// Not initialized — noticeTypes is nil
-	theme := teautils.NewTheme(teautils.DarkPalette())
+	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
 	m = m.WithTheme(theme)
 
 	// Should not panic, noticeTypes stays nil
