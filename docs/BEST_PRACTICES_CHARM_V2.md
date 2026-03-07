@@ -10,8 +10,22 @@ If you are working with v1 (`github.com/charmbracelet/lipgloss` and `github.com/
 |----|-----|
 | `github.com/charmbracelet/bubbletea` | `charm.land/bubbletea/v2` |
 | `github.com/charmbracelet/lipgloss` | `charm.land/lipgloss/v2` |
+| `github.com/charmbracelet/bubbles` | `charm.land/bubbles/v2` |
 
-Other charmbracelet packages (`x/ansi`, `bubbles`, etc.) may also have moved. Check current documentation for each.
+Note: `github.com/charmbracelet/x/ansi` did NOT move — same import path in v2.
+
+### Key API Renames (v1 to v2)
+
+| v1 | v2 | Notes |
+|----|-----|-------|
+| `tea.KeyMsg` | `tea.KeyPressMsg` | v2 also adds `tea.KeyReleaseMsg` |
+| `View() string` | `View() tea.View` | `tea.View` has `.Content`, `.AltScreen`, `.MouseMode` fields |
+| `.BorderStyle(b)` | `.Border(b, sides...)` | `BorderStyle()` still exists but `Border()` is canonical v2 |
+
+In v2, `View()` returns a `tea.View` struct. To get the rendered string, use `.View().Content`:
+```go
+childContent := m.childModel.View().Content
+```
 
 ---
 
@@ -97,6 +111,43 @@ style.Width(totalWidth)  // Border fits inside totalWidth
 
 If you are migrating from v1, search your codebase for every `Width(` and `Height(` call that subtracts border sizes. Remove those subtractions.
 
+### How Width Affects Text Wrapping Internally
+
+Lipgloss v2 wraps text based on Width. The actual wrapping limit is computed as:
+
+```
+wrapAt = Width - borderSize - padding
+       = content area
+```
+
+This means **Width must include border + padding + content** for text to wrap correctly. If you only add padding to your content width, the border eats into the wrap budget and text word-wraps prematurely.
+
+**Anti-pattern (causes word-wrapping):**
+```go
+// BUG: only accounts for padding, not border
+style.Width(contentWidth + padding)
+// wrapAt = contentWidth + padding - border - padding = contentWidth - border
+// Lines at contentWidth will WORD-WRAP because wrapAt < contentWidth!
+```
+
+**Correct pattern:**
+```go
+// v2: Width must include border + padding
+style.Width(contentWidth + style.GetHorizontalPadding() + style.GetHorizontalBorderSize())
+// wrapAt = contentWidth + padding + border - border - padding = contentWidth ✓
+```
+
+This is the converse of the "computing content area" formula. When you HAVE content and need Width:
+
+```go
+// Computing Width from known content width:
+totalWidth := contentWidth + style.GetHorizontalPadding() + style.GetHorizontalBorderSize()
+style.Width(totalWidth)
+
+// Computing content width from known Width:
+contentWidth := totalWidth - style.GetHorizontalPadding() - style.GetHorizontalBorderSize()
+```
+
 ---
 
 ## The Border/Padding/Margin Box Model in v2
@@ -140,9 +191,15 @@ m.viewport.SetWidth(contentWidth)
 You can also use lipgloss's built-in helpers:
 
 ```go
-hFrame := style.GetHorizontalFrameSize()  // border + padding, both sides
+// When you have NO margins (the common case):
+hFrame := style.GetHorizontalFrameSize()  // margins + border + padding
 contentWidth := totalWidth - hFrame
+
+// More precise (works regardless of margins):
+contentWidth := totalWidth - style.GetHorizontalPadding() - style.GetHorizontalBorderSize()
 ```
+
+**Caution:** `GetHorizontalFrameSize()` returns `margins + padding + border`. Since Width does NOT include margins, the shorthand `Width - GetHorizontalFrameSize()` is only correct when margins are zero. When margins are present, use `GetHorizontalPadding() + GetHorizontalBorderSize()` explicitly.
 
 ---
 
@@ -182,14 +239,14 @@ Unchanged from v1. The **parent model** applies borders, not child components.
 
 ```go
 // Parent model
-func (m MyModel) View() string {
-    childContent := m.childModel.View()  // Child returns raw content
+func (m MyModel) View() tea.View {
+    childContent := m.childModel.View().Content  // Child returns tea.View; get string
 
     // Parent wraps with border
     style := lipgloss.NewStyle().
         Width(m.paneTotalWidth).
-        BorderStyle(lipgloss.RoundedBorder())
-    return style.Render(childContent)
+        Border(lipgloss.RoundedBorder())
+    return tea.NewView(style.Render(childContent))
 }
 ```
 
@@ -371,7 +428,7 @@ func (m AppModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     m.modal, modalCmd = m.modal.Update(msg)
 
     // Only pass messages to view stack if no modal was open
-    if _, isKey := msg.(tea.KeyMsg); isKey && modalWasOpen {
+    if _, isKey := msg.(tea.KeyPressMsg); isKey && modalWasOpen {
         // Modal consumed the key - don't pass to view stack
     } else {
         viewStackCmd = m.updateViewStack(msg)
@@ -433,6 +490,7 @@ m.Logger.Info("WIDTH DEBUG View",
 | Actual = Calculated + 2 | NOT subtracting border -- but you set Width to content width, not total |
 | Content truncated | Content width not accounting for border+padding inside Width() |
 | Too much whitespace | Content width double-subtracting border |
+| Long lines word-wrap inside border | Width only includes padding, not border -- `Width(content + padding)` should be `Width(content + padding + border)` |
 
 ### THE v2 DEBUGGING CHECKLIST
 
@@ -559,13 +617,18 @@ case tea.WindowSizeMsg:
 
 When migrating code from lipgloss v1 to v2:
 
-- [ ] Update import paths (`github.com/charmbracelet/*` to `charm.land/*/v2`)
+- [ ] Update import paths (`github.com/charmbracelet/*` to `charm.land/*/v2`), including bubbles
+- [ ] Rename `tea.KeyMsg` to `tea.KeyPressMsg` in all type switches/assertions
+- [ ] Update `View()` return type from `string` to `tea.View`; use `tea.NewView()` to construct
+- [ ] Update `.View()` call sites on child models: `.View()` → `.View().Content` to get string
 - [ ] Remove ALL border subtraction from `Width()` calls -- `Width(total - border)` becomes `Width(total)`
 - [ ] Remove ALL border subtraction from `Height()` calls -- same change
-- [ ] Update content width derivation to subtract frame from Width: `contentWidth = width - style.GetHorizontalFrameSize()`
+- [ ] When computing Width from content: `Width(content + padding + border)`, NOT `Width(content + padding)`
+- [ ] Update content width derivation: `contentWidth = width - GetHorizontalPadding() - GetHorizontalBorderSize()`
 - [ ] Verify child `SetSize()` calls use content width, not total width
 - [ ] Run debug logging to confirm actual rendered widths match expected
 - [ ] Check for any `Width(n - 2)` or `Width(n - borderWidth)` patterns -- these are v1 patterns that are BUGS in v2
+- [ ] Check for `Width(content + padding)` patterns -- must also add border in v2
 - [ ] Verify margin usage -- margins are still outside Width in v2 (unchanged)
 
 ---
@@ -604,16 +667,21 @@ Before implementing overlay compositing:
 **v2 Key Facts:**
 - `Width(n)` = total rendered width is `n` characters (border + padding + content all inside)
 - `Height(n)` = total rendered height is `n` lines (border + padding + content all inside)
-- Content area = `Width - GetHorizontalFrameSize()`
+- Content area = `Width - GetHorizontalPadding() - GetHorizontalBorderSize()` (precise)
+- Content area = `Width - GetHorizontalFrameSize()` (shorthand, only when margins are 0)
 - Margins are OUTSIDE Width (unchanged from v1)
 - Borders are 1 character per side (2 total) -- unchanged
-- `GetHorizontalFrameSize()` returns total horizontal border + padding
-- `GetVerticalFrameSize()` returns total vertical border + padding
+- `GetHorizontalFrameSize()` returns total horizontal **margins + border + padding**
+- `GetVerticalFrameSize()` returns total vertical **margins + border + padding**
+- `GetHorizontalPadding()` + `GetHorizontalBorderSize()` = frame size WITHOUT margins
 
 **Most Common v1-to-v2 Bugs:**
 1. Subtracting border from `Width()` -- v2 already includes it
-2. Passing total width instead of content width to child `SetSize()`
-3. Using old import paths (`github.com/charmbracelet/` instead of `charm.land/`)
+2. Setting `Width(content + padding)` without adding border -- causes premature word-wrapping
+3. Passing total width instead of content width to child `SetSize()`
+4. Using old import paths (`github.com/charmbracelet/` instead of `charm.land/`)
+5. Using `tea.KeyMsg` instead of `tea.KeyPressMsg`
+6. Returning `string` from `View()` instead of `tea.View`
 
 ---
 

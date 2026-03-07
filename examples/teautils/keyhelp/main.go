@@ -8,27 +8,21 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+	"github.com/mikeschinkel/go-tealeaves/teahelp"
+	"github.com/mikeschinkel/go-tealeaves/teamodal"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
 type model struct {
 	registry  *teautils.KeyRegistry
-	showHelp  bool
+	helpVisor teahelp.HelpVisorModel
 	width     int
 	height    int
-	statusMsg string
 }
 
 var (
-	titleStyle    = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("205"))
-	categoryStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("86")).MarginTop(1)
-	keyStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("226"))
-	descStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("252"))
-	helpStyle     = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
-	borderStyle   = lipgloss.NewStyle().
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(lipgloss.Color("63")).
-			Padding(1, 2)
+	pageTitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("205"))
+	helpStyle      = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 )
 
 func main() {
@@ -118,7 +112,8 @@ func main() {
 	})
 
 	m := model{
-		registry: registry,
+		registry:  registry,
+		helpVisor: teahelp.NewHelpVisorModel(),
 	}
 
 	p := tea.NewProgram(m)
@@ -137,26 +132,23 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		m.helpVisor = m.helpVisor.SetSize(msg.Width, msg.Height)
 		return m, nil
 
 	case tea.KeyPressMsg:
+		// When visor is open, delegate all keys to it
+		if m.helpVisor.IsOpen() {
+			var cmd tea.Cmd
+			m.helpVisor, cmd = m.helpVisor.Update(msg)
+			return m, cmd
+		}
+
 		switch msg.String() {
 		case "q", "ctrl+c":
-			if !m.showHelp {
-				return m, tea.Quit
-			}
-			m.showHelp = false
-			return m, nil
-
+			return m, tea.Quit
 		case "?":
-			m.showHelp = !m.showHelp
+			m.helpVisor = m.helpVisor.Open(m.registry.ByCategory())
 			return m, nil
-
-		case "esc":
-			if m.showHelp {
-				m.showHelp = false
-				return m, nil
-			}
 		}
 	}
 
@@ -169,7 +161,7 @@ func (m model) View() tea.View {
 	}
 
 	var b strings.Builder
-	b.WriteString(titleStyle.Render("TeaUtils Key Help Example"))
+	b.WriteString(pageTitleStyle.Render("TeaUtils Key Help Example"))
 	b.WriteString("\n\n")
 	b.WriteString("This example demonstrates the KeyRegistry system.\n")
 	b.WriteString("Press ? to toggle the help modal.\n\n")
@@ -206,81 +198,14 @@ func (m model) View() tea.View {
 	}
 	view = strings.Join(lines, "\n")
 
-	// Overlay help modal if open
-	if m.showHelp {
-		helpContent := m.renderHelpModal()
-		_, _, row, col := teautils.CenterModal(helpContent, m.width, m.height)
-		view = overlayAt(view, helpContent, row, col)
+	// Overlay help visor if open
+	if m.helpVisor.IsOpen() {
+		helpView := m.helpVisor.View().Content
+		_, _, row, col := teautils.CenterModal(helpView, m.width, m.height)
+		view = teamodal.OverlayModal(view, helpView, row, col)
 	}
 
 	v := tea.NewView(view)
 	v.AltScreen = true
 	return v
-}
-
-func (m model) renderHelpModal() string {
-	var content strings.Builder
-
-	style := teautils.DefaultHelpVisorStyle()
-	byCategory := m.registry.ByCategory()
-	sorted := teautils.GetSortedCategories(byCategory, style.CategoryOrder)
-
-	content.WriteString(titleStyle.Render("Keyboard Shortcuts"))
-	content.WriteString("\n")
-
-	for _, cat := range sorted {
-		keys := byCategory[cat]
-		content.WriteString("\n")
-		content.WriteString(categoryStyle.Render(cat))
-		content.WriteString("\n")
-		for _, km := range keys {
-			display := teautils.FormatKeyDisplay(km)
-			paddedKey := fmt.Sprintf("%-16s", display)
-			content.WriteString(fmt.Sprintf("  %s %s\n",
-				keyStyle.Render(paddedKey),
-				descStyle.Render(km.HelpText),
-			))
-		}
-	}
-
-	content.WriteString("\n")
-	content.WriteString(helpStyle.Render("Press ? or Esc to close"))
-
-	return borderStyle.Render(content.String())
-}
-
-// overlayAt places overlay text on top of base text at the given row/col
-func overlayAt(base, overlay string, row, col int) string {
-	baseLines := strings.Split(base, "\n")
-	overlayLines := strings.Split(overlay, "\n")
-
-	for i, overlayLine := range overlayLines {
-		targetRow := row + i
-		if targetRow < 0 || targetRow >= len(baseLines) {
-			continue
-		}
-
-		baseLine := baseLines[targetRow]
-		baseRunes := []rune(baseLine)
-
-		// Pad base line if needed
-		for len(baseRunes) < col {
-			baseRunes = append(baseRunes, ' ')
-		}
-
-		// Build new line: base prefix + overlay + base suffix
-		overlayRunes := []rune(overlayLine)
-		endCol := col + len(overlayRunes)
-
-		var result []rune
-		result = append(result, baseRunes[:col]...)
-		result = append(result, overlayRunes...)
-		if endCol < len(baseRunes) {
-			result = append(result, baseRunes[endCol:]...)
-		}
-
-		baseLines[targetRow] = string(result)
-	}
-
-	return strings.Join(baseLines, "\n")
 }

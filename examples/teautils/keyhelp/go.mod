@@ -2,7 +2,11 @@ module github.com/mikeschinkel/go-tealeaves/examples/teautils/keyhelp
 
 go 1.25.5
 
-require github.com/mikeschinkel/go-tealeaves/teautils v0.0.0
+require (
+	github.com/mikeschinkel/go-tealeaves/teahelp v0.0.0
+	github.com/mikeschinkel/go-tealeaves/teamodal v0.0.0
+	github.com/mikeschinkel/go-tealeaves/teautils v0.0.0
+)
 
 require (
 	github.com/charmbracelet/ultraviolet v0.0.0-20260205113103-524a6607adb8 // indirect
@@ -10,6 +14,7 @@ require (
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
+	golang.org/x/term v0.27.0 // indirect
 )
 
 require (
@@ -29,6 +34,10 @@ require (
 	golang.org/x/sync v0.19.0 // indirect
 	golang.org/x/sys v0.41.0 // indirect
 )
+
+replace github.com/mikeschinkel/go-tealeaves/teahelp => ../../../teahelp
+
+replace github.com/mikeschinkel/go-tealeaves/teamodal => ../../../teamodal
 
 replace github.com/mikeschinkel/go-tealeaves/teautils => ../../../teautils
 

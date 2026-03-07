@@ -14,15 +14,19 @@ use (
 	./examples/teamodal/vertical
 	./examples/teanotify/simple
 	./examples/teastatus/statusbar
+	./examples/teadiffview/splitdiff
 	./examples/teatxtsnip/editor
 	./examples/teatree/drilldown
 	./examples/teatree/filetree
 	./examples/teautils/keyhelp
+	./examples/teautils/theming
+	./teacrumbs
 	./teadiffr
 	./teadiffview
 	./teahilite
 	./teadrpdwn
 	./teagrid
+	./teahelp
 	./teamodal
 	./teanotify
 	./teastatus
