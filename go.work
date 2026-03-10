@@ -2,35 +2,35 @@ go 1.25.7
 
 use (
 	./cmd/color-viewer
-	./examples/teadrpdwn/demo
-	./examples/teadrpdwn/simple
-	./examples/teagrid/filtering
-	./examples/teagrid/scrolling
-	./examples/teagrid/simplest
-	./examples/teagrid/sorting
-	./examples/teamodal/choices
-	./examples/teamodal/editlist
-	./examples/teamodal/various
-	./examples/teamodal/vertical
-	./examples/teanotify/simple
-	./examples/teastatus/statusbar
-	./examples/teadiffview/splitdiff
-	./examples/teatxtsnip/editor
-	./examples/teatree/drilldown
-	./examples/teatree/filetree
-	./examples/teautils/keyhelp
-	./examples/teautils/theming
 	./teacrumbs
 	./teadiffr
 	./teadiffview
-	./teahilite
+	./teadiffview/examples/splitdiff
 	./teadrpdwn
+	./teadrpdwn/examples/demo
+	./teadrpdwn/examples/simple
 	./teagrid
+	./teagrid/examples/filtering
+	./teagrid/examples/scrolling
+	./teagrid/examples/simplest
+	./teagrid/examples/sorting
 	./teahelp
+	./teahilite
 	./teamodal
+	./teamodal/examples/choices
+	./teamodal/examples/editlist
+	./teamodal/examples/various
+	./teamodal/examples/vertical
 	./teanotify
+	./teanotify/examples/simple
 	./teastatus
-	./teatxtsnip
+	./teastatus/examples/statusbar
 	./teatree
+	./teatree/examples/drilldown
+	./teatree/examples/filetree
+	./teatxtsnip
+	./teatxtsnip/examples/editor
 	./teautils
+	./teautils/examples/keyhelp
+	./teautils/examples/theming
 )
