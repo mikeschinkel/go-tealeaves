@@ -2,7 +2,7 @@ package teacrumbs
 
 import "charm.land/lipgloss/v2"
 
-// Styles holds all styling for the breadcrumb trail.
+// Styles holds all styling for the breadcrumb crumbs.
 type Styles struct {
 	// ParentStyle is applied to all breadcrumbs except the last.
 	ParentStyle lipgloss.Style
@@ -12,6 +12,9 @@ type Styles struct {
 
 	// SeparatorStyle is applied to the separator between breadcrumbs.
 	SeparatorStyle lipgloss.Style
+
+	// HoverStyle is applied to the breadcrumb under the mouse cursor.
+	HoverStyle lipgloss.Style
 }
 
 // DefaultStyles returns defaults matching the current cyan/gray scheme.
@@ -24,5 +27,8 @@ func DefaultStyles() Styles {
 			Bold(true),
 		SeparatorStyle: lipgloss.NewStyle().
 			Foreground(lipgloss.Color("240")), // Darker gray
+		HoverStyle: lipgloss.NewStyle().
+			Foreground(lipgloss.Color("117")). // Light blue
+			Underline(true),
 	}
 }

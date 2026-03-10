@@ -11,6 +11,7 @@ func (m BreadcrumbsModel) WithTheme(theme teautils.Theme) BreadcrumbsModel {
 		ParentStyle:    theme.Breadcrumb.ParentStyle,
 		CurrentStyle:   theme.Breadcrumb.CurrentStyle,
 		SeparatorStyle: theme.Breadcrumb.SeparatorStyle,
+		HoverStyle:     theme.Breadcrumb.HoverStyle,
 	}
 	return m
 }

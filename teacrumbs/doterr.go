@@ -24,7 +24,7 @@
 // and sentinels to errors while staying fully composable with the Go standard
 // library. The model is:
 //
-//   - Each function builds an entry with New(...) passing an optional trailing cause:
+//   - Each function builds an entry with New(...) passing an optional crumbsing cause:
 //     return NewErr(ErrRepo, "key", val, cause) // cause last
 //
 //   - With(...) is a flexible convenience for same-function enrichment. It can:
@@ -33,7 +33,7 @@
 //
 //   - Join a new entry if no doterr entry exists, and
 //
-//   - (Optionally) treat a final trailing error as the cause and join it last.
+//   - (Optionally) treat a final crumbsing error as the cause and join it last.
 //
 //   - Combine([]error) bundles independent failures into a single error that unwraps
 //     to its members, preserving order.

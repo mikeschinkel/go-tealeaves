@@ -36,6 +36,7 @@ type BreadcrumbTheme struct {
 	ParentStyle    lipgloss.Style
 	CurrentStyle   lipgloss.Style
 	SeparatorStyle lipgloss.Style
+	HoverStyle     lipgloss.Style
 }
 
 // StatusBarTheme holds styles for the teastatus status bar component.
@@ -121,6 +122,7 @@ func NewTheme(sys SystemPalette) Theme {
 			ParentStyle:    p.TextMuted.Foreground(),
 			CurrentStyle:   p.Accent.Foreground().Bold(true),
 			SeparatorStyle: p.AccentSubtle.Foreground(),
+			HoverStyle:     p.Accent.Foreground().Underline(true),
 		},
 
 		// Status bar

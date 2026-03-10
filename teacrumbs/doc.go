@@ -21,10 +21,10 @@
 // THE SOFTWARE.
 
 // Package teacrumbs provides a Bubble Tea v2 component for rendering
-// a breadcrumb trail navigation bar.
+// a breadcrumb crumbs navigation bar.
 //
-// The breadcrumb trail displays the current navigation path with styled
-// parent crumbs, separator, and current crumb. The trail automatically
+// The breadcrumb crumbs displays the current navigation path with styled
+// parent crumbs, separator, and current crumb. The crumbs automatically
 // truncates to fit within the available width.
 //
 // Usage:
