@@ -1,9 +1,9 @@
 // Deprecated: Package teadiffr is superseded by
-// [github.com/mikeschinkel/go-tealeaves/teadiffview].
+// [github.com/mikeschinkel/go-tealeaves/teadiff].
 //
-// teadiffview contains all the same condensed diff types (TUIRenderer,
+// teadiff contains all the same condensed diff types (TUIRenderer,
 // DiffRenderer, FileDiff, CondensedBlock, etc.) plus the new
-// [teadiffview.SplitDiffModel] for interactive side-by-side diff viewing.
+// [teadiff.SplitDiffModel] for interactive side-by-side diff viewing.
 //
 // Migration: change your import path from
 //
@@ -11,7 +11,7 @@
 //
 // to
 //
-//	"github.com/mikeschinkel/go-tealeaves/teadiffview"
+//	"github.com/mikeschinkel/go-tealeaves/teadiff"
 //
 // All types and functions have the same names and signatures.
 package teadiffr

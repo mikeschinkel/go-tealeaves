@@ -1,4 +1,4 @@
-package teadiffview
+package teadiff
 
 // FileStatus indicates whether a file is new, deleted, or modified.
 type FileStatus int
@@ -11,7 +11,7 @@ const (
 
 // CondensedBlock represents a condensed view of a change block.
 type CondensedBlock struct {
-	Type          string   // "added" or "deleted"
+	Type          string // "added" or "deleted"
 	LineCount     int
 	ContextBefore []string
 	ChangedLines  []string

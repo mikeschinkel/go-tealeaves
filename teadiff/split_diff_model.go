@@ -1,4 +1,4 @@
-package teadiffview
+package teadiff
 
 import (
 	"fmt"
@@ -36,8 +36,8 @@ type SplitDiffModelArgs struct {
 	Width             int
 	Height            int
 	Logger            *slog.Logger
-	HighlightFunc     func(text, language string) string  // Optional syntax highlighting
-	InlineHighlighter diffutils.InlineHighlighter         // Optional char-level highlighting
+	HighlightFunc     func(text, language string) string // Optional syntax highlighting
+	InlineHighlighter diffutils.InlineHighlighter        // Optional char-level highlighting
 }
 
 // SplitDiffModel displays two diff panes side-by-side with synchronized scrolling.

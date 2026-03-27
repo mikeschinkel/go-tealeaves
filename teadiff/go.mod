@@ -1,4 +1,4 @@
-module github.com/mikeschinkel/go-tealeaves/teadiffview
+module github.com/mikeschinkel/go-tealeaves/teadiff
 
 go 1.25.7
 

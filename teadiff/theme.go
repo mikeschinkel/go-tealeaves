@@ -1,4 +1,4 @@
-package teadiffview
+package teadiff
 
 import (
 	"image/color"

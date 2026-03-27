@@ -1,4 +1,4 @@
-package teadiffview
+package teadiff
 
 // SplitPaneRow holds one row of a side-by-side diff display.
 // Each row has a left (old) and right (new) pane line.
@@ -24,7 +24,7 @@ type TextLine struct {
 }
 
 func (tl TextLine) LineNo() int { return tl.lineNo }
-func (TextLine) PaneLine()     {}
+func (TextLine) PaneLine()      {}
 
 // NewTextLine creates a new TextLine instance.
 func NewTextLine(lineNo int, text string) *TextLine {
@@ -43,8 +43,8 @@ type BlockMarker struct {
 	LineCount int
 }
 
-func (BlockMarker) PaneLine()       {}
-func (bm BlockMarker) LineNo() int  { return bm.lineNo }
+func (BlockMarker) PaneLine()      {}
+func (bm BlockMarker) LineNo() int { return bm.lineNo }
 
 // NewBlockMarker creates a new BlockMarker instance.
 func NewBlockMarker(lineNo int, lineCount int) *BlockMarker {
@@ -68,8 +68,8 @@ type PlaceholderLine struct {
 	HunkLine int
 }
 
-func (PlaceholderLine) PaneLine()       {}
-func (hr PlaceholderLine) LineNo() int  { return hr.lineNo }
+func (PlaceholderLine) PaneLine()      {}
+func (hr PlaceholderLine) LineNo() int { return hr.lineNo }
 
 // NewPlaceholderLine creates a new PlaceholderLine instance.
 func NewPlaceholderLine(lineNo int, hunkLine int) *PlaceholderLine {

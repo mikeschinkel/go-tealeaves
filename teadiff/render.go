@@ -1,4 +1,4 @@
-package teadiffview
+package teadiff
 
 // RenderFileDiffs renders multiple file diffs into styled lines.
 // Each file gets a header, followed by its blocks with context and change lines.

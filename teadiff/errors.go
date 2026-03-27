@@ -1,9 +1,9 @@
-package teadiffview
+package teadiff
 
 import "errors"
 
 var (
-	// ErrDiffView is the layer sentinel for all teadiffview errors.
+	// ErrDiffView is the layer sentinel for all teadiff errors.
 	ErrDiffView = errors.New("diffview")
 
 	// ErrInvalidFile indicates an invalid file diff (e.g., nil or missing path).

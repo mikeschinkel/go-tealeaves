@@ -1,4 +1,4 @@
-// Package teadiffview provides TUI diff rendering components for Bubble Tea.
+// Package teadiff provides TUI diff rendering components for Bubble Tea.
 //
 // It includes two rendering modes:
 //
@@ -14,7 +14,7 @@
 // This package replaces teadiffr, which is now deprecated. Import paths:
 //
 //	Old: github.com/mikeschinkel/go-tealeaves/teadiffr
-//	New: github.com/mikeschinkel/go-tealeaves/teadiffview
+//	New: github.com/mikeschinkel/go-tealeaves/teadiff
 //
 // All teadiffr types are available here unchanged: [TUIRenderer],
 // [DiffRenderer], [FileDiff], [CondensedBlock], [FileStatus], etc.
@@ -23,4 +23,4 @@
 //
 // This package is provisional as of v0.1.0. The public API may change in
 // minor releases until promoted to stable.
-package teadiffview
+package teadiff

@@ -8,7 +8,7 @@ import (
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-diffutils"
-	"github.com/mikeschinkel/go-tealeaves/teadiffview"
+	"github.com/mikeschinkel/go-tealeaves/teadiff"
 )
 
 // Sample "before" and "after" texts for demonstration.
@@ -47,7 +47,7 @@ func Farewell(name string) string {
 `
 
 type model struct {
-	split  teadiffview.SplitDiffModel
+	split  teadiff.SplitDiffModel
 	width  int
 	height int
 }
@@ -62,7 +62,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	split := teadiffview.NewSplitDiffModel(&teadiffview.SplitDiffModelArgs{
+	split := teadiff.NewSplitDiffModel(&teadiff.SplitDiffModelArgs{
 		Width:  80,
 		Height: 24,
 	})

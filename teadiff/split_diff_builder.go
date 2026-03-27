@@ -1,4 +1,4 @@
-package teadiffview
+package teadiff
 
 import (
 	"fmt"
@@ -39,8 +39,8 @@ func buildSplitPaneDiff(content *diffutils.DiffContent, logger *slog.Logger) []S
 			"changes", len(content.Changes))
 	}
 
-	oldIdx := 0  // 0-based index into OldLines
-	newIdx := 0  // 0-based index into NewLines
+	oldIdx := 0    // 0-based index into OldLines
+	newIdx := 0    // 0-based index into NewLines
 	changeIdx := 0 // Current Change being processed
 
 	for rowIdx := 0; rowIdx < maxLines; rowIdx++ {
