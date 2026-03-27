@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	tea "charm.land/bubbletea/v2"
-	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
+	"github.com/mikeschinkel/go-tealeaves/teafields"
 )
 
 func extractMsg(cmd tea.Cmd) tea.Msg {
@@ -347,7 +347,7 @@ func TestDrillDownModel_DropdownSelection(t *testing.T) {
 	}
 
 	// Select C (index=1)
-	result, cmd := m.Update(teadrpdwn.OptionSelectedMsg{
+	result, cmd := m.Update(teafields.OptionSelectedMsg{
 		Index: 1,
 		Text:  "C",
 	})
@@ -390,7 +390,7 @@ func TestDrillDownModel_DropdownCancellation(t *testing.T) {
 	}
 
 	// Cancel
-	result, _ = m.Update(teadrpdwn.DropdownCancelledMsg{})
+	result, _ = m.Update(teafields.DropdownCancelledMsg{})
 	m = result.(DrillDownModel[string])
 
 	if m.DropdownOpen {

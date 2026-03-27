@@ -1,4 +1,4 @@
-## teadrpdwn — A Dropdown Component for Bubble Tea Apps
+## teafields — A Dropdown Component for Bubble Tea Apps
 
 A TUI dropdown/popup selection component for **FULL SCREEN** [Bubble Tea](https://github.com/charmbracelet/bubbletea), with intelligent automatic positioning.
 
@@ -18,7 +18,7 @@ A TUI dropdown/popup selection component for **FULL SCREEN** [Bubble Tea](https:
 
 ```bash
 # Currently part of gommod module
-# Future standalone: go get github.com/mikeschinkel/go-tealeaves/teadrpdwn
+# Future standalone: go get github.com/mikeschinkel/go-tealeaves/teafields
 ```
 
 ## Quick Start
@@ -32,11 +32,11 @@ import (
     "strings"
 
     tea "github.com/charmbracelet/bubbletea"
-    "github.com/mikeschinkel/go-tealeaves/teadrpdwn"
+    "github.com/mikeschinkel/go-tealeaves/teafields"
 )
 
 type model struct {
-    dropdown teadrpdwn.DropdownModel
+    dropdown teafields.DropdownModel
 }
 
 func (m model) Init() tea.Cmd {
@@ -50,18 +50,18 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Let dropdown handle message first
     dropdown, cmd = m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
+        m.dropdown = dropdown.(teafields.DropdownModel)
         return m, cmd
     }
 
     // Dropdown didn't handle - parent processes
     switch msg := msg.(type) {
-    case teadrpdwn.OptionSelectedMsg:
+    case teafields.OptionSelectedMsg:
         fmt.Printf("Selected: %s\n", msg.Text)
         // msg.Value contains the underlying value (same as Text when using ToOptions)
         return m, tea.Quit
 
-    case teadrpdwn.DropdownCancelledMsg:
+    case teafields.DropdownCancelledMsg:
         return m, tea.Quit
 
     case tea.KeyMsg:
@@ -98,16 +98,16 @@ func (m model) View() string {
     // Composite dropdown if open
     if m.dropdown.IsOpen {
         dropdownView := m.dropdown.View()
-        return teadrpdwn.OverlayDropdown(baseView, dropdownView, m.dropdown.Row, m.dropdown.Col)
+        return teafields.OverlayDropdown(baseView, dropdownView, m.dropdown.Row, m.dropdown.Col)
     }
 
     return baseView
 }
 
 func main() {
-    items := teadrpdwn.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
+    items := teafields.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
 
-    dropdown := teadrpdwn.NewDropdownModel(items, &teadrpdwn.DropdownModelArgs{
+    dropdown := teafields.NewDropdownModel(items, &teafields.DropdownModelArgs{
         FieldRow:     5,
         FieldCol:     4,
         ScreenWidth:  80,
@@ -152,10 +152,10 @@ Converts a string slice to Options where Text and Value are the same. Useful for
 **Example:**
 ```go
 // Simple case - strings
-items := teadrpdwn.ToOptions([]string{"Apple", "Banana", "Cherry"})
+items := teafields.ToOptions([]string{"Apple", "Banana", "Cherry"})
 
 // Advanced case - with values
-items := []teadrpdwn.Option{
+items := []teafields.Option{
     {Text: "Apple", Value: 1},
     {Text: "Banana (Fresh)", Value: 2},
     {Text: "Record #123", Value: dbRecord},
@@ -340,7 +340,7 @@ Robust terminal size detection with IDE fallbacks. This utility helps get accura
 ```go
 func main() {
     // Call before starting Bubble Tea program to ensure term.GetSize() is ready
-    teadrpdwn.EnsureTermGetSize(os.Stdout.Fd())
+    teafields.EnsureTermGetSize(os.Stdout.Fd())
 
     p := tea.NewProgram(initialModel(), tea.WithAltScreen())
     // ...
@@ -355,7 +355,7 @@ Customize dropdown appearance by providing styles in `DropdownModelArgs`:
 
 **Example**:
 ```go
-dropdown := teadrpdwn.NewDropdownModel(items, &teadrpdwn.DropdownModelArgs{
+dropdown := teafields.NewDropdownModel(items, &teafields.DropdownModelArgs{
     FieldRow:     5,
     FieldCol:     10,
     ScreenWidth:  80,
@@ -407,7 +407,7 @@ All visual aspects are customizable via lipgloss styles:
 ```go
 import "github.com/charmbracelet/lipgloss"
 
-dropdown := teadrpdwn.NewDropdownModel(items, &teadrpdwn.DropdownModelArgs{
+dropdown := teafields.NewDropdownModel(items, &teafields.DropdownModelArgs{
     FieldRow:     row,
     FieldCol:     col,
     ScreenWidth:  80,
@@ -466,13 +466,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Let dropdown handle first
     dropdown, cmd = m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
+        m.dropdown = dropdown.(teafields.DropdownModel)
         return m, cmd  // Dropdown consumed message - we're done
     }
 
     // Dropdown didn't handle - parent processes
     switch msg := msg.(type) {
-    case teadrpdwn.OptionSelectedMsg:
+    case teafields.OptionSelectedMsg:
         // Handle selection
         m.selectedValue = msg.Value
         m.dropdown, cmd = m.dropdown.Close()

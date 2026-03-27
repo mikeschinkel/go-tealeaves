@@ -6,7 +6,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
+	"github.com/mikeschinkel/go-tealeaves/teafields"
 )
 
 //DEBUG THIS
@@ -35,7 +35,7 @@ type DrillDownModel[T any] struct {
 	InsertLine bool `json:"insert_line,omitempty"`
 
 	// Dropdown for alternatives
-	Dropdown     teadrpdwn.DropdownModel `json:"dropdown"`
+	Dropdown     teafields.DropdownModel `json:"dropdown"`
 	DropdownOpen bool                    `json:"dropdown_open,omitempty"`
 
 	// Styling (public for customization)
@@ -141,13 +141,13 @@ func (m DrillDownModel[T]) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		m.Height = t.Height
 		goto end
 
-	case teadrpdwn.OptionSelectedMsg:
+	case teafields.OptionSelectedMsg:
 		if !m.DropdownOpen {
 			goto end
 		}
 		m, cmd = m.handleDropdownSelection(t)
 		goto end
-	case teadrpdwn.DropdownCancelledMsg:
+	case teafields.DropdownCancelledMsg:
 		if !m.DropdownOpen {
 			goto end
 		}
@@ -249,14 +249,14 @@ func (m DrillDownModel[T]) View() tea.View {
 	// Overlay dropdown if open
 	if m.DropdownOpen {
 		dropdownView = m.Dropdown.View().Content
-		view = teadrpdwn.OverlayDropdown(view, dropdownView, m.Dropdown.Row, m.Dropdown.Col)
+		view = teafields.OverlayDropdown(view, dropdownView, m.Dropdown.Row, m.Dropdown.Col)
 	}
 
 	return tea.NewView(view)
 }
 
 // handleDropdownSelection processes dropdown item selection
-func (m DrillDownModel[T]) handleDropdownSelection(selectedMsg teadrpdwn.OptionSelectedMsg) (model DrillDownModel[T], cmd tea.Cmd) {
+func (m DrillDownModel[T]) handleDropdownSelection(selectedMsg teafields.OptionSelectedMsg) (model DrillDownModel[T], cmd tea.Cmd) {
 	var currentNode *Node[T]
 	var alts []*Node[T]
 	var newNode *Node[T]
@@ -309,7 +309,7 @@ func (m DrillDownModel[T]) handleDropdownInput(msg tea.Msg) (model DrillDownMode
 
 	model = m
 	dropdown, cmd = model.Dropdown.Update(msg)
-	model.Dropdown = dropdown.(teadrpdwn.DropdownModel)
+	model.Dropdown = dropdown.(teafields.DropdownModel)
 	handled = cmd != nil
 
 	return model, cmd, handled
@@ -384,7 +384,7 @@ func (m DrillDownModel[T]) handleOpenDropdown() (model DrillDownModel[T], cmd te
 	row = model.SelectedLevel + 3 // Account for title/padding + 1 row below
 	col = 2                       // Indent
 
-	model.Dropdown = teadrpdwn.NewDropdownModel(teadrpdwn.ToOptions(items), &teadrpdwn.DropdownModelArgs{
+	model.Dropdown = teafields.NewDropdownModel(teafields.ToOptions(items), &teafields.DropdownModelArgs{
 		FieldRow:     row,
 		FieldCol:     col,
 		ScreenWidth:  model.Width,

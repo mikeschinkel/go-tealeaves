@@ -1,4 +1,4 @@
-package teadrpdwn
+package teafields
 
 // Position represents field position for testing permutations
 type Position int

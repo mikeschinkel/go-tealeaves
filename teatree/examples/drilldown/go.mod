@@ -22,7 +22,7 @@ require (
 	github.com/mattn/go-runewidth v0.0.20 // indirect
 	github.com/mikeschinkel/go-dt v0.5.0 // indirect
 	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
-	github.com/mikeschinkel/go-tealeaves/teadrpdwn v0.0.0 // indirect
+	github.com/mikeschinkel/go-tealeaves/teafields v0.0.0 // indirect
 	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
@@ -34,7 +34,7 @@ require (
 
 replace github.com/mikeschinkel/go-tealeaves/teatree => ../../
 
-replace github.com/mikeschinkel/go-tealeaves/teadrpdwn => ../../../teadrpdwn
+replace github.com/mikeschinkel/go-tealeaves/teafields => ../../../teafields
 
 replace github.com/mikeschinkel/go-tealeaves/teautils => ../../../teautils
 

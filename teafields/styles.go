@@ -1,4 +1,4 @@
-package teadrpdwn
+package teafields
 
 import "charm.land/lipgloss/v2"
 

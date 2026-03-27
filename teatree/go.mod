@@ -5,7 +5,7 @@ go 1.25.5
 require (
 	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/mikeschinkel/go-dt v0.5.0
-	github.com/mikeschinkel/go-tealeaves/teadrpdwn v0.0.0
+	github.com/mikeschinkel/go-tealeaves/teafields v0.0.0
 	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0
 )
 
@@ -34,6 +34,6 @@ require (
 	golang.org/x/sys v0.41.0 // indirect
 )
 
-replace github.com/mikeschinkel/go-tealeaves/teadrpdwn => ../teadrpdwn
+replace github.com/mikeschinkel/go-tealeaves/teafields => ../teafields
 
 replace github.com/mikeschinkel/go-dt => /Users/mikeschinkel/Projects/go-pkgs/go-dt

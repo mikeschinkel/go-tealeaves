@@ -1,4 +1,4 @@
-package teadrpdwn
+package teafields
 
 // Option represents a dropdown item with display text and optional value
 type Option struct {

@@ -1,4 +1,4 @@
-module github.com/mikeschinkel/go-tealeaves/teadrpdwn
+module github.com/mikeschinkel/go-tealeaves/teafields
 
 go 1.25.5
 

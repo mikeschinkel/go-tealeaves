@@ -1,4 +1,4 @@
-// Package teadrpdwn provides a Bubble Tea v2 component for popup dropdown
+// Package teafields provides a Bubble Tea v2 component for popup dropdown
 // selection menus.
 //
 // A dropdown appears at a specified screen position (relative to a field),
@@ -6,7 +6,7 @@
 //
 // Usage:
 //
-//	dd := teadrpdwn.NewDropdownModel(options, &teadrpdwn.DropdownModelArgs{
+//	dd := teafields.NewDropdownModel(options, &teafields.DropdownModelArgs{
 //	    FieldRow: 5, FieldCol: 10,
 //	    ScreenWidth: 80, ScreenHeight: 24,
 //	})
@@ -16,4 +16,4 @@
 //
 // This package is provisional as of v0.3.0. The public API may change in
 // minor releases until promoted to stable.
-package teadrpdwn
+package teafields

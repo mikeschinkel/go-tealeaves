@@ -67,7 +67,7 @@ type ModalTheme struct {
 	CancelTextStyle    lipgloss.Style
 }
 
-// DropdownTheme holds styles for the teadrpdwn dropdown component.
+// DropdownTheme holds styles for the teafields dropdown component.
 type DropdownTheme struct {
 	BorderStyle   lipgloss.Style
 	ItemStyle     lipgloss.Style
