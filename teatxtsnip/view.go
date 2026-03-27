@@ -12,15 +12,19 @@ var SelectionStyle = lipgloss.NewStyle().
 	Background(lipgloss.Color("39")). // Light blue background
 	Foreground(lipgloss.Color("232")) // Dark text
 
-// View renders the textarea with selection highlighting
-func (m TextSnipModel) View() tea.View {
+// View renders the textarea with selection highlighting (FOLLOWS ClearPath)
+func (m TextSnipModel) View() (view tea.View) {
 	if !m.HasSelection() {
 		// No selection - use default textarea view
-		return tea.NewView(m.Model.View())
+		view = tea.NewView(m.Model.View())
+		goto end
 	}
 
 	// With selection, we need to render with highlighting
-	return tea.NewView(m.renderWithSelection())
+	view = tea.NewView(m.renderWithSelection())
+
+end:
+	return view
 }
 
 // renderWithSelection renders the textarea content with selection highlighting

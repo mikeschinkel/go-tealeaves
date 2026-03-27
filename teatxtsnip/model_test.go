@@ -15,7 +15,7 @@ func newTestModel() TextSnipModel {
 	m.Model.SetValue("Hello World\nSecond line\nThird line")
 	m.Model.Focus()
 	// Move cursor to start
-	m.moveCursorTo(0, 0)
+	m = m.moveCursorTo(0, 0)
 	return m
 }
 
@@ -54,7 +54,7 @@ func TestNewTextSnipModel_FromTextarea(t *testing.T) {
 func TestModel_SelectLeft(t *testing.T) {
 	m := newTestModel()
 	// Move cursor to position (0, 5) - after "Hello"
-	m.moveCursorTo(0, 5)
+	m = m.moveCursorTo(0, 5)
 
 	m = m.extendSelectionLeft(1)
 
@@ -85,7 +85,7 @@ func TestModel_SelectRight(t *testing.T) {
 func TestModel_SelectUp(t *testing.T) {
 	m := newTestModel()
 	// Move to second line
-	m.moveCursorTo(1, 3)
+	m = m.moveCursorTo(1, 3)
 
 	m = m.extendSelectionUp()
 
@@ -101,7 +101,7 @@ func TestModel_SelectUp(t *testing.T) {
 func TestModel_SelectDown(t *testing.T) {
 	m := newTestModel()
 	// Cursor at (0, 3)
-	m.moveCursorTo(0, 3)
+	m = m.moveCursorTo(0, 3)
 
 	m = m.extendSelectionDown()
 
@@ -117,7 +117,7 @@ func TestModel_SelectDown(t *testing.T) {
 func TestModel_SelectWordLeft(t *testing.T) {
 	m := newTestModel()
 	// Move cursor to end of "World" (0, 11)
-	m.moveCursorTo(0, 11)
+	m = m.moveCursorTo(0, 11)
 
 	m = m.extendSelectionWordLeft()
 
@@ -148,7 +148,7 @@ func TestModel_SelectWordRight(t *testing.T) {
 
 func TestModel_SelectToLineStart(t *testing.T) {
 	m := newTestModel()
-	m.moveCursorTo(0, 5)
+	m = m.moveCursorTo(0, 5)
 
 	m = m.extendSelectionToLineStart()
 
@@ -178,7 +178,7 @@ func TestModel_SelectToLineEnd(t *testing.T) {
 
 func TestModel_SelectToStart(t *testing.T) {
 	m := newTestModel()
-	m.moveCursorTo(1, 5)
+	m = m.moveCursorTo(1, 5)
 
 	m = m.extendSelectionToStart()
 
@@ -295,7 +295,7 @@ func TestModel_SingleLine_BlocksVerticalSelection(t *testing.T) {
 
 // --- Migration-sensitive tests (v1→v2 regression guards) ---
 
-// TSL-SPACE: Guards msg.Type == tea.KeySpace in isTypingKey() (model.go:554)
+// TSL-SPACE: Guards msg.Type == tea.KeySpace in isTypingKey() (tree_model.go:554)
 // Space must be recognized as a typing key so it replaces active selection.
 func TestModel_SpaceIsTypingKey(t *testing.T) {
 	m := newTestModel()
@@ -321,7 +321,7 @@ func TestModel_SpaceIsTypingKey(t *testing.T) {
 	}
 }
 
-// TSL-ENTER: Guards msg.Type == tea.KeyEnter in isTypingKey() (model.go:559)
+// TSL-ENTER: Guards msg.Type == tea.KeyEnter in isTypingKey() (tree_model.go:559)
 // Enter must be recognized as a typing key in multi-line mode so it replaces
 // active selection with a newline.
 func TestModel_EnterIsTypingKey_MultiLine(t *testing.T) {
@@ -344,7 +344,7 @@ func TestModel_EnterIsTypingKey_MultiLine(t *testing.T) {
 	}
 }
 
-// TSL-SHIFT: Guards strings.Contains(msg.String(), "shift") in isCursorMovement() (model.go:572)
+// TSL-SHIFT: Guards strings.Contains(msg.String(), "shift") in isCursorMovement() (tree_model.go:572)
 // Shift+arrow must NOT clear selection — it extends it. This tests the inverse
 // of TestModel_CursorMovementClearsSelection.
 func TestModel_ShiftArrowExtendsSelection(t *testing.T) {

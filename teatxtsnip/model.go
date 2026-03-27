@@ -305,7 +305,7 @@ func (m TextSnipModel) extendSelectionLeft(n int) TextSnipModel {
 	m.selection = m.selection.Extend(Position{Row: newRow, Col: newCol})
 
 	// Move cursor to match selection end
-	m.moveCursorTo(newRow, newCol)
+	m = m.moveCursorTo(newRow, newCol)
 
 	return m
 }
@@ -336,7 +336,7 @@ func (m TextSnipModel) extendSelectionRight(n int) TextSnipModel {
 	m.selection = m.selection.Extend(Position{Row: newRow, Col: newCol})
 
 	// Move cursor to match selection end
-	m.moveCursorTo(newRow, newCol)
+	m = m.moveCursorTo(newRow, newCol)
 
 	return m
 }
@@ -361,7 +361,7 @@ func (m TextSnipModel) extendSelectionUp() TextSnipModel {
 	}
 
 	m.selection = m.selection.Extend(Position{Row: newRow, Col: newCol})
-	m.moveCursorTo(newRow, newCol)
+	m = m.moveCursorTo(newRow, newCol)
 
 	return m
 }
@@ -387,7 +387,7 @@ func (m TextSnipModel) extendSelectionDown() TextSnipModel {
 	}
 
 	m.selection = m.selection.Extend(Position{Row: newRow, Col: newCol})
-	m.moveCursorTo(newRow, newCol)
+	m = m.moveCursorTo(newRow, newCol)
 
 	return m
 }
@@ -424,7 +424,7 @@ func (m TextSnipModel) extendSelectionWordLeft() TextSnipModel {
 	}
 
 	m.selection = m.selection.Extend(Position{Row: row, Col: col})
-	m.moveCursorTo(row, col)
+	m = m.moveCursorTo(row, col)
 
 	return m
 }
@@ -462,7 +462,7 @@ func (m TextSnipModel) extendSelectionWordRight() TextSnipModel {
 	}
 
 	m.selection = m.selection.Extend(Position{Row: row, Col: col})
-	m.moveCursorTo(row, col)
+	m = m.moveCursorTo(row, col)
 
 	return m
 }
@@ -476,7 +476,7 @@ func (m TextSnipModel) extendSelectionToLineStart() TextSnipModel {
 	}
 
 	m.selection = m.selection.Extend(Position{Row: pos.Row, Col: 0})
-	m.moveCursorTo(pos.Row, 0)
+	m = m.moveCursorTo(pos.Row, 0)
 
 	return m
 }
@@ -491,7 +491,7 @@ func (m TextSnipModel) extendSelectionToLineEnd() TextSnipModel {
 
 	lineLen := m.lineLength(pos.Row)
 	m.selection = m.selection.Extend(Position{Row: pos.Row, Col: lineLen})
-	m.moveCursorTo(pos.Row, lineLen)
+	m = m.moveCursorTo(pos.Row, lineLen)
 
 	return m
 }
@@ -505,7 +505,7 @@ func (m TextSnipModel) extendSelectionToStart() TextSnipModel {
 	}
 
 	m.selection = m.selection.Extend(Position{Row: 0, Col: 0})
-	m.moveCursorTo(0, 0)
+	m = m.moveCursorTo(0, 0)
 
 	return m
 }
@@ -521,13 +521,13 @@ func (m TextSnipModel) extendSelectionToEnd() TextSnipModel {
 	lastRow := m.lineCount() - 1
 	lastCol := m.lineLength(lastRow)
 	m.selection = m.selection.Extend(Position{Row: lastRow, Col: lastCol})
-	m.moveCursorTo(lastRow, lastCol)
+	m = m.moveCursorTo(lastRow, lastCol)
 
 	return m
 }
 
 // moveCursorTo moves the textarea cursor to the specified position
-func (m *TextSnipModel) moveCursorTo(row, col int) {
+func (m TextSnipModel) moveCursorTo(row, col int) TextSnipModel {
 	// Move to correct row
 	currentRow := m.Model.Line()
 	for currentRow < row && currentRow < m.lineCount()-1 {
@@ -541,6 +541,7 @@ func (m *TextSnipModel) moveCursorTo(row, col int) {
 
 	// Move to correct column
 	m.Model.SetCursorColumn(col)
+	return m
 }
 
 // isTypingKey returns true if the key would insert text

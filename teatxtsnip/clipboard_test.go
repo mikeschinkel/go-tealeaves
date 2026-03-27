@@ -82,7 +82,7 @@ func TestCut(t *testing.T) {
 
 func TestPaste_NoSelection(t *testing.T) {
 	m := newTestModel()
-	m.moveCursorTo(0, 0)
+	m = m.moveCursorTo(0, 0)
 	// Write to clipboard via writeToClipboard (writes to both system and internal)
 	m = m.writeToClipboard("PASTED")
 

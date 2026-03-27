@@ -208,7 +208,7 @@ func (m TextSnipModel) deleteSelection() TextSnipModel {
 		"actual_value_len", len(m.Model.Value()),
 		"values_match", m.Model.Value() == newValue,
 	)
-	m.moveCursorTo(start.Row, start.Col)
+	m = m.moveCursorTo(start.Row, start.Col)
 	m.selection = m.selection.Clear()
 
 	return m
