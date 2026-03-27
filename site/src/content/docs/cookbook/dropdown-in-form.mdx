@@ -1,6 +1,6 @@
 ---
 title: "Dropdown in a Form"
-description: "Recipe: Using teadrpdwn dropdown in a form layout with field selection."
+description: "Recipe: Using teafields dropdown in a form layout with field selection."
 ---
 
 import { Aside } from '@astrojs/starlight/components';
@@ -11,10 +11,10 @@ Add a dropdown selector to a form-like layout. The user sees a text label, a fie
 
 ## What you need
 
-- `teadrpdwn` -- the dropdown component
+- `teafields` -- the dropdown component
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teadrpdwn
+go get github.com/mikeschinkel/go-tealeaves/teafields
 ```
 
 ## Full example
@@ -29,7 +29,7 @@ import (
 
     tea "github.com/charmbracelet/bubbletea"
     "github.com/charmbracelet/lipgloss"
-    "github.com/mikeschinkel/go-tealeaves/teadrpdwn"
+    "github.com/mikeschinkel/go-tealeaves/teafields"
 )
 
 // formFieldRow is the row where the dropdown field is rendered.
@@ -41,7 +41,7 @@ const formFieldRow = 4
 const formFieldCol = 14
 
 type model struct {
-    dropdown     teadrpdwn.DropdownModel
+    dropdown     teafields.DropdownModel
     selected     string
     hasSelection bool
     width        int
@@ -67,7 +67,7 @@ var (
 )
 
 func main() {
-    options := teadrpdwn.ToOptions([]string{
+    options := teafields.ToOptions([]string{
         "Electronics",
         "Books",
         "Clothing",
@@ -75,9 +75,9 @@ func main() {
         "Sports",
     })
 
-    teadrpdwn.EnsureTermGetSize(os.Stdout.Fd())
+    teafields.EnsureTermGetSize(os.Stdout.Fd())
 
-    dropdown := teadrpdwn.NewDropdownModel(options, &teadrpdwn.DropdownModelArgs{
+    dropdown := teafields.NewDropdownModel(options, &teafields.DropdownModelArgs{
         FieldRow: formFieldRow,
         FieldCol: formFieldCol,
     })
@@ -99,13 +99,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // If it returns a non-nil cmd, it consumed the message.
     dropdown, cmd := m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
+        m.dropdown = dropdown.(teafields.DropdownModel)
         return m, cmd
     }
 
     // --- Dropdown did not consume; handle ourselves ---
     switch msg := msg.(type) {
-    case teadrpdwn.OptionSelectedMsg:
+    case teafields.OptionSelectedMsg:
         m.selected = msg.Text
         m.hasSelection = true
         m.dropdown, _ = m.dropdown.Close()
@@ -178,7 +178,7 @@ func (m model) View() string {
     if m.dropdown.IsOpen {
         dropdownView := m.dropdown.View()
         // Adjust for border (1 row) + padding (1 row top, 2 cols left)
-        return teadrpdwn.OverlayDropdown(
+        return teafields.OverlayDropdown(
             content,
             dropdownView,
             m.dropdown.Row+2,
@@ -199,7 +199,7 @@ The `Update()` method delegates to the dropdown first. If the dropdown returns a
 ```go
 dropdown, cmd := m.dropdown.Update(msg)
 if cmd != nil {
-    m.dropdown = dropdown.(teadrpdwn.DropdownModel)
+    m.dropdown = dropdown.(teafields.DropdownModel)
     return m, cmd  // consumed -- stop here
 }
 ```
@@ -211,7 +211,7 @@ See [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) for the
 The dropdown renders its own view as a standalone string. The parent composites it onto the form using `OverlayDropdown()`. The row and column offsets account for the border and padding around the form content:
 
 ```go
-return teadrpdwn.OverlayDropdown(
+return teafields.OverlayDropdown(
     content,        // background: the full form
     dropdownView,   // foreground: the dropdown popup
     m.dropdown.Row+2,  // +2 for border row + padding row

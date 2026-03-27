@@ -5,14 +5,14 @@ description: Dropdown selection component with intelligent above/below positioni
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teadrpdwn` · **Type:** `DropdownModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teadrpdwn`
+> **Module:** `teafields` · **Type:** `DropdownModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teafields`
 
-Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teadrpdwn` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) pattern.
+Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teafields` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) pattern.
 
 ## Install
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teadrpdwn
+go get github.com/mikeschinkel/go-tealeaves/teafields
 ```
 
 ## Quick example
@@ -25,12 +25,12 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mikeschinkel/go-tealeaves/teadrpdwn"
+	"github.com/mikeschinkel/go-tealeaves/teafields"
 )
 
 func main() {
-	items := teadrpdwn.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
-	dropdown := teadrpdwn.NewDropdownModel(items, 3, 18, nil)
+	items := teafields.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
+	dropdown := teafields.NewDropdownModel(items, 3, 18, nil)
 
 	p := tea.NewProgram(model{dropdown: dropdown}, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {

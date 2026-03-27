@@ -1,4 +1,4 @@
-# Bubble Tea Best Practices (Charm v2)
+To f# Bubble Tea Best Practices (Charm v2)
 
 Hard-won lessons from building Bubble Tea UIs, updated for `charm.land/lipgloss/v2` and `charm.land/bubbletea/v2`. Read this BEFORE implementing new models or components to avoid repeating mistakes.
 
@@ -410,7 +410,7 @@ Same proven pattern from teadd and teamodal. See `BEST_PRACTICES_CHARM_V1.md` fo
 
 ### REFERENCE IMPLEMENTATIONS
 
-- **teadrpdwn/overlay_dropdown.go** - Dropdown pattern
+- **teafields/overlay_dropdown.go** - Dropdown pattern
 - **teamodal/overlay_modal.go** - Modal pattern
 
 ---
@@ -682,6 +682,64 @@ Before implementing overlay compositing:
 4. Using old import paths (`github.com/charmbracelet/` instead of `charm.land/`)
 5. Using `tea.KeyMsg` instead of `tea.KeyPressMsg`
 6. Returning `string` from `View()` instead of `tea.View`
+
+---
+
+## View Transitions: Force Full Repaint with tea.ClearScreen()
+
+**Bubble Tea v2's differential renderer does NOT fully clear stale content when transitioning between views with different widths.** This causes persistent visual artifacts — borders, text, and padding from the previous view remain on screen even though `View()` returns correct output.
+
+### Symptoms
+
+- Borders appear wider than they should be after navigating to a new view
+- Content from the previous view "bleeds through" into the new view
+- Resizing the terminal window fixes the layout (because resize triggers a full repaint)
+- `View()` returns the correct string (verified by writing to a file), but the screen shows something different
+
+### Root Cause
+
+Bubble Tea v2 uses a differential renderer that only updates changed characters/lines between frames. When transitioning from a view with a wider layout (e.g., a 50-char left pane) to a view with a narrower layout (e.g., a 33-char left pane), the renderer does not clear the extra characters from the previous frame. The stale characters persist on screen.
+
+### Fix
+
+Return `tea.ClearScreen()` as a batched `Cmd` on every view transition:
+
+```go
+// Named helper — keeps intent clear and avoids inline closures
+func clearScreenCmd() tea.Msg {
+    return tea.ClearScreen()
+}
+
+// In Update(), batch with every view navigation command:
+case DrillDownMsg:
+    cmd, err = m.handleDrillDown(msg)
+    cmd = tea.Batch(cmd, clearScreenCmd)
+
+case DrillUpMsg:
+    cmd, err = m.viewStack.Pop()
+    cmd = tea.Batch(cmd, clearScreenCmd)
+
+case BreadcrumbClickedMsg:
+    cmd, err = m.viewStack.PopTo(msg.Index)
+    cmd = tea.Batch(cmd, clearScreenCmd)
+```
+
+### Key Details
+
+- `tea.ClearScreen()` returns a `tea.Msg`, so use it as a `tea.Cmd` function (e.g., `func() tea.Msg { return tea.ClearScreen() }` or a named function)
+- Apply to ALL view transitions: drill-down, drill-up, breadcrumb navigation, tab switches — any time the visible view changes
+- This is safe to call unconditionally; it simply forces a full repaint on the next frame
+- The performance cost is negligible — it's one extra full repaint per navigation event
+
+### Debugging Tip
+
+If you suspect the renderer is showing stale content, write the `fullView` string to a temp file right before `tea.NewView()`:
+
+```go
+os.WriteFile("/tmp/debug-frame.txt", []byte(fullView), 0644)
+```
+
+If the file content is correct but the screen shows it wrong, the differential renderer is the culprit. Add `tea.ClearScreen()` to the transition.
 
 ---
 

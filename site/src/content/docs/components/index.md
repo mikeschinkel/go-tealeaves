@@ -13,7 +13,7 @@ Tea Leaves ships 16 components across 10 Go modules. Each module has its own `go
 | [Choice Dialog](/go-tealeaves/components/choice-dialog/) | `ChoiceModel` | teamodal | Multi-option selection with hotkeys |
 | [List Dialog](/go-tealeaves/components/list-dialog/) | `ListModel[T]` | teamodal | Editable list with inline editing and CRUD |
 | [Progress Dialog](/go-tealeaves/components/progress-dialog/) | `ProgressModal` | teamodal | Progress indicator with cancel/background |
-| [Dropdown](/go-tealeaves/components/dropdown-control/) | `DropdownModel` | teadrpdwn | Dropdown selection with smart positioning |
+| [Dropdown](/go-tealeaves/components/dropdown-control/) | `DropdownModel` | teafields | Dropdown selection with smart positioning |
 
 ## Views
 

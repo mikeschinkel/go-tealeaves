@@ -16,8 +16,8 @@ All `go run` commands below assume you are in the repository root directory. Eac
 
 | Component | Example | Description | Run Command |
 |-----------|---------|-------------|-------------|
-| teadrpdwn | simple | Dropdown with fruit selection | `go run ./examples/teadrpdwn/simple` |
-| teadrpdwn | demo | Full-featured dropdown demo | `go run ./examples/teadrpdwn/demo` |
+| teafields | simple | Dropdown with fruit selection | `go run ./examples/teafields/simple` |
+| teafields | demo | Full-featured dropdown demo | `go run ./examples/teafields/demo` |
 | teagrid | simplest | Minimal data grid | `go run ./examples/teagrid/simplest` |
 | teagrid | sorting | Grid with column sorting | `go run ./examples/teagrid/sorting` |
 | teagrid | filtering | Grid with real-time filtering | `go run ./examples/teagrid/filtering` |

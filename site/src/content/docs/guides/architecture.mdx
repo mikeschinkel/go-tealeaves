@@ -11,8 +11,8 @@ Each component in Tea Leaves is a separate Go module with its own `go.mod`. This
 
 <FileTree>
 - go-tealeaves/
-  - teadrpdwn/     (Dropdown)
-  - teadepview/    (Dep viewer --- depends on teadrpdwn)
+  - teafields/     (Dropdown)
+  - teadepview/    (Dep viewer --- depends on teafields)
   - teagrid/       (Data grid)
   - teamodal/      (Modals --- depends on teautils)
   - teanotify/     (Notifications)
@@ -30,7 +30,7 @@ Each component in Tea Leaves is a separate Go module with its own `go.mod`. This
 Most components are fully standalone. Only two have internal dependencies:
 
 ```
-teadepview ──► teadrpdwn
+teadepview ──► teafields
 teamodal ────► teautils
 
 teagrid        (standalone)

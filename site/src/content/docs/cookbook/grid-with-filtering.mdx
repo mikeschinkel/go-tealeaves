@@ -81,8 +81,8 @@ func newModel() model {
     return model{
         table: teagrid.
             NewGridModel(columns).
-            Filtered(true).
-            Focused(true).
+            WithFiltered(true).
+            WithFocused(true).
             WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left)).
             WithPageSize(15).
             WithRows(rows),
@@ -110,7 +110,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         case "ctrl+c", "q":
             // Only quit if the filter input is NOT focused.
             // When filtering, "q" is a valid character to type.
-            if !m.table.GetIsFilterInputFocused() {
+            if !m.table.IsFilterInputFocused() {
                 cmds = append(cmds, tea.Quit)
             }
         }
@@ -153,10 +153,10 @@ Only columns marked as filterable contribute to the filter match. In this exampl
 
 ### 2. Enable filtering on the grid
 
-Call `Filtered(true)` on the grid model to enable the built-in filter input:
+Call `WithFiltered(true)` on the grid model to enable the built-in filter input:
 
 ```go
-teagrid.NewGridModel(columns).Filtered(true)
+teagrid.NewGridModel(columns).WithFiltered(true)
 ```
 
 This registers the `/` key to activate the filter input and enables the built-in case-insensitive substring matching.
@@ -167,11 +167,11 @@ When the user presses `/`, the grid focuses an inline text input. Every keystrok
 
 ### 4. Protecting quit keys
 
-While the filter input is focused, normal key bindings like `q` should be treated as filter text, not as quit commands. Use `GetIsFilterInputFocused()` to guard your quit handler:
+While the filter input is focused, normal key bindings like `q` should be treated as filter text, not as quit commands. Use `IsFilterInputFocused()` to guard your quit handler:
 
 ```go
 case "ctrl+c", "q":
-    if !m.table.GetIsFilterInputFocused() {
+    if !m.table.IsFilterInputFocused() {
         cmds = append(cmds, tea.Quit)
     }
 ```

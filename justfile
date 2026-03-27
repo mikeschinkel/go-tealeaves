@@ -1,8 +1,8 @@
 # Modules in this repo
-modules := "teadiffr teadrpdwn teadepview teagrid teamodal teanotify teastatus teatxtsnip teatree teautils"
+modules := "teadiffr teafields teadepview teagrid teamodal teanotify teastatus teatxtsnip teatree teautils"
 
 # Example modules (each is an independent Go module)
-examples := "examples/teadrpdwn/simple examples/teadrpdwn/demo examples/teadepview/treenav examples/teamodal/choices examples/teamodal/editlist examples/teamodal/various examples/teanotify/simple examples/teastatus/statusbar examples/teatxtsnip/editor examples/teatree/filetree examples/teagrid/simplest examples/teagrid/sorting examples/teagrid/filtering examples/teagrid/scrolling examples/teautils/keyhelp"
+examples := "examples/teafields/simple examples/teafields/demo examples/teadepview/treenav examples/teamodal/choices examples/teamodal/editlist examples/teamodal/various examples/teanotify/simple examples/teastatus/statusbar examples/teatxtsnip/editor examples/teatree/filetree examples/teagrid/simplest examples/teagrid/sorting examples/teagrid/filtering examples/teagrid/scrolling examples/teautils/keyhelp"
 
 # Show available recipes
 help:

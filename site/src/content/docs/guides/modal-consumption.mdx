@@ -49,7 +49,7 @@ This approach has several problems:
         // Let dropdown handle message first
         dropdown, cmd := m.dropdown.Update(msg)
         if cmd != nil {
-            m.dropdown = dropdown.(teadrpdwn.DropdownModel)
+            m.dropdown = dropdown.(teafields.DropdownModel)
             return m, cmd  // Dropdown consumed it — done!
         }
 
@@ -128,7 +128,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Each modal gets a chance to consume
     dropdown, cmd := m.dropdown.Update(msg)
     if cmd != nil {
-        m.dropdown = dropdown.(teadrpdwn.DropdownModel)
+        m.dropdown = dropdown.(teafields.DropdownModel)
         return m, cmd
     }
 

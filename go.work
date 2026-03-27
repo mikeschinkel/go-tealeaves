@@ -2,23 +2,30 @@ go 1.25.7
 
 use (
 	./cmd/color-viewer
+	./cmd/jediterm-bug
 	./teacrumbs
 	./teadiffr
 	./teadiffview
 	./teadiffview/examples/splitdiff
-	./teadrpdwn
-	./teadrpdwn/examples/demo
-	./teadrpdwn/examples/simple
+	./teafields
+	./teafields/examples/demo
+	./teafields/examples/simple
 	./teagrid
 	./teagrid/examples/filtering
 	./teagrid/examples/scrolling
 	./teagrid/examples/simplest
+	./teagrid/examples/panning
 	./teagrid/examples/sorting
 	./teahelp
+	./tealayout
+	./tealayout/examples/collapsible
+	./tealayout/examples/golden
+	./tealayout/examples/threepane
 	./teahilite
 	./teamodal
 	./teamodal/examples/choices
 	./teamodal/examples/editlist
+	./teamodal/examples/multiselect
 	./teamodal/examples/various
 	./teamodal/examples/vertical
 	./teanotify
@@ -30,6 +37,8 @@ use (
 	./teatree/examples/filetree
 	./teatxtsnip
 	./teatxtsnip/examples/editor
+	./teaguide
+	./teaguide/example
 	./teautils
 	./teautils/examples/keyhelp
 	./teautils/examples/theming

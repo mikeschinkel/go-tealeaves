@@ -7,7 +7,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 > **Module:** `teatree` · **Type:** `DrillDownModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
 
-Dependency graphs are complex -- navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `teadepview` provides an interactive path viewer that renders a single root-to-leaf path through a dependency tree, with dropdown selection for choosing alternative dependencies at any level. It integrates `teadrpdwn` internally for the dropdown and uses a configurable `SelectorFunc` to determine the "best" path.
+Dependency graphs are complex -- navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `teadepview` provides an interactive path viewer that renders a single root-to-leaf path through a dependency tree, with dropdown selection for choosing alternative dependencies at any level. It integrates `teafields` internally for the dropdown and uses a configurable `SelectorFunc` to determine the "best" path.
 
 ## Install
 
@@ -58,7 +58,7 @@ case teadepview.ChangeNodeMsg:
 ## Features
 
 - Path-based navigation through dependency trees (root to leaf)
-- Dropdown selection for alternatives at each level (via `teadrpdwn` internally)
+- Dropdown selection for alternatives at each level (via `teafields` internally)
 - Custom `SelectorFunc` for ranking which child to follow at each level
 - Circular dependency detection and breaking during tree construction
 - Configurable border, path, and selected item styles

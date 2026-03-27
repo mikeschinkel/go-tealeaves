@@ -10,7 +10,7 @@ Tea Leaves uses a **multi-module monorepo** layout. Each module is a standalone 
 | Module | Components | Install |
 |--------|-----------|---------|
 | `teamodal` | [Confirm Dialog](/go-tealeaves/components/confirm-dialog/), [Choice Dialog](/go-tealeaves/components/choice-dialog/), [List Dialog](/go-tealeaves/components/list-dialog/), [Progress Dialog](/go-tealeaves/components/progress-dialog/) | `go get github.com/mikeschinkel/go-tealeaves/teamodal` |
-| `teadrpdwn` | [Dropdown](/go-tealeaves/components/dropdown-control/) | `go get github.com/mikeschinkel/go-tealeaves/teadrpdwn` |
+| `teafields` | [Dropdown](/go-tealeaves/components/dropdown-control/) | `go get github.com/mikeschinkel/go-tealeaves/teafields` |
 | `teagrid` | [Data Grid](/go-tealeaves/components/grid-view/) | `go get github.com/mikeschinkel/go-tealeaves/teagrid` |
 | `teatree` | [Tree View](/go-tealeaves/components/tree-view/), [Drilldown View](/go-tealeaves/components/drilldown-view/) | `go get github.com/mikeschinkel/go-tealeaves/teatree` |
 | `teastatus` | [Status Bar](/go-tealeaves/components/statusbar-view/) | `go get github.com/mikeschinkel/go-tealeaves/teastatus` |
@@ -22,7 +22,7 @@ Tea Leaves uses a **multi-module monorepo** layout. Each module is a standalone 
 
 ```
 go-tealeaves/
-├── teadrpdwn/     # Dropdown selection
+├── teafields/     # Dropdown selection
 ├── teagrid/       # Data grid
 ├── teamodal/      # Modal dialogs + list + choice + progress
 ├── teanotify/     # Toast notifications
@@ -43,7 +43,7 @@ go-tealeaves/
 Each module is tagged independently using the pattern `<module>/v0.X.Y`:
 
 ```
-teadrpdwn/v0.3.0
+teafields/v0.3.0
 teagrid/v0.3.0
 teamodal/v0.3.0
 ...
@@ -53,16 +53,16 @@ This means upgrading one component never forces upgrades to others.
 
 ## Dependency Graph
 
-Most components depend only on `teautils` for shared helpers. `teadepview` also depends on `teadrpdwn` for its dropdown UI. No other cross-component dependencies exist.
+Most components depend only on `teautils` for shared helpers. `teadepview` also depends on `teafields` for its dropdown UI. No other cross-component dependencies exist.
 
 ```
-teadrpdwn ──► teautils
+teafields ──► teautils
 teagrid ────► teautils
 teamodal ───► teautils
 teanotify ──► teautils
 teatree ────► teautils
 teatxtsnip ─► teautils
 teastatus ──► teautils
-teadepview ─► teautils, teadrpdwn
+teadepview ─► teautils, teafields
 teadiffr ───► teautils
 ```
