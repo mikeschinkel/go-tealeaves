@@ -21,7 +21,7 @@ rows := []teagrid.Row{
     teagrid.NewRow(teagrid.RowData{"name": "Bob", "email": "bob@example.com"}),
 }
 
-table := teagrid.New(columns).WithRows(rows).Focused(true)
+table := teagrid.New(columns).WithRows(rows).WithFocused(true)
 ```
 
 ## Key Features
@@ -32,7 +32,7 @@ table := teagrid.New(columns).WithRows(rows).Focused(true)
 - **CellValue** with separate `SortValue`, `StyleFunc`, and rich text `Spans`
 - **Cell cursor mode** with per-cell highlighting
 - **Independent footer** (never inherits baseStyle) with filter + pagination zones
-- **SetSize(w, h)** auto fill/scroll (replaces manual `WithTargetWidth`/`WithMaxTotalWidth`)
+- **WithSize(w, h)** auto fill/scroll (replaces manual `WithTargetWidth`/`WithMaxTotalWidth`)
 - **Sorting, filtering** (contains + fuzzy), **pagination**
 - **Horizontal scrolling** with frozen columns
 - **Selectable rows** (no auto-added checkbox column)
@@ -55,7 +55,7 @@ v0.2.0 targets Charm v2 exclusively:
 | `github.com/charmbracelet/*` imports | `charm.land/*/v2` |
 | `tea.KeyMsg` | `tea.KeyPressMsg` |
 | `View() string` | `View() tea.View` (use `.Content` to extract string) |
-| `WithTargetWidth(w)` / `WithMaxTotalWidth(w)` | `SetSize(w, h)` |
+| `WithTargetWidth(w)` / `WithMaxTotalWidth(w)` | `WithSize(w, h)` |
 | `WithBaseStyle(lipgloss.NewStyle().Align(lipgloss.Left))` | Not needed (left-align is the default) |
 | Manual `" "` padding | Not needed (`paddingLeft=1` default) |
 | `StyledCell` | `CellValue` (type alias provided for compatibility) |

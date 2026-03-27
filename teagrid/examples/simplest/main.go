@@ -73,7 +73,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }

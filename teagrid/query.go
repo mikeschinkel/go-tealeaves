@@ -2,10 +2,10 @@ package teagrid
 
 import "charm.land/bubbles/v2/key"
 
-// GetVisibleRows returns sorted and filtered rows.
-func (m *GridModel) GetVisibleRows() []Row {
-	if m.visibleRowCacheUpdated {
-		return m.visibleRowCache
+// VisibleRows returns sorted and filtered rows.
+func (m GridModel) VisibleRows() []Row {
+	if !m.visibleRowsDirty && m.cachedVisibleRows != nil {
+		return m.cachedVisibleRows
 	}
 
 	rows := make([]Row, len(m.rows))
@@ -17,27 +17,53 @@ func (m *GridModel) GetVisibleRows() []Row {
 
 	rows = getSortedRows(m.sortOrder, rows)
 
-	m.visibleRowCache = rows
-	m.visibleRowCacheUpdated = true
-
 	return rows
 }
 
-// GetColumnSorting returns the current sort configuration (copy).
-func (m *GridModel) GetColumnSorting() []SortColumn {
+func (m GridModel) ensureVisibleRowsCached() GridModel {
+	if !m.visibleRowsDirty && m.cachedVisibleRows != nil {
+		return m
+	}
+	m.cachedVisibleRows = m.VisibleRows()
+	m.visibleRowsDirty = false
+	return m
+}
+
+// cursorRowBound returns the number of rows the cursor can visit.
+// When dataRowCount is set, cursor stops at the data boundary.
+func (m GridModel) cursorRowBound() int {
+	total := m.visibleRowCount()
+	if m.dataRowCount > 0 && m.dataRowCount < total {
+		return m.dataRowCount
+	}
+	return total
+}
+
+func (m GridModel) visibleRowCount() int {
+	if !m.visibleRowsDirty && m.cachedVisibleRows != nil {
+		return len(m.cachedVisibleRows)
+	}
+	return len(m.VisibleRows())
+}
+
+// ColumnSorting returns the current sort configuration (copy).
+func (m GridModel) ColumnSorting() []SortColumn {
 	c := make([]SortColumn, len(m.sortOrder))
 	copy(c, m.sortOrder)
 	return c
 }
 
-// GetHighlightedRowIndex returns the index of the highlighted row.
-func (m *GridModel) GetHighlightedRowIndex() int {
+// HighlightedRowIndex returns the index of the highlighted row.
+func (m GridModel) HighlightedRowIndex() int {
 	return m.rowCursorIndex
 }
 
 // HighlightedRow returns the currently highlighted Row.
 func (m GridModel) HighlightedRow() Row {
-	rows := m.GetVisibleRows()
+	rows := m.cachedVisibleRows
+	if rows == nil {
+		rows = m.VisibleRows()
+	}
 	if len(rows) > 0 && m.rowCursorIndex < len(rows) {
 		return rows[m.rowCursorIndex]
 	}
@@ -46,8 +72,12 @@ func (m GridModel) HighlightedRow() Row {
 
 // SelectedRows returns all selected rows.
 func (m GridModel) SelectedRows() []Row {
+	rows := m.cachedVisibleRows
+	if rows == nil {
+		rows = m.VisibleRows()
+	}
 	var selected []Row
-	for _, row := range m.GetVisibleRows() {
+	for _, row := range rows {
 		if row.selected {
 			selected = append(selected, row)
 		}
@@ -55,74 +85,94 @@ func (m GridModel) SelectedRows() []Row {
 	return selected
 }
 
-// GetCellCursorMode returns whether cell cursor mode is enabled.
-func (m *GridModel) GetCellCursorMode() bool {
-	return m.cellCursorMode
+// ColCursorMode returns whether column cursor mode is enabled.
+func (m GridModel) ColCursorMode() bool {
+	return m.colCursorMode
 }
 
-// GetCellCursorColumnIndex returns the current cell cursor column index.
-func (m *GridModel) GetCellCursorColumnIndex() int {
-	return m.cellCursorColumnIndex
+// ColCursorWrapping returns whether the column cursor wraps around columns.
+func (m GridModel) ColCursorWrapping() bool {
+	return m.colCursorWrapping
 }
 
-// GetFocused returns whether the grid is focused.
-func (m *GridModel) GetFocused() bool {
+// ColCursorColumnIndex returns the current column cursor column index.
+func (m GridModel) ColCursorColumnIndex() int {
+	return m.colCursorColumnIndex
+}
+
+// RowCursorWrapping returns whether the row cursor wraps.
+func (m GridModel) RowCursorWrapping() bool {
+	return m.rowCursorWrapping
+}
+
+// IsFocused returns whether the grid is focused.
+func (m GridModel) IsFocused() bool {
 	return m.focused
 }
 
-// GetCanFilter returns whether filtering is enabled.
-func (m *GridModel) GetCanFilter() bool {
+// CanFilter returns whether filtering is enabled.
+func (m GridModel) CanFilter() bool {
 	return m.filtered
 }
 
-// GetIsFilterActive returns whether a filter is currently being applied.
-func (m *GridModel) GetIsFilterActive() bool {
+// IsFilterActive returns whether a filter is currently being applied.
+func (m GridModel) IsFilterActive() bool {
 	return m.filterTextInput.Value() != ""
 }
 
-// GetIsFilterInputFocused returns whether the filter input has focus.
-func (m *GridModel) GetIsFilterInputFocused() bool {
+// IsFilterInputFocused returns whether the filter input has focus.
+func (m GridModel) IsFilterInputFocused() bool {
 	return m.filterTextInput.Focused()
 }
 
-// GetCurrentFilter returns the current filter text.
-func (m *GridModel) GetCurrentFilter() string {
+// CurrentFilter returns the current filter text.
+func (m GridModel) CurrentFilter() string {
 	return m.filterTextInput.Value()
 }
 
-// GetHorizontalScrollColumnOffset returns the horizontal scroll offset.
-func (m *GridModel) GetHorizontalScrollColumnOffset() int {
+// FillWidth returns whether fill-width mode is enabled.
+func (m GridModel) FillWidth() bool {
+	return m.fillWidth
+}
+
+// HorizontalScrollColumnOffset returns the horizontal scroll offset.
+func (m GridModel) HorizontalScrollColumnOffset() int {
 	return m.horizontalScrollOffsetCol
 }
 
-// GetHeaderVisibility returns header visibility.
-func (m *GridModel) GetHeaderVisibility() bool {
+// IsHeaderVisible returns header visibility.
+func (m GridModel) IsHeaderVisible() bool {
 	return m.headerVisible
 }
 
-// GetFooterVisibility returns footer visibility.
-func (m *GridModel) GetFooterVisibility() bool {
+// IsFooterVisible returns footer visibility.
+func (m GridModel) IsFooterVisible() bool {
 	return m.footerVisible
 }
 
-// GetPaginationWrapping returns whether pagination wraps.
-func (m *GridModel) GetPaginationWrapping() bool {
+// IsPaginationWrapping returns whether pagination wraps.
+func (m GridModel) IsPaginationWrapping() bool {
 	return m.paginationWrapping
+}
+
+// ScrollOffset returns the current vertical scroll offset.
+func (m GridModel) ScrollOffset() int {
+	return m.scrollOffset
 }
 
 // NaturalWidth returns the minimum width needed to display all columns
 // without flex expansion.
-func (m *GridModel) NaturalWidth() int {
+func (m GridModel) NaturalWidth() int {
 	return m.computeNaturalWidth()
 }
 
 // TotalWidth returns the total rendered width after flex column resolution.
-func (m *GridModel) TotalWidth() int {
+func (m GridModel) TotalWidth() int {
 	return m.computeTotalWidth()
 }
 
 // Border returns the current border configuration.
-func (m *GridModel) Border() BorderConfig {
+func (m GridModel) Border() BorderConfig {
 	return m.border
 }
 
@@ -131,8 +181,8 @@ func (m GridModel) KeyMap() KeyMap {
 	return m.keyMap
 }
 
-// GetLastUpdateUserEvents returns events from the last Update call (copy).
-func (m *GridModel) GetLastUpdateUserEvents() []UserEvent {
+// LastUpdateUserEvents returns events from the last Update call (copy).
+func (m GridModel) LastUpdateUserEvents() []UserEvent {
 	if len(m.lastUpdateUserEvents) == 0 {
 		return nil
 	}
@@ -142,19 +192,26 @@ func (m *GridModel) GetLastUpdateUserEvents() []UserEvent {
 	return returned
 }
 
-func (m *GridModel) appendUserEvent(e UserEvent) {
+func (m GridModel) appendUserEvent(e UserEvent) GridModel {
 	m.lastUpdateUserEvents = append(m.lastUpdateUserEvents, e)
+	return m
 }
 
-func (m *GridModel) clearUserEvents() {
+func (m GridModel) clearUserEvents() GridModel {
 	m.lastUpdateUserEvents = nil
+	return m
 }
 
 // hasFooter returns whether the footer should be rendered.
-func (m *GridModel) hasFooter() bool {
+func (m GridModel) hasFooter() bool {
 	if !m.footerVisible {
 		return false
 	}
+	return m.pageSize > 0 || m.staticFooter != "" || m.filtered || len(m.footerRows) > 0
+}
+
+// hasInfoRow returns whether the info row (static text + pagination + filter) should render.
+func (m GridModel) hasInfoRow() bool {
 	return m.pageSize > 0 || m.staticFooter != "" || m.filtered
 }
 
@@ -165,7 +222,7 @@ func (m GridModel) FullHelp() [][]key.Binding {
 	keyBinds := [][]key.Binding{
 		{m.keyMap.RowDown, m.keyMap.RowUp, m.keyMap.RowSelectToggle},
 		{m.keyMap.PageDown, m.keyMap.PageUp, m.keyMap.PageFirst, m.keyMap.PageLast},
-		{m.keyMap.CellLeft, m.keyMap.CellRight, m.keyMap.CellSelect},
+		{m.keyMap.ColLeft, m.keyMap.ColRight, m.keyMap.ColSelect},
 		{m.keyMap.Filter, m.keyMap.FilterBlur, m.keyMap.FilterClear, m.keyMap.ScrollRight, m.keyMap.ScrollLeft},
 	}
 	if m.additionalFullHelpKeys != nil {
@@ -182,8 +239,8 @@ func (m GridModel) ShortHelp() []key.Binding {
 		m.keyMap.RowSelectToggle,
 		m.keyMap.PageDown,
 		m.keyMap.PageUp,
-		m.keyMap.CellLeft,
-		m.keyMap.CellRight,
+		m.keyMap.ColLeft,
+		m.keyMap.ColRight,
 		m.keyMap.Filter,
 	}
 	if m.additionalShortHelpKeys != nil {

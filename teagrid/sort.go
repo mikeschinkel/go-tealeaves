@@ -24,7 +24,7 @@ func (m GridModel) SortByAsc(columnKey string) GridModel {
 	m.sortOrder = []SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionAsc},
 	}
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
 	return m
 }
 
@@ -33,7 +33,7 @@ func (m GridModel) SortByDesc(columnKey string) GridModel {
 	m.sortOrder = []SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionDesc},
 	}
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
 	return m
 }
 
@@ -42,7 +42,7 @@ func (m GridModel) ThenSortByAsc(columnKey string) GridModel {
 	m.sortOrder = append([]SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionAsc},
 	}, m.sortOrder...)
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
 	return m
 }
 
@@ -51,7 +51,7 @@ func (m GridModel) ThenSortByDesc(columnKey string) GridModel {
 	m.sortOrder = append([]SortColumn{
 		{ColumnKey: columnKey, Direction: SortDirectionDesc},
 	}, m.sortOrder...)
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
 	return m
 }
 

@@ -19,7 +19,7 @@ func TestNewGridModel(t *testing.T) {
 	assert.True(t, m.headerVisible)
 	assert.True(t, m.footerVisible)
 	assert.False(t, m.focused)
-	assert.False(t, m.cellCursorMode)
+	assert.False(t, m.colCursorMode)
 }
 
 func TestNewDefaultAlignment(t *testing.T) {
@@ -34,9 +34,9 @@ func TestNewBorderDefault(t *testing.T) {
 	cols := []Column{NewColumn("x", "X", 10)}
 	m := NewGridModel(cols)
 
-	// Default is rounded borders
+	// Default is heavy-weight borders
 	assert.True(t, m.border.HasOuterBorder())
-	assert.Equal(t, "╭", m.border.Chars.TopLeft)
+	assert.Equal(t, "┏", m.border.Chars.TopLeft)
 }
 
 func TestNewImmutableColumns(t *testing.T) {
@@ -48,12 +48,12 @@ func TestNewImmutableColumns(t *testing.T) {
 	assert.Equal(t, "x", m.columns[0].Key())
 }
 
-func TestSetSize(t *testing.T) {
+func TestWithSize(t *testing.T) {
 	cols := []Column{
 		NewColumn("a", "A", 10),
 		NewFlexColumn("b", "B", 1),
 	}
-	m := NewGridModel(cols).SetSize(80, 24)
+	m := NewGridModel(cols).WithSize(80, 24)
 
 	assert.Equal(t, 80, m.viewportWidth)
 	assert.Equal(t, 24, m.viewportHeight)
@@ -64,7 +64,7 @@ func TestSetSize(t *testing.T) {
 
 func TestSetSizeAutoPageSize(t *testing.T) {
 	cols := []Column{NewColumn("x", "X", 10)}
-	m := NewGridModel(cols).SetSize(80, 24)
+	m := NewGridModel(cols).WithSize(80, 24)
 
 	// With rounded borders (outer=2, header=1, header_sep=1, footer=1, footer_sep=1)
 	// Chrome = 6, so pageSize = 24 - 6 = 18
@@ -74,7 +74,7 @@ func TestSetSizeAutoPageSize(t *testing.T) {
 
 func TestSetSizeBorderless(t *testing.T) {
 	cols := []Column{NewColumn("x", "X", 10)}
-	m := NewGridModel(cols).WithBorder(Borderless()).SetSize(80, 24)
+	m := NewGridModel(cols).WithBorder(Borderless()).WithSize(80, 24)
 
 	// Borderless: chrome = 0 (no outer, no header sep, no footer sep)
 	// But header and footer rows still count

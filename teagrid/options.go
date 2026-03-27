@@ -16,7 +16,8 @@ type RowStyleFuncInput struct {
 // WithRows sets the data rows.
 func (m GridModel) WithRows(rows []Row) GridModel {
 	m.rows = rows
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
+	m.scrollOffset = 0
 
 	if m.rowCursorIndex >= len(m.rows) {
 		m.rowCursorIndex = len(m.rows) - 1
@@ -28,7 +29,7 @@ func (m GridModel) WithRows(rows []Row) GridModel {
 	if m.pageSize != 0 {
 		maxPage := m.MaxPages()
 		if maxPage <= m.currentPage {
-			m.pageLast()
+			m = m.pageLast()
 		}
 	}
 
@@ -39,7 +40,8 @@ func (m GridModel) WithRows(rows []Row) GridModel {
 func (m GridModel) WithColumns(columns []Column) GridModel {
 	m.columns = make([]Column, len(columns))
 	copy(m.columns, columns)
-	m.recalculateWidth()
+	m = m.buildColumnKeyIndex()
+	m = m.recalculateWidth()
 	return m
 }
 
@@ -60,7 +62,7 @@ func (m GridModel) WithRowStyleFunc(f func(RowStyleFuncInput) lipgloss.Style) Gr
 func (m GridModel) WithHighlightedRow(index int) GridModel {
 	m.rowCursorIndex = index
 
-	numRows := len(m.GetVisibleRows())
+	numRows := len(m.VisibleRows())
 	if m.rowCursorIndex >= numRows {
 		m.rowCursorIndex = numRows - 1
 	}
@@ -68,13 +70,38 @@ func (m GridModel) WithHighlightedRow(index int) GridModel {
 		m.rowCursorIndex = 0
 	}
 
-	m.currentPage = m.expectedPageForRowIndex(m.rowCursorIndex)
+	if m.pageSize > 0 {
+		m = m.ensureRowCursorVisible()
+	} else {
+		m.currentPage = m.expectedPageForRowIndex(m.rowCursorIndex)
+	}
 	return m
 }
 
-// WithCellCursorMode enables or disables cell cursor navigation.
-func (m GridModel) WithCellCursorMode(enabled bool) GridModel {
-	m.cellCursorMode = enabled
+// WithColCursorMode enables or disables column cursor navigation.
+func (m GridModel) WithColCursorMode(enabled bool) GridModel {
+	m.colCursorMode = enabled
+	return m
+}
+
+// WithColCursorColumn sets the column cursor index directly.
+func (m GridModel) WithColCursorColumn(index int) GridModel {
+	m.colCursorColumnIndex = index
+	return m
+}
+
+// WithColCursorWrapping sets whether the column cursor wraps around columns.
+// When false (default), the cursor clamps at column boundaries.
+func (m GridModel) WithColCursorWrapping(wrapping bool) GridModel {
+	m.colCursorWrapping = wrapping
+	return m
+}
+
+// WithRowCursorWrapping sets whether the row cursor wraps.
+// When true (default), navigating past the last row wraps to the first, and vice versa.
+// When false, the cursor clamps at row boundaries.
+func (m GridModel) WithRowCursorWrapping(wrapping bool) GridModel {
+	m.rowCursorWrapping = wrapping
 	return m
 }
 
@@ -96,9 +123,9 @@ func (m GridModel) WithHighlightStyle(style lipgloss.Style) GridModel {
 	return m
 }
 
-// WithCellCursorStyle sets the cell cursor style.
-func (m GridModel) WithCellCursorStyle(style lipgloss.Style) GridModel {
-	m.cellCursorStyle = style
+// WithColCursorStyle sets the column cursor style.
+func (m GridModel) WithColCursorStyle(style lipgloss.Style) GridModel {
+	m.colCursorStyle = style
 	return m
 }
 
@@ -108,15 +135,27 @@ func (m GridModel) WithFooterStyle(style lipgloss.Style) GridModel {
 	return m
 }
 
-// WithBorder sets the border configuration.
-func (m GridModel) WithBorder(border BorderConfig) GridModel {
-	m.border = border
-	m.recalculateWidth()
+// WithCellPadding sets left and right padding on all current columns.
+// This is a bulk setter — it updates every column in the grid at once.
+// Call after WithColumns to affect all columns.
+func (m GridModel) WithCellPadding(left, right int) GridModel {
+	for i := range m.columns {
+		m.columns[i].paddingLeft = left
+		m.columns[i].paddingRight = right
+	}
+	m = m.recalculateWidth()
 	return m
 }
 
-// Focused sets whether the grid receives input and shows cursor.
-func (m GridModel) Focused(focused bool) GridModel {
+// WithBorder sets the border configuration.
+func (m GridModel) WithBorder(border BorderConfig) GridModel {
+	m.border = border
+	m = m.recalculateWidth()
+	return m
+}
+
+// WithFocused sets whether the grid receives input and shows cursor.
+func (m GridModel) WithFocused(focused bool) GridModel {
 	m.focused = focused
 	return m
 }
@@ -140,10 +179,12 @@ func (m GridModel) WithSelectColumn(show bool) GridModel {
 		selectCol := NewColumn(selectColumnKey, m.selectedText, len([]rune(m.selectedText))).
 			WithPaddingLeft(0).WithPaddingRight(0)
 		m.columns = append([]Column{selectCol}, m.columns...)
-		m.recalculateWidth()
+		m = m.buildColumnKeyIndex()
+		m = m.recalculateWidth()
 	} else if !show && hadSelectColumn {
 		m.columns = m.columns[1:]
-		m.recalculateWidth()
+		m = m.buildColumnKeyIndex()
+		m = m.recalculateWidth()
 	}
 
 	return m
@@ -188,14 +229,26 @@ func (m GridModel) WithCurrentPage(currentPage int) GridModel {
 	}
 
 	m.currentPage = currentPage - 1
-	m.rowCursorIndex = m.currentPage * m.pageSize
+	m.scrollOffset = m.currentPage * m.pageSize
+
+	// Clamp scrollOffset
+	totalRows := m.visibleRowCount()
+	maxOffset := totalRows - m.pageSize
+	if maxOffset < 0 {
+		maxOffset = 0
+	}
+	if m.scrollOffset > maxOffset {
+		m.scrollOffset = maxOffset
+	}
+
+	m.rowCursorIndex = m.scrollOffset
 	return m
 }
 
-// Filtered enables or disables filtering.
-func (m GridModel) Filtered(filtered bool) GridModel {
+// WithFiltered enables or disables filtering.
+func (m GridModel) WithFiltered(filtered bool) GridModel {
 	m.filtered = filtered
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
 	return m
 }
 
@@ -208,28 +261,28 @@ func (m GridModel) StartFilterTyping() GridModel {
 // WithFilterInput sets a custom text input for filtering.
 func (m GridModel) WithFilterInput(input textinput.Model) GridModel {
 	if m.filterTextInput.Value() != input.Value() {
-		m.pageFirst()
+		m.visibleRowsDirty = true
+		m = m.pageFirst()
 	}
 	m.filterTextInput = input
-	m.visibleRowCacheUpdated = false
 	return m
 }
 
 // WithFilterInputValue sets the filter string directly.
 func (m GridModel) WithFilterInputValue(value string) GridModel {
 	if m.filterTextInput.Value() != value {
-		m.pageFirst()
+		m.visibleRowsDirty = true
+		m = m.pageFirst()
 	}
 	m.filterTextInput.SetValue(value)
 	m.filterTextInput.Blur()
-	m.visibleRowCacheUpdated = false
 	return m
 }
 
 // WithFilterFunc sets a custom filter function.
 func (m GridModel) WithFilterFunc(fn FilterFunc) GridModel {
 	m.filterFunc = fn
-	m.visibleRowCacheUpdated = false
+	m.visibleRowsDirty = true
 	return m
 }
 
@@ -241,6 +294,20 @@ func (m GridModel) WithFuzzyFilter() GridModel {
 // WithStaticFooter sets a static footer text.
 func (m GridModel) WithStaticFooter(footer string) GridModel {
 	m.staticFooter = footer
+	return m
+}
+
+// WithFooterAlignment sets the alignment of the static footer text
+// when no filter is active. Default is lipgloss.Center.
+func (m GridModel) WithFooterAlignment(alignment lipgloss.Position) GridModel {
+	m.footerAlignment = alignment
+	return m
+}
+
+// WithFooterRows sets column-aware footer rows that render above the
+// info row. Each FooterRow can contain cells spanning multiple columns.
+func (m GridModel) WithFooterRows(rows ...FooterRow) GridModel {
+	m.footerRows = rows
 	return m
 }
 
@@ -259,44 +326,38 @@ func (m GridModel) WithFooterVisibility(visible bool) GridModel {
 // WithHorizontalFreezeColumnCount freezes columns for horizontal scrolling.
 func (m GridModel) WithHorizontalFreezeColumnCount(count int) GridModel {
 	m.horizontalScrollFreezeColumnsCount = count
-	m.recalculateWidth()
+	m = m.recalculateWidth()
 	return m
 }
 
 // ScrollRight scrolls one column right.
 func (m GridModel) ScrollRight() GridModel {
-	m.scrollRight()
-	return m
+	return m.scrollRight()
 }
 
 // ScrollLeft scrolls one column left.
 func (m GridModel) ScrollLeft() GridModel {
-	m.scrollLeft()
-	return m
+	return m.scrollLeft()
 }
 
 // PageDown goes to the next page.
 func (m GridModel) PageDown() GridModel {
-	m.pageDown()
-	return m
+	return m.pageDown()
 }
 
 // PageUp goes to the previous page.
 func (m GridModel) PageUp() GridModel {
-	m.pageUp()
-	return m
+	return m.pageUp()
 }
 
 // PageLast goes to the last page.
 func (m GridModel) PageLast() GridModel {
-	m.pageLast()
-	return m
+	return m.pageLast()
 }
 
 // PageFirst goes to the first page.
 func (m GridModel) PageFirst() GridModel {
-	m.pageFirst()
-	return m
+	return m.pageFirst()
 }
 
 // WithMissingDataIndicator sets text shown when a row has no data for a column.
@@ -314,13 +375,14 @@ func (m GridModel) WithSelectedText(unselected, selected string) GridModel {
 
 // WithAllRowsDeselected clears all row selections.
 func (m GridModel) WithAllRowsDeselected() GridModel {
-	rows := m.GetVisibleRows()
+	rows := m.VisibleRows()
 	for i, row := range rows {
 		if row.selected {
 			rows[i] = row.Selected(false)
 		}
 	}
 	m.rows = rows
+	m.visibleRowsDirty = true
 	return m
 }
 
@@ -336,9 +398,26 @@ func (m GridModel) WithMetadata(metadata map[string]any) GridModel {
 	return m
 }
 
+// WithFillWidth enables or disables fill-width mode.
+// When enabled, the last visible column is padded to fill the viewport width,
+// eliminating the gap on the right edge during horizontal scrolling.
+func (m GridModel) WithFillWidth(fill bool) GridModel {
+	m.fillWidth = fill
+	m.visibleColumnsDirty = true
+	return m
+}
+
 // WithOverflowIndicator enables or disables overflow indicators for scrolling.
 func (m GridModel) WithOverflowIndicator(enabled bool) GridModel {
 	m.overflowIndicator = enabled
+	return m
+}
+
+// WithDataRowCount sets the number of data rows, limiting cursor movement
+// to the first n rows. Rows beyond this count are treated as visual padding
+// that the cursor cannot enter. Set to 0 to disable (default).
+func (m GridModel) WithDataRowCount(n int) GridModel {
+	m.dataRowCount = n
 	return m
 }
 

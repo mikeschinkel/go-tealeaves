@@ -18,7 +18,6 @@ func (m GridModel) renderHeaders() string {
 
 	bc := m.border
 	outerBorder := bc.HasOuterBorder()
-	innerDivider := bc.HasInnerDividers()
 	headerSep := bc.HasHeaderSeparator()
 
 	// Top border line
@@ -27,8 +26,9 @@ func (m GridModel) renderHeaders() string {
 	}
 
 	// Header content
-	headerCells := make([]string, 0, len(m.columns))
-	for _, col := range m.columns {
+	visible := m.visibleColumns()
+	headerCells := make([]string, 0, len(visible))
+	for _, col := range visible {
 		title := col.title
 		if col.fmtString != "" {
 			title = fmt.Sprintf(col.fmtString, title)
@@ -44,17 +44,11 @@ func (m GridModel) renderHeaders() string {
 		headerCells = append(headerCells, cellStyle.Render(padded))
 	}
 
-	divider := ""
-	if innerDivider {
-		divStyle := bc.Inner.Style
-		divider = divStyle.Render(bc.Chars.InnerDivider)
-	}
-
 	headerRow := ""
 	if outerBorder {
 		headerRow += bc.Outer.Style.Render(bc.Chars.Vertical)
 	}
-	headerRow += strings.Join(headerCells, divider)
+	headerRow += m.joinCellsWithDividers(headerCells, false)
 	if outerBorder {
 		headerRow += bc.Outer.Style.Render(bc.Chars.Vertical)
 	}
@@ -75,16 +69,23 @@ func (m GridModel) renderTopBorder() string {
 	chars := bc.Chars
 	style := bc.Outer.Style
 
+	visible := m.visibleColumns()
+	freezeIdx := m.horizontalScrollFreezeColumnsCount - 1
+
 	var line strings.Builder
 	line.WriteString(style.Render(chars.TopLeft))
 
-	for i, col := range m.columns {
+	for i, col := range visible {
 		w := col.RenderWidth()
 		line.WriteString(style.Render(strings.Repeat(chars.Horizontal, w)))
 
-		if i < len(m.columns)-1 {
+		if i < len(visible)-1 {
 			if bc.HasInnerDividers() {
-				line.WriteString(style.Render(chars.TopJunction))
+				junction := chars.TopJunction
+				if i == freezeIdx && chars.FreezeTopJunction != "" {
+					junction = chars.FreezeTopJunction
+				}
+				line.WriteString(style.Render(junction))
 			} else {
 				line.WriteString(style.Render(chars.Horizontal))
 			}
@@ -102,19 +103,26 @@ func (m GridModel) renderHeaderSeparator() string {
 	style := bc.Header.Style
 	outerStyle := bc.Outer.Style
 
+	visible := m.visibleColumns()
+	freezeIdx := m.horizontalScrollFreezeColumnsCount - 1
+
 	var line strings.Builder
 
 	if bc.HasOuterBorder() {
 		line.WriteString(outerStyle.Render(chars.LeftJunction))
 	}
 
-	for i, col := range m.columns {
+	for i, col := range visible {
 		w := col.RenderWidth()
 		line.WriteString(style.Render(strings.Repeat(chars.Horizontal, w)))
 
-		if i < len(m.columns)-1 {
+		if i < len(visible)-1 {
 			if bc.HasInnerDividers() {
-				line.WriteString(style.Render(chars.InnerJunction))
+				junction := chars.InnerJunction
+				if i == freezeIdx && chars.FreezeInnerJunction != "" {
+					junction = chars.FreezeInnerJunction
+				}
+				line.WriteString(style.Render(junction))
 			} else {
 				line.WriteString(style.Render(chars.Horizontal))
 			}

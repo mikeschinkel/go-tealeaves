@@ -14,14 +14,14 @@ type KeyMap struct {
 	PageFirst key.Binding
 	PageLast  key.Binding
 
-	// CellLeft moves the cell cursor left.
-	CellLeft key.Binding
+	// ColLeft moves the column cursor left.
+	ColLeft key.Binding
 
-	// CellRight moves the cell cursor right.
-	CellRight key.Binding
+	// ColRight moves the column cursor right.
+	ColRight key.Binding
 
-	// CellSelect emits a UserEventCellSelected event.
-	CellSelect key.Binding
+	// ColSelect emits a UserEventCellSelected event.
+	ColSelect key.Binding
 
 	// Filter starts the filter input.
 	Filter key.Binding
@@ -70,17 +70,17 @@ func DefaultKeyMap() KeyMap {
 			key.WithKeys("end", "G"),
 			key.WithHelp("end/G", "last page"),
 		),
-		CellLeft: key.NewBinding(
+		ColLeft: key.NewBinding(
 			key.WithKeys("left", "h"),
-			key.WithHelp("←/h", "cell left"),
+			key.WithHelp("←/h", "col left"),
 		),
-		CellRight: key.NewBinding(
+		ColRight: key.NewBinding(
 			key.WithKeys("right", "l"),
-			key.WithHelp("→/l", "cell right"),
+			key.WithHelp("→/l", "col right"),
 		),
-		CellSelect: key.NewBinding(
+		ColSelect: key.NewBinding(
 			key.WithKeys("enter"),
-			key.WithHelp("enter", "select cell"),
+			key.WithHelp("enter", "select col"),
 		),
 		Filter: key.NewBinding(
 			key.WithKeys("/"),

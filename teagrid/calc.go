@@ -1,11 +1,15 @@
 package teagrid
 
-func gcd(x, y int) int {
+func gcd(x, y int) (result int) {
 	if x == 0 {
-		return y
-	} else if y == 0 {
-		return x
+		result = y
+		goto end
 	}
-
-	return gcd(y%x, x)
+	if y == 0 {
+		result = x
+		goto end
+	}
+	result = gcd(y%x, x)
+end:
+	return result
 }

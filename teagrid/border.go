@@ -43,38 +43,55 @@ type BorderChars struct {
 
 	InnerJunction string
 	InnerDivider  string
+
+	FreezeDivider        string
+	FreezeTopJunction    string
+	FreezeBottomJunction string
+	FreezeInnerJunction  string
+
+	OverflowVertical string // replaces Vertical on edges with hidden columns
 }
 
 // Pre-defined character sets.
 var (
 	charsDefault = BorderChars{
-		Horizontal:     "━",
-		Vertical:       "┃",
-		TopLeft:        "┏",
-		TopRight:       "┓",
-		BottomLeft:     "┗",
-		BottomRight:    "┛",
-		LeftJunction:   "┣",
-		RightJunction:  "┫",
-		TopJunction:    "┳",
-		BottomJunction: "┻",
-		InnerJunction:  "╋",
-		InnerDivider:   "┃",
+		Horizontal:           "━",
+		Vertical:             "┃",
+		TopLeft:              "┏",
+		TopRight:             "┓",
+		BottomLeft:           "┗",
+		BottomRight:          "┛",
+		LeftJunction:         "┣",
+		RightJunction:        "┫",
+		TopJunction:          "┳",
+		BottomJunction:       "┻",
+		InnerJunction:        "╋",
+		InnerDivider:         "┃",
+		FreezeDivider:        "║",
+		FreezeTopJunction:    "╥",
+		FreezeBottomJunction: "╨",
+		FreezeInnerJunction:  "╫",
+		OverflowVertical:     "▉",
 	}
 
 	charsRounded = BorderChars{
-		Horizontal:     "─",
-		Vertical:       "│",
-		TopLeft:        "╭",
-		TopRight:       "╮",
-		BottomLeft:     "╰",
-		BottomRight:    "╯",
-		LeftJunction:   "├",
-		RightJunction:  "┤",
-		TopJunction:    "┬",
-		BottomJunction: "┴",
-		InnerJunction:  "┼",
-		InnerDivider:   "│",
+		Horizontal:           "─",
+		Vertical:             "│",
+		TopLeft:              "╭",
+		TopRight:             "╮",
+		BottomLeft:           "╰",
+		BottomRight:          "╯",
+		LeftJunction:         "├",
+		RightJunction:        "┤",
+		TopJunction:          "┬",
+		BottomJunction:       "┴",
+		InnerJunction:        "┼",
+		InnerDivider:         "│",
+		FreezeDivider:        "║",
+		FreezeTopJunction:    "╥",
+		FreezeBottomJunction: "╨",
+		FreezeInnerJunction:  "╫",
+		OverflowVertical:     "▉",
 	}
 
 	charsMinimal = BorderChars{

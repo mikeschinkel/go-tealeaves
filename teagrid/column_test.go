@@ -17,7 +17,7 @@ func TestNewColumnDefaults(t *testing.T) {
 	assert.False(t, col.IsFlex())
 	assert.Equal(t, lipgloss.Left, col.Alignment())
 	assert.Equal(t, 1, col.PaddingLeft())
-	assert.Equal(t, 0, col.PaddingRight())
+	assert.Equal(t, 1, col.PaddingRight())
 	assert.False(t, col.Filterable())
 	assert.Equal(t, "", col.FmtString())
 }
@@ -41,8 +41,8 @@ func TestNewFlexColumnMinFactor(t *testing.T) {
 func TestColumnRenderWidth(t *testing.T) {
 	t.Run("default padding", func(t *testing.T) {
 		col := NewColumn("x", "X", 10)
-		// paddingLeft=1 + width=10 + paddingRight=0 = 11
-		assert.Equal(t, 11, col.RenderWidth())
+		// paddingLeft=1 + width=10 + paddingRight=1 = 12
+		assert.Equal(t, 12, col.RenderWidth())
 	})
 
 	t.Run("custom padding", func(t *testing.T) {
@@ -61,7 +61,7 @@ func TestColumnWithPadding(t *testing.T) {
 func TestColumnWithPaddingLeft(t *testing.T) {
 	col := NewColumn("x", "X", 10).WithPaddingLeft(5)
 	assert.Equal(t, 5, col.PaddingLeft())
-	assert.Equal(t, 0, col.PaddingRight())
+	assert.Equal(t, 1, col.PaddingRight())
 }
 
 func TestColumnWithPaddingRight(t *testing.T) {

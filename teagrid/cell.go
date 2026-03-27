@@ -51,8 +51,8 @@ type CellStyleInput struct {
 	// IsHighlightedRow is true when this cell's row has the row cursor.
 	IsHighlightedRow bool
 
-	// IsCursorCell is true when this specific cell has the cell cursor.
-	IsCursorCell bool
+	// IsColCursor is true when this specific cell has the column cursor.
+	IsColCursor bool
 
 	// GlobalMetadata is the grid-level metadata set via WithMetadata.
 	GlobalMetadata map[string]any

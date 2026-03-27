@@ -28,20 +28,36 @@ func TestMoveDown(t *testing.T) {
 		NewRow(RowData{"x": 3}),
 	}
 
-	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
-		WithRows(rows).
-		Focused(true)
+	t.Run("clamps by default", func(t *testing.T) {
+		m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
+			WithRows(rows).
+			WithFocused(true)
 
-	assert.Equal(t, 0, m.rowCursorIndex)
+		m = m.moveDown()
+		m = m.moveDown()
+		assert.Equal(t, 2, m.rowCursorIndex)
 
-	m = m.moveDown()
-	assert.Equal(t, 1, m.rowCursorIndex)
+		m = m.moveDown()
+		assert.Equal(t, 2, m.rowCursorIndex, "should clamp at last row")
+	})
 
-	m = m.moveDown()
-	assert.Equal(t, 2, m.rowCursorIndex)
+	t.Run("wraps when wrapping enabled", func(t *testing.T) {
+		m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
+			WithRows(rows).
+			WithRowCursorWrapping(true).
+			WithFocused(true)
 
-	m = m.moveDown()
-	assert.Equal(t, 0, m.rowCursorIndex, "should wrap to start")
+		assert.Equal(t, 0, m.rowCursorIndex)
+
+		m = m.moveDown()
+		assert.Equal(t, 1, m.rowCursorIndex)
+
+		m = m.moveDown()
+		assert.Equal(t, 2, m.rowCursorIndex)
+
+		m = m.moveDown()
+		assert.Equal(t, 0, m.rowCursorIndex, "should wrap to start")
+	})
 }
 
 func TestMoveUp(t *testing.T) {
@@ -50,15 +66,27 @@ func TestMoveUp(t *testing.T) {
 		NewRow(RowData{"x": 2}),
 	}
 
-	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
-		WithRows(rows).
-		Focused(true)
+	t.Run("clamps by default", func(t *testing.T) {
+		m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
+			WithRows(rows).
+			WithFocused(true)
 
-	m = m.moveUp()
-	assert.Equal(t, 1, m.rowCursorIndex, "should wrap to end")
+		m = m.moveUp()
+		assert.Equal(t, 0, m.rowCursorIndex, "should clamp at first row")
+	})
 
-	m = m.moveUp()
-	assert.Equal(t, 0, m.rowCursorIndex)
+	t.Run("wraps when wrapping enabled", func(t *testing.T) {
+		m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
+			WithRows(rows).
+			WithRowCursorWrapping(true).
+			WithFocused(true)
+
+		m = m.moveUp()
+		assert.Equal(t, 1, m.rowCursorIndex, "should wrap to end")
+
+		m = m.moveUp()
+		assert.Equal(t, 0, m.rowCursorIndex)
+	})
 }
 
 func TestMoveDownEmitsEvent(t *testing.T) {
@@ -69,12 +97,12 @@ func TestMoveDownEmitsEvent(t *testing.T) {
 
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
-		Focused(true)
+		WithFocused(true)
 
-	m.clearUserEvents()
+	m = m.clearUserEvents()
 	m = m.moveDown()
 
-	events := m.GetLastUpdateUserEvents()
+	events := m.LastUpdateUserEvents()
 	require.Len(t, events, 1)
 
 	event, ok := events[0].(UserEventHighlightedIndexChanged)
@@ -83,44 +111,72 @@ func TestMoveDownEmitsEvent(t *testing.T) {
 	assert.Equal(t, 1, event.SelectedRowIndex)
 }
 
-func TestMoveCellRight(t *testing.T) {
+func TestMoveColRight(t *testing.T) {
 	cols := []Column{
 		NewColumn("a", "A", 5),
 		NewColumn("b", "B", 5),
 		NewColumn("c", "C", 5),
 	}
 
-	m := NewGridModel(cols).
-		WithCellCursorMode(true).
-		Focused(true)
+	t.Run("clamps at last column by default", func(t *testing.T) {
+		m := NewGridModel(cols).
+			WithColCursorMode(true).
+			WithFocused(true)
 
-	assert.Equal(t, 0, m.cellCursorColumnIndex)
+		assert.Equal(t, 0, m.colCursorColumnIndex)
 
-	m = m.moveCellRight()
-	assert.Equal(t, 1, m.cellCursorColumnIndex)
+		m = m.moveColRight()
+		assert.Equal(t, 1, m.colCursorColumnIndex)
 
-	m = m.moveCellRight()
-	assert.Equal(t, 2, m.cellCursorColumnIndex)
+		m = m.moveColRight()
+		assert.Equal(t, 2, m.colCursorColumnIndex)
 
-	m = m.moveCellRight()
-	assert.Equal(t, 0, m.cellCursorColumnIndex, "should wrap")
+		m = m.moveColRight()
+		assert.Equal(t, 2, m.colCursorColumnIndex, "should clamp at last column")
+	})
+
+	t.Run("wraps when wrapping enabled", func(t *testing.T) {
+		m := NewGridModel(cols).
+			WithColCursorMode(true).
+			WithColCursorWrapping(true).
+			WithFocused(true)
+
+		m = m.moveColRight()
+		m = m.moveColRight()
+		assert.Equal(t, 2, m.colCursorColumnIndex)
+
+		m = m.moveColRight()
+		assert.Equal(t, 0, m.colCursorColumnIndex, "should wrap to first")
+	})
 }
 
-func TestMoveCellLeft(t *testing.T) {
+func TestMoveColLeft(t *testing.T) {
 	cols := []Column{
 		NewColumn("a", "A", 5),
 		NewColumn("b", "B", 5),
 	}
 
-	m := NewGridModel(cols).
-		WithCellCursorMode(true).
-		Focused(true)
+	t.Run("clamps at first column by default", func(t *testing.T) {
+		m := NewGridModel(cols).
+			WithColCursorMode(true).
+			WithFocused(true)
 
-	m = m.moveCellLeft()
-	assert.Equal(t, 1, m.cellCursorColumnIndex, "should wrap to last")
+		m = m.moveColLeft()
+		assert.Equal(t, 0, m.colCursorColumnIndex, "should clamp at first column")
+	})
+
+	t.Run("wraps when wrapping enabled", func(t *testing.T) {
+		m := NewGridModel(cols).
+			WithColCursorMode(true).
+			WithColCursorWrapping(true).
+			WithFocused(true)
+
+		m = m.moveColLeft()
+		assert.Equal(t, 1, m.colCursorColumnIndex, "should wrap to last")
+	})
 }
 
-func TestSelectCell(t *testing.T) {
+func TestSelectCol(t *testing.T) {
 	rows := []Row{
 		NewRow(RowData{"name": "Alice", "age": 30}),
 	}
@@ -129,14 +185,14 @@ func TestSelectCell(t *testing.T) {
 		NewColumn("name", "Name", 10),
 		NewColumn("age", "Age", 5),
 	}).WithRows(rows).
-		WithCellCursorMode(true).
-		Focused(true)
+		WithColCursorMode(true).
+		WithFocused(true)
 
-	m.cellCursorColumnIndex = 1
-	m.clearUserEvents()
-	m = m.selectCell()
+	m.colCursorColumnIndex = 1
+	m = m.clearUserEvents()
+	m = m.selectCol()
 
-	events := m.GetLastUpdateUserEvents()
+	events := m.LastUpdateUserEvents()
 	require.Len(t, events, 1)
 
 	event, ok := events[0].(UserEventCellSelected)
@@ -156,12 +212,12 @@ func TestToggleRowSelection(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows(rows).
 		WithSelectableRows(true).
-		Focused(true)
+		WithFocused(true)
 
-	m.clearUserEvents()
+	m = m.clearUserEvents()
 	m = m.toggleRowSelection()
 
-	events := m.GetLastUpdateUserEvents()
+	events := m.LastUpdateUserEvents()
 	require.Len(t, events, 1)
 
 	event, ok := events[0].(UserEventRowSelectToggled)
@@ -170,17 +226,17 @@ func TestToggleRowSelection(t *testing.T) {
 	assert.True(t, event.IsSelected)
 
 	// Toggle again
-	m.clearUserEvents()
+	m = m.clearUserEvents()
 	m = m.toggleRowSelection()
 
-	events = m.GetLastUpdateUserEvents()
+	events = m.LastUpdateUserEvents()
 	require.Len(t, events, 1)
 	event = events[0].(UserEventRowSelectToggled)
 	assert.False(t, event.IsSelected)
 }
 
 func TestWindowSizeMsg(t *testing.T) {
-	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).Focused(true)
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithFocused(true)
 
 	updated, _ := m.Update(tea.WindowSizeMsg{Width: 80, Height: 24})
 

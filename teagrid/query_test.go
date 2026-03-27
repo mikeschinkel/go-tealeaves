@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestGetVisibleRows(t *testing.T) {
+func TestVisibleRows(t *testing.T) {
 	rows := []Row{
 		NewRow(RowData{"x": 3}),
 		NewRow(RowData{"x": 1}),
@@ -16,19 +16,19 @@ func TestGetVisibleRows(t *testing.T) {
 		WithRows(rows).
 		SortByAsc("x")
 
-	visible := m.GetVisibleRows()
+	visible := m.VisibleRows()
 	assert.Len(t, visible, 3)
 	assert.Equal(t, 1, visible[0].Data["x"])
 }
 
-func TestGetVisibleRowsCache(t *testing.T) {
+func TestVisibleRowsCache(t *testing.T) {
 	rows := []Row{NewRow(RowData{"x": 1})}
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
 
 	// First call populates cache
-	v1 := m.GetVisibleRows()
+	v1 := m.VisibleRows()
 	// Second call uses cache
-	v2 := m.GetVisibleRows()
+	v2 := m.VisibleRows()
 
 	assert.Equal(t, len(v1), len(v2))
 }
@@ -71,7 +71,7 @@ func TestNaturalWidth(t *testing.T) {
 	}
 	m := NewGridModel(cols)
 
-	assert.Equal(t, 35, m.NaturalWidth())
+	assert.Equal(t, 37, m.NaturalWidth())
 }
 
 func TestTotalWidth(t *testing.T) {
@@ -81,7 +81,7 @@ func TestTotalWidth(t *testing.T) {
 	}
 	m := NewGridModel(cols)
 
-	assert.Equal(t, 35, m.TotalWidth())
+	assert.Equal(t, 37, m.TotalWidth())
 }
 
 func TestTotalWidthWithFlex(t *testing.T) {
@@ -89,7 +89,7 @@ func TestTotalWidthWithFlex(t *testing.T) {
 		NewColumn("a", "A", 10),
 		NewFlexColumn("b", "B", 1),
 	}
-	m := NewGridModel(cols).SetSize(50, 24)
+	m := NewGridModel(cols).WithSize(50, 24)
 
 	// TotalWidth should match viewport after flex resolution
 	assert.Equal(t, 50, m.TotalWidth())
@@ -116,33 +116,33 @@ func TestHasFooter(t *testing.T) {
 
 	t.Run("footer with filter", func(t *testing.T) {
 		m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
-			Filtered(true)
+			WithFiltered(true)
 		assert.True(t, m.hasFooter())
 	})
 }
 
-func TestGetColumnSorting(t *testing.T) {
+func TestColumnSorting(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		SortByAsc("x").
 		ThenSortByDesc("y")
 
-	sorting := m.GetColumnSorting()
+	sorting := m.ColumnSorting()
 	assert.Len(t, sorting, 2)
 
 	// Mutation of returned slice should not affect model
 	sorting[0].ColumnKey = "mutated"
-	assert.NotEqual(t, "mutated", m.GetColumnSorting()[0].ColumnKey)
+	assert.NotEqual(t, "mutated", m.ColumnSorting()[0].ColumnKey)
 }
 
-func TestGetLastUpdateUserEvents(t *testing.T) {
+func TestLastUpdateUserEvents(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)})
 
-	assert.Nil(t, m.GetLastUpdateUserEvents())
+	assert.Nil(t, m.LastUpdateUserEvents())
 
-	m.appendUserEvent(UserEventFilterInputFocused{})
-	events := m.GetLastUpdateUserEvents()
+	m = m.appendUserEvent(UserEventFilterInputFocused{})
+	events := m.LastUpdateUserEvents()
 	assert.Len(t, events, 1)
 
-	m.clearUserEvents()
-	assert.Nil(t, m.GetLastUpdateUserEvents())
+	m = m.clearUserEvents()
+	assert.Nil(t, m.LastUpdateUserEvents())
 }

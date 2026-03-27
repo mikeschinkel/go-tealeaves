@@ -4,7 +4,7 @@ import "charm.land/lipgloss/v2"
 
 const (
 	defaultPaddingLeft  = 1
-	defaultPaddingRight = 0
+	defaultPaddingRight = 1
 )
 
 // Column defines a column in the grid.
@@ -12,6 +12,7 @@ type Column struct {
 	title        string
 	key          string
 	width        int
+	minWidth     int
 	flexFactor   int
 	paddingLeft  int
 	paddingRight int
@@ -22,7 +23,7 @@ type Column struct {
 }
 
 // NewColumn creates a new fixed-width column.
-// Default alignment is Left, paddingLeft is 1, paddingRight is 0.
+// Default alignment is Left, paddingLeft is 1, paddingRight is 1.
 func NewColumn(key, title string, width int) Column {
 	return Column{
 		key:          key,
@@ -40,6 +41,7 @@ func NewFlexColumn(key, title string, flexFactor int) Column {
 	return Column{
 		key:          key,
 		title:        title,
+		minWidth:     len([]rune(title)),
 		flexFactor:   max(flexFactor, 1),
 		paddingLeft:  defaultPaddingLeft,
 		paddingRight: defaultPaddingRight,
@@ -90,6 +92,17 @@ func (c Column) WithAlignment(alignment lipgloss.Position) Column {
 	c.alignment = alignment
 	return c
 }
+
+// WithMinWidth sets the minimum content width for a flex column.
+// When flex columns cannot get their proportional share of space, they
+// fall back to this minimum width instead of disappearing.
+func (c Column) WithMinWidth(n int) Column {
+	c.minWidth = n
+	return c
+}
+
+// MinWidth returns the minimum content width for the column.
+func (c Column) MinWidth() int { return c.minWidth }
 
 // RenderWidth returns the total rendered width of the column including padding.
 func (c Column) RenderWidth() int {

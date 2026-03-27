@@ -53,8 +53,8 @@ func newModel() model {
 	return model{
 		table: teagrid.
 			NewGridModel(columns).
-			Filtered(true).
-			Focused(true).
+			WithFiltered(true).
+			WithFocused(true).
 			WithPageSize(10).
 			WithRows(rows),
 	}
@@ -75,12 +75,12 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.table = m.table.SetSize(msg.Width, msg.Height)
+		m.table = m.table.WithSize(msg.Width, msg.Height)
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			if !m.table.GetIsFilterInputFocused() {
+			if !m.table.IsFilterInputFocused() {
 				cmds = append(cmds, tea.Quit)
 			}
 		}
@@ -105,7 +105,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }

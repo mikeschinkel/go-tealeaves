@@ -12,14 +12,15 @@ func (m GridModel) Update(msg tea.Msg) (GridModel, tea.Cmd) {
 		return m, nil
 	}
 
-	m.clearUserEvents()
+	m = m.clearUserEvents()
+	m = m.ensureVisibleRowsCached()
 
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
 		return m.handleKeyPress(msg)
 
 	case tea.WindowSizeMsg:
-		m = m.SetSize(msg.Width, msg.Height)
+		m = m.WithSize(msg.Width, msg.Height)
 		return m, nil
 	}
 
@@ -39,19 +40,19 @@ func (m GridModel) handleKeyPress(msg tea.KeyPressMsg) (GridModel, tea.Cmd) {
 	case key.Matches(msg, m.keyMap.RowUp):
 		m = m.moveUp()
 
-	case key.Matches(msg, m.keyMap.CellRight):
-		if m.cellCursorMode {
-			m = m.moveCellRight()
+	case key.Matches(msg, m.keyMap.ColRight):
+		if m.colCursorMode {
+			m = m.moveColRight()
 		}
 
-	case key.Matches(msg, m.keyMap.CellLeft):
-		if m.cellCursorMode {
-			m = m.moveCellLeft()
+	case key.Matches(msg, m.keyMap.ColLeft):
+		if m.colCursorMode {
+			m = m.moveColLeft()
 		}
 
-	case key.Matches(msg, m.keyMap.CellSelect):
-		if m.cellCursorMode {
-			m = m.selectCell()
+	case key.Matches(msg, m.keyMap.ColSelect):
+		if m.colCursorMode {
+			m = m.selectCol()
 		} else if m.selectableRows {
 			m = m.toggleRowSelection()
 		}
@@ -62,35 +63,35 @@ func (m GridModel) handleKeyPress(msg tea.KeyPressMsg) (GridModel, tea.Cmd) {
 		}
 
 	case key.Matches(msg, m.keyMap.PageDown):
-		m.pageDown()
+		m = m.pageDown()
 
 	case key.Matches(msg, m.keyMap.PageUp):
-		m.pageUp()
+		m = m.pageUp()
 
 	case key.Matches(msg, m.keyMap.PageFirst):
-		m.pageFirst()
+		m = m.pageFirst()
 
 	case key.Matches(msg, m.keyMap.PageLast):
-		m.pageLast()
+		m = m.pageLast()
 
 	case key.Matches(msg, m.keyMap.Filter):
 		if m.filtered {
 			m.filterTextInput.Focus()
-			m.appendUserEvent(UserEventFilterInputFocused{})
+			m = m.appendUserEvent(UserEventFilterInputFocused{})
 		}
 
 	case key.Matches(msg, m.keyMap.FilterClear):
 		if m.filtered && m.filterTextInput.Value() != "" {
 			m.filterTextInput.SetValue("")
-			m.visibleRowCacheUpdated = false
-			m.pageFirst()
+			m.visibleRowsDirty = true
+			m = m.pageFirst()
 		}
 
 	case key.Matches(msg, m.keyMap.ScrollRight):
-		m.scrollRight()
+		m = m.scrollRight()
 
 	case key.Matches(msg, m.keyMap.ScrollLeft):
-		m.scrollLeft()
+		m = m.scrollLeft()
 	}
 
 	return m, nil
@@ -99,21 +100,25 @@ func (m GridModel) handleKeyPress(msg tea.KeyPressMsg) (GridModel, tea.Cmd) {
 func (m GridModel) handleFilterInput(msg tea.KeyPressMsg) (GridModel, tea.Cmd) {
 	if key.Matches(msg, m.keyMap.FilterBlur) {
 		m.filterTextInput.Blur()
-		m.appendUserEvent(UserEventFilterInputUnfocused{})
+		m = m.appendUserEvent(UserEventFilterInputUnfocused{})
 		return m, nil
 	}
 
+	prevValue := m.filterTextInput.Value()
 	var cmd tea.Cmd
 	m.filterTextInput, cmd = m.filterTextInput.Update(msg)
-	m.visibleRowCacheUpdated = false
-	m.pageFirst()
+
+	if m.filterTextInput.Value() != prevValue {
+		m.visibleRowsDirty = true
+		m = m.pageFirst()
+	}
 
 	return m, cmd
 }
 
 func (m GridModel) moveDown() GridModel {
 	previousIndex := m.rowCursorIndex
-	totalRows := len(m.GetVisibleRows())
+	totalRows := m.cursorRowBound()
 
 	if totalRows == 0 {
 		return m
@@ -122,15 +127,19 @@ func (m GridModel) moveDown() GridModel {
 	m.rowCursorIndex++
 
 	if m.rowCursorIndex >= totalRows {
-		m.rowCursorIndex = 0
+		if m.rowCursorWrapping {
+			m.rowCursorIndex = 0
+		} else {
+			m.rowCursorIndex = totalRows - 1
+		}
 	}
 
 	if m.pageSize > 0 {
-		m.currentPage = m.expectedPageForRowIndex(m.rowCursorIndex)
+		m = m.ensureRowCursorVisible()
 	}
 
 	if m.rowCursorIndex != previousIndex {
-		m.appendUserEvent(UserEventHighlightedIndexChanged{
+		m = m.appendUserEvent(UserEventHighlightedIndexChanged{
 			PreviousRowIndex: previousIndex,
 			SelectedRowIndex: m.rowCursorIndex,
 		})
@@ -141,7 +150,7 @@ func (m GridModel) moveDown() GridModel {
 
 func (m GridModel) moveUp() GridModel {
 	previousIndex := m.rowCursorIndex
-	totalRows := len(m.GetVisibleRows())
+	totalRows := m.cursorRowBound()
 
 	if totalRows == 0 {
 		return m
@@ -150,15 +159,19 @@ func (m GridModel) moveUp() GridModel {
 	m.rowCursorIndex--
 
 	if m.rowCursorIndex < 0 {
-		m.rowCursorIndex = totalRows - 1
+		if m.rowCursorWrapping {
+			m.rowCursorIndex = totalRows - 1
+		} else {
+			m.rowCursorIndex = 0
+		}
 	}
 
 	if m.pageSize > 0 {
-		m.currentPage = m.expectedPageForRowIndex(m.rowCursorIndex)
+		m = m.ensureRowCursorVisible()
 	}
 
 	if m.rowCursorIndex != previousIndex {
-		m.appendUserEvent(UserEventHighlightedIndexChanged{
+		m = m.appendUserEvent(UserEventHighlightedIndexChanged{
 			PreviousRowIndex: previousIndex,
 			SelectedRowIndex: m.rowCursorIndex,
 		})
@@ -167,40 +180,53 @@ func (m GridModel) moveUp() GridModel {
 	return m
 }
 
-func (m GridModel) moveCellRight() GridModel {
+func (m GridModel) moveColRight() GridModel {
 	if len(m.columns) == 0 {
 		return m
 	}
 
-	m.cellCursorColumnIndex++
-	if m.cellCursorColumnIndex >= len(m.columns) {
-		m.cellCursorColumnIndex = 0
+	m.colCursorColumnIndex++
+	if m.colCursorColumnIndex >= len(m.columns) {
+		if m.colCursorWrapping {
+			m.colCursorColumnIndex = 0
+		} else {
+			m.colCursorColumnIndex = len(m.columns) - 1
+		}
 	}
 
+	m = m.ensureColCursorVisible()
 	return m
 }
 
-func (m GridModel) moveCellLeft() GridModel {
+func (m GridModel) moveColLeft() GridModel {
 	if len(m.columns) == 0 {
 		return m
 	}
 
-	m.cellCursorColumnIndex--
-	if m.cellCursorColumnIndex < 0 {
-		m.cellCursorColumnIndex = len(m.columns) - 1
+	m.colCursorColumnIndex--
+	if m.colCursorColumnIndex < 0 {
+		if m.colCursorWrapping {
+			m.colCursorColumnIndex = len(m.columns) - 1
+		} else {
+			m.colCursorColumnIndex = 0
+		}
 	}
 
+	m = m.ensureColCursorVisible()
 	return m
 }
 
-func (m GridModel) selectCell() GridModel {
-	rows := m.GetVisibleRows()
+func (m GridModel) selectCol() GridModel {
+	rows := m.cachedVisibleRows
+	if rows == nil {
+		rows = m.VisibleRows()
+	}
 	if len(rows) == 0 || m.rowCursorIndex >= len(rows) {
 		return m
 	}
 
 	row := rows[m.rowCursorIndex]
-	colIndex := m.cellCursorColumnIndex
+	colIndex := m.colCursorColumnIndex
 	if colIndex >= len(m.columns) {
 		return m
 	}
@@ -213,7 +239,7 @@ func (m GridModel) selectCell() GridModel {
 		data = cv.Data
 	}
 
-	m.appendUserEvent(UserEventCellSelected{
+	m = m.appendUserEvent(UserEventCellSelected{
 		RowIndex:    m.rowCursorIndex,
 		ColumnIndex: colIndex,
 		ColumnKey:   col.key,
@@ -224,7 +250,10 @@ func (m GridModel) selectCell() GridModel {
 }
 
 func (m GridModel) toggleRowSelection() GridModel {
-	rows := m.GetVisibleRows()
+	rows := m.cachedVisibleRows
+	if rows == nil {
+		rows = m.VisibleRows()
+	}
 	if len(rows) == 0 || m.rowCursorIndex >= len(rows) {
 		return m
 	}
@@ -236,13 +265,12 @@ func (m GridModel) toggleRowSelection() GridModel {
 	for i, r := range m.rows {
 		if r.id == row.id {
 			m.rows[i] = r.Selected(newSelected)
+			m.visibleRowsDirty = true
 			break
 		}
 	}
 
-	m.visibleRowCacheUpdated = false
-
-	m.appendUserEvent(UserEventRowSelectToggled{
+	m = m.appendUserEvent(UserEventRowSelectToggled{
 		RowIndex:   m.rowCursorIndex,
 		IsSelected: newSelected,
 	})

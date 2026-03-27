@@ -17,7 +17,7 @@ func TestSortByAsc(t *testing.T) {
 		WithRows(rows).
 		SortByAsc("name")
 
-	visible := m.GetVisibleRows()
+	visible := m.VisibleRows()
 	assert.Equal(t, "Alice", visible[0].Data["name"])
 	assert.Equal(t, "Bob", visible[1].Data["name"])
 	assert.Equal(t, "Charlie", visible[2].Data["name"])
@@ -33,7 +33,7 @@ func TestSortByDesc(t *testing.T) {
 		WithRows(rows).
 		SortByDesc("name")
 
-	visible := m.GetVisibleRows()
+	visible := m.VisibleRows()
 	assert.Equal(t, "Charlie", visible[0].Data["name"])
 	assert.Equal(t, "Bob", visible[1].Data["name"])
 	assert.Equal(t, "Alice", visible[2].Data["name"])
@@ -49,7 +49,7 @@ func TestSortNumeric(t *testing.T) {
 		WithRows(rows).
 		SortByAsc("score")
 
-	visible := m.GetVisibleRows()
+	visible := m.VisibleRows()
 	assert.Equal(t, 3, visible[0].Data["score"])
 	assert.Equal(t, 42, visible[1].Data["score"])
 	assert.Equal(t, 100, visible[2].Data["score"])
@@ -65,7 +65,7 @@ func TestSortWithSortValue(t *testing.T) {
 		WithRows(rows).
 		SortByAsc("date")
 
-	visible := m.GetVisibleRows()
+	visible := m.VisibleRows()
 	cv0 := visible[0].Data["date"].(CellValue)
 	cv1 := visible[1].Data["date"].(CellValue)
 	cv2 := visible[2].Data["date"].(CellValue)
@@ -87,7 +87,7 @@ func TestThenSortBy(t *testing.T) {
 		SortByAsc("dept").
 		ThenSortByAsc("name")
 
-	visible := m.GetVisibleRows()
+	visible := m.VisibleRows()
 	assert.Equal(t, "A", visible[0].Data["dept"])
 	assert.Equal(t, "Alice", visible[0].Data["name"])
 	assert.Equal(t, "A", visible[1].Data["dept"])

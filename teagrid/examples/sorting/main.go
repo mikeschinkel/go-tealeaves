@@ -27,7 +27,7 @@ func newModel() model {
 			teagrid.NewColumn(columnKeyType, "Type", 13),
 			teagrid.NewColumn(columnKeyWins, "Win %", 8).
 				WithFormatString("%.1f%%"),
-		}).Focused(true).WithRows([]teagrid.Row{
+		}).WithFocused(true).WithRows([]teagrid.Row{
 			teagrid.NewRow(teagrid.RowData{
 				columnKeyName: "ピカピカ",
 				columnKeyType: "Pikachu",
@@ -114,7 +114,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }

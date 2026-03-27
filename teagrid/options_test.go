@@ -14,21 +14,21 @@ func TestWithRows(t *testing.T) {
 	}
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithRows(rows)
 
-	assert.Len(t, m.GetVisibleRows(), 2)
+	assert.Len(t, m.VisibleRows(), 2)
 }
 
 func TestWithRowsResetsCache(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows([]Row{NewRow(RowData{"x": 1})})
 
-	_ = m.GetVisibleRows() // populate cache
+	_ = m.VisibleRows() // populate cache
 
 	m = m.WithRows([]Row{
 		NewRow(RowData{"x": 1}),
 		NewRow(RowData{"x": 2}),
 	})
 
-	assert.Len(t, m.GetVisibleRows(), 2)
+	assert.Len(t, m.VisibleRows(), 2)
 }
 
 func TestWithBaseStyle(t *testing.T) {
@@ -42,14 +42,14 @@ func TestWithBorder(t *testing.T) {
 	assert.False(t, m.border.HasOuterBorder())
 }
 
-func TestFocused(t *testing.T) {
-	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).Focused(true)
-	assert.True(t, m.GetFocused())
+func TestWithFocused(t *testing.T) {
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithFocused(true)
+	assert.True(t, m.IsFocused())
 }
 
-func TestWithCellCursorMode(t *testing.T) {
-	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithCellCursorMode(true)
-	assert.True(t, m.GetCellCursorMode())
+func TestWithColCursorMode(t *testing.T) {
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithColCursorMode(true)
+	assert.True(t, m.ColCursorMode())
 }
 
 func TestWithSelectableRows(t *testing.T) {
@@ -69,7 +69,7 @@ func TestWithHighlightedRow(t *testing.T) {
 		WithRows(rows).
 		WithHighlightedRow(2)
 
-	assert.Equal(t, 2, m.GetHighlightedRowIndex())
+	assert.Equal(t, 2, m.HighlightedRowIndex())
 }
 
 func TestWithHighlightedRowClamped(t *testing.T) {
@@ -81,17 +81,17 @@ func TestWithHighlightedRowClamped(t *testing.T) {
 		WithRows(rows).
 		WithHighlightedRow(100)
 
-	assert.Equal(t, 1, m.GetHighlightedRowIndex())
+	assert.Equal(t, 1, m.HighlightedRowIndex())
 }
 
 func TestWithHeaderVisibility(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithHeaderVisibility(false)
-	assert.False(t, m.GetHeaderVisibility())
+	assert.False(t, m.IsHeaderVisible())
 }
 
 func TestWithFooterVisibility(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).WithFooterVisibility(false)
-	assert.False(t, m.GetFooterVisibility())
+	assert.False(t, m.IsFooterVisible())
 }
 
 func TestWithMetadata(t *testing.T) {
@@ -107,10 +107,47 @@ func TestWithOverflowIndicator(t *testing.T) {
 
 func TestImmutability(t *testing.T) {
 	original := NewGridModel([]Column{NewColumn("x", "X", 5)})
-	modified := original.Focused(true)
+	modified := original.WithFocused(true)
 
 	assert.False(t, original.focused)
 	assert.True(t, modified.focused)
+}
+
+func TestWithCellPadding(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewColumn("b", "B", 20),
+	}
+	m := NewGridModel(cols).WithCellPadding(2, 3)
+
+	for _, col := range m.columns {
+		assert.Equal(t, 2, col.PaddingLeft())
+		assert.Equal(t, 3, col.PaddingRight())
+	}
+}
+
+func TestWithCellPaddingZero(t *testing.T) {
+	cols := []Column{
+		NewColumn("a", "A", 10),
+		NewColumn("b", "B", 20),
+	}
+	m := NewGridModel(cols).WithCellPadding(0, 0)
+
+	for _, col := range m.columns {
+		assert.Equal(t, 0, col.PaddingLeft())
+		assert.Equal(t, 0, col.PaddingRight())
+	}
+}
+
+func TestWithFillWidth(t *testing.T) {
+	m := NewGridModel([]Column{NewColumn("x", "X", 5)})
+	assert.True(t, m.FillWidth(), "fill-width should be enabled by default")
+
+	m = m.WithFillWidth(true)
+	assert.True(t, m.FillWidth())
+
+	m = m.WithFillWidth(false)
+	assert.False(t, m.FillWidth())
 }
 
 func TestWithEditableStub(t *testing.T) {

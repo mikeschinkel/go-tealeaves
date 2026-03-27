@@ -113,8 +113,9 @@ func newModel() model {
 			NewGridModel(columns).
 			WithRows(rows).
 			WithHorizontalFreezeColumnCount(1).
+			WithOverflowIndicator(true).
 			WithStaticFooter("Scroll: shift+left/right | Navigate: up/down | Quit: q").
-			Focused(true),
+			WithFocused(true),
 	}
 }
 
@@ -133,7 +134,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.table = m.table.SetSize(msg.Width, msg.Height)
+		m.table = m.table.WithSize(msg.Width, msg.Height)
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -161,7 +162,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }
