@@ -172,15 +172,17 @@ end:
 
 // View renders the help visor with open-bottom border.
 // Returns empty view when closed.
-func (m HelpVisorModel) View() tea.View {
-	if !m.isOpen || len(m.pages) == 0 {
-		return tea.NewView("")
-	}
-
+// View implements tea.Model (FOLLOWS ClearPath)
+func (m HelpVisorModel) View() (view tea.View) {
 	var pg helpPage
 	var inner strings.Builder
 	var footer string
 	var borderStyle lipgloss.Style
+
+	if !m.isOpen || len(m.pages) == 0 {
+		view = tea.NewView("")
+		goto end
+	}
 
 	// Get current page lines
 	pg = m.pages[m.page]
@@ -203,7 +205,10 @@ func (m HelpVisorModel) View() tea.View {
 	borderStyle = m.Styles.BorderStyle.
 		Width(m.maxContentWidth + m.Styles.BorderStyle.GetHorizontalPadding() + m.Styles.BorderStyle.GetHorizontalBorderSize())
 
-	return tea.NewView(borderStyle.Render(inner.String()))
+	view = tea.NewView(borderStyle.Render(inner.String()))
+
+end:
+	return view
 }
 
 // buildPages pre-renders content items and splits them into pages.
