@@ -7,12 +7,12 @@ import (
 	"charm.land/lipgloss/v2"
 )
 
-func TestNewMenuItemFromBinding(t *testing.T) {
+func TestNewMenuItem(t *testing.T) {
 	binding := key.NewBinding(key.WithKeys("?", "h"), key.WithHelp("?", "Show help"))
-	item := NewMenuItemFromBinding(binding, "Help")
+	item := NewMenuItem(binding, &MenuItemOpts{Label: "Help"})
 
-	if item.Key != "?" {
-		t.Errorf("expected Key='?' (first binding key), got %q", item.Key)
+	if item.KeyText != "?" {
+		t.Errorf("expected KeyText='?' (first binding key), got %q", item.KeyText)
 	}
 	if item.Label != "Help" {
 		t.Errorf("expected Label='Help', got %q", item.Label)

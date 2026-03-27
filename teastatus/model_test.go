@@ -10,8 +10,8 @@ import (
 
 func testMenuItems() []MenuItem {
 	return []MenuItem{
-		{Key: "?", Label: "Help"},
-		{Key: "tab", Label: "Switch"},
+		{KeyText: "?", Label: "Help"},
+		{KeyText: "tab", Label: "Switch"},
 	}
 }
 
@@ -231,7 +231,7 @@ func TestModel_View_NegativeWidth(t *testing.T) {
 
 func TestFormatKey_Space(t *testing.T) {
 	items := []MenuItem{
-		{Key: " ", Label: "Select"},
+		{KeyText: " ", Label: "Select"},
 	}
 	styles := DefaultStyles()
 	result := RenderMenuLine(items, styles)
@@ -242,7 +242,7 @@ func TestFormatKey_Space(t *testing.T) {
 
 func TestFormatKey_CtrlC(t *testing.T) {
 	items := []MenuItem{
-		{Key: "ctrl+c", Label: "Quit"},
+		{KeyText: "ctrl+c", Label: "Quit"},
 	}
 	styles := DefaultStyles()
 	result := RenderMenuLine(items, styles)

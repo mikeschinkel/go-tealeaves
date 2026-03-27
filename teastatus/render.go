@@ -30,7 +30,7 @@ func RenderMenuLine(items []MenuItem, styles Styles) string {
 	var item MenuItem
 
 	for _, item = range items {
-		keyPart := styles.MenuKeyStyle.Render("[" + formatKey(item.Key) + "]")
+		keyPart := styles.MenuKeyStyle.Render("[" + formatKey(item.KeyText) + "]")
 		labelPart := styles.MenuLabelStyle.Render(item.Label)
 		parts = append(parts, keyPart+" "+labelPart)
 	}

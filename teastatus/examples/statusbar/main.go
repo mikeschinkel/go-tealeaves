@@ -12,7 +12,7 @@ import (
 )
 
 type model struct {
-	statusBar teastatus.Model
+	statusBar teastatus.StatusBarModel
 	mode      string
 	width     int
 	height    int
@@ -24,9 +24,9 @@ func main() {
 	quitBinding := key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit"))
 
 	menuItems := []teastatus.MenuItem{
-		teastatus.NewMenuItemFromBinding(helpBinding, "Help"),
-		teastatus.NewMenuItemFromBinding(tabBinding, "Switch"),
-		teastatus.NewMenuItemFromBinding(quitBinding, "Quit"),
+		teastatus.NewMenuItem(helpBinding, &teastatus.MenuItemOpts{Label: "Help"}),
+		teastatus.NewMenuItem(tabBinding, &teastatus.MenuItemOpts{Label: "Switch"}),
+		teastatus.NewMenuItem(quitBinding, &teastatus.MenuItemOpts{Label: "Quit"}),
 	}
 
 	indicators := []teastatus.StatusIndicator{
@@ -45,7 +45,7 @@ func main() {
 
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }

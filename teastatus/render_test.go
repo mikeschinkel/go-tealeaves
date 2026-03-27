@@ -7,8 +7,8 @@ import (
 
 func TestRenderMenuLine(t *testing.T) {
 	items := []MenuItem{
-		{Key: "?", Label: "Help"},
-		{Key: "q", Label: "Quit"},
+		{KeyText: "?", Label: "Help"},
+		{KeyText: "q", Label: "Quit"},
 	}
 	styles := DefaultStyles()
 	result := RenderMenuLine(items, styles)
