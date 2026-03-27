@@ -184,7 +184,7 @@ func TestModel_SetFocusedNode(t *testing.T) {
 // --- Migration-sensitive tests (v1→v2 regression guards) ---
 
 // TRE-VIEWPORT: Guards m.viewport.Width = msg.Width and m.viewport.Height = msg.Height
-// direct field assignments in the WindowSizeMsg handler (model.go:98-99).
+// direct field assignments in the WindowSizeMsg handler (tree_model.go:98-99).
 // After a WindowSizeMsg, viewport dimensions must match and view output must
 // respect the new height.
 func TestModel_WindowSizeMsg_ViewportSync(t *testing.T) {
@@ -214,7 +214,7 @@ func TestModel_WindowSizeMsg_ViewportSync(t *testing.T) {
 	}
 }
 
-// TRE-SCROLL-RESIZE: Guards m.viewport.Height field read in View() (model.go:122)
+// TRE-SCROLL-RESIZE: Guards m.viewport.Height field read in View() (tree_model.go:122)
 // and ensureFocusedVisible(). After scrolling in a small viewport, then resizing,
 // the view must respect the new height (viewport.Height drives the slice in View()).
 func TestModel_ScrollAfterResize(t *testing.T) {
@@ -233,7 +233,7 @@ func TestModel_ScrollAfterResize(t *testing.T) {
 	view := m.View()
 
 	// Focused node must be visible in the viewport after scroll
-	if !strings.Contains(view.Content,focusedName) {
+	if !strings.Contains(view.Content, focusedName) {
 		t.Errorf("expected focused node %q visible after scrolling, view=%q",
 			focusedName, view.Content)
 	}
@@ -259,7 +259,7 @@ func TestModel_ScrollAfterResize(t *testing.T) {
 	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyDown})
 	view = m.View()
 	newFocused := m.FocusedNode().Name()
-	if !strings.Contains(view.Content,newFocused) {
+	if !strings.Contains(view.Content, newFocused) {
 		t.Errorf("expected focused node %q visible after navigate post-resize, view=%q",
 			newFocused, view.Content)
 	}
@@ -274,10 +274,10 @@ func TestModel_View_BasicTree(t *testing.T) {
 	if view.Content == "" {
 		t.Fatal("expected non-empty view")
 	}
-	if !strings.Contains(view.Content,"Root1") {
+	if !strings.Contains(view.Content, "Root1") {
 		t.Error("expected view to contain 'Root1'")
 	}
-	if !strings.Contains(view.Content,"Root2") {
+	if !strings.Contains(view.Content, "Root2") {
 		t.Error("expected view to contain 'Root2'")
 	}
 }
@@ -288,14 +288,14 @@ func TestModel_View_ExpandedTree(t *testing.T) {
 	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyRight})
 	view := m.View()
 
-	if !strings.Contains(view.Content,"Child1") {
+	if !strings.Contains(view.Content, "Child1") {
 		t.Error("expected view to contain 'Child1' after expansion")
 	}
-	if !strings.Contains(view.Content,"Child2") {
+	if !strings.Contains(view.Content, "Child2") {
 		t.Error("expected view to contain 'Child2' after expansion")
 	}
 	// Tree prefix characters should be present
-	if !strings.Contains(view.Content,"├") && !strings.Contains(view.Content,"└") {
+	if !strings.Contains(view.Content, "├") && !strings.Contains(view.Content, "└") {
 		t.Error("expected tree prefix characters in expanded view")
 	}
 }
@@ -306,7 +306,7 @@ func TestModel_View_FocusedNode(t *testing.T) {
 
 	// The focused node (Root1) should be visually distinct
 	// We can't easily check style, but the node name should appear
-	if !strings.Contains(view.Content,"Root1") {
+	if !strings.Contains(view.Content, "Root1") {
 		t.Error("expected focused node 'Root1' in view")
 	}
 }
@@ -334,7 +334,7 @@ func TestModel_View_Scrolling(t *testing.T) {
 	view = m.View()
 	// Focused node should still be visible
 	focusedName := m.FocusedNode().Name()
-	if !strings.Contains(view.Content,focusedName) {
+	if !strings.Contains(view.Content, focusedName) {
 		t.Errorf("expected focused node '%s' to be visible after scrolling", focusedName)
 	}
 }

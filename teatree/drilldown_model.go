@@ -203,8 +203,8 @@ func (m DrillDownModel[T]) View() tea.View {
 	var contentWidth int
 	var dropdownView string
 
-	// Calculate content width (border takes 2 columns)
-	contentWidth = m.Width - 2
+	// Calculate content width (subtract actual border chrome, not hardcoded 2)
+	contentWidth = m.Width - m.BorderStyle.GetHorizontalBorderSize()
 	if contentWidth < 0 {
 		contentWidth = 0
 	}
