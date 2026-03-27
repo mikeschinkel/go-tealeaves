@@ -58,7 +58,7 @@ func main() {
 
 	content, err := diffutils.DiffLines(oldLines, newLines, "greeting.go")
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "Error computing diff: %v\n", err)
+		cliutil.Stderrf("Error computing diff: %v\n", err)
 		os.Exit(1)
 	}
 
@@ -70,7 +70,7 @@ func main() {
 
 	p := tea.NewProgram(model{split: split})
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }

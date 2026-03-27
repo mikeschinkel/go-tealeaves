@@ -603,17 +603,25 @@ func (m SplitDiffModel) Update(msg tea.Msg) (SplitDiffModel, tea.Cmd) {
 }
 
 // View renders the split diff pane content (without border — parent applies border).
-func (m SplitDiffModel) View() tea.View {
+// (FOLLOWS ClearPath)
+func (m SplitDiffModel) View() (view tea.View) {
 	if m.width == 0 || m.height == 0 {
-		return tea.NewView("")
+		view = tea.NewView("")
+		goto end
+	}
+	if len(m.rows) == 0 && m.contentLoaded {
+		view = tea.NewView("(empty file)")
+		goto end
 	}
 	if len(m.rows) == 0 {
-		if m.contentLoaded {
-			return tea.NewView("(empty file)")
-		}
-		return tea.NewView("No diff to display")
+		view = tea.NewView("No diff to display")
+		goto end
 	}
-	return tea.NewView(m.viewSplitPane())
+
+	view = tea.NewView(m.viewSplitPane())
+
+end:
+	return view
 }
 
 // --- Internal rendering ---
