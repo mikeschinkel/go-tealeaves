@@ -42,7 +42,7 @@ func newTestModelWithOpts(t *testing.T, opts NotifyOpts) NotifyModel {
 
 func activateNotice(t *testing.T, m NotifyModel, key NoticeKey, msg string) (NotifyModel, tea.Cmd) {
 	t.Helper()
-	nm := notifyMsg{noticeKey: key, msg: msg, dur: m.duration}
+	nm := notifyMsg{modelID: m.id, noticeKey: key, msg: msg, dur: m.duration}
 	out, cmd := m.Update(nm)
 	return out, cmd
 }

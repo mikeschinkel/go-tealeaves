@@ -102,6 +102,7 @@ type NoticeDefinition struct {
 
 // notifyMsg is the internal message type that activates a notice.
 type notifyMsg struct {
+	modelID   uint64
 	noticeKey NoticeKey
 	msg       string
 	dur       time.Duration
@@ -127,12 +128,21 @@ func (n *notice) render() (result string) {
 	newColor := backColor.BlendLab(n.foreColor, n.curLerpStep)
 	lipColor := lipgloss.Color(newColor.Hex())
 
+	// Build style without Width first to compute frame size via helpers
+	newStyle := baseStyle.
+		Foreground(lipColor).
+		BorderForeground(lipColor).
+		Padding(0, 1)
+
+	// v2: Width is total rendered width (border + padding + content all inside)
+	chrome := newStyle.GetHorizontalPadding() + newStyle.GetHorizontalBorderSize()
+
 	actualWidth := n.width
 
 	if n.minWidth > 0 {
 		messageText := fmt.Sprintf("%v %v", n.prefix, n.message)
 		messageWidth := lipgloss.Width(messageText)
-		messageWidth += 3
+		messageWidth += chrome
 
 		switch {
 		case messageWidth < n.minWidth:
@@ -144,13 +154,9 @@ func (n *notice) render() (result string) {
 		}
 	}
 
-	newStyle := baseStyle.
-		Foreground(lipColor).
-		BorderForeground(lipColor).
-		Width(actualWidth).
-		Padding(0, 1)
+	newStyle = newStyle.Width(actualWidth)
 
-	textWidth := actualWidth - 2
+	textWidth := actualWidth - chrome
 	if textWidth < 1 {
 		textWidth = 1
 	}

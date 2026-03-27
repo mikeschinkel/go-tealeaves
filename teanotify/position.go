@@ -10,6 +10,7 @@ const (
 	BottomLeftPosition   Position = "BL"
 	BottomCenterPosition Position = "BC"
 	BottomRightPosition  Position = "BR"
+	CenterPosition       Position = "C"
 	UnspecifiedPosition  Position = ""
 )
 
@@ -34,6 +35,8 @@ func (p Position) String() (s string) {
 		s = "bottom-center"
 	case BottomRightPosition:
 		s = "bottom-right"
+	case CenterPosition:
+		s = "center"
 	default:
 		s = "unknown"
 	}
@@ -55,6 +58,8 @@ func (p Position) Label() (label string) {
 		label = "Bottom Center"
 	case BottomRightPosition:
 		label = "Bottom Right"
+	case CenterPosition:
+		label = "Center"
 	default:
 		label = "Unknown"
 	}

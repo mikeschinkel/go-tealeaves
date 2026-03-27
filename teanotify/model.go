@@ -2,12 +2,16 @@ package teanotify
 
 import (
 	"strings"
+	"sync/atomic"
 	"time"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/charmbracelet/x/ansi"
 	"github.com/lucasb-eyer/go-colorful"
 )
+
+// modelIDCounter is a global counter for assigning unique IDs to NotifyModel instances.
+var modelIDCounter atomic.Uint64
 
 // NotifyOpts holds all constructor-time configuration for a NotifyModel.
 type NotifyOpts struct {
@@ -39,6 +43,10 @@ type NotifyOpts struct {
 	// types (Info, Warn, Error, Debug).
 	NoDefaultNotices bool
 
+	// NoAnimation disables the fade-in color lerp. The notification
+	// appears at full brightness immediately.
+	NoAnimation bool
+
 	// CustomNotices are additional notice definitions registered during
 	// construction, after defaults (if enabled).
 	CustomNotices []NoticeDefinition
@@ -47,10 +55,12 @@ type NotifyOpts struct {
 // NotifyModel maintains registered notice types and facilitates the display,
 // animation, and clearing of overlay notifications.
 type NotifyModel struct {
+	id               uint64
 	useNerdFont      bool
 	useUnicodePrefix bool
 	allowEscToClose  bool
 	noDefaultNotices bool
+	noAnimation      bool
 	customNotices    []NoticeDefinition
 	noticeTypes      map[NoticeKey]NoticeDefinition
 	activeNotice     *notice
@@ -65,12 +75,14 @@ type NotifyModel struct {
 // default notices, and register any custom notices.
 func NewNotifyModel(opts NotifyOpts) (m NotifyModel) {
 	m = NotifyModel{
+		id:               modelIDCounter.Add(1),
 		width:            opts.Width,
 		minWidth:         opts.MinWidth,
 		duration:         opts.Duration,
 		useNerdFont:      opts.UseNerdFont,
 		useUnicodePrefix: opts.UseUnicodePrefix,
 		allowEscToClose:  opts.AllowEscToClose,
+		noAnimation:      opts.NoAnimation,
 		position:         opts.Position,
 		noDefaultNotices: opts.NoDefaultNotices,
 		customNotices:    opts.CustomNotices,
@@ -183,8 +195,17 @@ func (m NotifyModel) Update(msg tea.Msg) (out NotifyModel, cmd tea.Cmd) {
 	out = m
 	switch msg := msg.(type) {
 	case notifyMsg:
+		if msg.modelID != out.id {
+			goto end
+		}
 		out.activeNotice = out.newNotice(msg.noticeKey, msg.msg, msg.dur)
 		cmd = tickCmd()
+		goto end
+	case dismissMsg:
+		if msg.modelID != out.id {
+			goto end
+		}
+		out.activeNotice = nil
 		goto end
 	case tickMsg:
 		if out.activeNotice == nil {
@@ -279,7 +300,20 @@ end:
 // given type with the provided message.
 func (m NotifyModel) NewNotifyCmd(noticeType NoticeKey, message string) (cmd tea.Cmd) {
 	cmd = func() tea.Msg {
-		return notifyMsg{noticeKey: noticeType, msg: message, dur: m.duration}
+		return notifyMsg{modelID: m.id, noticeKey: noticeType, msg: message, dur: m.duration}
+	}
+	return cmd
+}
+
+// dismissMsg clears the active notification for a specific model.
+type dismissMsg struct {
+	modelID uint64
+}
+
+// DismissCmd constructs a tea.Cmd that dismisses any active notification.
+func (m NotifyModel) DismissCmd() (cmd tea.Cmd) {
+	cmd = func() tea.Msg {
+		return dismissMsg{modelID: m.id}
 	}
 	return cmd
 }
@@ -320,15 +354,19 @@ func (m NotifyModel) newNotice(key NoticeKey, msg string, dur time.Duration) (n 
 	}
 
 	n = &notice{
-		message:     msg,
-		deathTime:   time.Now().Add(dur),
-		prefix:      noticeDef.Prefix,
-		foreColor:   foreColor,
-		style:       noticeDef.Style,
-		width:       m.width,
-		minWidth:    m.minWidth,
-		curLerpStep: 0.3,
-		position:    m.position,
+		message:   msg,
+		deathTime: time.Now().Add(dur),
+		prefix:    noticeDef.Prefix,
+		foreColor: foreColor,
+		style:     noticeDef.Style,
+		width:     m.width,
+		minWidth:  m.minWidth,
+		position:  m.position,
+	}
+	if m.noAnimation {
+		n.curLerpStep = 1.0
+	} else {
+		n.curLerpStep = 0.3
 	}
 
 end:
@@ -364,6 +402,15 @@ func (m NotifyModel) buildLineForPosition(
 			showNotif = true
 			notifIdx = lineIdx - startLine
 		}
+	case CenterPosition:
+		startLine := (contentHeight - notifHeight) / 2
+		if startLine < 0 {
+			startLine = 0
+		}
+		if lineIdx >= startLine && lineIdx < startLine+notifHeight {
+			showNotif = true
+			notifIdx = lineIdx - startLine
+		}
 	}
 
 	if !showNotif {
@@ -388,7 +435,7 @@ func (m NotifyModel) buildLineForPosition(
 			goto end
 		}
 		result = cutRight(contentLine, keepWidth) + notifLine
-	case TopCenterPosition, BottomCenterPosition:
+	case TopCenterPosition, BottomCenterPosition, CenterPosition:
 		result = m.overlayCenter(contentLine, notifLine, notifWidth, contentWidth)
 	default:
 		result = notifLine + cutLeft(contentLine, notifWidth)
