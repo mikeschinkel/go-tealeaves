@@ -1,4 +1,4 @@
-package teatxtsnip
+package teatext
 
 import (
 	"charm.land/lipgloss/v2"

@@ -1,4 +1,4 @@
-module github.com/mikeschinkel/go-tealeaves/teatxtsnip
+module github.com/mikeschinkel/go-tealeaves/teatext
 
 go 1.25.5
 

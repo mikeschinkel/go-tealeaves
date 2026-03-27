@@ -178,10 +178,10 @@
     - `NewBgColor color.Color`
     - `NewStatusColor color.Color`
 
-## Module: `./teadiffview`
+## Module: `./teadiff`
 
-### Package: `teadiffview`
-- Path: `./teadiffview`
+### Package: `teadiff`
+- Path: `./teadiff`
 
 #### Consts
 - `ChangeBlockBgColor = "24"`
@@ -364,10 +364,10 @@
     - `LineNo() int`
     - `PaneLine()`
 
-## Module: `./teadiffview/examples/splitdiff`
+## Module: `./teadiff/examples/splitdiff`
 
 ### Package: `splitdiff`
-- Path: `./teadiffview/examples/splitdiff`
+- Path: `./teadiff/examples/splitdiff`
 
 ## Module: `./teafields`
 
@@ -1945,10 +1945,10 @@
 ### Package: `filetree`
 - Path: `./teatree/examples/filetree`
 
-## Module: `./teatxtsnip`
+## Module: `./teatext`
 
-### Package: `teatxtsnip`
-- Path: `./teatxtsnip`
+### Package: `teatext`
+- Path: `./teatext`
 
 #### Vars
 - `ErrInvalidSelection = errors.New("invalid selection")`
@@ -2026,10 +2026,10 @@
     - `SingleLine bool`
     - `Textarea *textarea.Model`
 
-## Module: `./teatxtsnip/examples/editor`
+## Module: `./teatext/examples/editor`
 
 ### Package: `editor`
-- Path: `./teatxtsnip/examples/editor`
+- Path: `./teatext/examples/editor`
 
 ## Module: `./teautils`
 

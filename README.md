@@ -12,7 +12,7 @@ go-tealeaves is a multi-module repository of independently importable Bubble Tea
 |---------|------------|-------------|
 | **teacrumbs** | `github.com/mikeschinkel/go-tealeaves/teacrumbs` | Breadcrumb trail with hover/click support |
 | **teadiffr** | `github.com/mikeschinkel/go-tealeaves/teadiffr` | Condensed diff rendering for terminal UIs |
-| **teadiffview** | `github.com/mikeschinkel/go-tealeaves/teadiffview` | Interactive side-by-side split diff viewer |
+| **teadiff** | `github.com/mikeschinkel/go-tealeaves/teadiff` | Interactive side-by-side split diff viewer |
 | **teafields** | `github.com/mikeschinkel/go-tealeaves/teafields` | Dropdown selection with intelligent positioning |
 | **teagrid** | `github.com/mikeschinkel/go-tealeaves/teagrid` | Data grid with sorting, filtering, pagination, panning |
 | **teaguide** | `github.com/mikeschinkel/go-tealeaves/teaguide` | Step-by-step guide/wizard component |
@@ -23,7 +23,7 @@ go-tealeaves is a multi-module repository of independently importable Bubble Tea
 | **teanotify** | `github.com/mikeschinkel/go-tealeaves/teanotify` | Toast-style notification overlays |
 | **teastatus** | `github.com/mikeschinkel/go-tealeaves/teastatus` | Two-zone status bar (menu items + indicators) |
 | **teatree** | `github.com/mikeschinkel/go-tealeaves/teatree` | Generic tree view + drilldown path viewer |
-| **teatxtsnip** | `github.com/mikeschinkel/go-tealeaves/teatxtsnip` | Text area with selection and clipboard support |
+| **teatext** | `github.com/mikeschinkel/go-tealeaves/teatext` | Text area with selection and clipboard support |
 | **teautils** | `github.com/mikeschinkel/go-tealeaves/teautils` | Theming, key registry, positioning utilities |
 
 ## Installation
@@ -62,10 +62,10 @@ Each module contains its own examples under `<module>/examples/`:
 | `teamodal/examples/vertical` | teamodal | Vertical modal layout |
 | `teanotify/examples/simple` | teanotify | Toast notification demo |
 | `teastatus/examples/statusbar` | teastatus | Status bar with menu items and indicators |
-| `teadiffview/examples/splitdiff` | teadiffview | Side-by-side diff viewer |
+| `teadiff/examples/splitdiff` | teadiff | Side-by-side diff viewer |
 | `teatree/examples/filetree` | teatree | File tree with navigation |
 | `teatree/examples/drilldown` | teatree | Drilldown path viewer |
-| `teatxtsnip/examples/editor` | teatxtsnip | Multi-line text editor with selection |
+| `teatext/examples/editor` | teatext | Multi-line text editor with selection |
 | `teautils/examples/keyhelp` | teautils | Key registry with help overlay |
 | `teautils/examples/theming` | teautils | Theme switching demo |
 | `teaguide/example` | teaguide | Step-by-step wizard |
@@ -101,10 +101,10 @@ teagrid   --> teautils
 teaguide  --> teautils
 teahelp   --> teautils
 teadiffr  --> teautils
-teadiffview -> teautils
+teadiff -> teautils
 teanotify --> teautils
 teastatus --> teautils
-teatxtsnip -> teautils
+teatext -> teautils
 ```
 
 ### Cross-Cutting Documentation

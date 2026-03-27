@@ -5,8 +5,8 @@ use (
 	./cmd/jediterm-bug
 	./teacrumbs
 	./teadiffr
-	./teadiffview
-	./teadiffview/examples/splitdiff
+	./teadiff
+	./teadiff/examples/splitdiff
 	./teafields
 	./teafields/examples/demo
 	./teafields/examples/simple
@@ -35,8 +35,8 @@ use (
 	./teatree
 	./teatree/examples/drilldown
 	./teatree/examples/filetree
-	./teatxtsnip
-	./teatxtsnip/examples/editor
+	./teatext
+	./teatext/examples/editor
 	./teaguide
 	./teaguide/example
 	./teautils

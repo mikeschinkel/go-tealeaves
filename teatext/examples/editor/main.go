@@ -6,12 +6,11 @@ import (
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
-	"charm.land/lipgloss/v2"
-	"github.com/mikeschinkel/go-tealeaves/teatxtsnip"
+	"github.com/mikeschinkel/go-tealeaves/teatext"
 )
 
 type model struct {
-	editor   teatxtsnip.TextSnipModel
+	editor   teatext.TextSnipModel
 	width    int
 	height   int
 	quitting bool
@@ -20,7 +19,7 @@ type model struct {
 var helpStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("240"))
 
 func main() {
-	editor := teatxtsnip.NewTextSnipModel(nil)
+	editor := teatext.NewTextSnipModel(nil)
 	editor.SetWidth(76)
 	editor.SetHeight(15)
 	editor.ShowLineNumbers = true

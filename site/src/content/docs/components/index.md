@@ -38,7 +38,7 @@ Tea Leaves ships 16 components across 10 Go modules. Each module has its own `go
 | [Key Registry](/go-tealeaves/components/key-registry/) | `KeyRegistry` | teautils | Centralized key binding management |
 | [Theming](/go-tealeaves/components/theming/) | `Theme` / `Palette` | teautils | Consistent colors across all components |
 | [Positioning](/go-tealeaves/components/positioning/) | (functions) | teautils | ANSI-aware centering and measurement |
-| [Text Selection](/go-tealeaves/components/text-selection/) | `Model` | teatxtsnip | Textarea with Shift+Arrow selection and clipboard |
+| [Text Selection](/go-tealeaves/components/text-selection/) | `Model` | teatext | Textarea with Shift+Arrow selection and clipboard |
 
 ## Multi-Module Architecture
 

@@ -5,14 +5,14 @@ description: Text area component with Shift+Arrow selection, clipboard operation
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teatxtsnip` · **Type:** `TextSnipModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatxtsnip`
+> **Module:** `teatext` · **Type:** `TextSnipModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatext`
 
-Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatxtsnip` wraps the standard textarea with all of this functionality.
+Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatext` wraps the standard textarea with all of this functionality.
 
 ## Install
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teatxtsnip
+go get github.com/mikeschinkel/go-tealeaves/teatext
 ```
 
 ## Quick example
@@ -25,11 +25,11 @@ import (
 	"os"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/mikeschinkel/go-tealeaves/teatxtsnip"
+	"github.com/mikeschinkel/go-tealeaves/teatext"
 )
 
 func main() {
-	editor := teatxtsnip.NewTextSnipModel(nil)
+	editor := teatext.NewTextSnipModel(nil)
 	editor.SetWidth(60)
 	editor.SetHeight(20)
 	editor.SetValue("Hello, world!\nSelect me with Shift+Arrow keys.")
@@ -42,7 +42,7 @@ func main() {
 	}
 }
 
-type model struct{ editor teatxtsnip.TextSnipModel }
+type model struct{ editor teatext.TextSnipModel }
 
 func (m model) Init() tea.Cmd                           { return nil }
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {

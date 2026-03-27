@@ -15,7 +15,7 @@ Tea Leaves uses a **multi-module monorepo** layout. Each module is a standalone 
 | `teatree` | [Tree View](/go-tealeaves/components/tree-view/), [Drilldown View](/go-tealeaves/components/drilldown-view/) | `go get github.com/mikeschinkel/go-tealeaves/teatree` |
 | `teastatus` | [Status Bar](/go-tealeaves/components/statusbar-view/) | `go get github.com/mikeschinkel/go-tealeaves/teastatus` |
 | `teanotify` | [Notifications](/go-tealeaves/components/notification-view/) | `go get github.com/mikeschinkel/go-tealeaves/teanotify` |
-| `teatxtsnip` | [Text Selection](/go-tealeaves/components/text-selection/) | `go get github.com/mikeschinkel/go-tealeaves/teatxtsnip` |
+| `teatext` | [Text Selection](/go-tealeaves/components/text-selection/) | `go get github.com/mikeschinkel/go-tealeaves/teatext` |
 | `teautils` | [Key Registry](/go-tealeaves/components/key-registry/), [Help Visor](/go-tealeaves/components/help-visor/), [Theming](/go-tealeaves/components/theming/), [Positioning](/go-tealeaves/components/positioning/) | `go get github.com/mikeschinkel/go-tealeaves/teautils` |
 
 ## Directory Layout
@@ -27,7 +27,7 @@ go-tealeaves/
 ├── teamodal/      # Modal dialogs + list + choice + progress
 ├── teanotify/     # Toast notifications
 ├── teatree/       # Tree view
-├── teatxtsnip/    # Text selection + clipboard
+├── teatext/    # Text selection + clipboard
 ├── teastatus/     # Status bar
 ├── teadepview/    # Dependency path viewer
 ├── teadiffr/      # Diff rendering
@@ -61,7 +61,7 @@ teagrid ────► teautils
 teamodal ───► teautils
 teanotify ──► teautils
 teatree ────► teautils
-teatxtsnip ─► teautils
+teatext ─► teautils
 teastatus ──► teautils
 teadepview ─► teautils, teafields
 teadiffr ───► teautils

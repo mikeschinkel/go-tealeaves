@@ -1,8 +1,8 @@
-module github.com/mikeschinkel/go-tealeaves/teatxtsnip/examples/editor
+module github.com/mikeschinkel/go-tealeaves/teatext/examples/editor
 
 go 1.25.7
 
-require github.com/mikeschinkel/go-tealeaves/teatxtsnip v0.0.0
+require github.com/mikeschinkel/go-tealeaves/teatext v0.0.0
 
 require (
 	charm.land/bubbles/v2 v2.0.0 // indirect
@@ -36,4 +36,4 @@ require (
 	golang.org/x/sys v0.41.0 // indirect
 )
 
-replace github.com/mikeschinkel/go-tealeaves/teatxtsnip => ../../
+replace github.com/mikeschinkel/go-tealeaves/teatext => ../../

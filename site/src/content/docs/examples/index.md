@@ -28,7 +28,7 @@ All `go run` commands below assume you are in the repository root directory. Eac
 | teamodal | vertical | Vertical button layout | `go run ./examples/teamodal/vertical` |
 | teanotify | simple | Toast notifications | `go run ./examples/teanotify/simple` |
 | teastatus | statusbar | Status bar with separators | `go run ./examples/teastatus/statusbar` |
-| teatxtsnip | editor | Text editor with selection | `go run ./examples/teatxtsnip/editor` |
+| teatext | editor | Text editor with selection | `go run ./examples/teatext/editor` |
 | teatree | filetree | File tree navigator | `go run ./examples/teatree/filetree` |
 | teadepview | treenav | Dependency tree navigator | `go run ./examples/teadepview/treenav` |
 | teautils | keyhelp | Key registry with help modal | `go run ./examples/teautils/keyhelp` |
