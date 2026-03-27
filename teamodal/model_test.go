@@ -259,7 +259,7 @@ func TestYesNoModal_MouseClickNo(t *testing.T) {
 
 // --- Migration-sensitive tests (v1→v2 regression guards) ---
 
-// MOD-MOUSE-MOTION: Guards switch mouseMsg.Type + tea.MouseMotion (model.go:279)
+// MOD-MOUSE-MOTION: Guards switch mouseMsg.Type + tea.MouseMotion (tree_model.go:279)
 // Mouse motion over a YesNo modal button should update focus without closing.
 func TestYesNoModal_MouseMotionHover(t *testing.T) {
 	m := newTestYesNoModal()
@@ -284,7 +284,7 @@ func TestYesNoModal_MouseMotionHover(t *testing.T) {
 	}
 }
 
-// MOD-MOUSE-TYPE: Guards mouseMsg.Type == tea.MouseLeft + bounds check (model.go:269-277)
+// MOD-MOUSE-TYPE: Guards mouseMsg.Type == tea.MouseLeft + bounds check (tree_model.go:269-277)
 // A mouse click that misses the button row should NOT close the modal.
 func TestOKModal_MouseClickMiss(t *testing.T) {
 	m := newTestOKModal()

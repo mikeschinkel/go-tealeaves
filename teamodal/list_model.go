@@ -776,11 +776,7 @@ func (m ListModel[T]) renderItemsWithPadding(leftPad int) (view string) {
 
 	// Calculate scrollbar position and height
 	if showScrollbar {
-		scrollbarHeight = m.maxVisible * m.visibleItemCount() / len(m.items)
-		if scrollbarHeight < 1 {
-			scrollbarHeight = 1
-		}
-		scrollbarPos = m.offset * m.visibleItemCount() / len(m.items)
+		scrollbarPos, scrollbarHeight = calcScrollbar(m.offset, m.maxVisible, len(m.items))
 	}
 
 	// PHASE 1: Build all lines WITHOUT padding, measure max width

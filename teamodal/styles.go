@@ -49,3 +49,23 @@ func DefaultCancelTextStyle() lipgloss.Style {
 	return lipgloss.NewStyle().
 		Foreground(lipgloss.Color("244"))
 }
+
+// DefaultCheckedStyle returns default styling for checked checkbox "[✓]"
+func DefaultCheckedStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color("46")). // Bright green
+		Bold(true)
+}
+
+// DefaultUncheckedStyle returns default styling for unchecked checkbox "[ ]"
+func DefaultUncheckedStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color("240")) // Muted gray
+}
+
+// DefaultMultiSelectFooterStyle returns default styling for the multi-select footer note
+func DefaultMultiSelectFooterStyle() lipgloss.Style {
+	return lipgloss.NewStyle().
+		Foreground(lipgloss.Color("214")). // Orange/yellow for attention
+		Italic(true)
+}

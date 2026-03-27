@@ -41,3 +41,17 @@ func (m ListModel[T]) WithTheme(theme teautils.Theme) ListModel[T] {
 	m.editItemStyle = theme.List.EditItemStyle
 	return m
 }
+
+// WithTheme returns a copy of the MultiSelectModel with styles derived from the
+// given theme. Individual With*Style() calls take precedence if called after.
+func (m MultiSelectModel[T]) WithTheme(theme teautils.Theme) MultiSelectModel[T] {
+	m.borderStyle = theme.Modal.BorderStyle
+	m.titleStyle = theme.Modal.TitleStyle
+	m.messageStyle = theme.Modal.MessageStyle
+	m.buttonStyle = theme.Modal.ButtonStyle
+	m.focusedButtonStyle = theme.Modal.FocusedButtonStyle
+	m.itemStyle = theme.List.ItemStyle
+	m.selectedItemStyle = theme.List.SelectedItemStyle
+	m.footerStyle = theme.List.FooterStyle
+	return m
+}
