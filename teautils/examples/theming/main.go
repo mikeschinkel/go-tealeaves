@@ -63,11 +63,11 @@ func (m model) applyTheme() model {
 	m.statusBar = teastatus.NewStatusBarModel().
 		WithTheme(m.theme).
 		SetMenuItems([]teastatus.MenuItem{
-			teastatus.NewMenuItemFromBinding(
+			teastatus.NewMenuItem(
 				key.NewBinding(key.WithKeys("t"), key.WithHelp("t", "Toggle theme")),
 				"Theme",
 			),
-			teastatus.NewMenuItemFromBinding(
+			teastatus.NewMenuItem(
 				key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit")),
 				"Quit",
 			),
@@ -156,7 +156,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		cliutil.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }
