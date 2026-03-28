@@ -18,7 +18,7 @@ func TestLayout_RenderWithoutSetSize_AutoDetectDisabled(t *testing.T) {
 
 func TestLayout_RenderWithSetSize(t *testing.T) {
 	w := &mockWidget{char: 'X'}
-	layout := NewLayout(NewRow(Percent100, NewColumn(Flex(1), w)))
+	layout := NewLayout(NewRow(Percent100, NewColumn(Flex(1), NewElement(w))))
 	layout.SetSize(80, 24)
 
 	output, err := layout.Render()
@@ -36,7 +36,7 @@ func TestLayout_RenderWithSetSize(t *testing.T) {
 func TestLayout_AutoDetectWithSizeSource(t *testing.T) {
 	w := &mockWidget{char: 'X'}
 	layout := NewLayout(
-		NewRow(Percent100, NewColumn(Flex(1), w)),
+		NewRow(Percent100, NewColumn(Flex(1), NewElement(w))),
 		WithAutoDetectSize(true),
 		WithSizeSource(func() (int, int, error) {
 			return 120, 40, nil
@@ -75,12 +75,11 @@ func TestLayout_AutoDetectFailure(t *testing.T) {
 
 func TestLayout_MarkDirty(t *testing.T) {
 	w := &mockWidget{char: 'X'}
-	layout := NewLayout(NewRow(Percent100, NewColumn(Flex(1), w)))
+	layout := NewLayout(NewRow(Percent100, NewColumn(Flex(1), NewElement(w))))
 	layout.SetSize(80, 24)
 	layout.Render()
 
 	layout.MarkDirty()
-	// Should re-render successfully
 	_, err := layout.Render()
 	if err != nil {
 		t.Fatal(err)

@@ -12,22 +12,22 @@ import (
 )
 
 const (
-	hStep       = 4     // horizontal resize step (cells)
-	vStep       = 0.1   // vertical resize step (weight delta)
-	minVWeight  = vStep // keep positive; layout engine's WithMinSize() handles the visual floor
+	hStep       = 4
+	vStep       = 0.1
+	minVWeight  = vStep
 	goldenSmall = 1.0
 	goldenLarge = 1.618
 
 	minWidthMain    = 25
-	maxWidthMain    = 60 // caps Main so siblings get more space before collapsing
+	maxWidthMain    = 60
 	minWidthSidebar = 25
 	minWidthDetails = 20
 )
 
 type panel struct {
 	label    string
-	minWidth int // 0 = no minimum / not applicable
-	maxWidth int // 0 = no maximum / not applicable
+	minWidth int
+	maxWidth int
 	optional bool
 	style    lipgloss.Style
 	width    int
@@ -49,10 +49,8 @@ func newPanel(label, border string, minWidth, maxWidth int, optional bool) *pane
 
 func (p *panel) SetSize(w, h int) { p.width = w; p.height = h }
 
-// minHeight returns the minimum height needed to display this panel's content
-// plus border overhead. Update this if View() content changes.
 func (p *panel) minHeight() int {
-	lines := 2 // label + separator (always present)
+	lines := 2
 	if p.minWidth > 0 {
 		lines++
 	}
@@ -62,15 +60,12 @@ func (p *panel) minHeight() int {
 	if p.optional {
 		lines++
 	}
-	lines++    // "- Dimensions: WxH" line (always present)
-	lines += 2 // top + bottom border (RoundedBorder)
+	lines++
+	lines += 2
 	return lines
 }
 
 func (p *panel) View() string {
-	// width/height are total (border-box) dimensions — don't also implement
-	// Styler, which would cause setChildSize to subtract border before SetSize,
-	// then border-box Width/Height would subtract it again.
 	label := p.label
 	label += "\n" + strings.Repeat("─", len(label))
 	lines := []string{label}
@@ -100,34 +95,40 @@ func (f *footer) View() string {
 }
 
 type model struct {
-	main         *panel
-	sidebar      *panel
-	detailsTop   *panel
-	detailsBot   *panel
-	footer       *footer
+	main         *tealayout.Element[*panel]
+	sidebar      *tealayout.Element[*panel]
+	detailsTop   *tealayout.Element[*panel]
+	detailsBot   *tealayout.Element[*panel]
+	footer       *tealayout.Element[*footer]
+	layout       *tealayout.Layout
 	termWidth    int
 	termHeight   int
-	simWidth     int // simulated total width for the 3 columns
+	simWidth     int
 	topWeight    float64
 	bottomWeight float64
-	layout       *tealayout.Layout
-	layoutDirty  bool
 }
 
 func initialModel() model {
-	return model{
-		main:       newPanel("Main", "#67e8f9", minWidthMain, maxWidthMain, false),
-		sidebar:    newPanel("Sidebar", "#fbbf24", minWidthSidebar, 0, true),
-		detailsTop: newPanel("Details", "#f87171", 0, 0, false),
-		detailsBot: newPanel("More Details", "#fb923c", 0, 0, false),
-		footer: &footer{
-			style: lipgloss.NewStyle().
-				Background(lipgloss.Color("#1f2937")).
-				Foreground(lipgloss.Color("#9ca3af")),
-		},
+	main := tealayout.NewElement(newPanel("Main", "#67e8f9", minWidthMain, maxWidthMain, false))
+	sidebar := tealayout.NewElement(newPanel("Sidebar", "#fbbf24", minWidthSidebar, 0, true))
+	detailsTop := tealayout.NewElement(newPanel("Details", "#f87171", 0, 0, false))
+	detailsBot := tealayout.NewElement(newPanel("More Details", "#fb923c", 0, 0, false))
+	ft := tealayout.NewElement(&footer{
+		style: lipgloss.NewStyle().
+			Background(lipgloss.Color("#1f2937")).
+			Foreground(lipgloss.Color("#9ca3af")),
+	})
+
+	m := model{
+		main:         main,
+		sidebar:      sidebar,
+		detailsTop:   detailsTop,
+		detailsBot:   detailsBot,
+		footer:       ft,
 		topWeight:    goldenLarge,
 		bottomWeight: goldenSmall,
 	}
+	return m
 }
 
 func (m model) buildLayout() *tealayout.Layout {
@@ -136,11 +137,9 @@ func (m model) buildLayout() *tealayout.Layout {
 		w = m.termWidth
 	}
 
-	// Details column: top/bottom split by golden ratio weights.
-	// Up arrow grows Details (top), down arrow grows More Details (bottom).
 	detailsCol := tealayout.NewColumn(tealayout.Percent100,
-		tealayout.NewRow(tealayout.Flex(m.topWeight), m.detailsTop).WithMinSize(m.detailsTop.minHeight()),
-		tealayout.NewRow(tealayout.Flex(m.bottomWeight), m.detailsBot).WithMinSize(m.detailsBot.minHeight()),
+		tealayout.NewRow(tealayout.Flex(m.topWeight), m.detailsTop).WithMinSize(m.detailsTop.Widget().minHeight()),
+		tealayout.NewRow(tealayout.Flex(m.bottomWeight), m.detailsBot).WithMinSize(m.detailsBot.Widget().minHeight()),
 	)
 
 	contentRow := tealayout.NewRow(tealayout.Fixed(w),
@@ -149,8 +148,6 @@ func (m model) buildLayout() *tealayout.Layout {
 		tealayout.NewColumn(tealayout.Percent25, detailsCol).WithMinSize(minWidthDetails).WithOptional(true),
 	)
 
-	// Wrap the content row in a fixed-width constraint inside an outer row
-	// so the simulated width is respected by the layout engine.
 	widthWrapper := tealayout.NewRow(tealayout.Percent100, contentRow)
 
 	root := tealayout.NewColumn(tealayout.Percent100,
@@ -173,7 +170,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		if m.simWidth == 0 || m.simWidth > msg.Width {
 			m.simWidth = msg.Width
 		}
-		m.layoutDirty = true
+		m.layout = m.buildLayout()
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -182,30 +179,26 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "left":
 			if w := m.simWidth - hStep; w >= 20 {
 				m.simWidth = w
-				m.layoutDirty = true
+				m.layout = m.buildLayout()
 			}
 		case "right":
 			if w := m.simWidth + hStep; w <= m.termWidth {
 				m.simWidth = w
-				m.layoutDirty = true
+				m.layout = m.buildLayout()
 			}
 		case "up":
 			if m.topWeight-vStep >= minVWeight {
 				m.topWeight -= vStep
 				m.bottomWeight += vStep
-				m.layoutDirty = true
+				m.layout = m.buildLayout()
 			}
 		case "down":
 			if m.bottomWeight-vStep >= minVWeight {
 				m.bottomWeight -= vStep
 				m.topWeight += vStep
-				m.layoutDirty = true
+				m.layout = m.buildLayout()
 			}
 		}
-	}
-	if m.layoutDirty {
-		m.layout = m.buildLayout()
-		m.layoutDirty = false
 	}
 	return m, nil
 }

@@ -13,38 +13,20 @@ import (
 
 const (
 	paneCount  = 3
-	paneTree   = 0
-	paneCode   = 1
-	paneDiff   = 2
 	resizeStep = 0.05
 	minWeight  = 0.05
 
-	// Base flex weights — proportions that define relative pane widths.
-	// When panes are hidden, visible panes grow proportionally because
-	// Flex distributes by weight ratio: w_i / sum(w_visible).
-	baseWeightTree = 0.25 // 25% of total
-	baseWeightCode = 0.43 // 43% of total
-	baseWeightDiff = 0.32 // 32% of total
+	baseWeightTree = 0.25
+	baseWeightCode = 0.43
+	baseWeightDiff = 0.32
 )
-
-// visibility combos: indices of visible panes
-var visibilityCombos = [][]int{
-	{paneTree, paneCode, paneDiff}, // L+M+R
-	{paneTree, paneCode},           // L+M
-	{paneTree, paneDiff},           // L+R
-	{paneCode, paneDiff},           // M+R
-	{paneTree},                     // L
-	{paneCode},                     // M
-	{paneDiff},                     // R
-}
 
 type paneInfo struct {
 	label      string
 	fg         string
 	border     string
 	weight     float64
-	focused    bool
-	pctOfTotal float64 // effective percentage of visible space, set before render
+	pctOfTotal float64
 }
 
 // pane is a simple widget that fills its area with a label and border.
@@ -71,18 +53,15 @@ func (p *pane) Style() lipgloss.Style { return p.style }
 
 func (p *pane) View() string {
 	label := p.info.label
-	if p.info.focused {
-		label = "> " + label
-	}
 	label += "\n" + strings.Repeat("─", len(label))
 	content := fmt.Sprintf("%s\n- Pane Width: %.0f%%\n- Dimensions: %dx%d",
 		label, p.info.pctOfTotal, p.width, p.height)
 	return p.style.Width(p.width).Height(p.height).Render(content)
 }
 
-func (p *pane) updateStyle() {
+func (p *pane) updateStyle(focused bool) {
 	borderColor := p.info.border
-	if p.info.focused {
+	if focused {
 		borderColor = "#ffffff"
 	}
 	p.style = lipgloss.NewStyle().
@@ -104,118 +83,84 @@ func (h *headerBar) View() string {
 	return h.style.Width(h.width).Render(h.text)
 }
 
+// --- Model ---
+
 type model struct {
-	panes       [paneCount]*paneInfo
-	paneWidgets [paneCount]*pane
-	header      *headerBar
-	footer      *headerBar
-	focused     int // index into panes
-	visCombo    int // index into visibilityCombos
-	width       int
-	height      int
+	layout *tealayout.Layout
+	focus  *tealayout.FocusManager
+
+	// Typed element handles for widget access.
+	tree   *tealayout.Element[*pane]
+	code   *tealayout.Element[*pane]
+	diff   *tealayout.Element[*pane]
+	header *tealayout.Element[*headerBar]
+	footer *tealayout.Element[*headerBar]
+
+	paneInfos [paneCount]*paneInfo
+	visCombo  int
+	width     int
+	height    int
+}
+
+// visibility combos: names of visible panes
+var visibilityCombos = [][]string{
+	{"tree", "code", "diff"},
+	{"tree", "code"},
+	{"tree", "diff"},
+	{"code", "diff"},
+	{"tree"},
+	{"code"},
+	{"diff"},
 }
 
 func initialModel() model {
-	panes := [paneCount]*paneInfo{
+	infos := [paneCount]*paneInfo{
 		{label: "Tree", fg: "#a5f3fc", border: "#67e8f9", weight: baseWeightTree},
 		{label: "Code", fg: "#d1d5db", border: "#6b7280", weight: baseWeightCode},
 		{label: "Diff", fg: "#fca5a5", border: "#f87171", weight: baseWeightDiff},
 	}
-	panes[0].focused = true
 
-	widgets := [paneCount]*pane{
-		newPane(panes[0]),
-		newPane(panes[1]),
-		newPane(panes[2]),
-	}
+	tree := tealayout.NewElement(newPane(infos[0]))
+	code := tealayout.NewElement(newPane(infos[1]))
+	diff := tealayout.NewElement(newPane(infos[2]))
 
-	header := &headerBar{
+	header := tealayout.NewElement(&headerBar{
 		style: lipgloss.NewStyle().
 			Bold(true).
 			Background(lipgloss.Color("#333333")).
 			Foreground(lipgloss.Color("#67e8f9")),
-	}
+	})
 
-	footer := &headerBar{
+	footer := tealayout.NewElement(&headerBar{
 		style: lipgloss.NewStyle().
 			Background(lipgloss.Color("#1f2937")).
 			Foreground(lipgloss.Color("#9ca3af")),
-	}
-
-	return model{
-		panes:       panes,
-		paneWidgets: widgets,
-		header:      header,
-		footer:      footer,
-		focused:     paneTree,
-		visCombo:    0,
-	}
-}
-
-func (m model) visiblePanes() []int {
-	return visibilityCombos[m.visCombo]
-}
-
-func (m model) isFocusedVisible() bool {
-	for _, idx := range m.visiblePanes() {
-		if idx == m.focused {
-			return true
-		}
-	}
-	return false
-}
-
-// buildLayout constructs a fresh layout from the current state.
-func (m model) buildLayout() *tealayout.Layout {
-	visible := m.visiblePanes()
-
-	// Compute effective percentage for each visible pane
-	totalWeight := 0.0
-	for _, idx := range visible {
-		totalWeight += m.panes[idx].weight
-	}
-	for _, idx := range visible {
-		m.panes[idx].pctOfTotal = m.panes[idx].weight / totalWeight * 100
-	}
-
-	elements := make([]tealayout.Element, 0, len(visible))
-	for _, idx := range visible {
-		p := m.paneWidgets[idx]
-		p.updateStyle()
-		elements = append(elements, tealayout.NewColumn(tealayout.Flex(m.panes[idx].weight), p))
-	}
-
-	m.header.text = m.headerText()
-	m.footer.text = m.footerText()
-
-	contentRow := tealayout.NewRow(tealayout.Flex(1), elements...)
+	})
 
 	root := tealayout.NewColumn(tealayout.Percent100,
-		tealayout.NewRow(tealayout.Fixed(1), m.header),
-		contentRow,
-		tealayout.NewRow(tealayout.Fixed(1), m.footer),
+		tealayout.NewRow(tealayout.Fixed(1), header).WithName("header").WithAlignment(tealayout.MiddleCenter),
+		tealayout.NewRow(tealayout.Flex(1),
+			tealayout.NewColumn(tealayout.Flex(baseWeightTree), tree).WithName("tree"),
+			tealayout.NewColumn(tealayout.Flex(baseWeightCode), code).WithName("code"),
+			tealayout.NewColumn(tealayout.Flex(baseWeightDiff), diff).WithName("diff"),
+		).WithName("content"),
+		tealayout.NewRow(tealayout.Fixed(1), footer).WithName("footer"),
 	)
 
 	layout := tealayout.NewLayout(root)
-	layout.SetSize(m.width, m.height)
-	return layout
-}
+	focus := tealayout.NewFocusManager(layout)
 
-func (m model) headerText() string {
-	visible := m.visiblePanes()
-	var names []string
-	for _, idx := range visible {
-		marker := " "
-		if idx == m.focused {
-			marker = "*"
-		}
-		names = append(names, fmt.Sprintf("[%s%s]", marker, m.panes[idx].label))
+	return model{
+		layout:    layout,
+		focus:     focus,
+		tree:      tree,
+		code:      code,
+		diff:      diff,
+		header:    header,
+		footer:    footer,
+		paneInfos: infos,
+		visCombo:  0,
 	}
-	return fmt.Sprintf(" Three-Pane Demo  %s", strings.Join(names, " "))
-}
-
-func (m model) footerText() string {
-	return " t:toggle visibility tab:focus  +/-:resize (requires focus)  q:quit"
 }
 
 func (m model) Init() tea.Cmd { return nil }
@@ -226,6 +171,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
+		m.layout.SetSize(m.width, m.height)
 
 	case tea.KeyPressMsg:
 		switch msg.String() {
@@ -233,75 +179,63 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case "tab":
-			m = m.focusNext()
+			m.focus.FocusNext()
 
 		case "shift+tab":
-			m = m.focusPrev()
+			m.focus.FocusPrev()
 
 		case "+", "=":
-			m = m.resizeFocused(resizeStep)
+			m.resizeFocused(resizeStep)
 
 		case "-", "_":
-			m = m.resizeFocused(-resizeStep)
+			m.resizeFocused(-resizeStep)
 
 		case "t":
-			m = m.toggleVisibility()
+			m.toggleVisibility()
 		}
 	}
 	return m, nil
 }
 
-func (m model) focusNext() model {
-	visible := m.visiblePanes()
-	// Find current position in visible list
-	cur := 0
-	for i, idx := range visible {
-		if idx == m.focused {
-			cur = i
-			break
+func (m *model) resizeFocused(delta float64) {
+	fp := m.focus.FocusedPane()
+	if fp == nil {
+		return
+	}
+	// Find the matching paneInfo and update weight
+	for _, info := range m.paneInfos {
+		if info.label == fp.Name() || strings.EqualFold(info.label, fp.Name()) {
+			newWeight := info.weight + delta
+			if newWeight < minWeight {
+				newWeight = minWeight
+			}
+			info.weight = newWeight
+			fp.SetDimension(tealayout.Flex(newWeight))
+			return
 		}
 	}
-	m.panes[m.focused].focused = false
-	next := visible[(cur+1)%len(visible)]
-	m.focused = next
-	m.panes[m.focused].focused = true
-	return m
 }
 
-func (m model) focusPrev() model {
-	visible := m.visiblePanes()
-	cur := 0
-	for i, idx := range visible {
-		if idx == m.focused {
-			cur = i
-			break
-		}
-	}
-	m.panes[m.focused].focused = false
-	prev := visible[(cur-1+len(visible))%len(visible)]
-	m.focused = prev
-	m.panes[m.focused].focused = true
-	return m
-}
-
-func (m model) resizeFocused(delta float64) model {
-	newWeight := m.panes[m.focused].weight + delta
-	if newWeight < minWeight {
-		newWeight = minWeight
-	}
-	m.panes[m.focused].weight = newWeight
-	return m
-}
-
-func (m model) toggleVisibility() model {
+func (m *model) toggleVisibility() {
 	m.visCombo = (m.visCombo + 1) % len(visibilityCombos)
-	// If focused pane is no longer visible, move focus to first visible
-	if !m.isFocusedVisible() {
-		m.panes[m.focused].focused = false
-		m.focused = m.visiblePanes()[0]
-		m.panes[m.focused].focused = true
+	visible := visibilityCombos[m.visCombo]
+
+	// Build set of visible names
+	visSet := make(map[string]bool, len(visible))
+	for _, name := range visible {
+		visSet[name] = true
 	}
-	return m
+
+	// Show/hide panes by name
+	for _, name := range []string{"tree", "code", "diff"} {
+		p := m.layout.Pane(name)
+		if p != nil {
+			p.SetVisible(visSet[name])
+		}
+	}
+
+	// Ensure focused pane is visible
+	m.focus.EnsureFocusedVisible()
 }
 
 func (m model) View() tea.View {
@@ -309,14 +243,54 @@ func (m model) View() tea.View {
 		return tea.NewView("Loading...")
 	}
 
-	layout := m.buildLayout()
-	output, err := layout.Render()
+	// Update header/footer text
+	m.header.Widget().text = m.headerText()
+	m.footer.Widget().text = m.footerText()
+
+	// Update styles based on focus
+	m.tree.Widget().updateStyle(m.focus.Focused("tree"))
+	m.code.Widget().updateStyle(m.focus.Focused("code"))
+	m.diff.Widget().updateStyle(m.focus.Focused("diff"))
+
+	// Compute effective percentages for display
+	visible := visibilityCombos[m.visCombo]
+	totalWeight := 0.0
+	for _, name := range visible {
+		for _, info := range m.paneInfos {
+			if strings.EqualFold(info.label, name) {
+				totalWeight += info.weight
+			}
+		}
+	}
+	for _, info := range m.paneInfos {
+		info.pctOfTotal = info.weight / totalWeight * 100
+	}
+
+	m.layout.MarkDirty()
+	output, err := m.layout.Render()
 	if err != nil {
 		return tea.NewView(fmt.Sprintf("Layout error: %v", err))
 	}
 	v := tea.NewView(output)
 	v.AltScreen = true
 	return v
+}
+
+func (m model) headerText() string {
+	visible := visibilityCombos[m.visCombo]
+	var names []string
+	for _, name := range visible {
+		marker := " "
+		if m.focus.Focused(name) {
+			marker = "*"
+		}
+		names = append(names, fmt.Sprintf("[%s%s]", marker, name))
+	}
+	return fmt.Sprintf(" Three-Pane Demo  %s", strings.Join(names, " "))
+}
+
+func (m model) footerText() string {
+	return " t:toggle visibility tab:focus  +/-:resize (requires focus)  q:quit"
 }
 
 func main() {

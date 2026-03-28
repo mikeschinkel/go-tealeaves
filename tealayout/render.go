@@ -6,78 +6,12 @@ import (
 	lipgloss "charm.land/lipgloss/v2"
 )
 
-// Render resolves the row layout, calls SetSize on children that implement
-// SetSizer, calls View on children that implement Viewer, and composes
-// the output by joining horizontally with gap spacing.
-func (r *row) Render() (string, error) {
-	if r.dirty || !r.resolved {
-		r.resolved = false // force re-resolve
-	}
-	if r.cachedOutput != "" && !r.dirty {
-		return r.cachedOutput, nil
-	}
-
-	sizes, err := r.Resolve()
-	if err != nil {
-		return "", err
-	}
-
-	// Phase 5: SetSize on children, then View
-	views := make([]string, 0, len(r.children))
-	for i, ch := range r.children {
-		if sizes[i] <= 0 {
-			continue
-		}
-		setChildSize(ch.Widget, sizes[i], r.height)
-		views = append(views, viewChild(ch.Widget, sizes[i], r.height))
-	}
-
-	output := joinHorizontal(views, r.gap, r.height)
-	r.cachedOutput = output
-	r.dirty = false
-	return output, nil
-}
-
-// Render resolves the column layout, calls SetSize on children, and composes
-// output by joining vertically with gap spacing.
-func (c *column) Render() (string, error) {
-	if c.dirty || !c.resolved {
-		c.resolved = false
-	}
-	if c.cachedOutput != "" && !c.dirty {
-		return c.cachedOutput, nil
-	}
-
-	sizes, err := c.Resolve()
-	if err != nil {
-		return "", err
-	}
-
-	views := make([]string, 0, len(c.children))
-	for i, ch := range c.children {
-		if sizes[i] <= 0 {
-			continue
-		}
-		setChildSize(ch.Widget, c.width, sizes[i])
-		views = append(views, viewChild(ch.Widget, c.width, sizes[i]))
-	}
-
-	output := joinVertical(views, c.gap)
-	c.cachedOutput = output
-	c.dirty = false
-	return output, nil
-}
-
-// setChildSize calls SetSize on a widget with content dimensions. If the
-// widget implements Styler, border+padding are subtracted first.
-func setChildSize(widget any, totalW, totalH int) {
-	ss, ok := widget.(SetSizer)
-	if !ok {
-		return
-	}
+// setChildSizeViaElement calls setSize on an element with content dimensions.
+// If the element implements Styler (detected via style()), border+padding are
+// subtracted first.
+func setChildSizeViaElement(elem element, totalW, totalH int) {
 	contentW, contentH := totalW, totalH
-	if styler, ok := widget.(Styler); ok {
-		style := styler.Style()
+	if style, ok := elem.style(); ok {
 		contentW -= style.GetHorizontalPadding() + style.GetHorizontalBorderSize()
 		contentH -= style.GetVerticalPadding() + style.GetVerticalBorderSize()
 		if contentW < 0 {
@@ -87,14 +21,15 @@ func setChildSize(widget any, totalW, totalH int) {
 			contentH = 0
 		}
 	}
-	ss.SetSize(contentW, contentH)
+	elem.setSize(contentW, contentH)
 }
 
-// viewChild renders a widget. If it implements Viewer, View() is called.
-// Otherwise returns empty space of the given dimensions.
-func viewChild(widget any, width, height int) string {
-	if v, ok := widget.(Viewer); ok {
-		return v.View()
+// viewChildElement renders an element. If it has a view function, view() is
+// called. Otherwise returns empty space of the given dimensions.
+func viewChildElement(elem element, width, height int) string {
+	v := elem.view()
+	if v != "" {
+		return v
 	}
 	return emptyBlock(width, height)
 }

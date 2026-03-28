@@ -19,3 +19,9 @@ type Viewer interface {
 type Styler interface {
 	Style() lipgloss.Style
 }
+
+// Focusable is implemented by widgets that can receive and lose focus.
+type Focusable interface {
+	Focus()
+	Blur()
+}

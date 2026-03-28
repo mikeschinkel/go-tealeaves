@@ -105,14 +105,12 @@ func TestRow_CachedResolve(t *testing.T) {
 }
 
 func TestRow_SetSizeInvalidatesCache(t *testing.T) {
-	comp := NewRow(Percent100, NewColumn(Flex(1)))
-	comp.SetSize(80, 24)
-	comp.Resolve()
+	p := NewRow(Percent100, NewColumn(Flex(1)))
+	p.SetSize(80, 24)
+	p.Resolve()
 
-	comp.SetSize(100, 24)
-	comp.ensureInner()
-	r := comp.inner.(*row)
-	if r.resolved {
+	p.SetSize(100, 24)
+	if p.resolved {
 		t.Error("SetSize should invalidate cache")
 	}
 }

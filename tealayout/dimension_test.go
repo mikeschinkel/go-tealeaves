@@ -65,9 +65,8 @@ func TestPercentConstants(t *testing.T) {
 }
 
 func TestPercent_MapsToFlexConstraint(t *testing.T) {
-	// Percent dimensions map to flex constraints internally
-	comp := NewRow(Percent100)
-	cs := comp.toConstraint()
+	p := NewRow(Percent100)
+	cs := p.toConstraint()
 	if cs.kind != constraintFlex {
 		t.Errorf("constraint kind = %v, want constraintFlex", cs.kind)
 	}
@@ -77,8 +76,8 @@ func TestPercent_MapsToFlexConstraint(t *testing.T) {
 }
 
 func TestFixed_MapsToFixedConstraint(t *testing.T) {
-	comp := NewRow(Fixed(30))
-	cs := comp.toConstraint()
+	p := NewRow(Fixed(30))
+	cs := p.toConstraint()
 	if cs.kind != constraintFixed {
 		t.Errorf("constraint kind = %v, want constraintFixed", cs.kind)
 	}
@@ -88,8 +87,8 @@ func TestFixed_MapsToFixedConstraint(t *testing.T) {
 }
 
 func TestFlex_MapsToFlexConstraint(t *testing.T) {
-	comp := NewRow(Flex(1.618))
-	cs := comp.toConstraint()
+	p := NewRow(Flex(1.618))
+	cs := p.toConstraint()
 	if cs.kind != constraintFlex {
 		t.Errorf("constraint kind = %v, want constraintFlex", cs.kind)
 	}
@@ -99,8 +98,8 @@ func TestFlex_MapsToFlexConstraint(t *testing.T) {
 }
 
 func TestFit_MapsToFitConstraint(t *testing.T) {
-	comp := NewRow(Fit())
-	cs := comp.toConstraint()
+	p := NewRow(Fit())
+	cs := p.toConstraint()
 	if cs.kind != constraintFit {
 		t.Errorf("constraint kind = %v, want constraintFit", cs.kind)
 	}
