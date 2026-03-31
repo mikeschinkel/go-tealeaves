@@ -59,16 +59,17 @@ Use [GitHub Issues](https://github.com/mikeschinkel/go-tealeaves/issues) to repo
 
 ## Multi-module structure
 
-This repository contains **7 independent Go modules**, one per package. Each has its own `go.mod` and `go.sum`.
+This repository contains **many independent Go modules**, one per package. Each has its own `go.mod` and `go.sum`.
 
 When making changes:
 
 - **Only modify `go.mod`/`go.sum` in the package you are changing.** Do not update unrelated modules.
-- Run `make tidy` to ensure all modules are consistent after dependency changes.
+- Run `just tidy` to ensure all modules are consistent after dependency changes.
 - If your change spans multiple packages, respect the dependency order:
-  - `teautils` must be updated before `teamodal` (teamodal depends on teautils)
-  - `teafields` must be updated before `teadepview` (teadepview depends on teafields)
-  - All other packages (`teastatus`, `teatext`, `teatree`, `teanotify`, `teagrid`) are independent of each other.
+  - `teautils` must be updated before `teamodal`, `teagrid`, `teastatus`, `teanotify`, `teatext`, `teaguide`, `teahelp`, and `teafields` (all depend on teautils)
+  - `teafields` must be updated before `teatree` (DrillDownModel in teatree depends on teafields)
+  - `tealayout` must be updated before `teapane` (teapane depends on tealayout)
+  - All other packages (`teacolor`, `teacrumbs`, `teadiff`, `teahilite`) are standalone.
 
 ## Code style
 

@@ -17,22 +17,35 @@ Tea Leaves uses a **multi-module monorepo** layout. Each module is a standalone 
 | `teanotify` | [Notifications](/go-tealeaves/components/notification-view/) | `go get github.com/mikeschinkel/go-tealeaves/teanotify` |
 | `teatext` | [Text Selection](/go-tealeaves/components/text-selection/) | `go get github.com/mikeschinkel/go-tealeaves/teatext` |
 | `teautils` | [Key Registry](/go-tealeaves/components/key-registry/), [Help Visor](/go-tealeaves/components/help-visor/), [Theming](/go-tealeaves/components/theming/), [Positioning](/go-tealeaves/components/positioning/) | `go get github.com/mikeschinkel/go-tealeaves/teautils` |
+| `teacolor` | [Color Constants](/go-tealeaves/components/color-constants/) | `go get github.com/mikeschinkel/go-tealeaves/teacolor` |
+| `teacrumbs` | [Breadcrumb Nav](/go-tealeaves/components/breadcrumb-nav/) | `go get github.com/mikeschinkel/go-tealeaves/teacrumbs` |
+| `teadiff` | [Diff Viewer](/go-tealeaves/components/diff-viewer/) | `go get github.com/mikeschinkel/go-tealeaves/teadiff` |
+| `tealayout` | [Layout Engine](/go-tealeaves/components/layout-engine/) | `go get github.com/mikeschinkel/go-tealeaves/tealayout` |
+| `teapane` | [Pane Widgets](/go-tealeaves/components/pane-widgets/) | `go get github.com/mikeschinkel/go-tealeaves/teapane` |
+| `teaguide` | [Guide Overlay](/go-tealeaves/components/guide-overlay/) | `go get github.com/mikeschinkel/go-tealeaves/teaguide` |
+| `teadiffr` | _(deprecated — see [migration guide](/go-tealeaves/migration/teadiffr/))_ | use `teadiff` instead |
 
 ## Directory Layout
 
 ```
 go-tealeaves/
+├── teacolor/      # Named color constants (standalone module)
+├── teacrumbs/     # Breadcrumb navigation
+├── teadiff/       # Diff viewer (split + condensed)
+├── teadiffr/      # Deprecated — use teadiff
 ├── teafields/     # Dropdown selection
 ├── teagrid/       # Data grid
+├── teaguide/      # Workflow guidance overlay
+├── teahelp/       # Help system utilities
+├── teahilite/     # Syntax highlighting
+├── tealayout/     # Declarative layout engine
 ├── teamodal/      # Modal dialogs + list + choice + progress
 ├── teanotify/     # Toast notifications
-├── teatree/       # Tree view
-├── teatext/    # Text selection + clipboard
+├── teapane/       # Pane widgets (StyledPane, ScrollPane, PlainPane)
 ├── teastatus/     # Status bar
-├── teadepview/    # Dependency path viewer
-├── teadiffr/      # Diff rendering
+├── teatext/       # Text selection + clipboard
+├── teatree/       # Tree view + drilldown
 ├── teautils/      # Key registry, help visor, theming, positioning
-│   └── teacolor/  # Named color constants (subpackage)
 ├── examples/      # Per-component examples
 ├── site/          # Documentation site (Astro/Starlight)
 └── go.work        # Workspace for local development
@@ -53,16 +66,20 @@ This means upgrading one component never forces upgrades to others.
 
 ## Dependency Graph
 
-Most components depend only on `teautils` for shared helpers. `teadepview` also depends on `teafields` for its dropdown UI. No other cross-component dependencies exist.
+Most components depend only on `teautils` for shared helpers. `teatree`'s `DrillDownModel` also depends on `teafields` for its dropdown UI. No other cross-component dependencies exist.
 
 ```
+teacolor ───► (none — only lipgloss)
 teafields ──► teautils
 teagrid ────► teautils
 teamodal ───► teautils
 teanotify ──► teautils
-teatree ────► teautils
-teatext ─► teautils
+teatree ────► teautils, teafields
+teatext ────► teautils
 teastatus ──► teautils
-teadepview ─► teautils, teafields
-teadiffr ───► teautils
+teadiff ────► teautils
+teacrumbs ──► (none — only bubbletea + lipgloss)
+tealayout ──► (none — only lipgloss)
+teapane ────► tealayout
+teaguide ───► teautils
 ```

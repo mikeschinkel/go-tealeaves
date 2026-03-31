@@ -16,8 +16,9 @@ All `go run` commands below assume you are in the repository root directory. Eac
 
 | Component | Example | Description | Run Command |
 |-----------|---------|-------------|-------------|
-| teafields | simple | Dropdown with fruit selection | `go run ./examples/teafields/simple` |
-| teafields | demo | Full-featured dropdown demo | `go run ./examples/teafields/demo` |
+| teafields | simple | Dropdown with fruit selection | `go run ./teafields/examples/simple` |
+| teafields | demo | Full-featured dropdown demo | `go run ./teafields/examples/demo` |
+| teadiff | splitdiff | Side-by-side diff viewer | `go run ./teadiff/examples/splitdiff` |
 | teagrid | simplest | Minimal data grid | `go run ./examples/teagrid/simplest` |
 | teagrid | sorting | Grid with column sorting | `go run ./examples/teagrid/sorting` |
 | teagrid | filtering | Grid with real-time filtering | `go run ./examples/teagrid/filtering` |
@@ -28,9 +29,9 @@ All `go run` commands below assume you are in the repository root directory. Eac
 | teamodal | vertical | Vertical button layout | `go run ./examples/teamodal/vertical` |
 | teanotify | simple | Toast notifications | `go run ./examples/teanotify/simple` |
 | teastatus | statusbar | Status bar with separators | `go run ./examples/teastatus/statusbar` |
-| teatext | editor | Text editor with selection | `go run ./examples/teatext/editor` |
+| teatext | editor | Text editor with selection | `go run ./teatext/examples/editor` |
 | teatree | filetree | File tree navigator | `go run ./examples/teatree/filetree` |
-| teadepview | treenav | Dependency tree navigator | `go run ./examples/teadepview/treenav` |
+| teatree | drilldown | Dependency drilldown navigator | `go run ./examples/teatree/drilldown` |
 | teautils | keyhelp | Key registry with help modal | `go run ./examples/teautils/keyhelp` |
 
 :::note

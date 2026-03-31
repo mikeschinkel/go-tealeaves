@@ -11,33 +11,47 @@ Each component in Tea Leaves is a separate Go module with its own `go.mod`. This
 
 <FileTree>
 - go-tealeaves/
+  - teacolor/      (Named color constants)
+  - teacrumbs/     (Breadcrumb navigation)
+  - teadiff/       (Diff viewer — split + condensed)
   - teafields/     (Dropdown)
-  - teadepview/    (Dep viewer --- depends on teafields)
   - teagrid/       (Data grid)
-  - teamodal/      (Modals --- depends on teautils)
-  - teanotify/     (Notifications)
+  - teaguide/      (Workflow guidance overlay)
+  - teahelp/       (Help visor)
+  - teahilite/     (Syntax highlighting)
+  - tealayout/     (Declarative layout engine)
+  - teamodal/      (Modals — confirm, choice, list, progress)
+  - teanotify/     (Toast notifications)
+  - teapane/       (Pane widgets — depends on tealayout)
   - teastatus/     (Status bar)
-  - teatext/    (Text selection)
-  - teatree/       (Tree view)
-  - teautils/      (Utilities)
+  - teatext/       (Text selection + clipboard)
+  - teatree/       (Tree view + drilldown — drilldown depends on teafields)
+  - teautils/      (Key registry, theming, positioning, help visor)
   - examples/      (Example programs)
-  - docs/          (Documentation source)
   - site/          (This website)
 </FileTree>
 
 ## Dependency graph
 
-Most components are fully standalone. Only two have internal dependencies:
+Most components are fully standalone. Only three have internal dependencies:
 
 ```
-teadepview ──► teafields
-teamodal ────► teautils
+teatree ────► teautils, teafields  (DrillDownModel uses teafields dropdown)
+teamodal ───► teautils
+teapane ────► tealayout
 
-teagrid        (standalone)
-teanotify      (standalone)
-teastatus      (standalone)
-teatext     (standalone)
-teatree        (standalone)
+teacolor       (standalone)
+teacrumbs      (standalone)
+teadiff        (standalone)
+teafields ──► teautils
+teagrid ────► teautils
+teaguide ───► teautils
+teahelp ────► teautils
+teahilite      (standalone)
+tealayout      (standalone)
+teanotify ──► teautils
+teastatus ──► teautils
+teatext ────► teautils
 ```
 
 All components depend on Bubble Tea and Lip Gloss from Charm, but they do not depend on each other unless shown above.
