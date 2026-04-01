@@ -1,0 +1,173 @@
+---
+title: "Guide Overlay"
+description: Context-aware workflow guidance overlay for Bubble Tea — shows prioritized next steps with prose explanations and direct key dispatch.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teaguide` · **Type:** `GuideModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teaguide`
+
+Complex TUI applications often leave users unsure what to do next. `teaguide` provides a modal overlay that presents prioritized, actionable next steps with prose explanations. Crucially, pressing an action key _inside_ the guide both closes it and dispatches the action — so the guide is a shortcut launcher, not just a help screen.
+
+<Aside type="caution" title="Provisional API">
+This package is provisional as of v0.3.0. The public API may change in minor releases until promoted to stable.
+</Aside>
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teaguide
+```
+
+## Quick example
+
+```go
+// Create once, embed in your root model
+guide := teaguide.NewGuideModel()
+guide = guide.SetSize(termWidth, termHeight)
+
+// Open with context-specific data
+guide, cmd = guide.Open(teaguide.GuideData{
+    Title: "What's Next?",
+    Sections: []teaguide.GuideSection{
+        {
+            Priority: teaguide.PriorityRecommended,
+            Heading:  "Recommended",
+            Items: []teaguide.GuideItem{
+                {
+                    ActionKey:  "enter",
+                    KeyDisplay: "[Enter]",
+                    Label:      "Select module",
+                    Prose:      "This module has uncommitted changes.",
+                },
+            },
+        },
+        {
+            Priority: teaguide.PriorityAvailable,
+            Heading:  "Also available",
+            Items: []teaguide.GuideItem{
+                {ActionKey: "r", KeyDisplay: "[r]", Label: "Refresh"},
+            },
+        },
+    },
+})
+
+// In Update() — route to guide first when it's open
+guide, cmd = guide.Update(msg)
+// Handle ActionSelectedMsg emitted when user presses an action key in the guide
+case teaguide.ActionSelectedMsg:
+    m.handleAction(msg.ActionKey)
+
+// In View()
+return guide.OverlayModal(backgroundView)
+```
+
+## Guide content structure
+
+Guide content is organized into three priority tiers:
+
+| Priority | Constant | Display behavior |
+|----------|----------|-----------------|
+| Recommended | `PriorityRecommended` | Highlighted items with prose explanations (top of guide) |
+| Available | `PriorityAvailable` | Other actions the user can take now |
+| Blocked | `PriorityBlocked` | Collapsed section with block reasons |
+
+```go
+type GuideData struct {
+    Title    string
+    Sections []GuideSection
+}
+
+type GuideSection struct {
+    Priority GuidePriority
+    Heading  string
+    Items    []GuideItem
+}
+
+type GuideItem struct {
+    ActionKey   string // e.g. "enter", "v" — empty means info-only, no dispatch
+    KeyDisplay  string // e.g. "[Enter]", "[v]"
+    Label       string // e.g. "Select Module"
+    Prose       string // Prose explanation (shown for Recommended items)
+    BlockReason string // Why this item is blocked (PriorityBlocked only)
+}
+```
+
+## API reference
+
+| Method | Description |
+|--------|-------------|
+| `NewGuideModel()` | Creates with default key bindings and styles |
+| `guide.Open(data)` | Opens the overlay with the given content; returns `(GuideModel, tea.Cmd)` |
+| `guide.Close()` | Closes the overlay |
+| `guide.IsOpen()` | Returns whether the overlay is currently visible |
+| `guide.SetSize(w, h)` | Updates screen dimensions (also handled by `WindowSizeMsg`) |
+| `guide.Update(msg)` | Standard Bubble Tea `Update` |
+| `guide.OverlayModal(bg)` | Renders the guide overlaid on the background string |
+
+## Key bindings
+
+| Key | Action |
+|-----|--------|
+| `↑` / `k` | Scroll up |
+| `↓` / `j` | Scroll down |
+| `esc` / `q` | Close guide |
+| `b` | Toggle blocked section |
+| _any action key_ | Close guide and emit `ActionSelectedMsg` |
+
+Action keys are the `ActionKey` values from the `GuideItem` entries in the current `GuideData`. Pressing one closes the guide and emits:
+
+```go
+type ActionSelectedMsg struct {
+    ActionKey string
+}
+```
+
+## Direct key dispatch pattern
+
+The guide doubles as a launcher: when the user sees `[Enter] Select Module`, they don't need to close the guide first — pressing `Enter` inside the guide emits `ActionSelectedMsg{ActionKey: "enter"}` and closes the overlay. The host application handles this the same way it handles the key pressed directly:
+
+```go
+case teaguide.ActionSelectedMsg:
+    switch msg.ActionKey {
+    case "enter":
+        return m, m.selectCurrentModule()
+    case "r":
+        return m, m.refresh()
+    }
+```
+
+## Blocked items
+
+Set `Priority: PriorityBlocked` and populate `BlockReason` to show the user actions they cannot yet take and why:
+
+```go
+teaguide.GuideItem{
+    Label:       "Publish package",
+    BlockReason: "No remote configured. Run 'git remote add origin <url>' first.",
+}
+```
+
+The blocked section is collapsed by default and can be expanded with the `b` key.
+
+## Styles and key bindings
+
+The guide's visual appearance and key bindings can be replaced at construction time:
+
+```go
+guide := teaguide.NewGuideModel()
+guide.Keys = teaguide.GuideKeyMap{
+    Up:   key.NewBinding(key.WithKeys("w")),
+    Down: key.NewBinding(key.WithKeys("s")),
+    // ...
+}
+guide.Styles = teaguide.GuideStyles{
+    // lipgloss styles for title, sections, items, etc.
+}
+```
+
+## Related
+
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How `OverlayModal` places the guide over terminal content
+- [Help Visor](/go-tealeaves/components/help-visor/) — For static key binding reference; guide is for dynamic, context-sensitive guidance
+- [Notifications](/go-tealeaves/components/notification-view/) — For transient feedback messages, not guidance flows

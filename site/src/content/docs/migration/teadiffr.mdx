@@ -1,0 +1,49 @@
+---
+title: "Migrating from teadiffr"
+description: teadiffr is deprecated. Replace the import path with teadiff — all condensed diff types are unchanged, and you gain the new SplitDiffModel.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+<Aside type="caution" title="teadiffr is deprecated">
+`teadiffr` is superseded by [`teadiff`](/go-tealeaves/components/diff-viewer/). It will not receive new features. Migrate at your earliest convenience.
+</Aside>
+
+## What changed
+
+`teadiff` contains everything `teadiffr` had, plus the new `SplitDiffModel` for interactive side-by-side diff viewing. All existing condensed diff types — `TUIRenderer`, `DiffRenderer`, `FileDiff`, `CondensedBlock`, `FileStatus` — are available in `teadiff` with **identical names and signatures**.
+
+## Migration steps
+
+**1. Replace the import path:**
+
+```go
+// Before
+import "github.com/mikeschinkel/go-tealeaves/teadiffr"
+
+// After
+import "github.com/mikeschinkel/go-tealeaves/teadiff"
+```
+
+**2. Update the module in go.mod:**
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teadiff
+go mod tidy
+```
+
+**3. Update package prefix in your code:**
+
+```go
+// Before
+renderer := teadiffr.NewTUIRenderer(theme)
+
+// After
+renderer := teadiff.NewTUIRenderer(theme)
+```
+
+That's it. No API changes — only the import path and package prefix change.
+
+## What you gain
+
+After migrating you can optionally adopt `SplitDiffModel` for an interactive side-by-side diff viewer with cursor, selection, horizontal scrolling, and gutter annotations. See the [Diff Viewer](/go-tealeaves/components/diff-viewer/) docs.

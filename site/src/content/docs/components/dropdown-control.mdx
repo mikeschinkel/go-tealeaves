@@ -30,7 +30,10 @@ import (
 
 func main() {
 	items := teafields.ToOptions([]string{"Apple", "Banana", "Cherry", "Date", "Elderberry"})
-	dropdown := teafields.NewDropdownModel(items, 3, 18, nil)
+	dropdown := teafields.NewDropdownModel(items, &teafields.DropdownModelArgs{
+		FieldRow: 3,
+		FieldCol: 18,
+	})
 
 	p := tea.NewProgram(model{dropdown: dropdown}, tea.WithAltScreen())
 	if _, err := p.Run(); err != nil {
@@ -56,7 +59,7 @@ func main() {
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NewDropdownModel` | `NewDropdownModel(options []Option, row, col int, args *DropdownModelArgs) DropdownModel` | Create a dropdown at the given row and column position |
+| `NewDropdownModel` | `NewDropdownModel(options []Option, args *DropdownModelArgs) DropdownModel` | Create a dropdown with the given options and configuration |
 | `ToOptions` | `ToOptions(items []string) []Option` | Convert a string slice into a slice of `Option` values |
 | `OverlayDropdown` | `OverlayDropdown(background, foreground string, row, col int) string` | ANSI-aware overlay compositing of foreground onto background |
 | `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr)` | Initialize terminal size detection for above/below positioning |
@@ -68,8 +71,22 @@ func main() {
 | `DropdownModel` | Main dropdown component — implements `tea.Model` |
 | `DropdownKeyMap` | Key bindings configuration (Cancel, Down, Select, Up) |
 | `Option` | A selectable option with `Text` and `Value` fields |
-| `OptionSelectedMsg` | Message sent when the user selects an option |
-| `DropdownModelArgs` | Optional configuration arguments for `NewDropdownModel` |
+| `OptionSelectedMsg` | Message sent when the user selects an option — contains `Index`, `Text`, and `Value` fields |
+| `DropdownModelArgs` | Configuration arguments for `NewDropdownModel` |
+
+### DropdownModelArgs fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `FieldRow` | `int` | Row position of the triggering field (dropdown appears just below/above it) |
+| `FieldCol` | `int` | Column position of the triggering field |
+| `ScreenWidth` | `int` | Terminal width (used for above/below and overflow detection) |
+| `ScreenHeight` | `int` | Terminal height (used for above/below placement decision) |
+| `TopMargin` | `int` | Minimum row to position above (e.g. `1` to avoid a menu bar) |
+| `BottomMargin` | `int` | Rows reserved at bottom (e.g. `1` to avoid a status bar) |
+| `BorderStyle` | `lipgloss.Style` | Border style for the dropdown container (optional) |
+| `ItemStyle` | `lipgloss.Style` | Style for unselected items (optional) |
+| `SelectedStyle` | `lipgloss.Style` | Style for the highlighted item (optional) |
 
 ## Configuration
 
@@ -93,6 +110,15 @@ m.dropdown = m.dropdown.
 | Message | When sent |
 |---------|-----------|
 | `OptionSelectedMsg` | User selects an option — contains `Index`, `Text`, and `Value` fields |
+| `DropdownCancelledMsg` | User presses `esc` to cancel without selecting — struct with no fields |
+
+```go
+case teafields.OptionSelectedMsg:
+    // User picked an option
+    fmt.Println(msg.Text, msg.Value)
+case teafields.DropdownCancelledMsg:
+    // User cancelled — close any parent overlay
+```
 
 ## Keyboard shortcuts
 

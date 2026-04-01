@@ -1,0 +1,112 @@
+---
+title: "Color Constants"
+description: Named color constants for terminal UI components — 256 ANSI indexed colors, standard ANSI names, and SemanticColor for zero-allocation style caching.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teacolor` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teacolor`
+
+`teacolor` provides named constants for all 256 ANSI colors, standard ANSI names (colors 0–15), and the `SemanticColor` type for caching pre-built lipgloss styles. All constants are `image/color.Color` values, compatible with any lipgloss v2 method that accepts `color.Color`.
+
+<Aside type="note">
+`teacolor` is a standalone module. It was previously shipped as `teautils/teacolor`. If you're upgrading, update your import path to `github.com/mikeschinkel/go-tealeaves/teacolor`. `teautils.SemanticColor` and `teautils.NewSemanticColor` remain available as type-alias re-exports for backward compatibility, but new code should import `teacolor` directly.
+</Aside>
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teacolor
+```
+
+## Quick example
+
+```go
+import (
+    "github.com/mikeschinkel/go-tealeaves/teacolor"
+    lipgloss "charm.land/lipgloss/v2"
+)
+
+// Use a named ANSI color
+style := lipgloss.NewStyle().Foreground(teacolor.Coral)
+
+// Create a SemanticColor for zero-allocation rendering
+accent := teacolor.NewSemanticColor(teacolor.Teal)
+rendered := accent.Render("important text")
+```
+
+## ANSI 256 indexed colors
+
+All 256 standard ANSI palette entries are available as `Color0` through `Color255`:
+
+```go
+teacolor.Color0   // Black
+teacolor.Color1   // Red (dark)
+teacolor.Color46  // Bright green
+teacolor.Color255 // Near-white
+```
+
+## Standard ANSI names (colors 0–15)
+
+The first 16 colors have their standard names:
+
+```go
+teacolor.Black, teacolor.Red, teacolor.Green, teacolor.Yellow
+teacolor.Blue, teacolor.Magenta, teacolor.Cyan, teacolor.White
+teacolor.BrightBlack, teacolor.BrightRed, teacolor.BrightGreen, teacolor.BrightYellow
+teacolor.BrightBlue, teacolor.BrightMagenta, teacolor.BrightCyan, teacolor.BrightWhite
+```
+
+## Curated semantic aliases
+
+A set of human-readable aliases for common design colors:
+
+```go
+teacolor.Coral, teacolor.SlateGray, teacolor.Teal
+teacolor.Gold, teacolor.SteelBlue, teacolor.Lavender
+// ...and more
+```
+
+## SemanticColor
+
+`SemanticColor` wraps a `color.Color` with pre-built lipgloss styles for foreground, background, and border use. This avoids allocating a new `lipgloss.Style` on every render frame.
+
+```go
+// Create once, reuse across frames
+accent := teacolor.NewSemanticColor(teacolor.Teal)
+
+// Zero-allocation rendering
+text := accent.Render("highlighted text")           // FG style
+bg := accent.Background().Render("background text") // BG style
+border := accent.BorderForeground()                 // Border style
+
+// Also implements color.Color for direct lipgloss use
+style := lipgloss.NewStyle().Foreground(accent)
+```
+
+### SemanticColor API
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `NewSemanticColor(c)` | `SemanticColor` | Creates with pre-built cached styles |
+| `.Foreground()` | `lipgloss.Style` | Pre-built foreground style |
+| `.Background()` | `lipgloss.Style` | Pre-built background style |
+| `.BorderForeground()` | `lipgloss.Style` | Pre-built border foreground style |
+| `.Render(text)` | `string` | Shorthand for `.Foreground().Render(text)` |
+| `.Color()` | `color.Color` | The underlying color (may be nil) |
+| `.IsZero()` | `bool` | True if underlying color is nil |
+
+## Color() helper
+
+The `Color()` function converts an ANSI string to `color.Color`:
+
+```go
+c := teacolor.Color("46")  // Returns color.Color for ANSI 46 (bright green)
+```
+
+This is the same function used internally to define all the named constants.
+
+## Related
+
+- [Theming](/go-tealeaves/components/theming/) — How `teacolor` constants feed into `Palette` and `Theme`
+- [Help Visor](/go-tealeaves/components/help-visor/) — Uses `teacolor` for styled key binding displays

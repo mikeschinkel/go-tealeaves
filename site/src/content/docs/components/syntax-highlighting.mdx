@@ -1,30 +1,122 @@
 ---
 title: "Syntax Highlighting"
-description: Chroma-based syntax highlighting for terminal UI code displays.
+description: Chroma-based syntax highlighting for terminal UI code displays — configurable themes, language detection, and ANSI output with per-instance or package-level use.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
 > **Module:** `teahilite` · **Type:** `Highlighter` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teahilite`
 
-Syntax highlighting for terminal UI applications using the Chroma library. Provides configurable language detection, theme selection, and ANSI-rendered output suitable for embedding in Bubble Tea views.
+`teahilite` renders syntax-highlighted code as ANSI escape sequences suitable for embedding in Bubble Tea views. It wraps the [Chroma](https://github.com/alecthomas/chroma) library with a simple API — choose your style and formatter once, then call `Highlight()` on each piece of code.
 
 <Aside type="caution">
 This module is under active development. API may change.
 </Aside>
 
-## Quick Example
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teahilite
+```
+
+## Quick example
 
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teahilite"
 
-h := teahilite.New(teahilite.WithTheme("monokai"))
-highlighted := h.Highlight("package main\n\nfunc main() {}", "go")
+// Package-level convenience (uses monokai + terminal256 defaults)
+highlighted, err := teahilite.Highlight("package main\n\nfunc main() {}", "go")
+
+// Or create a configured Highlighter instance
+h := teahilite.NewHighlighter(teahilite.HighlighterArgs{
+    StyleName: "dracula",
+})
+highlighted, err = h.Highlight(code, "go")
+lines, err := h.HighlightLines(code, "go") // []string, one per line
 ```
 
-## Features
+## Highlighter type
 
-- **Chroma integration** — full language support via the Chroma syntax highlighting library
-- **Terminal output** — renders highlighted code as ANSI escape sequences for TUI display
-- **Theme selection** — choose from available Chroma themes
-- **Language detection** — automatic or explicit language specification
+`Highlighter` holds pre-built Chroma style and formatter objects. Create once and reuse across frames to avoid repeated style lookups:
+
+```go
+h := teahilite.NewHighlighter(teahilite.HighlighterArgs{
+    StyleName:     "monokai",    // default
+    FormatterName: "terminal256", // default
+})
+
+// Returns ANSI-styled string, error
+result, err := h.Highlight(code, language)
+
+// Returns []string, one element per line
+lines, err := h.HighlightLines(code, language)
+```
+
+### HighlighterArgs
+
+| Field | Default | Description |
+|-------|---------|-------------|
+| `StyleName` | `"monokai"` | Chroma style name. Falls back to Chroma's fallback style if unknown. |
+| `FormatterName` | `"terminal256"` | Chroma formatter name. Falls back to Chroma's fallback formatter if unknown. |
+
+### Highlighter API
+
+| Method | Returns | Description |
+|--------|---------|-------------|
+| `Highlight(code, language string)` | `(string, error)` | Full highlighted output as a single ANSI string |
+| `HighlightLines(code, language string)` | `([]string, error)` | Same, split on newlines — one element per line |
+
+## Package-level functions
+
+Package-level functions use a shared default `Highlighter` (monokai + terminal256). These are convenient for one-off use but cannot be configured:
+
+```go
+result, err := teahilite.Highlight(code, "python")
+lines, err := teahilite.HighlightLines(code, "python")
+```
+
+## Theme selection
+
+Themes are Chroma style names. Common options:
+
+| Style | Description |
+|-------|-------------|
+| `"monokai"` | Dark, high-contrast (default) |
+| `"dracula"` | Dark with purple accents |
+| `"github"` | Light, GitHub-style |
+| `"solarized-dark"` | Solarized dark |
+| `"solarized-light"` | Solarized light |
+| `"vim"` | Classic Vim colors |
+
+Unknown style names fall back to Chroma's built-in fallback style without error.
+
+## Language detection
+
+Pass the language name as a lowercase string. If the language is unknown or empty, Chroma's fallback lexer is used (plain text with no highlighting):
+
+```go
+h.Highlight(goCode, "go")
+h.Highlight(tsCode, "typescript")
+h.Highlight(sqlCode, "sql")
+h.Highlight(unknownCode, "") // falls back to plain text
+```
+
+## Integration with SplitDiffModel
+
+`teahilite` can supply the `HighlightFunc` for [`teadiff.SplitDiffModel`](/go-tealeaves/components/diff-viewer/):
+
+```go
+h := teahilite.NewHighlighter(teahilite.HighlighterArgs{StyleName: "dracula"})
+
+diff := teadiff.NewSplitDiffModel(teadiff.SplitDiffModelArgs{
+    HighlightFunc: func(text, lang string) string {
+        result, _ := h.Highlight(text, lang)
+        return result
+    },
+})
+```
+
+## Related
+
+- [Diff Viewer](/go-tealeaves/components/diff-viewer/) — `SplitDiffModel` accepts a `HighlightFunc` from teahilite
+- [Theming](/go-tealeaves/components/theming/) — `DiffTintPositive` / `DiffTintNegative` palette slots complement syntax colors

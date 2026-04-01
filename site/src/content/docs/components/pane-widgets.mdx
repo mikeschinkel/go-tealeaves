@@ -1,0 +1,158 @@
+---
+title: "Pane Widgets"
+description: Ready-made tealayout-compatible pane widgets — PlainPane for static content, StyledPane for bordered focusable panes, and ScrollPane for scrollable content areas.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teapane` · **Types:** `PlainPane`, `StyledPane`, `ScrollPane`, `BorderStyle` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teapane`
+
+`teapane` provides three ready-made pane widgets that implement the full set of [`tealayout`](/go-tealeaves/components/layout-engine/) interfaces out of the box. Instead of wiring `SetSize`, `Style`, `SizeHint`, and `Focus`/`Blur` yourself for every pane, you supply a `BorderStyle` and a content callback — `teapane` handles the rest.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teapane
+```
+
+## Quick example
+
+```go
+import (
+    "github.com/mikeschinkel/go-tealeaves/teapane"
+    "github.com/mikeschinkel/go-tealeaves/tealayout"
+    lipgloss "charm.land/lipgloss/v2"
+)
+
+border := teapane.BorderStyle{
+    Border:       lipgloss.RoundedBorder(),
+    Color:        teacolor.SlateGray,
+    FocusedColor: teacolor.Teal,
+    PaddingH:     1,
+}
+
+pane := teapane.NewStyledPane(border, func(w, h int, focused bool) string {
+    return renderMyContent(w, h, focused)
+})
+
+layout := tealayout.NewLayout(
+    tealayout.NewRow(tealayout.Flex(1),
+        tealayout.NewElement(pane),
+    ),
+)
+```
+
+## BorderStyle
+
+`BorderStyle` configures the visual frame shared by `StyledPane` and `ScrollPane`:
+
+```go
+type BorderStyle struct {
+    Border       lipgloss.Border // e.g. lipgloss.RoundedBorder()
+    Color        color.Color     // Border color (normal)
+    FocusedColor color.Color     // Border color when focused (nil = same as Color)
+    Foreground   color.Color     // Text foreground (nil = terminal default)
+    PaddingH     int             // Horizontal padding (default 1)
+    PaddingV     int             // Vertical padding (default 0)
+}
+```
+
+The `Build(focused bool)` method returns a `lipgloss.Style`. `FrameWidth()` and `FrameHeight()` report total space consumed by border + padding, used by `tealayout` for content-dimension calculations.
+
+## StyledPane
+
+`StyledPane` is the primary pane widget. It implements all five `tealayout` interfaces:
+
+| Interface | Provided by StyledPane |
+|-----------|----------------------|
+| `Viewer` | Renders content inside the styled border |
+| `SetSizer` | Stores content dimensions (frame already subtracted) |
+| `Styler` | Returns the lipgloss style for frame-subtraction |
+| `SizeHinter` | Reports `Min.Width = FrameWidth() + minWidth` |
+| `Focusable` | Rebuilds style on `Focus()` / `Blur()` |
+
+```go
+pane := teapane.NewStyledPane(border, func(w, h int, focused bool) string {
+    if focused {
+        return renderFocused(w, h)
+    }
+    return renderNormal(w, h)
+})
+
+// Optional modifiers
+pane = pane.WithMinWidth(20).WithLabel("sidebar")
+
+// Access state
+pane.Width()         // Current content width
+pane.Height()        // Current content height
+pane.Focused()       // Current focus state
+pane.Label()         // Display label
+pane.FlexPercent()   // Flex percentage (for MultiPaneLayout)
+```
+
+### Modifier methods
+
+| Method | Description |
+|--------|-------------|
+| `WithMinWidth(n)` | Minimum content width reported in `SizeHint` |
+| `WithLabel(s)` | Display label (available in the `ContentFunc` via `pane.Label()`) |
+| `SetFlexPercent(pct)` | Set the pane's share of visible flex space |
+| `SetContentFunc(fn)` | Replace the content callback (useful when the callback needs to capture the pane pointer) |
+
+## ScrollPane
+
+`ScrollPane` extends `StyledPane` with scroll offset management. The content callback receives the current scroll offset.
+
+```go
+scroll := teapane.NewScrollPane(border, func(w, h, offset int) string {
+    return renderLines(w, h, offset)
+})
+
+// Update total line count so offset is clamped correctly
+scroll.SetTotalLines(len(myLines))
+
+// Scroll in response to key events
+case tea.KeyPressMsg:
+    switch msg.String() {
+    case "up":
+        scroll.ScrollUp()
+    case "down":
+        scroll.ScrollDown()
+    }
+```
+
+### ScrollPane API
+
+| Method | Description |
+|--------|-------------|
+| `NewScrollPane(border, fn)` | Creates with scroll-aware content callback |
+| `ScrollOffset()` | Returns current scroll offset |
+| `SetTotalLines(n)` | Sets total line count for clamping |
+| `ScrollUp()` | Moves viewport up by one line |
+| `ScrollDown()` | Moves viewport down by one line (auto-clamped) |
+
+## PlainPane
+
+`PlainPane` is a borderless, non-focusable pane for static content like headers, footers, and labels. It implements `Viewer` and `SetSizer` only.
+
+```go
+header := teapane.NewPlainPane(func(w, h int, _ bool) string {
+    return lipgloss.NewStyle().Bold(true).Render("My App v1.0")
+})
+
+// Optional: apply a background style
+header = header.WithStyle(lipgloss.NewStyle().Background(teacolor.SlateGray))
+```
+
+## ContentFunc signatures
+
+| Widget | Signature | Notes |
+|--------|-----------|-------|
+| `PlainPane` | `func(w, h int, focused bool) string` | `focused` is always false |
+| `StyledPane` | `func(w, h int, focused bool) string` | `focused` reflects actual focus state |
+| `ScrollPane` | `func(w, h, offset int) string` | `offset` is current scroll line |
+
+## Related
+
+- [Layout Engine](/go-tealeaves/components/layout-engine/) — `tealayout` is the layout engine that calls `SetSize`, `Style`, `SizeHint`, and `Focus`/`Blur` on these panes
+- [Theming](/go-tealeaves/components/theming/) — Use `teacolor` constants for `BorderStyle` colors

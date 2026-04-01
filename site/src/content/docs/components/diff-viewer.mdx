@@ -1,0 +1,149 @@
+---
+title: "Diff Viewer"
+description: TUI diff rendering for Bubble Tea — interactive side-by-side split diff with cursor and selection, plus a condensed diff renderer for non-interactive display.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teadiff` · **Types:** `SplitDiffModel`, `TUIRenderer` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teadiff`
+
+Rendering diffs in a terminal requires synchronized scrolling, accurate ANSI-aware width measurement, and sensible keyboard navigation. `teadiff` provides two modes: an interactive `SplitDiffModel` for side-by-side comparison, and a `TUIRenderer` for condensed inline display.
+
+<Aside type="note" title="Replaces teadiffr">
+`teadiff` supersedes `teadiffr`. All condensed diff types (`TUIRenderer`, `DiffRenderer`, `FileDiff`, `CondensedBlock`, `FileStatus`) are available here unchanged, plus the new `SplitDiffModel`. See [migrating from teadiffr](/go-tealeaves/migration/teadiffr/).
+</Aside>
+
+<Aside type="caution" title="Provisional API">
+This package is provisional as of v0.1.0. The public API may change in minor releases until promoted to stable.
+</Aside>
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teadiff
+```
+
+## SplitDiffModel — interactive side-by-side diff
+
+`SplitDiffModel` displays two diff panes side-by-side with synchronized horizontal and vertical scrolling, a cursor row, line selection, and optional gutter annotations.
+
+### Quick example
+
+```go
+model := teadiff.NewSplitDiffModel(teadiff.SplitDiffModelArgs{
+    Width:  termWidth,
+    Height: termHeight,
+    // Optional: syntax highlighting
+    HighlightFunc: func(text, lang string) string {
+        return highlighter.Highlight(text, lang)
+    },
+})
+
+// Provide diff content (git-agnostic)
+model = model.SetContent(diffContent) // diffutils.DiffContent
+
+// In Update() — the model handles all keyboard events internally
+model, cmd = model.Update(msg)
+
+// In View()
+return model.View()
+```
+
+### Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `↑` / `k` | Move cursor up |
+| `↓` / `j` | Move cursor down |
+| `PgUp` | Page up |
+| `PgDn` | Page down |
+| `←` / `→` | Scroll horizontally |
+| `Home` | Scroll to top |
+| `End` | Scroll to bottom |
+| `Space` / `Enter` | Select/deselect current block |
+| `Ctrl+A` | Cycle: select block → select all → deselect all |
+
+### Row annotations
+
+Add visual indicators in the gutter column alongside any row:
+
+```go
+annotations := map[int]teadiff.RowAnnotation{
+    42: {Char: '●', Color: teacolor.Coral},  // Line 42: red dot
+    17: {Char: '!', Color: teacolor.Gold},   // Line 17: warning
+}
+model = model.WithAnnotations(annotations)
+```
+
+### SplitDiffModelArgs
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Width` | `int` | Total width in columns |
+| `Height` | `int` | Total height in rows |
+| `Logger` | `*slog.Logger` | Optional structured logger |
+| `HighlightFunc` | `func(text, lang string) string` | Optional syntax highlighting per side |
+| `InlineHighlighter` | `diffutils.InlineHighlighter` | Optional character-level highlighting |
+
+## TUIRenderer — condensed diff display
+
+`TUIRenderer` renders a list of `FileDiff` values in a compact format suitable for non-interactive display — for example in a status pane or log view.
+
+### Quick example
+
+```go
+renderer := teadiff.NewTUIRenderer(theme) // or teadiff.NewDefaultTUIRenderer()
+
+diffs := []teadiff.FileDiff{
+    {
+        Path:   "cmd/main.go",
+        Status: teadiff.FileModified,
+        Blocks: []teadiff.CondensedBlock{
+            {Type: "added", LineCount: 3, ChangedLines: []string{"+func foo() {}"}},
+        },
+    },
+}
+
+output := renderer.Render(diffs, termWidth)
+```
+
+### FileDiff and CondensedBlock types
+
+```go
+type FileDiff struct {
+    Path   string
+    Status FileStatus    // FileModified, FileNew, FileDeleted
+    Blocks []CondensedBlock
+}
+
+type CondensedBlock struct {
+    Type          string   // "added" or "deleted"
+    LineCount     int
+    ContextBefore []string
+    ChangedLines  []string
+    ContextAfter  []string
+    IsTruncated   bool
+}
+```
+
+### DiffRenderer interface
+
+Implement `DiffRenderer` to customize rendering for any output medium:
+
+```go
+type DiffRenderer interface {
+    RenderFileHeader(path string, status FileStatus, width int) string
+    RenderBlockHeader(blockType string, lineCount int) string
+    RenderContextLine(line string, status FileStatus, width int) string
+    RenderAddedLine(line string, status FileStatus, width int) string
+    RenderDeletedLine(line string, status FileStatus, width int) string
+    RenderTruncation(status FileStatus) string
+    RenderSeparator() string
+}
+```
+
+## Related
+
+- [Syntax Highlighting](/go-tealeaves/components/syntax-highlighting/) — `teahilite` can supply the `HighlightFunc` for `SplitDiffModel`
+- [Theming](/go-tealeaves/components/theming/) — `DiffTintPositive` and `DiffTintNegative` palette slots control diff colors
+- [Migrating from teadiffr](/go-tealeaves/migration/teadiffr/) — Import path change and what's new

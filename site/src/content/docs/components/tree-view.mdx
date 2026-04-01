@@ -68,6 +68,59 @@ treeModel := teatree.NewTreeModel(tree, 20)
 | `BranchStyle` | Unicode characters for tree connector lines |
 | `TreeArgs[T]` | Configuration arguments for tree construction |
 
+## NodeProvider interface
+
+`NodeProvider[T]` controls how each node is rendered. Implement it to customize icons, display text, suffixes, and styles for your own data type:
+
+```go
+type NodeProvider[T any] interface {
+    Icon(node *Node[T]) string           // Leading glyph (folder/file icon, etc.)
+    Text(node *Node[T]) string           // Display name for the node
+    Suffix(node *Node[T]) string         // Text shown after the display name
+    Style(node *Node[T], tree *Tree[T]) lipgloss.Style  // Style based on focus
+    ExpanderControl(node *Node[T]) string // Expand/collapse indicator
+    BranchStyle() BranchStyle            // Tree connector characters
+}
+```
+
+### Custom NodeProvider example
+
+```go
+type Package struct {
+    Name    string
+    Version string
+    Outdated bool
+}
+
+type PackageProvider struct {
+    teatree.CompactNodeProvider[Package] // embed for defaults
+}
+
+func (p *PackageProvider) Text(node *teatree.Node[Package]) string {
+    return node.Data().Name
+}
+
+func (p *PackageProvider) Suffix(node *teatree.Node[Package]) string {
+    return " " + node.Data().Version
+}
+
+func (p *PackageProvider) Style(node *teatree.Node[Package], tree *teatree.Tree[Package]) lipgloss.Style {
+    if node.Data().Outdated {
+        return lipgloss.NewStyle().Foreground(lipgloss.Color("196")) // red
+    }
+    return p.CompactNodeProvider.Style(node, tree)
+}
+
+// Build the tree
+provider := &PackageProvider{}
+tree := teatree.NewTree(nodes, &teatree.TreeArgs[Package]{
+    NodeProvider: provider,
+})
+treeModel := teatree.NewTreeModel(tree, termWidth)
+```
+
+`CompactNodeProvider[T]` provides sensible defaults for all methods — embed it and override only what you need.
+
 ## Expander controls
 
 Three built-in expander control styles determine how expandable nodes display their state:

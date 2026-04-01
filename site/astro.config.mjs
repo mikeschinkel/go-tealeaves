@@ -46,6 +46,8 @@ export default defineConfig({
 								{ label: 'Drilldown View', slug: 'components/drilldown-view' },
 								{ label: 'Status Bar', slug: 'components/statusbar-view' },
 								{ label: 'Notifications', slug: 'components/notification-view' },
+								{ label: 'Diff Viewer', slug: 'components/diff-viewer' },
+								{ label: 'Breadcrumb Nav', slug: 'components/breadcrumb-nav' },
 							],
 						},
 						{
@@ -55,6 +57,7 @@ export default defineConfig({
 								{ label: 'Choice Dialog', slug: 'components/choice-dialog' },
 								{ label: 'List Dialog', slug: 'components/list-dialog' },
 								{ label: 'Progress Dialog', slug: 'components/progress-dialog' },
+								{ label: 'Guide Overlay', slug: 'components/guide-overlay' },
 							],
 						},
 						{
@@ -71,6 +74,13 @@ export default defineConfig({
 							],
 						},
 						{
+							label: 'Layout',
+							items: [
+								{ label: 'Layout Engine', slug: 'components/layout-engine' },
+								{ label: 'Pane Widgets', slug: 'components/pane-widgets' },
+							],
+						},
+						{
 							label: 'System',
 							items: [
 								{ label: 'Status Bar', slug: 'components/statusbar-view' },
@@ -78,6 +88,7 @@ export default defineConfig({
 								{ label: 'Help Visor', slug: 'components/help-visor' },
 								{ label: 'Key Registry', slug: 'components/key-registry' },
 								{ label: 'Theming', slug: 'components/theming' },
+								{ label: 'Color Constants', slug: 'components/color-constants' },
 								{ label: 'Positioning', slug: 'components/positioning' },
 							],
 						},
@@ -108,6 +119,7 @@ export default defineConfig({
 						{ label: 'Roadmap', slug: 'reference/roadmap' },
 						{ label: 'Overlay Compositing', slug: 'reference/overlay-compositing' },
 						{ label: 'Charm v2 Migration', slug: 'migration/charm-v2' },
+						{ label: 'teadiffr Migration', slug: 'migration/teadiffr' },
 						{ label: 'Contributing', slug: 'contributing' },
 						{ label: 'Why Tea Leaves?', slug: 'guides/why-tea-leaves' },
 					],

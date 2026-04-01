@@ -29,10 +29,10 @@ modal := teamodal.NewModal(args).WithTheme(theme)
 
 ## Color Constants
 
-The `teautils/teacolor` subpackage provides named constants for all 256 ANSI colors plus curated semantic aliases:
+The `teacolor` module provides named constants for all 256 ANSI colors plus curated semantic aliases:
 
 ```go
-import "github.com/mikeschinkel/go-tealeaves/teautils/teacolor"
+import "github.com/mikeschinkel/go-tealeaves/teacolor"
 
 // ANSI 256 indexed colors
 teacolor.Color0   // Black
@@ -44,6 +44,10 @@ teacolor.Red, teacolor.BrightCyan
 // Curated semantic names
 teacolor.Coral, teacolor.SlateGray, teacolor.Teal
 ```
+
+<Aside type="note" title="Package move">
+`teacolor` was previously shipped as a sub-package of `teautils` (`teautils/teacolor`). It is now a standalone module at `github.com/mikeschinkel/go-tealeaves/teacolor`. Similarly, `teautils.SemanticColor` and `teautils.NewSemanticColor` are now type aliases that re-export from `teacolor` for backward compatibility — new code should import `teacolor` directly. See [Color Constants](/go-tealeaves/components/color-constants/) for the full `teacolor` API.
+</Aside>
 
 ## Palette
 

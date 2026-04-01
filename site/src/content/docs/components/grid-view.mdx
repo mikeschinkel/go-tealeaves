@@ -97,6 +97,10 @@ func (m model) View() string {
 | `Column` | Column definition with key, title, width, and style |
 | `Row` | Row data with `RowData` map and optional `Style` |
 | `RowData` | `map[string]any` mapping column keys to values |
+| `CellValue` | Rich cell value with optional style, dynamic style func, sort key, and spans |
+| `Span` | A styled text segment within a cell (for rich inline text) |
+| `CellStyleInput` | Context passed to `CellStyleFunc` (row, column, cursor state, metadata) |
+| `CellStyleFunc` | `func(CellStyleInput) lipgloss.Style` — dynamic per-cell style |
 | `Border` | Border character definitions |
 | `SortColumn` | Sort specification (`ColumnKey`, `Direction`) |
 | `FilterFuncInput` | Input for custom filter functions |
@@ -140,7 +144,113 @@ Enable row selection to let users pick one or more rows from the grid.
 - **`SelectedRows()`** — Get the list of currently selected rows.
 - **`SelectableRows(b bool)`** — Enable or disable row selection.
 
+## Rich cell values
+
+Use `CellValue` instead of a plain string when you need per-cell styling, rich inline text, or a separate sort key.
+
+### CellValue constructors
+
+| Function | Description |
+|----------|-------------|
+| `NewCellValue(data, style)` | Cell with a static lipgloss style |
+| `NewCellValueWithStyleFunc(data, fn)` | Cell with a `CellStyleFunc` for dynamic styling |
+| `NewCellValueWithSortKey(data, sortValue, style)` | Cell with separate display value and sort key |
+| `NewCellValueWithSpans(spans, style)` | Cell with rich inline text (multiple styled segments) |
+| `NewSpan(text, style)` | Create a single `Span` within a `NewCellValueWithSpans` call |
+
+### CellStyleFunc — dynamic per-cell styling
+
+```go
+// Highlight cells in the "status" column red when the value is "ERROR"
+status := teagrid.NewCellValueWithStyleFunc("ERROR", func(in teagrid.CellStyleInput) lipgloss.Style {
+    if in.IsHighlightedRow {
+        return lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("196"))
+    }
+    return lipgloss.NewStyle().Foreground(lipgloss.Color("196"))
+})
+```
+
+`CellStyleInput` fields:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Data` | `any` | Cell's data value |
+| `Column` | `Column` | Column definition |
+| `Row` | `Row` | Row containing this cell |
+| `RowIndex` | `int` | Row's position in the visible rows |
+| `ColumnIndex` | `int` | Column's position |
+| `IsHighlightedRow` | `bool` | True when the row cursor is on this row |
+| `IsColCursor` | `bool` | True when the column cursor is on this cell |
+| `GlobalMetadata` | `map[string]any` | Grid-level metadata set via `WithMetadata()` |
+
+### Rich inline text (Spans)
+
+```go
+// A cell with a green check prefix and gray text
+cell := teagrid.NewCellValueWithSpans([]teagrid.Span{
+    teagrid.NewSpan("✓ ", lipgloss.NewStyle().Foreground(lipgloss.Color("82"))),
+    teagrid.NewSpan("Complete", lipgloss.NewStyle().Foreground(lipgloss.Color("246"))),
+}, lipgloss.Style{})
+```
+
+### SortValue — separate display and sort key
+
+```go
+// Display "Jan 1" in the cell, but sort by the underlying Unix timestamp
+cell := teagrid.NewCellValueWithSortKey(
+    "Jan 1",       // display value
+    time.Unix(...), // sort value (comparable by <)
+    lipgloss.Style{},
+)
+```
+
+## Horizontal scrolling
+
+For wide tables that exceed the terminal width, `teagrid` supports horizontal scrolling with optional frozen columns.
+
+```go
+// Freeze the first column so it stays visible while scrolling
+grid = grid.WithHorizontalFreezeColumnCount(1)
+
+// Scroll in key handler
+case tea.KeyMsg:
+    switch msg.String() {
+    case "left":
+        m.grid = m.grid.ScrollLeft()
+    case "right":
+        m.grid = m.grid.ScrollRight()
+    }
+```
+
+| Method | Description |
+|--------|-------------|
+| `ScrollLeft()` | Scroll viewport one column to the left |
+| `ScrollRight()` | Scroll viewport one column to the right |
+| `WithHorizontalFreezeColumnCount(n)` | Freeze the first n columns (they remain visible during horizontal scroll) |
+
+## Per-row dynamic styling
+
+Use `WithRowStyleFunc` for styling that depends on row data (e.g., alternating row colors, status-based highlights):
+
+```go
+grid = grid.WithRowStyleFunc(func(in teagrid.RowStyleFuncInput) lipgloss.Style {
+    if in.IsHighlighted {
+        return lipgloss.NewStyle().Background(lipgloss.Color("235"))
+    }
+    return lipgloss.Style{}
+})
+```
+
+## Grid-level metadata
+
+Attach context to the grid that is passed to every `CellStyleFunc` call via `CellStyleInput.GlobalMetadata`:
+
+```go
+grid = grid.WithMetadata(map[string]any{
+    "selectedIDs": selectedSet,
+})
+```
+
 <Aside type="caution" title="Known limitations">
 - Column widths must be specified at creation time. There is no auto-width calculation from cell content.
-- No built-in horizontal scrolling for wide tables that exceed the terminal width.
 </Aside>

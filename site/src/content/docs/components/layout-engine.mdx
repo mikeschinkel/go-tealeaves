@@ -1,0 +1,470 @@
+---
+title: "Layout Engine"
+description: Declarative layout engine for Bubble Tea v2 — Percent, Fixed, Flex, and Fit dimensions with automatic space distribution, min/max clamping, focus management, and collapsible panes.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `tealayout` · **Types:** `Pane`, `Element[T]`, `Layout` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/tealayout`
+
+Manual width/height arithmetic in `WindowSizeMsg` handlers is repetitive and error-prone. `tealayout` replaces it with a declarative tree of rows and columns: you describe _proportions_, tealayout does the integer math, handles the "two-width problem" (total vs content dimensions), distributes remainders, respects min/max constraints, and collapses optional children when space runs out.
+
+<Aside type="caution" title="Provisional API">
+This package is provisional as of v0.3.0. The public API may change in minor releases until promoted to stable.
+</Aside>
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/tealayout`
+```
+
+## Quick example
+
+```go
+// Wrap widgets with type-safe Element handles
+header := tealayout.NewElement(newHeaderWidget())
+sidebar := tealayout.NewElement(newSidebarWidget())
+main := tealayout.NewElement(newMainWidget())
+
+// Declare the layout tree
+root := tealayout.NewColumn(tealayout.Percent100,
+    tealayout.NewRow(tealayout.Fixed(1), header),
+    tealayout.NewRow(tealayout.Flex(1),
+        tealayout.NewColumn(tealayout.Flex(0.25), sidebar),
+        tealayout.NewColumn(tealayout.Flex(0.75), main),
+    ),
+)
+
+layout := tealayout.NewLayout(root)
+
+// In WindowSizeMsg handler
+layout.SetSize(msg.Width, msg.Height)
+
+// In View()
+output, err := layout.Render()
+return output
+
+// Type-safe widget access after render
+sidebar.Widget().SetItems(items)
+```
+
+## Dimensions
+
+Every `Pane` has exactly one `Dimension` describing how it sizes along its parent's axis.
+
+### Constructors
+
+| Constructor | Example | Description |
+|-------------|---------|-------------|
+| `Fixed(n int)` | `Fixed(1)` | Exactly n cells — for headers, footers, dividers |
+| `Percent(n float64)` | `Percent(33)` | Percentage of parent space. Siblings are treated as flex weights (don't need to sum to 100) |
+| `Flex(weight float64)` | `Flex(0.75)` | Proportional share of remaining space after Fixed allocations. Useful for golden-ratio splits |
+| `Fit()` | `Fit()` | Sizes to the widget's `SizeHint.Min` — lets the content drive its own minimum size |
+
+### Predefined percent constants
+
+```go
+tealayout.Percent100  // Percent(100)
+tealayout.Percent75   // Percent(75)
+tealayout.Percent50   // Percent(50)
+tealayout.Percent33   // Percent(33)
+tealayout.Percent25   // Percent(25)
+tealayout.Percent20   // Percent(20)
+```
+
+### Choosing between Percent and Flex
+
+- Use `Percent` when you want proportional splits that feel like percentages (`Percent(25)` + `Percent(75)`).
+- Use `Flex` when you need non-percentage ratios — e.g., golden ratio: `Flex(1.0)` + `Flex(1.618)`.
+
+Both participate in the same flex distribution algorithm internally.
+
+### The two-width problem
+
+Widgets in a terminal UI have two widths:
+- **Total width** — the full cell span including border and padding
+- **Content width** — the inner area where text renders (total minus frame)
+
+`tealayout` solves this automatically. When a widget implements `Styler` (returns a `lipgloss.Style`), the engine reads the frame size from the style and calls `SetSize` with the **content** dimensions. Without `Styler`, `SetSize` receives the total dimensions. This means you never need to manually subtract border/padding — the engine does it.
+
+### Collapse behavior (optional panes)
+
+Mark a pane as optional with `WithOptional()`. When the terminal is too small to satisfy all minimum sizes, optional panes are removed from the layout to free space for required panes:
+
+```go
+sidebar := tealayout.NewColumn(tealayout.Percent(25), sidebarEl).
+    WithOptional().
+    WithMin(20) // collapse when terminal < 20 columns
+
+main := tealayout.NewColumn(tealayout.Flex(1), mainEl)
+
+root := tealayout.NewRow(tealayout.Percent100, sidebar, main)
+```
+
+If the terminal width drops below the sidebar's minimum, `sidebar` is removed from the render and `main` expands to fill the space.
+
+## Pane tree
+
+Panes nest into rows and columns:
+
+```go
+// NewRow — children laid out horizontally
+// NewColumn — children laid out vertically
+tealayout.NewRow(dim, children...)
+tealayout.NewColumn(dim, children...)
+```
+
+Children can be:
+- `*Element[T]` from `NewElement(widget)` — leaf widgets
+- Nested `*Pane` — sub-layouts
+
+## Element[T]
+
+`Element[T]` is the type-safe handle for a widget embedded in the layout tree. After `layout.Render()`, the layout has called `SetSize` on each widget; you can access the widget via `.Widget()` without unsafe casts.
+
+```go
+el := tealayout.NewElement(myWidget)
+root := tealayout.NewRow(tealayout.Flex(1), el)
+
+layout.Render()
+
+// Safe, typed access — no interface assertion needed
+el.Widget().DoSomething()
+```
+
+## Modifier methods on Pane
+
+| Method | Description |
+|--------|-------------|
+| `WithMin(n)` | Minimum size along the pane's axis |
+| `WithMax(n)` | Maximum size along the pane's axis |
+| `WithGap(n)` | Gap between children (cells) |
+| `WithName(s)` | Debug label for the pane |
+| `WithOptional()` | Pane may be collapsed when space is insufficient |
+| `WithAlignment(a)` | Content alignment (`TopLeft`, `Center`, etc.) |
+| `WithFocusable()` | Include this pane in the focus order |
+
+## Focus management
+
+`tealayout` includes a `FocusManager` that cycles through focusable panes:
+
+```go
+fm := tealayout.NewFocusManager(root)
+fm.FocusNext()     // Move to next focusable pane
+fm.FocusPrev()     // Move to previous focusable pane
+fm.FocusedPane()   // Returns the currently focused *Pane
+```
+
+Focusable panes receive `Focus()` and `Blur()` calls on their widgets (when widgets implement the `Focusable` interface).
+
+## Widget interfaces
+
+Widgets are recognized by the interfaces they implement:
+
+| Interface | Methods | Effect |
+|-----------|---------|--------|
+| `Viewer` | `View() string` | Required — provides content |
+| `SetSizer` | `SetSize(w, h int)` | Receives resolved dimensions |
+| `Styler` | `Style() lipgloss.Style` | Enables frame-subtraction (border+padding aware sizing) |
+| `SizeHinter` | `SizeHint(w, h int) SizeHint` | Reports min/max preferences |
+| `Focusable` | `Focus(); Blur()` | Receives focus state changes |
+
+## SizeHint
+
+```go
+type SizeHint struct {
+    Min Size // Minimum preferred dimensions
+    Max Size // Maximum preferred dimensions (0 = unbounded)
+}
+type Size struct {
+    Width, Height int
+}
+```
+
+Widgets return a `SizeHint` from `SizeHint(w, h int)` to influence how `Fit` dimensions resolve and how optional panes collapse.
+
+## PaneLayout
+
+`PaneLayout` combines a `Layout` and a `FocusManager` into a single convenience type. It is the primary way to manage a named-pane layout with integrated focus cycling and pane visibility.
+
+```go
+root := tealayout.NewRow(tealayout.Flex(1),
+    tealayout.NewColumn(tealayout.Flex(0.3), sidebarEl).WithName("sidebar").WithFocusable(),
+    tealayout.NewColumn(tealayout.Flex(0.7), mainEl).WithName("main").WithFocusable(),
+)
+pl := tealayout.NewPaneLayout(root)
+
+// In WindowSizeMsg
+pl.SetSize(msg.Width, msg.Height)
+
+// In View()
+output, _ := pl.Render()
+
+// Focus cycling
+pl.FocusNext()
+pl.FocusPrev()
+pl.FocusPane("sidebar") // by name
+pl.Focused("main")      // true/false
+
+// Pane visibility
+pl.ShowPane("sidebar")
+pl.HidePane("sidebar")
+pl.SetPaneVisible("sidebar", visible)
+
+// Resize focused pane by adjusting flex weight
+pl.ResizeFocused(+0.05)  // grows by 5% weight
+pl.ResizeFocused(-0.05)  // shrinks by 5% weight
+```
+
+`ResizeFocused` redistributes weight proportionally across visible flex siblings. If the focused pane's resolved cell size doesn't actually change (already at minimum), **all weight changes are silently rolled back** — keeping displayed percentages in sync with the visual layout.
+
+### PaneLayout API
+
+| Method | Description |
+|--------|-------------|
+| `NewPaneLayout(root, opts...)` | Creates with the given root pane |
+| `SetSize(w, h)` | Updates layout dimensions |
+| `Render()` | Resolves and composes output |
+| `MarkDirty()` | Forces re-resolution on next render |
+| `FocusNext()` | Advance to next focusable pane |
+| `FocusPrev()` | Retreat to previous focusable pane |
+| `FocusPane(name)` | Focus pane by name |
+| `FocusedPane()` | Currently focused `*Pane` or nil |
+| `Focused(name)` | True if named pane is focused |
+| `EnsureFocusedVisible()` | Advance focus if focused pane is hidden |
+| `Pane(name)` | Look up `*Pane` by name |
+| `ShowPane(name)` | Make pane visible |
+| `HidePane(name)` | Hide pane |
+| `SetPaneVisible(name, bool)` | Set visibility |
+| `ResizeFocused(delta)` | Adjust focused pane's flex weight |
+| `Layout()` | Underlying `*Layout` for advanced use |
+
+## MultiPaneLayout
+
+`MultiPaneLayout` builds a header + N content columns + footer layout from a slice of `PaneDef` descriptors. It wraps `PaneLayout` and adds content-pane convenience methods.
+
+### PaneDef
+
+```go
+type PaneDef struct {
+    Name          string    // required: lookup key, unique across layout
+    Element       any       // *Element[T] or *Pane (required if Children is empty)
+    Children      []PaneDef // vertical stack of sub-panes (Element ignored when set)
+    FlexWeight    float64   // default 1.0
+    MinFlexWeight float64   // floor for ResizeFocused (0 = no floor)
+    MinSize       int       // minimum cells (0 = none)
+    MaxSize       int       // maximum cells (0 = unbounded)
+    MinSizeFit    bool      // use SizeHinter.Min as effective minimum
+    Optional      bool      // auto-remove when space runs out
+}
+```
+
+### Creating a MultiPaneLayout
+
+```go
+panes := []tealayout.PaneDef{
+    {Name: "sidebar", Element: tealayout.NewElement(sidebar), FlexWeight: 0.3, MinSize: 20},
+    {Name: "editor",  Element: tealayout.NewElement(editor),  FlexWeight: 0.7},
+    {Name: "refs",    Element: tealayout.NewElement(refs),    FlexWeight: 0.3, Optional: true},
+}
+
+mpl := tealayout.NewMultiPaneLayout(panes,
+    tealayout.WithHeader(tealayout.NewElement(statusBarWidget)),
+    tealayout.WithFooter(tealayout.NewElement(helpBarWidget)),
+    tealayout.WithContentGap(1),
+)
+
+mpl.SetSize(termW, termH)
+output, _ := mpl.Render()
+```
+
+### MultiPaneLayout options
+
+| Option | Description |
+|--------|-------------|
+| `WithHeader(elem)` | Header element (fixed 1-line by default) |
+| `WithFooter(elem)` | Footer element (fixed 1-line by default) |
+| `WithHeaderDim(d)` | Override header dimension |
+| `WithFooterDim(d)` | Override footer dimension |
+| `WithContentGap(n)` | Gap in cells between content columns |
+
+### Visibility and focus methods
+
+All `PaneLayout` focus and visibility methods are available directly on `MultiPaneLayout`. Additional convenience methods:
+
+| Method | Description |
+|--------|-------------|
+| `PaneNames()` | Ordered list of all content pane names |
+| `VisiblePaneNames()` | Currently visible content pane names |
+| `VisibleFlexPercent(name)` | Named pane's share of visible flex (0–100) |
+| `VisibleFlexPercents()` | Map of all visible panes to their flex % |
+| `TogglePane(name)` | Flip visibility; no-op if it would hide the last visible pane |
+| `SoloPane(name)` | Show only the named pane, hide all others |
+| `ShowAllPanes()` | Make all content panes visible |
+
+## TreeContentLayout
+
+`TreeContentLayout[T, C]` is a prebuilt 2-pane layout: a `Fit`-dimensioned tree pane on the left and a `Flex(1)` content pane on the right. It provides typed access to both widgets without interface assertions.
+
+```go
+// T = tree widget type, C = content widget type
+tcl := tealayout.NewTreeContentLayout(
+    teatree.NewTreeModel(tree, termW),  // T
+    myDetailModel{},                    // C
+)
+
+tcl.SetSize(termW, termH)
+output, _ := tcl.Render()
+
+// Typed widget access
+tcl.Tree().SetItems(items)
+tcl.Content().SetData(data)
+
+// Focus
+tcl.FocusTree()
+tcl.FocusContent()
+tcl.ToggleFocus()
+tcl.TreeFocused()    // bool
+tcl.ContentFocused() // bool
+
+// Visibility (both guard against hiding the last visible pane)
+tcl.ToggleTree()
+tcl.ToggleContent()
+
+// Force-solo variants (no guard)
+tcl.SoloTree()
+tcl.SoloContent()
+tcl.ShowBoth()
+```
+
+The tree widget should implement `SizeHinter` (return a `SizeHint` with a meaningful `Min.Width`) so the `Fit` resolver queries its desired width. Content widgets that manage their own lipgloss borders must **not** implement `Styler` — `tealayout` would otherwise double-subtract the frame.
+
+## StackLayoutModel
+
+`StackLayoutModel` is a full `tea.Model` that manages a push/down stack of views with integrated breadcrumb navigation. It is designed for drill-down UIs where each action pushes a new view and Escape/Back pops to the previous one.
+
+### The StackView interface
+
+Every view in the stack must implement `StackView`:
+
+```go
+type StackView interface {
+    tea.Model                          // Init, Update, View
+    OnEnter() tea.Cmd                  // Called when the view becomes active
+    OnExit() tea.Cmd                   // Called when the view is being left
+    Breadcrumb() teacrumbs.Crumb       // Breadcrumb entry for this view
+    SetSize(width, height int)         // Called with available dimensions
+}
+```
+
+`OnEnter` and `OnExit` fire on every push and pop, including when the initial view enters via `Init()`. Use them to load data, cancel background work, or clear state.
+
+<Aside type="note">
+`StackLayoutModel` uses pointer-semantics fields (slices, map) so mutations survive Bubble Tea's value-copy `Update` cycle. You must embed or hold `*StackLayoutModel` — not a copy — if you mutate it outside of `Update`.
+</Aside>
+
+### Creating a StackLayoutModel
+
+```go
+crumbStyles := teacrumbs.Styles{ /* optional custom styles */ }
+stack := tealayout.NewStackLayoutModel(homeView, crumbStyles)
+
+// StackLayoutModel implements tea.Model — embed in your root model
+type RootModel struct {
+    stack tealayout.StackLayoutModel
+}
+
+func (m RootModel) Init() tea.Cmd {
+    return m.stack.Init()
+}
+
+func (m RootModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    updated, cmd := m.stack.Update(msg)
+    m.stack = updated.(tealayout.StackLayoutModel)
+    return m, cmd
+}
+
+func (m RootModel) View() tea.View {
+    return m.stack.View()  // renders breadcrumbs + current view
+}
+```
+
+### Push and pop
+
+```go
+// Push programmatically (or send PushViewMsg via tea.Cmd)
+cmd := stack.Push(detailView, "detail:42") // cacheKey optional
+
+// Pop (returns ErrStackUnderflow if already at root)
+cmd, err := stack.Pop()
+
+// Pop to a specific depth
+cmd, err = stack.PopTo(1) // pop all the way back to root
+
+// From Update — use messages for decoupled push/pop
+return m, tea.Cmd(func() tea.Msg {
+    return tealayout.PushViewMsg{View: newView, CacheKey: "key"}
+})
+return m, tea.Cmd(func() tea.Msg {
+    return tealayout.PopViewMsg{}
+})
+```
+
+### View caching
+
+Views are cached by `cacheKey`. A non-empty cache key stores the view on push and keeps it warm through pops:
+
+```go
+if cached, ok := stack.GetCached("detail:42"); ok {
+    cmd := stack.Push(cached, "detail:42")
+}
+stack.DeleteCached("detail:42") // explicit eviction
+```
+
+### StackLayoutModel API
+
+| Method | Description |
+|--------|-------------|
+| `NewStackLayoutModel(initial, styles)` | Creates with an initial view and breadcrumb styles |
+| `Push(view, cacheKey)` | Push view, fire lifecycle hooks, return combined cmd |
+| `Pop()` | Pop current view; returns `ErrStackUnderflow` at root |
+| `PopTo(depth)` | Pop until stack depth equals `depth` |
+| `Current()` | Currently displayed `StackView` |
+| `Depth()` | Stack depth |
+| `CanPop()` | True if depth > 1 |
+| `UpdateCurrent(updated)` | Replace top-of-stack after `Update` returns a new value |
+| `GetCached(key)` | Retrieve cached view |
+| `DeleteCached(key)` | Evict cached view |
+
+## VisibilityRotator
+
+`VisibilityRotator` cycles a `MultiPaneLayout` through a predefined list of visibility combinations. Each combination is a slice of pane names that should be visible; all other content panes are hidden when that combo is applied.
+
+```go
+rotator := tealayout.NewVisibilityRotator(mpl, [][]string{
+    {"sidebar", "editor", "refs"}, // combo 0: all panes
+    {"editor", "refs"},            // combo 1: no sidebar
+    {"editor"},                    // combo 2: editor only
+})
+
+// Cycle forward/backward (wraps)
+rotator.Next()
+rotator.Prev()
+
+// Jump to a specific combo
+rotator.SetIndex(2) // editor only
+
+// Query state
+rotator.Index()     // current combo index
+rotator.Current()   // copy of current combo ([]string)
+rotator.Len()       // total number of combos
+rotator.Apply()     // re-apply current combo without advancing
+```
+
+`Next` and `Prev` wrap at the boundaries. After each change, `EnsureFocusedVisible` is called automatically to move focus away from any newly hidden pane.
+
+## Related
+
+- [Pane Widgets](/go-tealeaves/components/pane-widgets/) — `teapane` provides `StyledPane`, `ScrollPane`, and `PlainPane` — ready-made widgets that implement all `tealayout` interfaces
+- [Architecture](/go-tealeaves/guides/architecture/) — How layout composes with other Tea Leaves components

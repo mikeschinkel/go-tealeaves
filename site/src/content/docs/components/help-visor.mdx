@@ -1,65 +1,140 @@
 ---
 title: "Help Visor"
-description: Configurable help overlay styling for displaying categorized key bindings in Bubble Tea applications.
+description: Stateful keyboard shortcuts help overlay for Bubble Tea — paginated display of categorized key bindings with open-bottom border styling.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
 > **Module:** `teahelp` · **Type:** `HelpVisorModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teahelp`
 
-The `HelpVisorStyle` type configures how help overlays are rendered. It is used by components that display categorized key help (such as the [List Dialog](/go-tealeaves/components/list-dialog/)).
+`HelpVisorModel` is a full Bubble Tea component that renders a paginated, categorized keyboard shortcuts overlay. It supports multiple pages with left/right navigation, category ordering, and a "visor" appearance (open bottom border). The host application provides categorized key bindings via `Open()`; `teahelp` handles rendering, pagination, and dismissal.
 
-## Quick Example
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teahelp
+```
+
+## Quick example
 
 ```go
-style := teautils.DefaultHelpVisorStyle()
+// Create once, embed in your root model
+help := teahelp.NewHelpVisorModel()
+help = help.SetSize(termWidth, termHeight)
 
-// Customize
-style.TitleStyle = lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("99"))
-style.CategoryOrder = []string{"Navigation", "Actions", "System", "Other"}
-style.KeyColumnGap = 4
+// Open with key bindings grouped by category
+keysByCategory := map[string][]teautils.KeyMeta{
+    "Navigation": {
+        {Binding: upKey,   HelpText: "Move up"},
+        {Binding: downKey, HelpText: "Move down"},
+    },
+    "Actions": {
+        {Binding: enterKey, HelpText: "Select"},
+        {Binding: escKey,   HelpText: "Cancel"},
+    },
+}
+help = help.Open(keysByCategory)
+
+// In Update() — route to help first when it's open
+var cmd tea.Cmd
+help, cmd = help.Update(msg)
+// Handle ClosedMsg when user dismisses
+case teahelp.ClosedMsg:
+    // Help was closed, return focus to the application
+
+// In View() — place at the top of the screen
+if help.IsOpen() {
+    return help.View().String() + "\n" + mainContent
+}
+return mainContent
 ```
 
 ## Features
 
-- Configurable title, category, key, and description styles
-- Category ordering with preferred order list
-- Adjustable key column gap
-- Default style with sensible defaults via `DefaultHelpVisorStyle()`
+- Categorized key binding display with configurable category order
+- Automatic pagination: key entries split across pages based on terminal height
+- Left/right arrow navigation between pages, digit keys (1–9) for direct page jump
+- Open-bottom "visor" border style
+- Configurable title, category, key, and description styles via `WithContentStyle()`
+- Configurable chrome styles (border, footer) via `WithStyles()`
+- `ClosedMsg` emitted when user dismisses
 
-## API Reference
+## API reference
 
-### Key Types
+### Constructors
 
-| Type | Description |
-|------|-------------|
-| `HelpVisorStyle` | Styling for help visor rendering: `TitleStyle`, `CategoryStyle`, `KeyStyle`, `DescStyle`, `KeyColumnGap`, `CategoryOrder` |
+| Function | Description |
+|----------|-------------|
+| `NewHelpVisorModel()` | Creates a closed help visor with default styles and key bindings |
 
-### Constructor
+### Lifecycle methods
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `DefaultHelpVisorStyle` | `DefaultHelpVisorStyle() HelpVisorStyle` | Create a help visor style with sensible defaults |
+| Method | Description |
+|--------|-------------|
+| `Open(keysByCategory)` | Opens the visor with the given key bindings and builds pages |
+| `Close()` | Closes the visor and clears state |
+| `SetSize(width, height)` | Updates terminal dimensions; rebuilds pages if currently open |
+| `IsOpen()` | Returns whether the visor is currently displayed |
+| `Page()` | Returns the current page index (0-based) |
+| `TotalPages()` | Returns the total number of pages |
 
-### Style Fields
+### Wither methods
+
+| Method | Description |
+|--------|-------------|
+| `WithContentStyle(style teautils.HelpVisorStyle)` | Override title, category, key, and description styles |
+| `WithStyles(styles HelpVisorStyles)` | Override chrome styles (border, footer key/label) |
+| `WithKeys(keys HelpVisorKeyMap)` | Override key bindings |
+
+### Bubble Tea interface
+
+| Method | Description |
+|--------|-------------|
+| `Init()` | Returns nil (no initial command) |
+| `Update(msg)` | Handles key events; returns `(HelpVisorModel, tea.Cmd)` |
+| `View()` | Returns the rendered visor as `tea.View`; empty when closed |
+
+## Messages
+
+| Message | When emitted |
+|---------|-------------|
+| `ClosedMsg{}` | User presses `esc` or `?` to dismiss the help visor |
+
+## Keyboard shortcuts
+
+| Key | Action |
+|-----|--------|
+| `esc` / `?` | Close the help visor |
+| `←` | Previous page |
+| `→` | Next page |
+| `1`–`9` | Jump directly to page N |
+
+## Content style (HelpVisorStyle)
+
+The content style controls the rendered key binding entries. Configure via `WithContentStyle()`:
+
+```go
+help = help.WithContentStyle(teautils.HelpVisorStyle{
+    TitleStyle:    lipgloss.NewStyle().Bold(true),
+    CategoryStyle: lipgloss.NewStyle().Foreground(teacolor.Teal),
+    KeyStyle:      lipgloss.NewStyle().Foreground(teacolor.BrightWhite),
+    DescStyle:     lipgloss.NewStyle().Foreground(teacolor.SlateGray),
+    KeyColumnGap:  4,
+    CategoryOrder: []string{"Navigation", "Actions", "System"},
+})
+```
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `TitleStyle` | `lipgloss.Style` | Style for the help visor title |
-| `CategoryStyle` | `lipgloss.Style` | Style for category headings |
-| `KeyStyle` | `lipgloss.Style` | Style for key binding display |
-| `DescStyle` | `lipgloss.Style` | Style for key description text |
-| `KeyColumnGap` | `int` | Gap between key and description columns |
-| `CategoryOrder` | `[]string` | Preferred order for category display |
-
-## Known Limitations
-
-<Aside type="caution">
-- `HelpVisorStyle` is a styling configuration type, not a standalone component. It is used by components like `ListModel` that render help overlays internally.
-</Aside>
+| `TitleStyle` | `lipgloss.Style` | Style for the "Keyboard Shortcuts" title line |
+| `CategoryStyle` | `lipgloss.Style` | Style for category heading lines |
+| `KeyStyle` | `lipgloss.Style` | Style for key display labels |
+| `DescStyle` | `lipgloss.Style` | Style for description text |
+| `KeyColumnGap` | `int` | Gap (in spaces) between key and description columns |
+| `CategoryOrder` | `[]string` | Preferred order for categories; unlisted categories follow alphabetically |
 
 ## Related
 
-- [Key Registry](/go-tealeaves/components/key-registry/) — Centralized key binding management
-- [List Dialog](/go-tealeaves/components/list-dialog/) — List dialog that includes a built-in help visor
-- [Status Bar](/go-tealeaves/components/statusbar-view/) — Status bar for persistent key display
+- [Key Registry](/go-tealeaves/components/key-registry/) — Produces `[]teautils.KeyMeta` values suitable for passing to `Open()`
+- [Theming](/go-tealeaves/components/theming/) — `HelpVisorTheme` in `teautils` for consistent styling across components
+- [Status Bar](/go-tealeaves/components/statusbar-view/) — Persistent key display; help visor provides the full reference

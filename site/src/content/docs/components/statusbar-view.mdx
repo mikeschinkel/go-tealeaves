@@ -119,6 +119,43 @@ indicators := []teastatus.StatusIndicator{
 | `SetMenuItemsMsg` | Replaces menu items via `tea.Msg` (contains `Items []MenuItem`) |
 | `SetIndicatorsMsg` | Replaces indicators via `tea.Msg` (contains `Indicators []StatusIndicator`) |
 
+## NewMenuItemFromBinding
+
+Use `NewMenuItemFromBinding` to create menu items directly from Charm key bindings in your `KeyMap`. This keeps the status bar in sync with your actual registered bindings:
+
+```go
+// Given a key map
+km := MyKeyMap{
+    Help: key.NewBinding(key.WithKeys("?"), key.WithHelp("?", "help")),
+    Quit: key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "quit")),
+}
+
+sb = sb.SetMenuItems([]teastatus.MenuItem{
+    teastatus.NewMenuItemFromBinding(km.Help, "Help"),
+    teastatus.NewMenuItemFromBinding(km.Quit, "Quit"),
+})
+```
+
+## Dynamic updates via messages
+
+Send `SetMenuItemsMsg` or `SetIndicatorsMsg` from any part of your application to update the status bar without direct model access:
+
+```go
+// From a child model's Update()
+return m, func() tea.Msg {
+    return teastatus.SetMenuItemsMsg{
+        Items: []teastatus.MenuItem{
+            {Key: "r", Label: "Refresh"},
+            {Key: "q", Label: "Quit"},
+        },
+    }
+}
+
+// The root model routes this to the status bar in its own Update()
+case teastatus.SetMenuItemsMsg:
+    m.statusBar, cmd = m.statusBar.Update(msg)
+```
+
 ## Known limitations
 
 <Aside type="caution">

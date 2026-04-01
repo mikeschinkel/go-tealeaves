@@ -1,43 +1,38 @@
 ---
 title: "Drilldown View"
-description: Interactive dependency path viewer for exploring module dependency graphs with dropdown-based level selection.
+description: Interactive dependency path viewer for exploring tree graphs — vertical breadcrumb trail from root to leaf with dropdown-based sibling selection at each level.
 ---
 
 import { Aside } from '@astrojs/starlight/components';
 
 > **Module:** `teatree` · **Type:** `DrillDownModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
 
-Dependency graphs are complex -- navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `teadepview` provides an interactive path viewer that renders a single root-to-leaf path through a dependency tree, with dropdown selection for choosing alternative dependencies at any level. It integrates `teafields` internally for the dropdown and uses a configurable `SelectorFunc` to determine the "best" path.
+Dependency graphs are complex — navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `DrillDownModel[T]` (in the `teatree` module) provides an interactive path viewer that renders a single root-to-leaf path through a node tree, with dropdown selection for choosing sibling alternatives at any level. It integrates `teafields` internally for the dropdown and uses a configurable `DrillDownSelectorFunc` to determine the "best" path.
 
 ## Install
 
 ```bash
-go get github.com/mikeschinkel/go-tealeaves/teadepview
+go get github.com/mikeschinkel/go-tealeaves/teatree
 ```
 
 ## Quick example
 
 ```go
-// Define nodes
-root := teadepview.NewBaseNode("myapp", &teadepview.BaseNodeArgs{
-    Dependencies: []teadepview.Node{
-        teadepview.NewBaseNode("libA", &teadepview.BaseNodeArgs{
-            Dependencies: []teadepview.Node{
-                teadepview.NewBaseNode("libC", nil),
-                teadepview.NewBaseNode("libD", nil),
-            },
-        }),
-        teadepview.NewBaseNode("libB", nil),
-    },
-})
+import "github.com/mikeschinkel/go-tealeaves/teatree"
 
-// Build tree (detects circular dependencies)
-tree := teadepview.NewTree(root)
+// Build a node tree
+root := teatree.NewNode("myapp", "My App", myAppData)
+libA := teatree.NewNode("libA", "Library A", libAData)
+libB := teatree.NewNode("libB", "Library B", libBData)
+libC := teatree.NewNode("libC", "Library C", libCData)
 
-// Create viewer with a selector that picks the first child
-viewer := teadepview.NewPathViewer(tree, teadepview.PathViewerArgs{
-    SelectorFunc: func(parent *teadepview.Tree, children []*teadepview.Tree) (*teadepview.Tree, error) {
-        return children[0], nil
+libA.SetChildren([]*teatree.Node[MyData]{libC})
+root.SetChildren([]*teatree.Node[MyData]{libA, libB})
+
+// Create the drilldown model
+viewer := teatree.NewDrillDownModel(root, teatree.DrillDownArgs[MyData]{
+    SelectorFunc: func(parent *teatree.Node[MyData], children []*teatree.Node[MyData]) (*teatree.Node[MyData], error) {
+        return children[0], nil // always pick first child
     },
     Prompt: "Dependency path:",
 })
@@ -48,90 +43,95 @@ if err != nil {
     log.Fatal(err)
 }
 
-// Handle messages in Update()
-case teadepview.SelectNodeMsg:
+// In Update():
+viewer, cmd = viewer.Update(msg)
+
+// Handle outbound messages
+case teatree.DrillDownSelectMsg[MyData]:
     // User confirmed a leaf node with Enter
-case teadepview.ChangeNodeMsg:
-    // User picked a different dependency from the dropdown
+    doSomethingWith(msg.Node)
+case teatree.DrillDownChangeMsg[MyData]:
+    // User picked a different sibling from the dropdown
+
+// In View():
+return viewer.View()
 ```
 
 ## Features
 
-- Path-based navigation through dependency trees (root to leaf)
-- Dropdown selection for alternatives at each level (via `teafields` internally)
-- Custom `SelectorFunc` for ranking which child to follow at each level
-- Circular dependency detection and breaking during tree construction
+- Path-based navigation through node trees (root to leaf)
+- Dropdown selection for sibling alternatives at each level (via `teafields` internally)
+- Custom `DrillDownSelectorFunc[T]` for ranking which child to follow at each level
 - Configurable border, path, and selected item styles
 - Optional prompt text above the path display
-- `BaseNode` struct for easy node creation (embed in custom types)
-- Arrow prefix indicator for nodes that have alternatives
+- Optional blank separator line between prompt and first item
 
 ## API reference
 
-### Constructors and functions
+### Constructors
 
-| Function | Signature | Description |
-|----------|-----------|-------------|
-| `NewPathViewer` | `NewPathViewer(root *Tree, args PathViewerArgs) DrillDownModel[T]` | Create a path viewer from a tree root |
-| `NewTree` | `NewTree(node Node) *Tree` | Build a `Tree` from a `Node`, recursively creating children |
-| `NewBaseNode` | `NewBaseNode(displayName string, args *BaseNodeArgs) *BaseNode` | Create a basic node implementation |
+| Function | Description |
+|----------|-------------|
+| `NewDrillDownModel[T](root, args)` | Create a drilldown model from a root node |
+
+### DrillDownArgs[T]
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `SelectorFunc` | `DrillDownSelectorFunc[T]` | Determines which child to follow when building the path |
+| `Prompt` | `string` | Optional text displayed above the path |
 
 ### Key types
 
 | Type | Description |
 |------|-------------|
-| `DrillDownModel[T]` | Main component -- implements `tea.Model` |
-| `Node` | Interface: `DisplayName()`, `SetDisplayName()`, `Dependencies()`, `SetDependencies()` |
-| `BaseNode` | Default `Node` implementation with display name and dependencies |
-| `BaseNodeArgs` | Optional args for `NewBaseNode` (contains `Dependencies []Node`) |
-| `Tree` | Navigation wrapper with `Node`, `Parent`, and `Children` fields |
-| `PathViewerArgs` | Constructor args: `SelectorFunc` and `Prompt` |
-| `SelectorFunc` | `func(parent *Tree, children []*Tree) (best *Tree, err error)` |
-| `PathViewerKeyMap` | Key bindings for path navigation |
+| `DrillDownModel[T]` | Main component — implements `tea.Model` |
+| `DrillDownArgs[T]` | Constructor args (SelectorFunc, Prompt) |
+| `DrillDownSelectorFunc[T]` | `func(parent *Node[T], children []*Node[T]) (*Node[T], error)` |
+| `DrillDownKeyMap` | Key bindings for path navigation |
 
-### Configuration
+### Methods
 
 | Method | Description |
 |--------|-------------|
-| `Initialize() (DrillDownModel[T], error)` | Validate inputs and build the initial root-to-leaf path |
-| `WithPathStyle(style lipgloss.Style) DrillDownModel[T]` | Set the style for non-selected path items |
-| `WithSelectedStyle(style lipgloss.Style) DrillDownModel[T]` | Set the style for the currently selected level |
-| `WithBorderStyle(style lipgloss.Style) DrillDownModel[T]` | Set the border style around the path viewer |
+| `Initialize()` | Validates inputs and builds the initial root-to-leaf path. **Must be called before use.** |
 
-### Tree methods
+### Style fields (public)
 
-| Method | Description |
-|--------|-------------|
-| `Alternatives() []*Tree` | Get sibling nodes at this level (parent's children) |
-| `IsLeaf() bool` | True if node has no children |
-| `HasAlternatives() bool` | True if there are sibling alternatives at this level |
+| Field | Type | Description |
+|-------|------|-------------|
+| `PathStyle` | `lipgloss.Style` | Style for non-selected path items |
+| `SelectedStyle` | `lipgloss.Style` | Style for the currently selected level |
+| `BorderStyle` | `lipgloss.Style` | Border style around the path viewer |
+| `Prompt` | `string` | Prompt text above the path |
+| `InsertLine` | `bool` | Insert blank line between prompt and first item |
 
 ## Messages
 
-| Message | When sent |
-|---------|-----------|
-| `SelectNodeMsg` | User presses Enter on a leaf node -- contains `Tree *Tree` |
-| `ChangeNodeMsg` | User picks a different alternative from the dropdown -- contains `Level int` and `Tree *Tree` |
-| `FocusNodeMsg` | Selection moves via up/down navigation -- contains `Level int` and `Tree *Tree` |
+| Message | When emitted |
+|---------|-------------|
+| `DrillDownSelectMsg[T]{Node}` | User presses Enter on a leaf node |
+| `DrillDownChangeMsg[T]{Level, Node}` | User picks a different sibling from the dropdown |
+| `DrillDownFocusMsg[T]{Level, Node}` | Selection moves via up/down navigation |
 
 ## Keyboard shortcuts
 
 | Key | Action |
 |-----|--------|
-| `Up` / `k` | Move selection up one level in the path |
-| `Down` / `j` | Move selection down one level in the path |
-| `Space` / `Right` | Open alternatives dropdown for the current level |
-| `Enter` | Confirm selection on a leaf node (sends `SelectNodeMsg`) |
+| `↑` / `k` | Move selection up one level |
+| `↓` / `j` | Move selection down one level |
+| `Space` / `→` | Open alternatives dropdown for the current level |
+| `Enter` | Confirm selection on a leaf node (sends `DrillDownSelectMsg`) |
 
-When the alternatives dropdown is open, it captures input and uses the standard [Dropdown](/go-tealeaves/components/dropdown-control/) keyboard shortcuts (up/down/enter/esc).
+When the alternatives dropdown is open, it captures input and uses the standard [Dropdown](/go-tealeaves/components/dropdown-control/) keyboard shortcuts.
 
 ## The SelectorFunc
 
-The `SelectorFunc` determines which child to follow when building a path from root to leaf. This is where you encode your ranking logic:
+The `DrillDownSelectorFunc[T]` determines which child to follow when building the initial path from root to leaf:
 
 ```go
-// Pick the child with the most transitive dependencies (deepest subtree)
-selector := func(parent *teadepview.Tree, children []*teadepview.Tree) (*teadepview.Tree, error) {
+selector := func(parent *teatree.Node[MyData], children []*teatree.Node[MyData]) (*teatree.Node[MyData], error) {
+    // Pick the child with the deepest subtree
     best := children[0]
     bestDepth := countDepth(best)
     for _, child := range children[1:] {
@@ -144,18 +144,14 @@ selector := func(parent *teadepview.Tree, children []*teadepview.Tree) (*teadepv
 }
 ```
 
-The function can capture any context it needs via closure -- metadata maps, configuration, scoring weights, etc.
-
-## Known limitations
+The function can capture any context it needs via closure.
 
 <Aside type="caution">
-- `Initialize()` must be called after `NewPathViewer()` before the model can be used. Forgetting this will result in an empty path.
-- The tree structure is immutable after creation via `NewTree()`. To reflect changes in the dependency graph, rebuild the tree and create a new `DrillDownModel`.
-- Root nodes have no alternatives (they cannot be swapped).
+`Initialize()` must be called after `NewDrillDownModel()` before the model can be used. The initial path is built lazily to allow configuration before display.
 </Aside>
 
 ## Related
 
-- [Dropdown](/go-tealeaves/components/dropdown-control/) -- Dropdown component used internally for alternative selection
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) -- How the dropdown renders on top of the path viewer
-- [Wither Methods](/go-tealeaves/guides/wither-methods/) -- The immutable update pattern used by `With*()` methods
+- [Tree View](/go-tealeaves/components/tree-view/) — The non-linear tree component in `teatree`; `DrillDownModel` is the path-focused counterpart
+- [Dropdown](/go-tealeaves/components/dropdown-control/) — Dropdown component used internally for sibling selection
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How the dropdown renders on top of the path viewer

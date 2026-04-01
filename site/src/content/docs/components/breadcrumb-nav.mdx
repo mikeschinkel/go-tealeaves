@@ -1,0 +1,140 @@
+---
+title: "Breadcrumb Navigation"
+description: Mouse-aware breadcrumb navigation bar for Bubble Tea v2 — push/pop crumbs, click and hover events, auto-truncation to fit available width.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teacrumbs` · **Type:** `BreadcrumbsModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teacrumbs`
+
+Navigation paths in TUI applications are often hard-coded into status bars or rendered ad-hoc. `teacrumbs` provides a proper breadcrumb component with mouse support, auto-truncation, and message-based updates — so the host application only manages _what_ is in the path, not _how_ it renders.
+
+<Aside type="caution" title="Provisional API">
+This package is provisional as of v0.1.0. The public API may change in minor releases until promoted to stable.
+</Aside>
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teacrumbs
+```
+
+## Quick example
+
+```go
+bc := teacrumbs.NewBreadcrumbsModel().
+    Push(teacrumbs.NewCrumb("Home", nil)).
+    Push(teacrumbs.NewCrumb("Settings", nil)).
+    Push(teacrumbs.NewCrumb("Network", nil)).
+    SetSize(80)
+
+// In your root model's Update():
+case tea.WindowSizeMsg:
+    m.bc = m.bc.SetSize(msg.Width)
+
+// In View():
+return m.bc.View()
+```
+
+## Features
+
+- Push/pop/replace crumbs with value semantics (no mutation)
+- Auto-truncation: long crumbs collapse to their `Short` form to fit width
+- Mouse click events: `CrumbClickedMsg` with index, crumb, and button
+- Mouse hover events: `CrumbHoverMsg` / `CrumbHoverLeaveMsg`
+- Custom separator string (default `" > "`)
+- Per-crumb style overrides and custom `Renderer` callbacks
+- Message-based updates: `PushCrumbMsg`, `PopCrumbMsg`, `SetCrumbsMsg`, `SetCrumbMsg`
+- Opaque `Data` field for app-defined payloads (same pattern as `context.Value`)
+
+## Crumb type
+
+```go
+// Full form of a crumb
+crumb := teacrumbs.NewCrumb("github.com/mikeschinkel/myapp", &teacrumbs.CrumbArgs{
+    Short:    "myapp",       // Compact label used when truncation needed
+    Data:     somePayload,   // App payload, available in click/hover messages
+})
+
+// Minimal form
+crumb := teacrumbs.NewCrumb("Home", nil)
+```
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Text` | `string` | Primary display text (full form) |
+| `Short` | `string` | Compact text for non-current crumbs; falls back to `Text` if empty |
+| `Style` | `*lipgloss.Style` | Per-crumb style override (takes precedence over model styles) |
+| `Renderer` | `Renderer` | Custom renderer for dynamic display text |
+| `Data` | `any` | App-defined payload, never inspected by the model |
+
+## API reference
+
+### Creating and updating
+
+| Method | Description |
+|--------|-------------|
+| `NewBreadcrumbsModel()` | Creates a model with default styles and `" > "` separator |
+| `Push(crumb)` | Appends a crumb, returns updated copy |
+| `Pop()` | Removes the last crumb, returns updated copy |
+| `SetCrumbs(crumbs)` | Replaces the entire path, returns updated copy |
+| `SetCrumb(index, crumb)` | Updates the crumb at the given index, returns updated copy |
+| `Crumbs()` | Returns a copy of the current crumb slice |
+| `Len()` | Returns number of crumbs |
+
+### Layout and position
+
+| Method | Description |
+|--------|-------------|
+| `SetSize(width)` | Sets available width for truncation |
+| `SetPosition(row, col)` | Sets screen position for mouse hit testing |
+| `Position()` | Returns `(row, col)` |
+
+### Styling
+
+| Method | Description |
+|--------|-------------|
+| `WithStyles(styles)` | Replaces all styles, returns updated copy |
+| `WithSeparator(sep)` | Sets custom separator string, returns updated copy |
+
+## Messages
+
+### Inbound (handled by `Update`)
+
+| Message | Description |
+|---------|-------------|
+| `PushCrumbMsg{Crumb}` | Pushes a crumb onto the trail |
+| `PopCrumbMsg{}` | Pops the last crumb |
+| `SetCrumbsMsg{Crumbs}` | Replaces the entire trail |
+| `SetCrumbMsg{Index, Crumb}` | Updates the crumb at a specific index |
+| `tea.WindowSizeMsg` | Updates width automatically |
+
+### Outbound (emitted by mouse events)
+
+| Message | When |
+|---------|------|
+| `CrumbClickedMsg{Index, Crumb, Button}` | Mouse click on a crumb |
+| `CrumbHoverMsg{Index, Crumb}` | Mouse enters a crumb region |
+| `CrumbHoverLeaveMsg{}` | Mouse leaves all crumb regions |
+
+## Mouse support
+
+Breadcrumbs registers for `MouseModeAllMotion` automatically. The parent model must call `SetPosition(row, col)` after layout so hit testing maps screen coordinates to crumb indices.
+
+```go
+// After rendering breadcrumbs, inform it of its screen position
+m.bc = m.bc.SetPosition(currentRow, 0)
+
+// Handle click in parent Update()
+case teacrumbs.CrumbClickedMsg:
+    m.navigateTo(msg.Index)
+```
+
+## Wither methods
+
+`BreadcrumbsModel` uses value semantics throughout: `Push`, `Pop`, `SetCrumbs`, `WithStyles`, and `WithSeparator` all return a new copy without mutating the receiver. See [Wither Methods](/go-tealeaves/guides/wither-methods/) for the pattern.
+
+## Related
+
+- [Status Bar](/go-tealeaves/components/statusbar-view/) — Persistent status bar where breadcrumbs are often embedded
+- [Tree View](/go-tealeaves/components/tree-view/) — Hierarchical view that breadcrumbs pair well with

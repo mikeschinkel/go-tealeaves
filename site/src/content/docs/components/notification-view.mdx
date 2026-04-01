@@ -77,12 +77,45 @@ Configure the notification using `With*()` wither methods. These return the upda
 
 ## Positions
 
-- `TopLeft` — Top-left corner of the screen
-- `TopCenter` — Top-center of the screen
-- `TopRight` — Top-right corner of the screen
-- `BottomLeft` — Bottom-left corner of the screen
-- `BottomCenter` — Bottom-center of the screen
-- `BottomRight` — Bottom-right corner of the screen
+| Constant | Description |
+|----------|-------------|
+| `TopLeftPosition` | Top-left corner of the screen (default) |
+| `TopCenterPosition` | Top-center of the screen |
+| `TopRightPosition` | Top-right corner of the screen |
+| `BottomLeftPosition` | Bottom-left corner of the screen |
+| `BottomCenterPosition` | Bottom-center of the screen |
+| `BottomRightPosition` | Bottom-right corner of the screen |
+| `CenterPosition` | Centered on screen |
+
+```go
+// Set at construction
+notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
+    Position: teanotify.BottomRightPosition,
+})
+
+// Or change at runtime via wither
+notify = notify.WithPosition(teanotify.TopCenterPosition)
+```
+
+## Custom notice types
+
+Register additional notice types beyond the four built-ins using `RegisterNoticeType()`. It returns the updated model and an error if validation fails (e.g. nil color):
+
+```go
+notify, err := notify.RegisterNoticeType(teanotify.NoticeDefinition{
+    Key:    "success",
+    Prefix: "[✓]",
+    Color:  teacolor.NewSemanticColor(teacolor.Color46), // bright green
+})
+if err != nil {
+    log.Fatal(err)
+}
+
+// Use the custom key like any built-in
+cmd := notify.NewNotifyCmd("success", "Build complete")
+```
+
+`RegisterNoticeType()` has immutable semantics — it returns a new model with the extra type registered, leaving the receiver unchanged.
 
 ## Keyboard shortcuts
 
