@@ -147,18 +147,54 @@ el.Widget().DoSomething()
 | `WithAlignment(a)` | Content alignment (`TopLeft`, `Center`, etc.) |
 | `WithFocusable()` | Include this pane in the focus order |
 
+## Alignment
+
+`Alignment` is a bitmap that controls how content is positioned within a pane when the rendered content is smaller than the allocated space. Set it with `WithAlignment()` on any pane.
+
+### Primitive bits
+
+| Constant | Axis | Description |
+|----------|------|-------------|
+| `Left` | Horizontal | Align content to the left edge (default) |
+| `Center` | Horizontal | Center content horizontally |
+| `Right` | Horizontal | Align content to the right edge |
+| `Top` | Vertical | Align content to the top (default) |
+| `Middle` | Vertical | Center content vertically |
+| `Bottom` | Vertical | Align content to the bottom edge |
+
+### Composed constants
+
+The composed constants combine one horizontal and one vertical bit for convenience:
+
+```
+TopLeft   TopCenter   TopRight
+MiddleLeft  MiddleCenter  MiddleRight
+BottomLeft  BottomCenter  BottomRight
+```
+
+```go
+sidebar.WithAlignment(tealayout.MiddleCenter)
+header.WithAlignment(tealayout.TopLeft)
+```
+
+Bits on each axis are independent — setting a new horizontal bit preserves the current vertical bit and vice versa.
+
 ## Focus management
 
 `tealayout` includes a `FocusManager` that cycles through focusable panes:
 
 ```go
 fm := tealayout.NewFocusManager(layout)  // takes *Layout, not *Pane
-fm.FocusNext()     // Move to next focusable pane
-fm.FocusPrev()     // Move to previous focusable pane
-fm.FocusedPane()   // Returns the currently focused *Pane
 ```
 
-Focusable panes receive `Focus()` and `Blur()` calls on their widgets (when widgets implement the `Focusable` interface).
+| Method | Description |
+|--------|-------------|
+| `FocusNext()` | Move to the next focusable visible pane |
+| `FocusPrev()` | Move to the previous focusable visible pane |
+| `FocusedPane()` | Returns the currently focused `*Pane`, or nil |
+| `EnsureFocusedVisible()` | If the focused pane is hidden, advance focus to the next visible pane |
+
+Focusable panes receive `Focus()` and `Blur()` calls on their widgets (when widgets implement the `Focusable` interface). `EnsureFocusedVisible` is called automatically by `VisibilityRotator` after each visibility change; call it manually when hiding panes via `PaneLayout` or `MultiPaneLayout`.
 
 ## Widget interfaces
 
@@ -298,6 +334,7 @@ All `PaneLayout` focus and visibility methods are available directly on `MultiPa
 
 | Method | Description |
 |--------|-------------|
+| `PaneLayout()` | Returns the underlying `*PaneLayout` for advanced use |
 | `PaneNames()` | Ordered list of all content pane names |
 | `VisiblePaneNames()` | Currently visible content pane names |
 | `VisibleFlexPercent(name)` | Named pane's share of visible flex (0–100) |
