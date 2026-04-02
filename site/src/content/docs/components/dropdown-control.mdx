@@ -74,6 +74,23 @@ func main() {
 | `OptionSelectedMsg` | Message sent when the user selects an option — contains `Index`, `Text`, and `Value` fields |
 | `DropdownModelArgs` | Configuration arguments for `NewDropdownModel` |
 
+### DropdownKeyMap fields
+
+`DropdownKeyMap` configures which keys control the dropdown. Override it via `WithKeys()` if your application uses different bindings.
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Up` | `up`, `k` | Move selection up one item |
+| `Down` | `down`, `j` | Move selection down one item |
+| `Select` | `enter` | Confirm and select the highlighted item |
+| `Cancel` | `esc` | Dismiss the dropdown without selecting |
+
+```go
+km := teafields.DefaultDropdownKeyMap()
+km.Up = key.NewBinding(key.WithKeys("ctrl+p"), key.WithHelp("ctrl+p", "move up"))
+dropdown = dropdown.WithKeys(km)
+```
+
 ### DropdownModelArgs fields
 
 | Field | Type | Description |

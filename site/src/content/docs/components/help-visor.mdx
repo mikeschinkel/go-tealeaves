@@ -109,6 +109,22 @@ return mainContent
 | `→` | Next page |
 | `1`–`9` | Jump directly to page N |
 
+## Key map (HelpVisorKeyMap)
+
+`HelpVisorKeyMap` configures the keys that control the help visor. Override via `WithKeys()`:
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Close` | `esc`, `?` | Close the visor and emit `ClosedMsg` |
+| `PrevPage` | `←` | Navigate to the previous page |
+| `NextPage` | `→` | Navigate to the next page |
+
+```go
+km := teahelp.DefaultHelpVisorKeyMap()
+km.Close = key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "close help"))
+help = help.WithKeys(km)
+```
+
 ## Content style (HelpVisorStyle)
 
 The content style controls the rendered key binding entries. Configure via `WithContentStyle()`:

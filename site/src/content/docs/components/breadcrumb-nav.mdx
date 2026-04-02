@@ -97,6 +97,51 @@ crumb := teacrumbs.NewCrumb("Home", nil)
 | `WithStyles(styles)` | Replaces all styles, returns updated copy |
 | `WithSeparator(sep)` | Sets custom separator string, returns updated copy |
 
+### Styles type
+
+`Styles` holds the lipgloss styles for each visual element of the breadcrumb bar. Obtain a populated default via `DefaultStyles()` and override individual fields as needed.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ParentStyle` | `lipgloss.Style` | Applied to all crumbs except the last (gray by default) |
+| `CurrentStyle` | `lipgloss.Style` | Applied to the last (current) crumb — bold cyan by default |
+| `SeparatorStyle` | `lipgloss.Style` | Applied to the separator string between crumbs (dark gray by default) |
+| `HoverStyle` | `lipgloss.Style` | Applied to the crumb under the mouse cursor — light-blue underline by default |
+
+`DefaultStyles()` returns a `Styles` value pre-filled with the default cyan/gray scheme matching the Tea Leaves palette. Use it as a starting point and override individual fields:
+
+```go
+styles := teacrumbs.DefaultStyles()
+styles.CurrentStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true)
+bc = bc.WithStyles(styles)
+```
+
+### Renderer interface
+
+`Renderer` generates the display string for a single crumb. It follows the `http.Handler` pattern: define an interface and provide a function adapter for inline use.
+
+```go
+type Renderer interface {
+    Render(index int, model BreadcrumbsModel) string
+}
+```
+
+`RendererFunc` adapts any matching function to the `Renderer` interface:
+
+```go
+// Custom renderer that uppercases the current crumb
+crumb := teacrumbs.NewCrumb("settings", &teacrumbs.CrumbArgs{
+    Renderer: teacrumbs.RendererFunc(func(i int, m teacrumbs.BreadcrumbsModel) string {
+        if i == m.Len()-1 {
+            return strings.ToUpper(m.Crumbs()[i].Text)
+        }
+        return m.Crumbs()[i].Text
+    }),
+})
+```
+
+The `Renderer` field on a `Crumb` takes precedence over the model-level styles when rendering that crumb's display text.
+
 ## Messages
 
 ### Inbound (handled by `Update`)
