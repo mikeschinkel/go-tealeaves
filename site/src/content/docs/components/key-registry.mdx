@@ -79,6 +79,45 @@ registry.MustRegisterMany([]teautils.KeyMeta{
 | `ParseKeyIdentifier` | `ParseKeyIdentifier(s string) (KeyIdentifier, error)` | Validate and create a `KeyIdentifier` from a string |
 | `MustParseKeyIdentifier` | `MustParseKeyIdentifier(s string) KeyIdentifier` | Like `ParseKeyIdentifier` but panics on error |
 
+### Help Visor Style Types
+
+`HelpVisorStyle` configures the visual presentation of a help visor. Construct it with one of the two factory functions below, then pass it to the help visor model.
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `TitleStyle` | `lipgloss.Style` | Style for the visor title (flush left) |
+| `CategoryStyle` | `lipgloss.Style` | Style for category headers |
+| `KeyStyle` | `lipgloss.Style` | Style for key labels (width set dynamically — do not pre-set `Width`) |
+| `DescStyle` | `lipgloss.Style` | Style for descriptions |
+| `KeyColumnGap` | `int` | Extra spaces between the longest key and its description (default `4`) |
+| `CategoryOrder` | `[]string` | Preferred category sort order; unlisted categories sort alphabetically last |
+
+### Help Visor Style Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultHelpVisorStyle` | `DefaultHelpVisorStyle() HelpVisorStyle` | Returns the built-in default style (cyan keys, gold categories, purple title) |
+| `ThemedHelpVisorStyle` | `ThemedHelpVisorStyle(theme Theme) HelpVisorStyle` | Returns a `HelpVisorStyle` derived from the given `Theme` |
+
+### Display Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `FormatKeyDisplay` | `FormatKeyDisplay(k KeyMeta) string` | Format key bindings as `[Key1]/[Key2]` display strings. Uses `DisplayKeys` if set; otherwise derives from `Binding.Keys()`. Deduplicates case-equivalent keys. |
+| `ProperCaseShortcut` | `ProperCaseShortcut(s string) string` | Title-case each part of a shortcut: `ctrl+c` → `Ctrl+C`, `esc` → `Esc` |
+| `GetSortedCategories` | `GetSortedCategories(keysByCategory map[string][]KeyMeta, preferredOrder []string) []string` | Sort category names: preferred order first, then alphabetical |
+
+```go
+// Format a key for display in a status bar or help overlay
+label := teautils.FormatKeyDisplay(km)   // e.g. "[Ctrl+C]"
+
+// Sort categories for a custom help renderer
+cats := teautils.GetSortedCategories(
+    registry.ByCategory(),
+    []string{"Navigation", "Actions", "System"},
+)
+```
+
 ## Namespace Validation
 
 Key identifiers use dot-separated namespaces. The parser validates format at registration time:

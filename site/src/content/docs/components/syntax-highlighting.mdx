@@ -90,6 +90,32 @@ Themes are Chroma style names. Common options:
 
 Unknown style names fall back to Chroma's built-in fallback style without error.
 
+## DetectLanguage
+
+`DetectLanguage` infers the Chroma lexer alias from a file path or name by matching its extension. The generic constraint accepts `dt.Filepath`, `dt.RelFilepath`, `dt.Filename`, or plain `string`. Returns `"text"` when no lexer matches.
+
+```go
+func DetectLanguage[S ~string](path S) (name string)
+```
+
+```go
+lang := teahilite.DetectLanguage("main.go")        // "go"
+lang  = teahilite.DetectLanguage("schema.sql")     // "sql"
+lang  = teahilite.DetectLanguage("app.ts")         // "typescript"
+lang  = teahilite.DetectLanguage("unknown.xyz")    // "text"
+
+// Works with domain types from go-dt
+lang  = teahilite.DetectLanguage(dt.Filepath("/src/main.py"))  // "python"
+```
+
+Combine with `Highlight` to avoid hard-coding language strings:
+
+```go
+h := teahilite.NewHighlighter(teahilite.HighlighterArgs{})
+lang := teahilite.DetectLanguage(filePath)
+result, err := h.Highlight(code, lang)
+```
+
 ## Language detection
 
 Pass the language name as a lowercase string. If the language is unknown or empty, Chroma's fallback lexer is used (plain text with no highlighting):
