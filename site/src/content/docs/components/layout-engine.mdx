@@ -94,8 +94,8 @@ Mark a pane as optional with `WithOptional()`. When the terminal is too small to
 
 ```go
 sidebar := tealayout.NewColumn(tealayout.Percent(25), sidebarEl).
-    WithOptional().
-    WithMin(20) // collapse when terminal < 20 columns
+    WithOptional(true).
+    WithMinSize(20) // collapse when terminal < 20 columns
 
 main := tealayout.NewColumn(tealayout.Flex(1), mainEl)
 
@@ -137,11 +137,13 @@ el.Widget().DoSomething()
 
 | Method | Description |
 |--------|-------------|
-| `WithMin(n)` | Minimum size along the pane's axis |
-| `WithMax(n)` | Maximum size along the pane's axis |
+| `WithMinSize(n)` | Minimum size along the pane's axis |
+| `WithMaxSize(n)` | Maximum size along the pane's axis |
 | `WithGap(n)` | Gap between children (cells) |
 | `WithName(s)` | Debug label for the pane |
-| `WithOptional()` | Pane may be collapsed when space is insufficient |
+| `WithOptional(b)` | Pane may be collapsed when space is insufficient (pass `true`) |
+| `WithMinFlexWeight(w)` | Minimum flex weight floor for `ResizeFocused` — prevents weight-crushing |
+| `WithMinSizeFit()` | Use `SizeHinter.Min` as the effective minimum size |
 | `WithAlignment(a)` | Content alignment (`TopLeft`, `Center`, etc.) |
 | `WithFocusable()` | Include this pane in the focus order |
 
@@ -150,7 +152,7 @@ el.Widget().DoSomething()
 `tealayout` includes a `FocusManager` that cycles through focusable panes:
 
 ```go
-fm := tealayout.NewFocusManager(root)
+fm := tealayout.NewFocusManager(layout)  // takes *Layout, not *Pane
 fm.FocusNext()     // Move to next focusable pane
 fm.FocusPrev()     // Move to previous focusable pane
 fm.FocusedPane()   // Returns the currently focused *Pane
@@ -174,8 +176,9 @@ Widgets are recognized by the interfaces they implement:
 
 ```go
 type SizeHint struct {
-    Min Size // Minimum preferred dimensions
-    Max Size // Maximum preferred dimensions (0 = unbounded)
+    Min     Size // Minimum usable size
+    Desired Size // Preferred size (used by Fit() resolution)
+    Max     Size // Maximum useful size; -1 per dimension = unbounded
 }
 type Size struct {
     Width, Height int
@@ -204,7 +207,7 @@ output, _ := pl.Render()
 // Focus cycling
 pl.FocusNext()
 pl.FocusPrev()
-pl.FocusPane("sidebar") // by name
+if err := pl.FocusPane("sidebar"); err != nil { /* not found */ }
 pl.Focused("main")      // true/false
 
 // Pane visibility
@@ -229,7 +232,7 @@ pl.ResizeFocused(-0.05)  // shrinks by 5% weight
 | `MarkDirty()` | Forces re-resolution on next render |
 | `FocusNext()` | Advance to next focusable pane |
 | `FocusPrev()` | Retreat to previous focusable pane |
-| `FocusPane(name)` | Focus pane by name |
+| `FocusPane(name) error` | Focus pane by name; returns error if pane not found |
 | `FocusedPane()` | Currently focused `*Pane` or nil |
 | `Focused(name)` | True if named pane is focused |
 | `EnsureFocusedVisible()` | Advance focus if focused pane is hidden |

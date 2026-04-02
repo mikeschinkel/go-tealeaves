@@ -9,8 +9,8 @@ import { Aside } from '@astrojs/starlight/components';
 
 Rendering diffs in a terminal requires synchronized scrolling, accurate ANSI-aware width measurement, and sensible keyboard navigation. `teadiff` provides two modes: an interactive `SplitDiffModel` for side-by-side comparison, and a `TUIRenderer` for condensed inline display.
 
-<Aside type="note" title="Replaces teadiffr">
-`teadiff` supersedes `teadiffr`. All condensed diff types (`TUIRenderer`, `DiffRenderer`, `FileDiff`, `CondensedBlock`, `FileStatus`) are available here unchanged, plus the new `SplitDiffModel`. See [migrating from teadiffr](/go-tealeaves/migration/teadiffr/).
+<Aside type="note" title="Replaces teadiffview">
+`teadiff` supersedes `teadiffview`. All condensed diff types (`TUIRenderer`, `DiffRenderer`, `FileDiff`, `CondensedBlock`, `FileStatus`) are available here unchanged, plus the new `SplitDiffModel`. See [migrating from teadiffr](/go-tealeaves/migration/teadiffr/).
 </Aside>
 
 <Aside type="caution" title="Provisional API">
@@ -72,7 +72,7 @@ annotations := map[int]teadiff.RowAnnotation{
     42: {Char: '●', Color: teacolor.Coral},  // Line 42: red dot
     17: {Char: '!', Color: teacolor.Gold},   // Line 17: warning
 }
-model = model.WithAnnotations(annotations)
+model = model.SetAnnotations(annotations)
 ```
 
 ### SplitDiffModelArgs
@@ -85,14 +85,110 @@ model = model.WithAnnotations(annotations)
 | `HighlightFunc` | `func(text, lang string) string` | Optional syntax highlighting per side |
 | `InlineHighlighter` | `diffutils.InlineHighlighter` | Optional character-level highlighting |
 
+### SplitDiffModel API reference
+
+#### Construction and content
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `NewSplitDiffModel` | `NewSplitDiffModel(args *SplitDiffModelArgs) SplitDiffModel` | Create a new model; pass `nil` for zero-value defaults |
+| `SetContent` | `SetContent(content *diffutils.DiffContent) SplitDiffModel` | Load diff data; resets cursor and selection |
+| `SetAnnotations` | `SetAnnotations(annotations map[int]RowAnnotation) SplitDiffModel` | Apply per-row gutter annotations |
+| `SetGutter` | `SetGutter(chars []rune, colors []color.Color) SplitDiffModel` | Set gutter chars and colors directly via parallel arrays |
+
+#### Navigation
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `MoveCursorUp` | `MoveCursorUp() SplitDiffModel` | Move cursor one row up |
+| `MoveCursorDown` | `MoveCursorDown() SplitDiffModel` | Move cursor one row down |
+| `PageUp` | `PageUp() SplitDiffModel` | Move cursor up by one page |
+| `PageDown` | `PageDown() SplitDiffModel` | Move cursor down by one page |
+| `GoToTop` | `GoToTop() SplitDiffModel` | Jump to row 0 |
+| `GoToBottom` | `GoToBottom() SplitDiffModel` | Jump to the last row |
+| `CenterOnFirstChangeBlock` | `CenterOnFirstChangeBlock() SplitDiffModel` | Scroll so the first change block is centered |
+
+#### Horizontal scrolling
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `ScrollLeft` | `ScrollLeft() SplitDiffModel` | Scroll left by `scrollStep` (4) columns |
+| `ScrollRight` | `ScrollRight() SplitDiffModel` | Scroll right by `scrollStep` (4) columns |
+| `ScrollToColumn` | `ScrollToColumn(col int) SplitDiffModel` | Jump to a specific column offset |
+| `ScrollToEnd` | `ScrollToEnd() SplitDiffModel` | Scroll to reveal the end of the longest line |
+
+#### Selection
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `SelectCurrentBlock` | `SelectCurrentBlock() SplitDiffModel` | Select all rows in the change block under the cursor |
+| `SelectAllBlocks` | `SelectAllBlocks() SplitDiffModel` | Select all change blocks in the file |
+| `ClearSelection` | `ClearSelection() SplitDiffModel` | Deselect everything |
+| `ToggleBlockSelection` | `ToggleBlockSelection() SplitDiffModel` | Cycle: current block → all blocks → no selection (used by `Ctrl+A`) |
+| `ExtendSelectionUp` | `ExtendSelectionUp() SplitDiffModel` | Extend or start selection upward |
+| `ExtendSelectionDown` | `ExtendSelectionDown() SplitDiffModel` | Extend or start selection downward |
+| `HasSelection` | `HasSelection() bool` | True if any rows are selected |
+| `IsRowSelected` | `IsRowSelected(rowIdx int) bool` | True if the given row index is within the selection range |
+
+#### Size and focus
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `SetSize` | `SetSize(splitContentWidth, height int) SplitDiffModel` | Update dimensions; `splitContentWidth` is per-side content width |
+| `Focus` | `Focus() SplitDiffModel` | Set focused state (enables cursor and selection highlighting) |
+| `Blur` | `Blur() SplitDiffModel` | Clear focused state |
+
+#### Accessors
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `CursorIndex` | `CursorIndex() int` | Current cursor row index |
+| `LineCount` | `LineCount() int` | Number of rows in the diff |
+| `RowCount` | `RowCount() int` | Alias for `LineCount` |
+| `Rows` | `Rows() []SplitPaneRow` | All split pane rows |
+| `GetSelectedLines` | `GetSelectedLines() (start, end int)` | Selection range (inclusive); `(-1, -1)` if none |
+| `GetBlockRange` | `GetBlockRange() (start, end int)` | Row range of the change block at cursor; `(-1, -1)` if out of bounds |
+| `GetBlockIndexAtCursor` | `GetBlockIndexAtCursor() int` | Block index (1-based) at cursor; 0 for unchanged lines |
+| `LeftLineNumWidth` | `LeftLineNumWidth() int` | Width of the left pane line number column |
+| `RightLineNumWidth` | `RightLineNumWidth() int` | Width of the right pane line number column |
+
+#### tea.Model
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Init` | `Init() tea.Cmd` | Satisfies `tea.Model`; returns nil |
+| `Update` | `Update(msg tea.Msg) (SplitDiffModel, tea.Cmd)` | Handles all keyboard navigation and selection internally |
+| `View` | `View() tea.View` | Renders the split diff pane (without border) |
+
+<Aside type="note">
+`SplitDiffModel` uses value semantics — every mutating method returns a new copy of the model. Assign the return value: `model = model.MoveCursorDown()`.
+</Aside>
+
 ## TUIRenderer — condensed diff display
 
 `TUIRenderer` renders a list of `FileDiff` values in a compact format suitable for non-interactive display — for example in a status pane or log view.
 
+`NewTUIRenderer` accepts an optional `*TUIRendererArgs` to override specific colors. Pass `nil` to use the built-in defaults:
+
+```go
+type TUIRendererArgs struct {
+    FileHeaderColor    color.Color
+    BlockHeaderColor   color.Color
+    ContextColor       color.Color
+    AddedColor         color.Color
+    DeletedColor       color.Color
+    NewStatusColor     color.Color
+    DeletedStatusColor color.Color
+    NewBgColor         color.Color
+    DeletedBgColor     color.Color
+}
+```
+
 ### Quick example
 
 ```go
-renderer := teadiff.NewTUIRenderer(theme) // or teadiff.NewDefaultTUIRenderer()
+// Pass nil for default colors, or &teadiff.TUIRendererArgs{...} to override specific colors
+renderer := teadiff.NewTUIRenderer(nil)
 
 diffs := []teadiff.FileDiff{
     {
@@ -126,6 +222,28 @@ type CondensedBlock struct {
 }
 ```
 
+### RenderFileDiffs
+
+`RenderFileDiffs` is a standalone function that drives a `DiffRenderer` over a slice of `FileDiff` values and returns rendered lines:
+
+```go
+func RenderFileDiffs(files []FileDiff, renderer DiffRenderer, width int) []string
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `files` | `[]FileDiff` | Diff data to render |
+| `renderer` | `DiffRenderer` | Rendering strategy (e.g. `*TUIRenderer`) |
+| `width` | `int` | Column width for line formatting |
+
+Returns a `[]string` of styled lines ready to join with newlines or pass to a scroll pane.
+
+```go
+renderer := teadiff.NewTUIRenderer(nil)
+lines := teadiff.RenderFileDiffs(diffs, renderer, termWidth)
+output := strings.Join(lines, "\n")
+```
+
 ### DiffRenderer interface
 
 Implement `DiffRenderer` to customize rendering for any output medium:
@@ -145,5 +263,5 @@ type DiffRenderer interface {
 ## Related
 
 - [Syntax Highlighting](/go-tealeaves/components/syntax-highlighting/) — `teahilite` can supply the `HighlightFunc` for `SplitDiffModel`
-- [Theming](/go-tealeaves/components/theming/) — `DiffTintPositive` and `DiffTintNegative` palette slots control diff colors
+- [Theming](/go-tealeaves/components/theming/) — `TintPositive` and `TintNegative` palette slots control diff colors
 - [Migrating from teadiffr](/go-tealeaves/migration/teadiffr/) — Import path change and what's new
