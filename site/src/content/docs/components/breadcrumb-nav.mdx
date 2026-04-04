@@ -21,6 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teacrumbs
 
 ## Quick example
 
+{/* verified: site/examples/breadcrumb-nav/ — go test passes */}
 ```go
 bc := teacrumbs.NewBreadcrumbsModel().
     Push(teacrumbs.NewCrumb("Home", nil)).
@@ -49,6 +50,7 @@ return m.bc.View()
 
 ## Crumb type
 
+{/* verified: site/examples/breadcrumb-nav/ — go test passes */}
 ```go
 // Full form of a crumb
 crumb := teacrumbs.NewCrumb("github.com/mikeschinkel/myapp", &teacrumbs.CrumbArgs{
@@ -110,6 +112,7 @@ crumb := teacrumbs.NewCrumb("Home", nil)
 
 `DefaultStyles()` returns a `Styles` value pre-filled with the default cyan/gray scheme matching the Tea Leaves palette. Use it as a starting point and override individual fields:
 
+{/* verified: site/examples/breadcrumb-nav/ — go test passes */}
 ```go
 styles := teacrumbs.DefaultStyles()
 styles.CurrentStyle = lipgloss.NewStyle().Foreground(lipgloss.Color("212")).Bold(true)
@@ -120,6 +123,7 @@ bc = bc.WithStyles(styles)
 
 `Renderer` generates the display string for a single crumb. It follows the `http.Handler` pattern: define an interface and provide a function adapter for inline use.
 
+{/* verified: site/examples/breadcrumb-nav/ — go test passes */}
 ```go
 type Renderer interface {
     Render(index int, model BreadcrumbsModel) string
@@ -128,6 +132,7 @@ type Renderer interface {
 
 `RendererFunc` adapts any matching function to the `Renderer` interface:
 
+{/* verified: site/examples/breadcrumb-nav/ — go test passes */}
 ```go
 // Custom renderer that uppercases the current crumb
 crumb := teacrumbs.NewCrumb("settings", &teacrumbs.CrumbArgs{
@@ -166,6 +171,7 @@ The `Renderer` field on a `Crumb` takes precedence over the model-level styles w
 
 Breadcrumbs registers for `MouseModeAllMotion` automatically. The parent model must call `SetPosition(row, col)` after layout so hit testing maps screen coordinates to crumb indices.
 
+{/* verified: site/examples/breadcrumb-nav/ — go test passes */}
 ```go
 // After rendering breadcrumbs, inform it of its screen position
 m.bc = m.bc.SetPosition(currentRow, 0)

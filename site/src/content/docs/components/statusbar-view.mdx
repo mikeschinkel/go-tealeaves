@@ -17,13 +17,14 @@ go get github.com/mikeschinkel/go-tealeaves/teastatus
 
 ## Quick example
 
+{/* verified: site/examples/statusbar-view/ — go test passes */}
 ```go
 sb := teastatus.NewStatusBarModel()
 
 sb = sb.SetMenuItems([]teastatus.MenuItem{
-    {Key: "?", Label: "Help"},
-    {Key: "tab", Label: "Switch pane"},
-    {Key: "q", Label: "Quit"},
+    {KeyText: "?", Label: "Help"},
+    {KeyText: "tab", Label: "Switch pane"},
+    {KeyText: "q", Label: "Quit"},
 })
 
 sb = sb.SetIndicators([]teastatus.StatusIndicator{
@@ -43,7 +44,7 @@ return contentView + "\n" + sb.View()
 - ANSI-aware width calculation for correct gap spacing
 - Multiple separator styles for indicators (pipe, space, bracket)
 - Per-indicator style overrides
-- Key binding integration via `NewMenuItemFromBinding()`
+- Key binding integration via `NewMenuItem()`
 - Dynamic updates via `SetMenuItems()` and `SetIndicators()`
 - Message-based updates via `SetMenuItemsMsg` and `SetIndicatorsMsg`
 - Configurable styling for every element (key labels, menu labels, indicators, separators, bar background)
@@ -56,7 +57,7 @@ return contentView + "\n" + sb.View()
 |----------|-----------|-------------|
 | `NewStatusBarModel` | `NewStatusBarModel() StatusBarModel` | Create a status bar with default styles |
 | `NewStatusIndicator` | `NewStatusIndicator(text string) StatusIndicator` | Create an indicator with text |
-| `NewMenuItemFromBinding` | `NewMenuItemFromBinding(binding key.Binding, label string) MenuItem` | Create a menu item from a Charm key binding |
+| `NewMenuItem` | `NewMenuItem(binding key.Binding, opts *MenuItemOpts) MenuItem` | Create a menu item from a Charm key binding |
 | `MenuItemsFromMetas` | `MenuItemsFromMetas(metas []KeyMeta) []MenuItem` | Convert a slice of `teautils.KeyMeta` (e.g., from `KeyRegistry.ForStatusBar()`) to `[]MenuItem` |
 | `NewMenuItem` | `NewMenuItem(binding key.Binding, opts *MenuItemOpts) MenuItem` | Create a menu item with optional opts |
 | `RenderMenuLine` | `RenderMenuLine(items []MenuItem, styles Styles) string` | Render menu items as a formatted string (useful outside the status bar) |
@@ -76,6 +77,7 @@ return contentView + "\n" + sb.View()
 
 ## Configuration
 
+{/* verified: site/examples/statusbar-view/ — go test passes */}
 ```go
 sb = sb.
     WithStyles(teastatus.Styles{
@@ -101,6 +103,7 @@ sb = sb.
 
 Per-indicator style overrides let you highlight specific indicators:
 
+{/* verified: site/examples/statusbar-view/ — go test passes */}
 ```go
 indicators := []teastatus.StatusIndicator{
     teastatus.NewStatusIndicator("DEPS IN-FLUX").
@@ -124,10 +127,11 @@ indicators := []teastatus.StatusIndicator{
 | `SetMenuItemsMsg` | Replaces menu items via `tea.Msg` (contains `Items []MenuItem`) |
 | `SetIndicatorsMsg` | Replaces indicators via `tea.Msg` (contains `Indicators []StatusIndicator`) |
 
-## NewMenuItemFromBinding
+## NewMenuItem from a binding
 
-Use `NewMenuItemFromBinding` to create menu items directly from Charm key bindings in your `KeyMap`. This keeps the status bar in sync with your actual registered bindings:
+Use `NewMenuItem` to create menu items directly from Charm key bindings in your `KeyMap`. This keeps the status bar in sync with your actual registered bindings:
 
+{/* verified: site/examples/statusbar-view/ — go test passes */}
 ```go
 // Given a key map
 km := MyKeyMap{
@@ -136,8 +140,8 @@ km := MyKeyMap{
 }
 
 sb = sb.SetMenuItems([]teastatus.MenuItem{
-    teastatus.NewMenuItemFromBinding(km.Help, "Help"),
-    teastatus.NewMenuItemFromBinding(km.Quit, "Quit"),
+    teastatus.NewMenuItem(km.Help, &teastatus.MenuItemOpts{Label: "Help"}),
+    teastatus.NewMenuItem(km.Quit, &teastatus.MenuItemOpts{Label: "Quit"}),
 })
 ```
 
@@ -145,13 +149,14 @@ sb = sb.SetMenuItems([]teastatus.MenuItem{
 
 Send `SetMenuItemsMsg` or `SetIndicatorsMsg` from any part of your application to update the status bar without direct model access:
 
+{/* verified: site/examples/statusbar-view/ — go test passes */}
 ```go
 // From a child model's Update()
 return m, func() tea.Msg {
     return teastatus.SetMenuItemsMsg{
         Items: []teastatus.MenuItem{
-            {Key: "r", Label: "Refresh"},
-            {Key: "q", Label: "Quit"},
+            {KeyText: "r", Label: "Refresh"},
+            {KeyText: "q", Label: "Quit"},
         },
     }
 }

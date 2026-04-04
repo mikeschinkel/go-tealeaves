@@ -17,6 +17,7 @@ Multi-option selection dialog with hotkey support and configurable horizontal or
 
 ## Quick Example
 
+{/* verified: site/examples/choice-dialog/ — go test passes */}
 ```go
 modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
     Title:   "How should we proceed?",
@@ -134,6 +135,7 @@ case teamodal.ChoiceCancelledMsg:
 
 ## Configuration
 
+{/* verified: site/examples/choice-dialog/ — go test passes */}
 ```go
 modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
     Title:       "How should we proceed?",

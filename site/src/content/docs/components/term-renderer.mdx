@@ -38,6 +38,7 @@ go get github.com/mikeschinkel/go-tealeaves/teaterm
 
 `Terminal` embeds an interactive subprocess with a full PTY. Programs run inside it see a real terminal and behave normally (color output, readline, etc.).
 
+{/* verified: site/examples/term-renderer/ — go test passes */}
 ```go
 // Embed the user's shell
 term, err := teaterm.New(exec.Command(os.Getenv("SHELL")),
@@ -72,6 +73,7 @@ func (m model) View() string {
 
 ### Focus and blur
 
+{/* verified: site/examples/term-renderer/ — go test passes */}
 ```go
 // Enter terminal mode — all keystrokes forwarded to PTY
 m.term = m.term.Focus()
@@ -89,6 +91,7 @@ if m.term.Focused() { ... }
 
 ### Cleanup
 
+{/* verified: site/examples/term-renderer/ — go test passes */}
 ```go
 if err := m.term.Close(); err != nil {
     log.Printf("terminal close: %v", err)
@@ -101,6 +104,7 @@ if err := m.term.Close(); err != nil {
 
 `ProcessViewer` runs a subprocess over piped `stdout`/`stderr` with no PTY — lighter weight, but programs that call `isatty()` will detect the pipe and may suppress colors or progress output.
 
+{/* verified: site/examples/term-renderer/ — go test passes */}
 ```go
 viewer := teaterm.NewProcessViewer(exec.Command("go", "test", "./..."),
     teaterm.WithSize(120, 40),

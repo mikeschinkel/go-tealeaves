@@ -21,6 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teautils
 
 ## Quick Start
 
+{/* verified: site/examples/theming/ — go test passes */}
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teautils"
 
@@ -37,6 +38,7 @@ modal := teamodal.NewModal(args).WithTheme(theme)
 
 The `teacolor` module provides named constants for all 256 ANSI colors plus curated semantic aliases:
 
+{/* verified: site/examples/theming/ — go test passes */}
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teacolor"
 
@@ -59,6 +61,7 @@ teacolor.Coral, teacolor.SlateGray, teacolor.Teal
 
 A `SystemPalette` contains ~30 semantic color slots organized by purpose. Pass `nil` for fixed (non-adaptive) colors, or pass `&teautils.PaletteOpts{Adaptive: true}` to use ANSI 0-15 colors that respect the user's terminal theme:
 
+{/* verified: site/examples/theming/ — go test passes */}
 ```go
 palette := teautils.DarkSystemPalette(nil)     // Dark terminal colors
 palette := teautils.LightSystemPalette(nil)    // Light terminal colors
@@ -85,6 +88,7 @@ Color slot groups:
 
 When your application needs colors beyond the system palette, embed `SystemPalette` inside the generic `Palette[T]`:
 
+{/* verified: site/examples/theming/ — go test passes */}
 ```go
 type AppColors struct {
     Brand    teautils.SemanticColor
@@ -106,6 +110,7 @@ Pass `palette.System` to `teautils.NewTheme()` for component theming, and access
 
 A `Theme` derives lipgloss styles from a `SystemPalette` and organizes them by component. It also exposes a set of shared styles useful in custom component rendering:
 
+{/* verified: site/examples/theming/ — go test passes */}
 ```go
 theme := teautils.NewTheme(palette)
 // theme.Breadcrumb — BreadcrumbTheme

@@ -17,6 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teagrid
 
 ## Quick example
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 package main
 
@@ -163,6 +164,7 @@ Use `CellValue` instead of a plain string when you need per-cell styling, rich i
 
 ### CellStyleFunc — dynamic per-cell styling
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 // Highlight cells in the "status" column red when the value is "ERROR"
 status := teagrid.NewCellValueWithStyleFunc("ERROR", func(in teagrid.CellStyleInput) lipgloss.Style {
@@ -188,6 +190,7 @@ status := teagrid.NewCellValueWithStyleFunc("ERROR", func(in teagrid.CellStyleIn
 
 ### Rich inline text (Spans)
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 // A cell with a green check prefix and gray text
 cell := teagrid.NewCellValueWithSpans([]teagrid.Span{
@@ -198,6 +201,7 @@ cell := teagrid.NewCellValueWithSpans([]teagrid.Span{
 
 ### SortValue — separate display and sort key
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 // Display "Jan 1" in the cell, but sort by the underlying Unix timestamp
 cell := teagrid.NewCellValueWithSortKey(
@@ -211,6 +215,7 @@ cell := teagrid.NewCellValueWithSortKey(
 
 For wide tables that exceed the terminal width, `teagrid` supports horizontal scrolling with optional frozen columns.
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 // Freeze the first column so it stays visible while scrolling
 grid = grid.WithHorizontalFreezeColumnCount(1)
@@ -235,6 +240,7 @@ case tea.KeyMsg:
 
 Use `WithRowStyleFunc` for styling that depends on row data (e.g., alternating row colors, status-based highlights):
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 grid = grid.WithRowStyleFunc(func(in teagrid.RowStyleFuncInput) lipgloss.Style {
     if in.IsHighlighted {
@@ -248,6 +254,7 @@ grid = grid.WithRowStyleFunc(func(in teagrid.RowStyleFuncInput) lipgloss.Style {
 
 Attach context to the grid that is passed to every `CellStyleFunc` call via `CellStyleInput.GlobalMetadata`:
 
+{/* verified: site/examples/grid-view/ — go test passes */}
 ```go
 grid = grid.WithMetadata(map[string]any{
     "selectedIDs": selectedSet,

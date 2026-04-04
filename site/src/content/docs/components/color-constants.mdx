@@ -21,6 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teacolor
 
 ## Quick example
 
+{/* verified: site/examples/color-constants/ — go test passes */}
 ```go
 import (
     "github.com/mikeschinkel/go-tealeaves/teacolor"
@@ -39,6 +40,7 @@ rendered := accent.Render("important text")
 
 All 256 standard ANSI palette entries are available as `Color0` through `Color255`:
 
+{/* verified: site/examples/color-constants/ — go test passes */}
 ```go
 teacolor.Color0   // Black
 teacolor.Color1   // Red (dark)
@@ -50,6 +52,7 @@ teacolor.Color255 // Near-white
 
 The first 16 colors have their standard names:
 
+{/* verified: site/examples/color-constants/ — go test passes */}
 ```go
 teacolor.Black, teacolor.Red, teacolor.Green, teacolor.Yellow
 teacolor.Blue, teacolor.Magenta, teacolor.Cyan, teacolor.White
@@ -61,6 +64,7 @@ teacolor.BrightBlue, teacolor.BrightMagenta, teacolor.BrightCyan, teacolor.Brigh
 
 A set of human-readable aliases for common design colors:
 
+{/* verified: site/examples/color-constants/ — go test passes */}
 ```go
 teacolor.Coral, teacolor.SlateGray, teacolor.Teal
 teacolor.Gold, teacolor.SteelBlue, teacolor.Lavender
@@ -71,6 +75,7 @@ teacolor.Gold, teacolor.SteelBlue, teacolor.Lavender
 
 `SemanticColor` wraps a `color.Color` with pre-built lipgloss styles for foreground, background, and border use. This avoids allocating a new `lipgloss.Style` on every render frame.
 
+{/* verified: site/examples/color-constants/ — go test passes */}
 ```go
 // Create once, reuse across frames
 accent := teacolor.NewSemanticColor(teacolor.Teal)
@@ -102,6 +107,7 @@ style := lipgloss.NewStyle().Foreground(accent)
 
 The `Color()` function converts an ANSI string to `color.Color`:
 
+{/* verified: site/examples/color-constants/ — go test passes */}
 ```go
 c := teacolor.Color("46")  // Returns color.Color for ANSI 46 (bright green)
 ```

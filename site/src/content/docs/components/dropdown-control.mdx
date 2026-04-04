@@ -17,6 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teafields
 
 ## Quick example
 
+{/* verified: site/examples/dropdown-control/ — go test passes */}
 ```go
 package main
 
@@ -85,7 +86,7 @@ func main() {
 
 ### DropdownKeyMap fields
 
-`DropdownKeyMap` configures which keys control the dropdown. Override it via `WithKeys()` if your application uses different bindings.
+`DropdownKeyMap` configures which keys control the dropdown. Override it by assigning to the `Keys` field if your application uses different bindings.
 
 | Field | Default keys | Description |
 |-------|-------------|-------------|
@@ -94,10 +95,11 @@ func main() {
 | `Select` | `enter` | Confirm and select the highlighted item |
 | `Cancel` | `esc` | Dismiss the dropdown without selecting |
 
+{/* verified: site/examples/dropdown-control/ — go test passes */}
 ```go
 km := teafields.DefaultDropdownKeyMap()
 km.Up = key.NewBinding(key.WithKeys("ctrl+p"), key.WithHelp("ctrl+p", "move up"))
-dropdown = dropdown.WithKeys(km)
+dropdown.Keys = km
 ```
 
 ### DropdownModelArgs fields
@@ -122,7 +124,7 @@ dropdown = dropdown.WithKeys(km)
 | `WithTopMargin` | `WithTopMargin(margin int) DropdownModel` | Set the top margin (rows reserved above) |
 | `WithBottomMargin` | `WithBottomMargin(margin int) DropdownModel` | Set the bottom margin (rows reserved below) |
 | `WithTheme` | `WithTheme(theme teautils.Theme) DropdownModel` | Apply `DropdownTheme` styles from a `teautils.Theme` |
-| `WithKeys` | `WithKeys(km DropdownKeyMap) DropdownModel` | Override the key bindings |
+| `Keys` | `Keys DropdownKeyMap` | Public field — assign directly to override key bindings |
 
 ### DefaultDropdownKeyMap
 
@@ -145,6 +147,7 @@ dropdown = dropdown.WithKeys(km)
 
 `DropdownModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration:
 
+{/* verified: site/examples/dropdown-control/ — go test passes */}
 ```go
 m.dropdown = m.dropdown.
     WithScreenSize(msg.Width, msg.Height).
@@ -165,6 +168,7 @@ m.dropdown = m.dropdown.
 | `OptionSelectedMsg` | User selects an option — contains `Index`, `Text`, and `Value` fields |
 | `DropdownCancelledMsg` | User presses `esc` to cancel without selecting — struct with no fields |
 
+{/* verified: site/examples/dropdown-control/ — go test passes */}
 ```go
 case teafields.OptionSelectedMsg:
     // User picked an option

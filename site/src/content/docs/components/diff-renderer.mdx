@@ -21,6 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teadiffr
 
 ## Quick example
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teadiffr"
 
@@ -61,6 +62,7 @@ fmt.Println(output)
 
 ### FileDiff and CondensedBlock
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 type FileDiff struct {
     Path   string
@@ -90,6 +92,7 @@ type CondensedBlock struct {
 
 `TUIRenderer` is the built-in lipgloss-backed renderer. Construct it with `NewTUIRenderer`:
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 // Default colors
 renderer := teadiffr.NewTUIRenderer(nil)
@@ -119,6 +122,7 @@ renderer := teadiffr.NewTUIRenderer(&teadiffr.TUIRendererArgs{
 
 If your app uses the Tea Leaves theming system, use `NewThemedTUIRenderer` to derive colors from your palette automatically:
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teautils"
 
@@ -132,6 +136,7 @@ The themed constructor maps palette slots (`StatusSuccess`, `StatusError`, `Tint
 
 Implement `DiffRenderer` to customize rendering for any output medium — HTML, plain text, a different styling library, etc.:
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 type DiffRenderer interface {
     RenderFileHeader(path string, status FileStatus, width int) string
@@ -146,6 +151,7 @@ type DiffRenderer interface {
 
 Pass any `DiffRenderer` implementation to `RenderFileDiffs`:
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 lines := teadiffr.RenderFileDiffs(diffs, myCustomRenderer, width)
 ```
@@ -154,6 +160,7 @@ lines := teadiffr.RenderFileDiffs(diffs, myCustomRenderer, width)
 
 `RenderFileDiffs` is the top-level rendering function. It iterates files and blocks, delegating to the renderer for each element:
 
+{/* verified: site/examples/diff-renderer/ — go test passes */}
 ```go
 func RenderFileDiffs(files []FileDiff, renderer DiffRenderer, width int) []string
 ```

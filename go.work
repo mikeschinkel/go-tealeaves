@@ -18,9 +18,8 @@ use (
 	./teagrid/examples/sorting
 	./teahelp
 	./tealayout
-	./tealayout/examples/collapsible
-	./tealayout/examples/golden
-	./tealayout/examples/threepane
+	./tealayout/examples/multipane
+	./teapane
 	./teahilite
 	./teamodal
 	./teamodal/examples/choices
@@ -37,9 +36,36 @@ use (
 	./teatree/examples/filetree
 	./teatext
 	./teatext/examples/editor
+	./teacolor
 	./teaguide
 	./teaguide/example
 	./teautils
 	./teautils/examples/keyhelp
 	./teautils/examples/theming
+	cmd/temp
+	./site/examples/breadcrumb-nav
+	./site/examples/choice-dialog
+	./site/examples/color-constants
+	./site/examples/confirm-dialog
+	./site/examples/diff-renderer
+	./site/examples/diff-viewer
+	./site/examples/drilldown-view
+	./site/examples/dropdown-control
+	./site/examples/grid-view
+	./site/examples/guide-overlay
+	./site/examples/help-visor
+	./site/examples/key-registry
+	./site/examples/layout-engine
+	./site/examples/list-dialog
+	./site/examples/multiselect-dialog
+	./site/examples/notification-view
+	./site/examples/pane-widgets
+	./site/examples/positioning
+	./site/examples/progress-dialog
+	./site/examples/statusbar-view
+	./site/examples/syntax-highlighting
+	./site/examples/term-renderer
+	./site/examples/text-selection
+	./site/examples/theming
+	./site/examples/tree-view
 )

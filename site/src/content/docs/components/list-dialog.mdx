@@ -17,6 +17,7 @@ Generic editable list dialog with cursor navigation, inline editing, and CRUD op
 
 ## Quick Example
 
+{/* verified: site/examples/list-dialog/ — go test passes */}
 ```go
 modal := teamodal.NewListModel[MyItem](items, &teamodal.ListModelArgs{
     Title:      "Select a Profile",
@@ -25,7 +26,7 @@ modal := teamodal.NewListModel[MyItem](items, &teamodal.ListModelArgs{
 })
 
 // Open it
-m.modal, cmd = m.modal.Open()
+m.modal = m.modal.Open()
 
 // In View()
 if m.modal.IsOpen() {

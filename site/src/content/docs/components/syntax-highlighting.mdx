@@ -21,6 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teahilite
 
 ## Quick example
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teahilite"
 
@@ -39,6 +40,7 @@ lines, err := h.HighlightLines(code, "go") // []string, one per line
 
 `Highlighter` holds pre-built Chroma style and formatter objects. Create once and reuse across frames to avoid repeated style lookups:
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 h := teahilite.NewHighlighter(teahilite.HighlighterArgs{
     StyleName:     "monokai",    // default
@@ -70,6 +72,7 @@ lines, err := h.HighlightLines(code, language)
 
 Package-level functions use a shared default `Highlighter` (monokai + terminal256). These are convenient for one-off use but cannot be configured:
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 result, err := teahilite.Highlight(code, "python")
 lines, err := teahilite.HighlightLines(code, "python")
@@ -94,10 +97,12 @@ Unknown style names fall back to Chroma's built-in fallback style without error.
 
 `DetectLanguage` infers the Chroma lexer alias from a file path or name by matching its extension. The generic constraint accepts `dt.Filepath`, `dt.RelFilepath`, `dt.Filename`, or plain `string`. Returns `"text"` when no lexer matches.
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 func DetectLanguage[S ~string](path S) (name string)
 ```
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 lang := teahilite.DetectLanguage("main.go")        // "go"
 lang  = teahilite.DetectLanguage("schema.sql")     // "sql"
@@ -110,6 +115,7 @@ lang  = teahilite.DetectLanguage(dt.Filepath("/src/main.py"))  // "python"
 
 Combine with `Highlight` to avoid hard-coding language strings:
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 h := teahilite.NewHighlighter(teahilite.HighlighterArgs{})
 lang := teahilite.DetectLanguage(filePath)
@@ -120,6 +126,7 @@ result, err := h.Highlight(code, lang)
 
 Pass the language name as a lowercase string. If the language is unknown or empty, Chroma's fallback lexer is used (plain text with no highlighting):
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 h.Highlight(goCode, "go")
 h.Highlight(tsCode, "typescript")
@@ -131,6 +138,7 @@ h.Highlight(unknownCode, "") // falls back to plain text
 
 `teahilite` can supply the `HighlightFunc` for [`teadiff.SplitDiffModel`](/go-tealeaves/components/diff-viewer/):
 
+{/* verified: site/examples/syntax-highlighting/ — go test passes */}
 ```go
 h := teahilite.NewHighlighter(teahilite.HighlighterArgs{StyleName: "dracula"})
 
