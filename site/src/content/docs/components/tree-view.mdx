@@ -203,6 +203,26 @@ Three built-in expander control styles determine how expandable nodes display th
 - **`PlusExpanderControls`** — uses `+` (collapsed) and `─` (expanded).
 - **`NoExpanderControls`** — no visual indicator for expand/collapse state.
 
+### TreeModel Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `MaxLineWidth` | `MaxLineWidth() int` | Returns the maximum rendered line width (ANSI-stripped) across all visible nodes |
+| `RequiredWidth` | `RequiredWidth() int` | Returns the minimum width needed to display the tree without truncation |
+| `SetBorderColor` | `SetBorderColor(c color.Color) TreeModel[T]` | Set the border color |
+| `Theme` | `Theme() *teautils.Theme` | Return the current theme pointer |
+| `WithFrame` | `WithFrame(style lipgloss.Style) TreeModel[T]` | Apply a lipgloss border frame |
+| `WithHeader` | `WithHeader(text string, style lipgloss.Style) TreeModel[T]` | Add a header line above the tree |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrInvalidNode` | Returned on invalid node operations |
+| `ErrInvalidLevel` | Returned on invalid level access |
+| `ErrEmptyPath` | Returned when path is empty |
+| `ErrDrillDown` | Sentinel error for drilldown operations |
+
 ## Configuration
 
 - **`SetSize(width, height int)`** — Set viewport dimensions for the tree display.
@@ -220,6 +240,7 @@ Three built-in expander control styles determine how expandable nodes display th
 ## Node operations
 
 - **`AddChild()`** / **`RemoveChild()`** — Modify tree structure by adding or removing child nodes.
+- **`InsertChildSorted(child, less)`** — Insert a child node in sorted order using the provided comparator function.
 - **`Expand()`** / **`Collapse()`** / **`Toggle()`** — Control expansion state on individual nodes.
 - **`IsExpanded()`** / **`HasChildren()`** / **`IsVisible()`** — Query node state.
 
@@ -242,8 +263,8 @@ Three built-in expander control styles determine how expandable nodes display th
 - No lazy loading — the entire tree must be provided upfront.
 </Aside>
 
-## Related
+## Related Components
 
-- [Architecture](/go-tealeaves/guides/architecture/) — Design philosophy behind the multi-module structure
-- [Wither Methods](/go-tealeaves/guides/wither-methods/) — The immutable update pattern used by `With*()` methods
-- [Key Registry](/go-tealeaves/components/key-registry/) — Key registry and positioning utilities used alongside tree views
+- [Drilldown View](/go-tealeaves/components/drilldown-view/) — Path-focused tree navigation counterpart; shows a single root-to-leaf path with dropdown sibling selection
+- [Layout Engine](/go-tealeaves/components/layout-engine/) — `TreeContentLayout` provides a prebuilt tree + content side-by-side layout
+- [Key Registry](/go-tealeaves/components/key-registry/) — Centralize and export tree key bindings for status bar and help overlay display

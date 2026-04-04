@@ -95,11 +95,14 @@ case teamodal.ChoiceCancelledMsg:
 | `CancelKeyStyle` | `lipgloss.Style` | Style for `[esc]` in the cancel hint |
 | `CancelTextStyle` | `lipgloss.Style` | Style for `Cancel` text in the cancel hint |
 
-### KeyMap
+### ChoiceKeyMap Fields
 
-| Type | Description |
-|------|-------------|
-| `ChoiceKeyMap` | Key bindings for `ChoiceModel` — `NextButton` (Tab/Right), `PrevButton` (Shift+Tab/Left), `Confirm` (Enter), `Cancel` (Esc) |
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Confirm` | `enter` | Select the focused option |
+| `Cancel` | `esc` | Cancel the dialog |
+| `NextButton` | `tab`, `right`, `down` | Move to the next option |
+| `PrevButton` | `shift+tab`, `left`, `up` | Move to the previous option |
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
@@ -165,9 +168,17 @@ modal = modal.WithTheme(myTheme)
 - Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
 </Aside>
 
-## Related
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrModal` | Sentinel error for the `teamodal` package |
+| `ErrCancelled` | Returned when the modal is cancelled |
+| `ErrInvalidBounds` | Returned on invalid position bounds |
+
+## Related Components
 
 - [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Simple Yes/No and OK dialogs
-- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list dialog
-- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How overlays render on top of styled content
+- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list dialog with inline editing and CRUD
+- [MultiSelect Dialog](/go-tealeaves/components/multiselect-dialog/) — Checkbox list modal for multi-item selection
+- [Progress Dialog](/go-tealeaves/components/progress-dialog/) — Progress indicator for long-running operations

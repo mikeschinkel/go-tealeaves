@@ -5,7 +5,13 @@ description: Progress indicator dialog for long-running operations with optional
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teamodal` · **Type:** `ProgressModal` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+> **Module:** `teamodal` · **Type:** `ProgressModal`
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+```
 
 Progress indicator for long-running operations with optional background and cancel support. Displays "Generating *Title*..." with Cancel and optional Background hints.
 
@@ -34,7 +40,7 @@ case teamodal.ProgressBackgroundMsg:
 
 ## Features
 
-- Displays progress text with spinner
+- Displays "Generating *Title*..." with inline cancel/background key hints
 - Cancel with Esc key
 - Optional background mode (press `b` to send operation to background)
 - ANSI-aware overlay compositing via `OverlayModal()`
@@ -48,13 +54,35 @@ case teamodal.ProgressBackgroundMsg:
 | Function | Signature | Description |
 |----------|-----------|-------------|
 | `NewProgressModal` | `NewProgressModal(args *ProgressModalArgs) ProgressModal` | Create a progress indicator dialog |
+| `DefaultProgressModalKeyMap` | `DefaultProgressModalKeyMap() ProgressModalKeyMap` | Returns default key bindings (Esc = cancel, b/B = background) |
 
 ### Key Types
 
 | Type | Description |
 |------|-------------|
 | `ProgressModal` | Progress indicator with cancel/background support |
-| `ProgressModalArgs` | Configuration: `Title`, `BackgroundEnabled` |
+| `ProgressModalArgs` | Configuration: `Title`, `BackgroundEnabled`, `ScreenWidth`, `ScreenHeight` |
+| `ProgressModalKeyMap` | Key bindings — `Cancel` (Esc) and `Background` (b/B); accessible via `ProgressModal.Keys` |
+
+### ProgressModalKeyMap Fields
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Cancel` | `esc` | Cancel the operation |
+| `Background` | `b`, `B` | Send the operation to background |
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Open` | `Open() ProgressModal` | Open the modal; pre-calculates overlay position |
+| `Close` | `Close() ProgressModal` | Close the modal |
+| `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
+| `SetSize` | `SetSize(width, height int) ProgressModal` | Set screen dimensions for centering |
+| `SetTitle` | `SetTitle(title string) ProgressModal` | Update the title at runtime |
+| `SetBackgroundEnabled` | `SetBackgroundEnabled(enabled bool) ProgressModal` | Enable or disable the Background option at runtime |
+| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over a background view |
+| `Update` | `Update(msg tea.Msg) (ProgressModal, tea.Cmd)` | Handle keyboard and window-size messages; returns typed `ProgressModal`, not `tea.Model` |
 
 ### Messages
 
@@ -74,11 +102,22 @@ case teamodal.ProgressBackgroundMsg:
 
 <Aside type="caution">
 - Requires screen size to be set via `SetSize()` for correct centering.
-- The progress indicator does not track percentage — it is a simple spinner with text.
+- `ProgressModal.Update()` returns `(ProgressModal, tea.Cmd)`, not `(tea.Model, tea.Cmd)` — store the result in a typed field, not a `tea.Model` interface.
+- The progress display is static text; there is no animated spinner.
+- `ProgressModal` has no `WithTheme()` — apply `WithBorderStyle()`/`WithTitleStyle()` directly or call `DefaultBorderStyle()` / `DefaultTitleStyle()` from the `teamodal` package.
 </Aside>
 
-## Related
+### Error Variables
 
-- [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Simple Yes/No and OK dialogs
-- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How overlays render on top of styled content
+| Variable | Description |
+|----------|-------------|
+| `ErrModal` | Sentinel error for the `teamodal` package |
+| `ErrCancelled` | Returned when the modal is cancelled |
+| `ErrInvalidBounds` | Returned on invalid position bounds |
+
+## Related Components
+
+- [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Simple Yes/No and OK dialogs; use to confirm before opening a progress dialog
+- [Choice Dialog](/go-tealeaves/components/choice-dialog/) — Multi-option dialog for selecting an operation before starting a progress flow
+- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list dialog that may precede a progress dialog for batch operations
+- [MultiSelect Dialog](/go-tealeaves/components/multiselect-dialog/) — Checkbox list for selecting items to process before showing progress

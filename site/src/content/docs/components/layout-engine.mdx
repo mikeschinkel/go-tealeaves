@@ -236,6 +236,8 @@ For convenience, `StringElement(s string)` wraps a plain string as a `*Element[s
 | `WithMinSizeFit()` | Use `SizeHinter.Min` as the effective minimum size |
 | `WithAlignment(a)` | Content alignment (`TopLeft`, `Center`, etc.) |
 | `WithFocusable()` | Include this pane in the focus order |
+| `WithoutFocusable()` | Remove this pane from the focus order |
+| `WithoutMinSizeFit()` | Disable `SizeHinter.Min`-based minimum size |
 
 ## Alignment
 
@@ -281,6 +283,8 @@ fm := tealayout.NewFocusManager(layout)  // takes *Layout, not *Pane
 |--------|-------------|
 | `FocusNext()` | Move to the next focusable visible pane |
 | `FocusPrev()` | Move to the previous focusable visible pane |
+| `FocusPane(name string) error` | Focus pane by name; returns `ErrPaneNotFound` if not found |
+| `Focused(name string) bool` | True if the named pane is focused |
 | `FocusedPane()` | Returns the currently focused `*Pane`, or nil |
 | `EnsureFocusedVisible()` | If the focused pane is hidden, advance focus to the next visible pane |
 
@@ -458,7 +462,13 @@ tcl.ToggleFocus()
 tcl.TreeFocused()    // bool
 tcl.ContentFocused() // bool
 
-// Visibility (both guard against hiding the last visible pane)
+// Show/hide individual panes
+tcl.ShowTree()
+tcl.ShowContent()
+tcl.HideTree()
+tcl.HideContent()
+
+// Visibility toggles (guard against hiding last visible pane)
 tcl.ToggleTree()
 tcl.ToggleContent()
 
@@ -466,6 +476,10 @@ tcl.ToggleContent()
 tcl.SoloTree()
 tcl.SoloContent()
 tcl.ShowBoth()
+
+// Other
+tcl.MarkDirty()
+pl := tcl.PaneLayout() // underlying *PaneLayout
 ```
 
 The tree widget should implement `SizeHinter` (return a `SizeHint` with a meaningful `Min.Width`) so the `Fit` resolver queries its desired width. Content widgets that manage their own lipgloss borders must **not** implement `Styler` — `tealayout` would otherwise double-subtract the frame.
@@ -604,7 +618,9 @@ rotator.Apply()     // re-apply current combo without advancing
 | `ErrStackEmpty` | `Pop()` called on an empty `StackLayoutModel` |
 | `ErrStackUnderflow` | `Pop()` or `PopTo()` called when already at minimum depth |
 
-## Related
+## Related Components
 
 - [Pane Widgets](/go-tealeaves/components/pane-widgets/) — `teapane` provides `StyledPane`, `ScrollPane`, and `PlainPane` — ready-made widgets that implement all `tealayout` interfaces
-- [Architecture](/go-tealeaves/guides/architecture/) — How layout composes with other Tea Leaves components
+- [Breadcrumb Navigation](/go-tealeaves/components/breadcrumb-nav/) — `StackLayoutModel` integrates breadcrumbs for drill-down navigation stacks
+- [Grid View](/go-tealeaves/components/grid-view/) — Embed data grids as pane widgets in multi-pane layouts
+- [Tree View](/go-tealeaves/components/tree-view/) — `TreeContentLayout` provides a prebuilt tree + content two-pane layout

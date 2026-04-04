@@ -169,7 +169,16 @@ case teastatus.SetMenuItemsMsg:
 - The bar does not handle its own key input -- it is purely a display component. Use it with the [Key Registry](/go-tealeaves/components/key-registry/) to generate menu items from registered bindings.
 </Aside>
 
-## Related
+### Error Variables
 
-- [Key Registry](/go-tealeaves/components/key-registry/) -- Centralized key binding management that produces `MenuItem` values for the status bar
-- [Positioning](/go-tealeaves/components/positioning/) -- Shared utilities including `FormatKeyDisplay()` for key label formatting
+| Variable | Description |
+|----------|-------------|
+| `ErrStatusBar` | Sentinel error for the `teastatus` package |
+| `ErrInvalidWidth` | Returned when an invalid width is provided |
+
+## Related Components
+
+- [Key Registry](/go-tealeaves/components/key-registry/) — Centralized key binding management that produces `MenuItem` values for the status bar
+- [Positioning](/go-tealeaves/components/positioning/) — Shared utilities including `FormatKeyDisplay()` for key label formatting
+- [Help Visor](/go-tealeaves/components/help-visor/) — Full keyboard shortcut reference overlay that pairs with the status bar
+- [Notifications](/go-tealeaves/components/notification-view/) — Transient toast notifications displayed above the status bar

@@ -171,8 +171,21 @@ help = help.WithContentStyle(teautils.HelpVisorStyle{
 |---------|-------------|
 | `ClosedMsg` | User presses `esc` or `?` to dismiss the help visor |
 
-## Related
+### Theming
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `WithTheme` | `WithTheme(theme teautils.Theme) HelpVisorModel` | Apply `HelpVisorTheme` styles from a `teautils.Theme`; sets border, footer key, and footer label styles |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrHelpVisor` | Sentinel error for the `teahelp` package |
+
+## Related Components
 
 - [Key Registry](/go-tealeaves/components/key-registry/) — Produces `[]teautils.KeyMeta` values suitable for passing to `Open()`
 - [Theming](/go-tealeaves/components/theming/) — `HelpVisorTheme` in `teautils` for consistent styling across components
 - [Status Bar](/go-tealeaves/components/statusbar-view/) — Persistent key display; help visor provides the full reference
+- [Guide Overlay](/go-tealeaves/components/guide-overlay/) — Context-sensitive guidance overlay; help visor is the static key reference counterpart

@@ -114,6 +114,33 @@ dropdown = dropdown.WithKeys(km)
 | `ItemStyle` | `lipgloss.Style` | Style for unselected items (optional) |
 | `SelectedStyle` | `lipgloss.Style` | Style for the highlighted item (optional) |
 
+### DropdownModel Wither Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `WithOptions` | `WithOptions(items []Option) DropdownModel` | Replace the option list |
+| `WithTopMargin` | `WithTopMargin(margin int) DropdownModel` | Set the top margin (rows reserved above) |
+| `WithBottomMargin` | `WithBottomMargin(margin int) DropdownModel` | Set the bottom margin (rows reserved below) |
+| `WithTheme` | `WithTheme(theme teautils.Theme) DropdownModel` | Apply `DropdownTheme` styles from a `teautils.Theme` |
+| `WithKeys` | `WithKeys(km DropdownKeyMap) DropdownModel` | Override the key bindings |
+
+### DefaultDropdownKeyMap
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultDropdownKeyMap` | `DefaultDropdownKeyMap() DropdownKeyMap` | Return the default key bindings for the dropdown |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrDropdown` | Sentinel error for the `teafields` package |
+| `ErrEmptyOptions` | Returned when the options slice is empty |
+| `ErrInvalidBounds` | Returned on invalid position bounds |
+| `ErrInvalidCol` | Returned on invalid column value |
+| `ErrInvalidIndex` | Returned on invalid option index |
+| `ErrInvalidRow` | Returned on invalid row value |
+
 ## Configuration
 
 `DropdownModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration:
@@ -162,9 +189,8 @@ case teafields.DropdownCancelledMsg:
 - Mouse click support requires `tea.WithMouseCellMotion()` on the `tea.Program`.
 </Aside>
 
-## Related
+## Related Components
 
-- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` pattern used by the dropdown
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How `OverlayDropdown()` renders on top of styled content
-- [Wither Methods](/go-tealeaves/guides/wither-methods/) — The immutable update pattern used by `With*()` methods
 - [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Modal dialogs that use the same consumption and overlay patterns
+- [Choice Dialog](/go-tealeaves/components/choice-dialog/) — Multi-option selection dialog with similar hotkey-driven selection
+- [Drilldown View](/go-tealeaves/components/drilldown-view/) — Uses dropdown internally for sibling node selection at each path level

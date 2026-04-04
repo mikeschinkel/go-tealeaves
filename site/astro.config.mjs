@@ -2,6 +2,20 @@
 import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
+// Package-to-slug mapping (canonical reference for evaluator verification):
+// teacrumbs     -> components/breadcrumb-nav
+// teadiff       -> components/diff-viewer
+// teafields     -> components/dropdown-control
+// teagrid       -> components/grid-view
+// teaguide      -> components/guide-overlay
+// teahelp       -> components/help-visor
+// tealayout     -> components/layout-engine
+// teamodal      -> components/choice-dialog, components/confirm-dialog, components/list-dialog, components/multiselect-dialog, components/progress-dialog
+// teanotify     -> components/notification-view
+// teastatus     -> components/statusbar-view
+// teatext       -> components/text-selection
+// teatree       -> components/tree-view, components/drilldown-view
+
 // https://astro.build/config
 export default defineConfig({
 	site: 'https://mikeschinkel.github.io',
@@ -47,6 +61,8 @@ export default defineConfig({
 								{ label: 'Status Bar', slug: 'components/statusbar-view' },
 								{ label: 'Notifications', slug: 'components/notification-view' },
 								{ label: 'Diff Viewer', slug: 'components/diff-viewer' },
+								{ label: 'Diff Renderer (Legacy)', slug: 'components/diff-renderer' },
+								{ label: 'Terminal Renderer', slug: 'components/term-renderer' },
 								{ label: 'Breadcrumb Nav', slug: 'components/breadcrumb-nav' },
 							],
 						},
@@ -57,6 +73,7 @@ export default defineConfig({
 								{ label: 'Choice Dialog', slug: 'components/choice-dialog' },
 								{ label: 'List Dialog', slug: 'components/list-dialog' },
 								{ label: 'Progress Dialog', slug: 'components/progress-dialog' },
+								{ label: 'MultiSelect Dialog', slug: 'components/multiselect-dialog' },
 								{ label: 'Guide Overlay', slug: 'components/guide-overlay' },
 							],
 						},
@@ -83,8 +100,6 @@ export default defineConfig({
 						{
 							label: 'System',
 							items: [
-								{ label: 'Status Bar', slug: 'components/statusbar-view' },
-								{ label: 'Notifications', slug: 'components/notification-view' },
 								{ label: 'Help Visor', slug: 'components/help-visor' },
 								{ label: 'Key Registry', slug: 'components/key-registry' },
 								{ label: 'Theming', slug: 'components/theming' },

@@ -67,21 +67,63 @@ notify := teanotify.NewNotifyModel(opts)
 notify, err := notify.Initialize() // required before use
 ```
 
-### Constants
+### NotifyOpts Fields
 
-| Const | Value | Description |
-|-------|-------|-------------|
-| `DefaultLerpIncrement` | `0.18` | Rate of color fade animation per tick (linear interpolation increment) |
+| Field | Type | Description |
+|-------|------|-------------|
+| `Duration` | `time.Duration` | How long to display the notification before auto-dismissing |
+| `Width` | `int` | Fixed notification width in columns |
+| `MinWidth` | `int` | Minimum notification width (used when `Width` is 0) |
+| `Position` | `Position` | Screen position (e.g. `TopRightPosition`) |
+| `AllowEscToClose` | `bool` | Allow Esc key to dismiss the notification early |
+| `UseNerdFont` | `bool` | Use Nerd Font symbols for notice type prefixes |
+| `UseUnicodePrefix` | `bool` | Use Unicode symbols for notice type prefixes |
+| `NoAnimation` | `bool` | Disable color fade animation |
+| `NoDefaultNotices` | `bool` | Do not register the four built-in notice types |
+| `CustomNotices` | `[]NoticeDefinition` | Additional notice types to register at initialization |
 
 ### Key types
 
 | Type | Description |
 |------|-------------|
 | `NotifyModel` | Main notification component |
-| `NotifyOpts` | Configuration options (Duration, Position, Width) |
-| `NoticeDefinition` | Custom notice type (Key, ForeColor, Prefix, Style) |
-| `NoticeKey` | String identifier (`InfoKey`, `WarnKey`, `ErrorKey`, `DebugKey`) |
+| `NotifyOpts` | Configuration options for `NewNotifyModel` |
+| `NoticeDefinition` | Custom notice type definition — `Key`, `ForeColor`, `Prefix`, `Style` fields |
+| `NoticeKey` | String identifier for a notice type |
 | `Position` | Screen position type |
+
+### Color and Prefix Constants
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `InfoColor` | `"#00FF00"` | Info notice foreground color |
+| `WarnColor` | `"#FFFF00"` | Warning notice foreground color |
+| `ErrorColor` | `"#FF0000"` | Error notice foreground color |
+| `DebugColor` | `"#FF00FF"` | Debug notice foreground color |
+| `BackColor` | `"#000000"` | Background color |
+| `InfoASCIIPrefix` | `"(i)"` | Info prefix (ASCII mode) |
+| `WarningASCIIPrefix` | `"(!)"` | Warning prefix (ASCII mode) |
+| `ErrorASCIIPrefix` | `"[!!]"` | Error prefix (ASCII mode) |
+| `DebugASCIIPrefix` | `"(?)"` | Debug prefix (ASCII mode) |
+| `InfoUnicodePrefix` | `"\u24D8 "` | Info prefix (Unicode mode) |
+| `WarningUnicodePrefix` | `"\u26A0"` | Warning prefix (Unicode mode) |
+| `ErrorUnicodePrefix` | `"\u2718"` | Error prefix (Unicode mode) |
+| `DebugUnicodePrefix` | `"?"` | Debug prefix (Unicode mode) |
+| `InfoNerdSymbol` | `" "` | Info prefix (Nerd Font mode) |
+| `WarnNerdSymbol` | `"󱈸 "` | Warning prefix (Nerd Font mode) |
+| `ErrorNerdSymbol` | `"󰬅 "` | Error prefix (Nerd Font mode) |
+| `DebugNerdSymbol` | `"󰃤 "` | Debug prefix (Nerd Font mode) |
+| `DefaultLerpIncrement` | `0.18` | Rate of color fade animation per tick |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrNotify` | Sentinel error for the `teanotify` package |
+| `ErrInvalidColor` | Returned when an invalid color is provided |
+| `ErrInvalidDuration` | Returned when an invalid duration is provided |
+| `ErrInvalidNoticeKey` | Returned when an invalid notice key is provided |
+| `ErrInvalidWidth` | Returned when an invalid width is provided |
 
 ## Configuration
 
@@ -154,7 +196,8 @@ cmd := notify.NewNotifyCmd("success", "Build complete")
 - Color fade requires terminal with true color support for best results.
 </Aside>
 
-## Related
+## Related Components
 
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — The rendering technique used by notifications to place content on top of terminal output.
-- [Status Bar](/go-tealeaves/components/statusbar-view/) — Status bar component for persistent indicators alongside transient notifications.
+- [Status Bar](/go-tealeaves/components/statusbar-view/) — Status bar component for persistent indicators alongside transient notifications
+- [Guide Overlay](/go-tealeaves/components/guide-overlay/) — Context-sensitive guidance overlay; notifications are transient, guide is interactive
+- [Theming](/go-tealeaves/components/theming/) — `StatusInfo`, `StatusWarn`, `StatusError` palette slots control notification colors

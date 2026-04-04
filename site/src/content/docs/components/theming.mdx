@@ -274,8 +274,9 @@ Each component-specific field on `Theme` is its own struct with exported `lipglo
 
 Additional pre-built fixed-color variables for commonly used ANSI 256 values (e.g., `SemanticColor46`, `SemanticColor178`, `SemanticColor240`) are available in the source; see `teautils/palette.go` for the full list. `SemanticColorNil` represents "no color" (transparent/default).
 
-## Related
+## Related Components
 
-- [Key Registry](/go-tealeaves/components/key-registry/) — Key binding management in teautils
+- [Color Constants](/go-tealeaves/components/color-constants/) — Named ANSI color constants and `SemanticColor` used to build palette slots
+- [Key Registry](/go-tealeaves/components/key-registry/) — Key binding management in teautils; `ThemedHelpVisorStyle` derived from a `Theme`
 - [Help Visor](/go-tealeaves/components/help-visor/) — Help overlay styling in teautils
 - [Positioning](/go-tealeaves/components/positioning/) — Positioning utilities in teautils

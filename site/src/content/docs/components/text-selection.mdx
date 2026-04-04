@@ -113,6 +113,26 @@ func (m model) View() string { return m.editor.View() }
 |----------|------|-------------|
 | `SelectionStyle` | `lipgloss.Style` | Default selection highlight style — blue background (`39`), dark text (`232`). Override to customize. |
 
+### SelectionKeyMap Fields
+
+| Field | Description |
+|-------|-------------|
+| `SelectLeft` | Extend selection left one character |
+| `SelectRight` | Extend selection right one character |
+| `SelectUp` | Extend selection up one line |
+| `SelectDown` | Extend selection down one line |
+| `SelectWordLeft` | Extend selection left one word |
+| `SelectWordRight` | Extend selection right one word |
+| `SelectToLineStart` | Extend selection to start of line |
+| `SelectToLineEnd` | Extend selection to end of line |
+| `SelectToStart` | Extend selection to start of document |
+| `SelectToEnd` | Extend selection to end of document |
+| `SelectAll` | Select all text |
+| `ClearSelection` | Clear/deactivate the selection |
+| `Copy` | Copy selected text to clipboard |
+| `Cut` | Cut selected text to clipboard |
+| `Paste` | Paste from clipboard |
+
 ### Key types
 
 | Type | Description |
@@ -121,6 +141,13 @@ func (m model) View() string { return m.editor.View() }
 | `Selection` | Selection state with `Active` bool and `Start`/`End` positions |
 | `Position` | Cursor position with `Row` and `Col` int fields |
 | `SelectionKeyMap` | Key bindings for all selection and clipboard operations |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrTextSnip` | Sentinel error for the `teatext` package |
+| `ErrInvalidSelection` | Returned on invalid selection operations |
 
 ### Selection methods
 
@@ -208,7 +235,8 @@ Using Ctrl+C for copy requires `tea.WithoutSignalHandler()` on your `tea.Program
 - In single-line mode, Shift+Up, Shift+Down, and document-boundary selection keys are disabled.
 </Aside>
 
-## Related
+## Related Components
 
-- [Dropdown](/go-tealeaves/components/dropdown-control/) — Dropdown component for option selection
-- [Confirmation Modal](/go-tealeaves/components/confirm-dialog/) — Modal dialogs including list modals with inline editing
+- [Dropdown Control](/go-tealeaves/components/dropdown-control/) — Dropdown component for option selection alongside text fields
+- [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Confirmation dialogs for destructive edits or unsaved-changes prompts
+- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list modal with inline editing; shares clipboard and selection patterns

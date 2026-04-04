@@ -1,6 +1,6 @@
 ---
 title: Components
-description: Overview of the 16 Tea Leaves components — production-ready Bubble Tea building blocks for dialogs, views, app chrome, and utilities.
+description: Overview of the 25 Tea Leaves components — production-ready Bubble Tea building blocks for dialogs, views, app chrome, and utilities.
 ---
 
 Tea Leaves ships components across Go modules. Each module has its own `go.mod` — you install only what you need.
@@ -13,6 +13,7 @@ Tea Leaves ships components across Go modules. Each module has its own `go.mod` 
 | [Choice Dialog](/go-tealeaves/components/choice-dialog/) | `ChoiceModel` | teamodal | Multi-option selection with hotkeys |
 | [List Dialog](/go-tealeaves/components/list-dialog/) | `ListModel[T]` | teamodal | Editable list with inline editing and CRUD |
 | [Progress Dialog](/go-tealeaves/components/progress-dialog/) | `ProgressModal` | teamodal | Progress indicator with cancel/background |
+| [MultiSelect Dialog](/go-tealeaves/components/multiselect-dialog/) | `MultiSelectModel[T]` | teamodal | Generic checkbox list modal with scrolling and configurable buttons |
 | [Guide Overlay](/go-tealeaves/components/guide-overlay/) | `GuideModel` | teaguide | Context-aware workflow guidance with direct key dispatch |
 
 ## Views
@@ -23,6 +24,8 @@ Tea Leaves ships components across Go modules. Each module has its own `go.mod` 
 | [Tree View](/go-tealeaves/components/tree-view/) | `TreeModel[T]` | teatree | Expand/collapse, pluggable node providers |
 | [Drilldown View](/go-tealeaves/components/drilldown-view/) | `DrillDownModel[T]` | teatree | Interactive dependency path viewer |
 | [Diff Viewer](/go-tealeaves/components/diff-viewer/) | `SplitDiffModel` / `TUIRenderer` | teadiff | Side-by-side interactive diff and condensed diff rendering |
+| [Diff Renderer (Legacy)](/go-tealeaves/components/diff-renderer/) | `TUIRenderer`, `DiffRenderer` | teadiffr | Condensed diff renderer for non-interactive display — superseded by teadiff |
+| [Terminal Renderer](/go-tealeaves/components/term-renderer/) | `Terminal`, `ProcessViewer` | teaterm | Full PTY emulator and piped process viewer — planned, not yet released |
 | [Breadcrumb Nav](/go-tealeaves/components/breadcrumb-nav/) | `BreadcrumbsModel` | teacrumbs | Mouse-aware breadcrumb trail with click and hover events |
 
 ## Controls
@@ -54,7 +57,8 @@ Tea Leaves ships components across Go modules. Each module has its own `go.mod` 
 | [Theming](/go-tealeaves/components/theming/) | `Theme` / `Palette` | teautils | Consistent colors across all components |
 | [Color Constants](/go-tealeaves/components/color-constants/) | `SemanticColor` | teacolor | Named ANSI 256 colors and zero-allocation style caching |
 | [Positioning](/go-tealeaves/components/positioning/) | (functions) | teautils | ANSI-aware centering and measurement |
-| [Text Selection](/go-tealeaves/components/text-selection/) | `Model` | teatext | Textarea with Shift+Arrow selection and clipboard |
+| [Text Selection](/go-tealeaves/components/text-selection/) | `TextSnipModel` | teatext | Textarea with Shift+Arrow selection and clipboard |
+| [Syntax Highlighting](/go-tealeaves/components/syntax-highlighting/) | `Highlighter` | teahilite | Chroma-based syntax highlighting with configurable themes and language detection |
 
 ## Multi-Module Architecture
 

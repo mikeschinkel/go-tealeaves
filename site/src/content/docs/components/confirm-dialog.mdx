@@ -142,6 +142,19 @@ Sends `ClosedMsg` when the user presses Enter or Esc.
 | `TitleStyle` | `TitleStyle() lipgloss.Style` | Return title style |
 | `Type` | `Type() ModalType` | Return the modal type (`ModalTypeOK` or `ModalTypeYesNo`) |
 
+### ModalKeyMap Fields
+
+`ConfirmModel` exposes a `Keys ModalKeyMap` public field. The key map controls dialog navigation:
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Confirm` | `enter` | Activate the focused button |
+| `Cancel` | `esc` | Cancel (same as No) |
+| `NextButton` | `tab`, `right` | Move to the next button |
+| `PrevButton` | `shift+tab`, `left` | Move to the previous button |
+| `SelectLeft` | `left` | Move left to previous button |
+| `SelectRight` | `right` | Move right to next button |
+
 ### Package-Level OverlayModal Function
 
 In addition to the `ConfirmModel.OverlayModal(background string) string` method, there is a package-level function:
@@ -234,11 +247,17 @@ Uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for conf
 - The `OverlayModal()` function assumes the background view fills the full screen.
 </Aside>
 
-## Related
+### Error Variables
 
-- [Choice Dialog](/go-tealeaves/components/choice-dialog/) — Multi-option selection dialog
-- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list dialog
-- [Progress Dialog](/go-tealeaves/components/progress-dialog/) — Progress indicator dialog
-- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How `OverlayModal()` renders on top of styled content
-- [Wither Methods](/go-tealeaves/guides/wither-methods/) — The immutable update pattern used by `With*()` methods
+| Variable | Description |
+|----------|-------------|
+| `ErrModal` | Sentinel error for the `teamodal` package |
+| `ErrCancelled` | Returned when the modal is cancelled |
+| `ErrInvalidBounds` | Returned on invalid position bounds |
+
+## Related Components
+
+- [Choice Dialog](/go-tealeaves/components/choice-dialog/) — Multi-option selection dialog with hotkeys
+- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list dialog with inline editing and CRUD
+- [Progress Dialog](/go-tealeaves/components/progress-dialog/) — Progress indicator for long-running operations
+- [MultiSelect Dialog](/go-tealeaves/components/multiselect-dialog/) — Checkbox list modal for multi-item selection

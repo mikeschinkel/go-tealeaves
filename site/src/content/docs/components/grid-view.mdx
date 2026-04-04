@@ -262,10 +262,10 @@ grid = grid.WithMetadata(map[string]any{
 
 | Message | Fields | When emitted |
 |---------|--------|-------------|
-| `CellEditStartedMsg` | `ColumnKey string`, `Row Row` | Cell editing begins |
-| `CellEditedMsg` | `ColumnKey string`, `Row Row`, `Value string` | Cell edit confirmed |
-| `RowEditCancelledMsg` | `Row Row` | Row edit cancelled |
-| `RowEditedMsg` | `Row Row` | Row edit confirmed |
+| `CellEditStartedMsg` | `ColumnKey string`, `ColumnIndex int`, `RowIndex int` | Cell editing begins |
+| `CellEditedMsg` | `ColumnKey string`, `ColumnIndex int`, `NewValue any`, `OldValue any`, `RowIndex int` | Cell edit confirmed |
+| `RowEditCancelledMsg` | `RowIndex int` | Row edit cancelled |
+| `RowEditedMsg` | `NewData RowData`, `OldData RowData`, `RowIndex int` | Row edit confirmed |
 
 ### UserEvent Types
 
@@ -314,7 +314,7 @@ grid = grid.WithMetadata(map[string]any{
 
 | Type | Description |
 |------|-------------|
-| `KeyMap` | Key bindings for grid navigation — `RowDown`, `RowUp`, `RowSelectToggle`, `PageDown`, `PageUp`, `PageFirst`, `PageLast` |
+| `KeyMap` | Key bindings for grid navigation — `RowDown`, `RowUp`, `RowSelectToggle`, `PageDown`, `PageUp`, `PageFirst`, `PageLast`, `ColLeft`, `ColRight`, `ColSelect`, `Filter`, `FilterBlur`, `FilterClear`, `ScrollLeft`, `ScrollRight` |
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
@@ -348,6 +348,46 @@ grid = grid.WithMetadata(map[string]any{
 |------|-------------|
 | `SortDirection` | `SortDirectionAsc` or `SortDirectionDesc` |
 | `SortColumn` | Sort specification with `ColumnKey` and `Direction` fields |
+
+### Row Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `ID` | `ID() uint32` | Return the row's unique ID |
+| `IsSelected` | `IsSelected() bool` | Return whether the row is currently selected |
+| `Selected` | `Selected(selected bool) Row` | Return a copy of the row with the selection state set |
+| `WithStyle` | `WithStyle(style lipgloss.Style) Row` | Return a copy of the row with the given style |
+
+### BorderConfig Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `HasFooterSeparator` | `HasFooterSeparator() bool` | Whether a footer separator line is visible |
+| `HasHeaderSeparator` | `HasHeaderSeparator() bool` | Whether a header separator line is visible |
+| `HasInnerDividers` | `HasInnerDividers() bool` | Whether inner column dividers are visible |
+| `HasOuterBorder` | `HasOuterBorder() bool` | Whether the outer border is visible |
+| `InnerDividerWidth` | `InnerDividerWidth() int` | Width consumed by inner dividers |
+| `OuterWidth` | `OuterWidth() int` | Width consumed by the outer border |
+| `WithChars` | `WithChars(chars BorderChars) BorderConfig` | Override border characters |
+| `WithFooter` | `WithFooter(region BorderRegion) BorderConfig` | Override footer region config |
+| `WithHeader` | `WithHeader(region BorderRegion) BorderConfig` | Override header region config |
+| `WithInner` | `WithInner(region BorderRegion) BorderConfig` | Override inner region config |
+| `WithOuter` | `WithOuter(region BorderRegion) BorderConfig` | Override outer region config |
+
+### BorderRegion Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `WithStyle` | `WithStyle(style lipgloss.Style) BorderRegion` | Return a copy with the given style |
+| `WithVisible` | `WithVisible(visible bool) BorderRegion` | Return a copy with visibility set |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrGrid` | Sentinel error for the `teagrid` package |
+| `ErrInvalidColumn` | Returned on invalid column key access |
+| `ErrInvalidRow` | Returned on invalid row access |
 
 ## Related Components
 

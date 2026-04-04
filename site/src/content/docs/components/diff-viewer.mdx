@@ -70,6 +70,9 @@ go get github.com/mikeschinkel/go-tealeaves/teadiff
 |----------|------|-------------|
 | `CommitGroupColors` | `[]color.Color` | 8 distinct colors (green, blue, orange, purple, cyan, red, yellow, brown) for per-commit-group gutter annotations |
 | `SingleCommitColor` | `color.Color` | Green (`#4CAF50`) for single-commit gutter annotations |
+| `ANSIReset` | `string` | ANSI escape sequence to reset terminal color (`"\x1b[0m"`) |
+| `ChangeBlockBgANSI` | `string` | ANSI escape sequence for change-block background color |
+| `SelectionBgANSI` | `string` | ANSI escape sequence for selection background color |
 
 ### Package-Level Constants
 
@@ -77,6 +80,23 @@ go get github.com/mikeschinkel/go-tealeaves/teadiff
 |-------|-------|-------------|
 | `ChangeBlockBgColor` | `"24"` | Dim cyan background color for change blocks |
 | `SelectionBgColor` | `"7"` | Light gray background color for selected rows |
+
+### RowAnnotation Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Char` | `rune` | Gutter character to render (e.g. `'●'`) |
+| `Color` | `color.Color` | Color for the gutter character |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrDiffView` | Sentinel error for the `teadiff` package |
+| `ErrEmptyDiff` | Returned when diff content is empty |
+| `ErrInvalidBlock` | Returned on invalid block access |
+| `ErrInvalidContent` | Returned on invalid content |
+| `ErrInvalidFile` | Returned on invalid file reference |
 
 ### CondensedBlock Struct
 
@@ -390,8 +410,9 @@ type DiffRenderer interface {
 }
 ```
 
-## Related
+## Related Components
 
 - [Syntax Highlighting](/go-tealeaves/components/syntax-highlighting/) — `teahilite` can supply the `HighlightFunc` for `SplitDiffModel`
 - [Theming](/go-tealeaves/components/theming/) — `TintPositive` and `TintNegative` palette slots control diff colors
-- [Migrating from teadiffr](/go-tealeaves/migration/teadiffr/) — Import path change and what's new
+- [Diff Renderer](/go-tealeaves/components/diff-renderer/) — Deprecated predecessor; types migrated to this package
+- [Pane Widgets](/go-tealeaves/components/pane-widgets/) — Embed `SplitDiffModel` in a `StyledPane` for bordered multi-pane diff views

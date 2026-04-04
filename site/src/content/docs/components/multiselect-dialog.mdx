@@ -205,10 +205,17 @@ Content withers: `WithTitle`, `WithMessage`, `WithFooter`, `WithMaxVisible`, `Wi
 - `SetItems` resets all checked state to fully-checked regardless of the original `AllChecked` value.
 </Aside>
 
-## Related
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrModal` | Sentinel error for the `teamodal` package |
+| `ErrCancelled` | Returned when the modal is cancelled |
+| `ErrInvalidBounds` | Returned on invalid position bounds |
+
+## Related Components
 
 - [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list with inline editing and CRUD
 - [Choice Dialog](/go-tealeaves/components/choice-dialog/) — Single-choice dialog with hotkeys
 - [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Simple Yes/No and OK dialogs
-- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How overlays render on top of styled content
+- [Progress Dialog](/go-tealeaves/components/progress-dialog/) — Progress indicator to show after a multiselect action triggers a long-running operation

@@ -186,7 +186,8 @@ header = header.WithStyle(lipgloss.NewStyle().Background(teacolor.SlateGray))
 
 `PlainPane.SetSize` stores only the width — the `height` parameter is silently discarded and `Height()` always returns `0`. If your content callback needs the height, use `StyledPane` instead.
 
-## Related
+## Related Components
 
 - [Layout Engine](/go-tealeaves/components/layout-engine/) — `tealayout` is the layout engine that calls `SetSize`, `Style`, `SizeHint`, and `Focus`/`Blur` on these panes
 - [Theming](/go-tealeaves/components/theming/) — Use `teacolor` constants for `BorderStyle` colors
+- [Color Constants](/go-tealeaves/components/color-constants/) — Named ANSI colors used in `BorderStyle.Color` and `BorderStyle.FocusedColor`

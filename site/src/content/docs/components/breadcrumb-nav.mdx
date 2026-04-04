@@ -231,7 +231,25 @@ case teacrumbs.CrumbClickedMsg:
 | `CrumbHoverMsg` | `Index int`, `Crumb Crumb` | Mouse enters a crumb region |
 | `CrumbHoverLeaveMsg` | (none) | Mouse leaves all crumb regions |
 
-## Related
+### Additional BreadcrumbsModel Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `WithTheme` | `WithTheme(theme teautils.Theme) BreadcrumbsModel` | Apply `BreadcrumbTheme` styles from a `teautils.Theme` |
+| `HandleMouse` | `HandleMouse(msg tea.MouseMsg) tea.Cmd` | Process a mouse event; emits `CrumbClickedMsg` or `CrumbHoverMsg` |
+| `HitTest` | `HitTest(x int, y int) int` | Return the crumb index at terminal coordinates; `-1` if none |
+| `Separator` | `Separator() string` | Return the current separator string |
+| `Width` | `Width() int` | Return the current display width |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrBreadcrumbs` | Sentinel error for the `teacrumbs` package |
+| `ErrIndexOutOfRange` | Returned when a crumb index is out of bounds |
+
+## Related Components
 
 - [Status Bar](/go-tealeaves/components/statusbar-view/) — Persistent status bar where breadcrumbs are often embedded
 - [Tree View](/go-tealeaves/components/tree-view/) — Hierarchical view that breadcrumbs pair well with
+- [Layout Engine](/go-tealeaves/components/layout-engine/) — Use `StackLayoutModel` for breadcrumb-integrated drill-down navigation

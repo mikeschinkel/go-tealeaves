@@ -73,6 +73,9 @@ return viewer.View()
 | Function | Description |
 |----------|-------------|
 | `NewDrillDownModel[T](root, args)` | Create a drilldown model from a root node |
+| `DefaultDrillDownBorderStyle` | `DefaultDrillDownBorderStyle() lipgloss.Style` | Default border style for the drilldown viewer |
+| `DefaultDrillDownPathStyle` | `DefaultDrillDownPathStyle() lipgloss.Style` | Default style for non-selected path items |
+| `DefaultDrillDownSelectedStyle` | `DefaultDrillDownSelectedStyle() lipgloss.Style` | Default style for the currently selected level |
 
 ### DrillDownArgs[T]
 
@@ -169,8 +172,17 @@ The function can capture any context it needs via closure.
 `Initialize()` must be called after `NewDrillDownModel()` before the model can be used. The initial path is built lazily to allow configuration before display.
 </Aside>
 
-## Related
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrDrillDown` | Sentinel error for drilldown operations |
+| `ErrEmptyPath` | Returned when the path is empty |
+| `ErrInvalidLevel` | Returned on invalid level access |
+| `ErrInvalidNode` | Returned on invalid node operations |
+
+## Related Components
 
 - [Tree View](/go-tealeaves/components/tree-view/) — The non-linear tree component in `teatree`; `DrillDownModel` is the path-focused counterpart
-- [Dropdown](/go-tealeaves/components/dropdown-control/) — Dropdown component used internally for sibling selection
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How the dropdown renders on top of the path viewer
+- [Dropdown Control](/go-tealeaves/components/dropdown-control/) — Dropdown component used internally for sibling selection at each level
+- [Layout Engine](/go-tealeaves/components/layout-engine/) — Embed the drilldown view as a pane in a multi-pane layout

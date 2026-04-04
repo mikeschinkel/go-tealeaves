@@ -122,8 +122,6 @@ type GuideItem struct {
 
 | Field | Type | Description |
 |-------|------|-------------|
-| `ActionKey` | `string` | Key that triggers this action (e.g. `"enter"`, `"v"`) |
-| `KeyDisplay` | `string` | Display string for the key (e.g. `"[Enter]"`) |
 | `Label` | `string` | Short action label |
 | `Prose` | `string` | Prose explanation (shown for `PriorityRecommended` items) |
 | `BlockReason` | `string` | Why this item is blocked (`PriorityBlocked` only) |
@@ -140,6 +138,28 @@ type GuideItem struct {
 
 `GuideStyles` configures the visual presentation of the guide overlay. Obtain a default value via `DefaultGuideStyles()`.
 
+| Field | Type | Description |
+|-------|------|-------------|
+| `Border` | `lipgloss.Style` | Style for the overlay border |
+| `Title` | `lipgloss.Style` | Style for the guide title line |
+| `SectionHeading` | `lipgloss.Style` | Style for section heading text |
+| `ItemKey` | `lipgloss.Style` | Style for the key display (e.g. `[Enter]`) |
+| `ItemLabel` | `lipgloss.Style` | Style for the item label |
+| `ItemProse` | `lipgloss.Style` | Style for the prose explanation |
+| `BlockedHeading` | `lipgloss.Style` | Style for the blocked section heading |
+| `BlockedItem` | `lipgloss.Style` | Style for blocked item text |
+| `BlockReason` | `lipgloss.Style` | Style for the block reason text |
+| `Footer` | `lipgloss.Style` | Style for the footer line |
+
+### GuideKeyMap Fields
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Close` | `esc`, `q` | Close the guide overlay |
+| `ScrollUp` | `up`, `k` | Scroll content up |
+| `ScrollDown` | `down`, `j` | Scroll content down |
+| `ToggleBlock` | `b` | Toggle the blocked items section |
+
 ### ActionSelectedMsg
 
 ```go
@@ -148,17 +168,33 @@ type ActionSelectedMsg struct {
 }
 ```
 
+### GuideDismissedMsg
+
+```go
+type GuideDismissedMsg struct{}
+```
+
+Emitted when the user closes the guide without selecting an action (via `esc` or `q`).
+
 ### Model Methods
 
-| Method | Description |
-|--------|-------------|
-| `NewGuideModel()` | Creates with default key bindings and styles |
-| `guide.Open(data)` | Opens the overlay with the given content; returns `(GuideModel, tea.Cmd)` |
-| `guide.Close()` | Closes the overlay |
-| `guide.IsOpen()` | Returns whether the overlay is currently visible |
-| `guide.SetSize(w, h)` | Updates screen dimensions (also handled by `WindowSizeMsg`) |
-| `guide.Update(msg)` | Standard Bubble Tea `Update` |
-| `guide.OverlayModal(bg)` | Renders the guide overlaid on the background string |
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Open` | `Open(data GuideData) (GuideModel, tea.Cmd)` | Opens the overlay with the given content |
+| `Close` | `Close() GuideModel` | Closes the overlay |
+| `IsOpen` | `IsOpen() bool` | Returns whether the overlay is currently visible |
+| `SetSize` | `SetSize(w, h int) GuideModel` | Updates screen dimensions |
+| `WithStyles` | `WithStyles(styles GuideStyles) GuideModel` | Override the guide styles |
+| `OverlayModal` | `OverlayModal(background string) string` | Renders the guide overlaid on the background string |
+| `Init` | `Init() tea.Cmd` | Returns nil (no initial command) |
+| `Update` | `Update(msg tea.Msg) (tea.Model, tea.Cmd)` | Standard Bubble Tea `Update` |
+| `View` | `View() tea.View` | Returns the rendered guide |
+
+### Error Variables
+
+| Variable | Description |
+|----------|-------------|
+| `ErrGuide` | Sentinel error for the `teaguide` package |
 
 ## Key bindings
 
@@ -221,8 +257,8 @@ guide.Styles = teaguide.GuideStyles{
 }
 ```
 
-## Related
+## Related Components
 
-- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How `OverlayModal` places the guide over terminal content
 - [Help Visor](/go-tealeaves/components/help-visor/) — For static key binding reference; guide is for dynamic, context-sensitive guidance
 - [Notifications](/go-tealeaves/components/notification-view/) — For transient feedback messages, not guidance flows
+- [Status Bar](/go-tealeaves/components/statusbar-view/) — Displays key hints persistently; guide shows contextual detail on demand

@@ -126,7 +126,8 @@ viewer := teaterm.NewProcessViewer(exec.Command("go", "test", "./..."),
 
 No API is available yet — this package is planned and not yet released. The API surface described above is architectural intent based on feasibility research; actual types and signatures will be defined when implementation begins.
 
-## Related
+## Related Components
 
 - [Diff Viewer](/go-tealeaves/components/diff-viewer/) — `teadiff` renders static diff content; `teaterm` will render live processes
 - [Layout Engine](/go-tealeaves/components/layout-engine/) — embed `Terminal` as a pane in a multi-pane layout
+- [Pane Widgets](/go-tealeaves/components/pane-widgets/) — `StyledPane` / `ScrollPane` for hosting process output in a bordered, scrollable container
