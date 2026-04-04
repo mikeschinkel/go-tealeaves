@@ -155,3 +155,37 @@ Recipe fix: Split doc-update briefs into two passes maximum: (1) structural pass
 Source: writer-tealeaves.
 The phrase "promote DrillDownKeyMap to a proper API entry" was ambiguous. Workers did not know whether to add a subsection heading, a table, a prose paragraph, or a function signature row.
 Recipe fix: When a brief asks to "promote," "expand," or "document" a type, include a concrete model: "Add a subsection heading (### TypeName), a one-line description, a fields table (Field | Type | Description), and a row in the nearest API table for any DefaultX() constructor."
+
+---
+
+#### Auditor post-mortem
+
+**AP-1: Clarify the exact '## API Reference' heading string requirement**
+Source: auditor-tealeaves.
+C8 requires an "## API Reference" section, but several pages (diff-viewer, layout-engine, dropdown-control) had substantial API coverage under non-standard headings. The auditor flagged these as missing when they had real content.
+Recipe fix: Specify in C8 and in briefs whether the criterion requires the exact string "## API Reference" or whether any structured API table qualifies. If the exact heading is required, add a one-time migration task to standardize headings. If equivalent content suffices, define what "equivalent" means (e.g., "a table with columns Name | Signature | Description").
+
+**AP-2: Provide an explicit infrastructure exclusion list for go doc diffs**
+Source: auditor-tealeaves.
+Running `go doc -all` on each package surfaced 15+ doterr infrastructure functions per package (NewErr, WithErr, AppendErr, ErrMeta, ErrKV variants, IsDotErrEntry, etc.) that are intentionally excluded per C10. Without an explicit list, the auditor had to re-derive exclusions for every package.
+Recipe fix: Include a standing exclusion list in the brief and in the recipe: "Exclude from API coverage checks any symbol whose name appears in doterr.go or errors.go, plus: AppendErr, CombineErrs, ErrMeta, ErrValue, Errors, FindErr, MsgErr, NewErr, WithErr, IsDotErrEntry, and all KV-suffixed types and functions." Commit this list to a shared file (e.g., .h2/api-exclusions.txt) so all agents reference the same set.
+
+**AP-3: Separate structural completeness checks from content accuracy checks**
+Source: auditor-tealeaves.
+Structural checks (does the ## Install section exist?) are fast grep scans that can cover all pages in minutes. Content accuracy checks (does the API table match go doc output?) require line-by-line comparison and take much longer. Mixing them in one pass forces the auditor to switch context constantly.
+Recipe fix: Split C8 (structure) and C10 (accuracy) into separate audit passes or assign them to separate agents. Brief each agent with a focused checklist for their pass only.
+
+**AP-4: Include a 'verify prior fixes' step in the audit brief**
+Source: auditor-tealeaves.
+The project has an existing site/AUDIT.md with prior P0/P1 findings. The auditor had no instruction to cross-reference it, so prior fixes may have been re-audited redundantly or missed if they regressed.
+Recipe fix: Add a standard step to all audit briefs: "Read site/AUDIT.md (or the prior audit file). For each P0/P1 item marked fixed, verify the fix is present in the current state. Report any regressions as new findings."
+
+**AP-5: Provide a report template upfront**
+Source: auditor-tealeaves.
+Without a specified output format, auditor reports varied in structure, making it harder for downstream agents (doc-writers) to parse and act on findings.
+Recipe fix: Include a report template in the audit brief. At minimum: "For each package, output: PACKAGE | TYPE | FINDING | SEVERITY (P0/P1/P2) | FILE:LINE." Provide this as a markdown table template. This allows doc-writer agents to ingest audit output directly as a task list.
+
+**AP-6: Weight checklist items by effort and mark P0 vs. nice-to-have**
+Source: auditor-tealeaves.
+The go doc diff accounted for roughly 80% of audit time. Without priority markers, auditors spent equal time on high-value and low-value checks.
+Recipe fix: Mark each checklist item in the brief with a priority tier: P0 (must complete before signoff), P1 (complete if time allows), P2 (record but do not block). The go doc diff is always P0; heading/section checks are P1; style and prose quality are P2.
