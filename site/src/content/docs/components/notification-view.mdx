@@ -45,7 +45,33 @@ return m.notify.Render(fullContent)
 - ANSI-aware overlay rendering via `Render()`
 - Minimum width configuration
 
-## API reference
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewNotifyModel` | `NewNotifyModel(opts NotifyOpts) NotifyModel` | Create a notification model |
+
+### Two-Step Initialization
+
+`NotifyModel` requires a two-step initialization pattern:
+
+1. `NewNotifyModel(opts)` — creates the model with configuration
+2. `Initialize() (NotifyModel, error)` — registers built-in notice types and validates configuration; **must be called before use**
+
+This is different from the single-step `Init() tea.Cmd` that satisfies `tea.Model`. Call `Initialize()` once at startup, then use `Init()` as part of the normal Bubble Tea lifecycle.
+
+```go
+notify := teanotify.NewNotifyModel(opts)
+notify, err := notify.Initialize() // required before use
+```
+
+### Constants
+
+| Const | Value | Description |
+|-------|-------|-------------|
+| `DefaultLerpIncrement` | `0.18` | Rate of color fade animation per tick (linear interpolation increment) |
 
 ### Key types
 

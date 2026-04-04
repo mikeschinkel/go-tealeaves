@@ -68,7 +68,7 @@ crumb := teacrumbs.NewCrumb("Home", nil)
 | `Renderer` | `Renderer` | Custom renderer for dynamic display text |
 | `Data` | `any` | App-defined payload, never inspected by the model |
 
-## API reference
+## API Reference
 
 ### Creating and updating
 
@@ -178,6 +178,58 @@ case teacrumbs.CrumbClickedMsg:
 ## Wither methods
 
 `BreadcrumbsModel` uses value semantics throughout: `Push`, `Pop`, `SetCrumbs`, `WithStyles`, and `WithSeparator` all return a new copy without mutating the receiver. See [Wither Methods](/go-tealeaves/guides/wither-methods/) for the pattern.
+
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewBreadcrumbsModel` | `NewBreadcrumbsModel() BreadcrumbsModel` | Create a model with default styles and `" > "` separator |
+| `NewCrumb` | `NewCrumb(text string, args *CrumbArgs) Crumb` | Create a crumb with optional args |
+| `DefaultStyles` | `DefaultStyles() Styles` | Return default cyan/gray styles |
+
+### Renderer Interface
+
+| Type | Description |
+|------|-------------|
+| `Renderer` | Interface for generating custom display text for a single crumb — `Render(index int, model BreadcrumbsModel) string` |
+| `RendererFunc` | Function type adapting any `func(int, BreadcrumbsModel) string` to `Renderer` |
+
+### Styles Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ParentStyle` | `lipgloss.Style` | Applied to all crumbs except the last |
+| `CurrentStyle` | `lipgloss.Style` | Applied to the last (current) crumb |
+| `SeparatorStyle` | `lipgloss.Style` | Applied to the separator string between crumbs |
+| `HoverStyle` | `lipgloss.Style` | Applied to the crumb under the mouse cursor |
+
+### CrumbArgs Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Short` | `string` | Compact text for non-current crumbs; falls back to `Text` if empty |
+| `Style` | `*lipgloss.Style` | Per-crumb style override |
+| `Renderer` | `Renderer` | Custom renderer for dynamic display text |
+| `Data` | `any` | App-defined payload, available in click/hover messages |
+
+### Inbound Messages
+
+| Message | Fields | Description |
+|---------|--------|-------------|
+| `PushCrumbMsg` | `Crumb Crumb` | Appends a crumb to the trail |
+| `PopCrumbMsg` | (none) | Removes the last crumb |
+| `SetCrumbMsg` | `Index int`, `Crumb Crumb` | Updates the crumb at a specific index |
+| `SetCrumbsMsg` | `Crumbs []Crumb` | Replaces the entire trail |
+
+### Outbound Messages
+
+| Message | Fields | Description |
+|---------|--------|-------------|
+| `CrumbClickedMsg` | `Index int`, `Crumb Crumb`, `Button tea.MouseButton` | Mouse click on a crumb |
+| `CrumbHoverMsg` | `Index int`, `Crumb Crumb` | Mouse enters a crumb region |
+| `CrumbHoverLeaveMsg` | (none) | Mouse leaves all crumb regions |
 
 ## Related
 

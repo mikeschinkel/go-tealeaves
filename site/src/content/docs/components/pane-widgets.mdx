@@ -135,6 +135,10 @@ case tea.KeyPressMsg:
 
 `PlainPane` is a borderless, non-focusable pane for static content like headers, footers, and labels. It implements `Viewer` and `SetSizer` only.
 
+<Aside type="note">
+`PlainPane.SetSize` stores only the width — the height parameter is silently discarded. `Height()` always returns 0. If your content callback needs a height, use `StyledPane` instead.
+</Aside>
+
 ```go
 header := teapane.NewPlainPane(func(w, h int, _ bool) string {
     return lipgloss.NewStyle().Bold(true).Render("My App v1.0")
@@ -151,6 +155,36 @@ header = header.WithStyle(lipgloss.NewStyle().Background(teacolor.SlateGray))
 | `PlainPane` | `func(w, h int, focused bool) string` | `focused` is always false |
 | `StyledPane` | `func(w, h int, focused bool) string` | `focused` reflects actual focus state |
 | `ScrollPane` | `func(w, h, offset int) string` | `offset` is current scroll line |
+
+## API Reference
+
+### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewPlainPane` | `NewPlainPane(content ContentFunc) *PlainPane` | Create a borderless, non-focusable pane for static content |
+| `NewStyledPane` | `NewStyledPane(border BorderStyle, content ContentFunc) *StyledPane` | Create a bordered, focusable pane |
+| `NewScrollPane` | `NewScrollPane(border BorderStyle, content ScrollContentFunc) *ScrollPane` | Create a scrollable, bordered pane |
+
+### Types
+
+| Type | Description |
+|------|-------------|
+| `ContentFunc` | `func(width, height int, focused bool) string` — content callback for `PlainPane` and `StyledPane` |
+| `ScrollContentFunc` | `func(width, height, offset int) string` — content callback for `ScrollPane` (receives current scroll offset) |
+
+### ScrollPane API
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `ScrollOffset` | `ScrollOffset() int` | Return the current scroll offset (line number of the first visible line) |
+| `SetTotalLines` | `SetTotalLines(n int)` | Set total line count so offset is clamped correctly |
+| `ScrollUp` | `ScrollUp()` | Move viewport up by one line |
+| `ScrollDown` | `ScrollDown()` | Move viewport down by one line (auto-clamped to total lines) |
+
+### PlainPane Limitations
+
+`PlainPane.SetSize` stores only the width — the `height` parameter is silently discarded and `Height()` always returns `0`. If your content callback needs the height, use `StyledPane` instead.
 
 ## Related
 

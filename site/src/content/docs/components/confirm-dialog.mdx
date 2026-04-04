@@ -5,7 +5,13 @@ description: Yes/No and OK confirmation dialogs with ANSI-aware overlay renderin
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teamodal` · **Type:** `ConfirmModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+> **Module:** `teamodal` · **Type:** `ConfirmModel`
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+```
 
 Binary Yes/No and single-button OK dialogs for confirmations and alerts. Renders as a centered overlay on top of your application content using ANSI-aware compositing. Supports keyboard and mouse interaction, custom button labels, and styled borders.
 
@@ -72,7 +78,102 @@ Sends `ClosedMsg` when the user presses Enter or Esc.
 | Type | Description |
 |------|-------------|
 | `ConfirmModel` | Yes/No and OK dialogs — implements `tea.Model` |
-| `ConfirmModelArgs` | Configuration: `Title`, `DefaultYes`, `YesLabel`, `NoLabel`, `OKLabel`, style fields |
+| `ModalType` | `ModalTypeOK` or `ModalTypeYesNo` — controls button layout |
+| `ConfirmModelArgs` | Configuration: `Title`, `DefaultYes`, `YesLabel`, `NoLabel`, `OKLabel`, alignment fields, style fields |
+
+### Theming
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `WithTheme` | `WithTheme(theme teautils.Theme) ConfirmModel` | Apply all modal styles from a `teautils.Theme` at once; sets `BorderStyle`, `TitleStyle`, `MessageStyle`, `ButtonStyle`, and `FocusedButtonStyle` |
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Open` | `Open() (ConfirmModel, tea.Cmd)` | Open the modal; pre-calculates position for overlay |
+| `Close` | `Close() (ConfirmModel, tea.Cmd)` | Close the modal |
+| `SetSize` | `SetSize(width, height int) ConfirmModel` | Set screen dimensions for centering |
+| `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
+| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over a background view |
+| `TitleAlign` | `TitleAlign() lipgloss.Position` | Current title alignment (defaults to `lipgloss.Center`) |
+| `MessageAlign` | `MessageAlign() lipgloss.Position` | Current message alignment |
+| `ButtonAlign` | `ButtonAlign() lipgloss.Position` | Current button alignment |
+| `WithTextAlign` | `WithTextAlign(align lipgloss.Position) ConfirmModel` | Set alignment for both title and message |
+| `WithTitleAlign` | `WithTitleAlign(align lipgloss.Position) ConfirmModel` | Override title alignment |
+| `WithMessageAlign` | `WithMessageAlign(align lipgloss.Position) ConfirmModel` | Override message alignment |
+| `WithButtonAlign` | `WithButtonAlign(align lipgloss.Position) ConfirmModel` | Set button row alignment |
+| `WithTitle` | `WithTitle(title string) ConfirmModel` | Set modal title |
+| `WithMessage` | `WithMessage(message string) ConfirmModel` | Set modal message |
+| `WithYesLabel` | `WithYesLabel(label string) ConfirmModel` | Override the Yes button label |
+| `WithNoLabel` | `WithNoLabel(label string) ConfirmModel` | Override the No button label |
+| `WithOKLabel` | `WithOKLabel(label string) ConfirmModel` | Override the OK button label |
+| `WithBorderStyle` | `WithBorderStyle(style lipgloss.Style) ConfirmModel` | Override border style |
+| `WithTitleStyle` | `WithTitleStyle(style lipgloss.Style) ConfirmModel` | Override title style |
+| `WithMessageStyle` | `WithMessageStyle(style lipgloss.Style) ConfirmModel` | Override message style |
+| `WithButtonStyle` | `WithButtonStyle(style lipgloss.Style) ConfirmModel` | Override unfocused button style |
+| `WithFocusedButtonStyle` | `WithFocusedButtonStyle(style lipgloss.Style) ConfirmModel` | Override focused button style |
+
+### ModalType Constants
+
+| Const | Value | Description |
+|-------|-------|-------------|
+| `ModalTypeOK` | `0` | Single OK button (alert dialog) |
+| `ModalTypeYesNo` | `1` | Yes and No buttons (confirmation dialog) |
+
+### ConfirmModel Accessor Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `BorderStyle` | `BorderStyle() lipgloss.Style` | Return the border style |
+| `ButtonAlign` | `ButtonAlign() lipgloss.Position` | Return button alignment |
+| `ButtonStyle` | `ButtonStyle() lipgloss.Style` | Return unfocused button style |
+| `FocusButton` | `FocusButton() int` | Return index of the currently focused button |
+| `FocusedButtonStyle` | `FocusedButtonStyle() lipgloss.Style` | Return focused button style |
+| `Message` | `Message() string` | Return the modal message |
+| `MessageAlign` | `MessageAlign() lipgloss.Position` | Return message alignment |
+| `MessageStyle` | `MessageStyle() lipgloss.Style` | Return message style |
+| `NoLabel` | `NoLabel() string` | Return the No button label |
+| `OKLabel` | `OKLabel() string` | Return the OK button label |
+| `ScreenHeight` | `ScreenHeight() int` | Return the screen height |
+| `ScreenWidth` | `ScreenWidth() int` | Return the screen width |
+| `Title` | `Title() string` | Return the modal title |
+| `TitleAlign` | `TitleAlign() lipgloss.Position` | Return title alignment |
+| `TitleStyle` | `TitleStyle() lipgloss.Style` | Return title style |
+| `Type` | `Type() ModalType` | Return the modal type (`ModalTypeOK` or `ModalTypeYesNo`) |
+
+### Package-Level OverlayModal Function
+
+In addition to the `ConfirmModel.OverlayModal(background string) string` method, there is a package-level function:
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `OverlayModal` | `OverlayModal(background, foreground string, row, col int) string` | ANSI-aware overlay compositing — places `foreground` on `background` at the given `row` and `col` |
+
+### Default Style Functions
+
+All `teamodal` components share these package-level style constructors:
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultBorderStyle` | `DefaultBorderStyle() lipgloss.Style` | Default modal border style |
+| `DefaultButtonStyle` | `DefaultButtonStyle() lipgloss.Style` | Default unfocused button style |
+| `DefaultFocusedButtonStyle` | `DefaultFocusedButtonStyle() lipgloss.Style` | Default focused button style |
+| `DefaultTitleStyle` | `DefaultTitleStyle() lipgloss.Style` | Default title style |
+| `DefaultMessageStyle` | `DefaultMessageStyle() lipgloss.Style` | Default message style |
+| `DefaultListItemStyle` | `DefaultListItemStyle() lipgloss.Style` | Default list item style |
+| `DefaultSelectedItemStyle` | `DefaultSelectedItemStyle() lipgloss.Style` | Default selected item style |
+| `DefaultEditItemStyle` | `DefaultEditItemStyle() lipgloss.Style` | Default edit-mode item style |
+| `DefaultActiveItemStyle` | `DefaultActiveItemStyle() lipgloss.Style` | Default active item style |
+| `DefaultCheckedStyle` | `DefaultCheckedStyle() lipgloss.Style` | Default checked checkbox style |
+| `DefaultUncheckedStyle` | `DefaultUncheckedStyle() lipgloss.Style` | Default unchecked checkbox style |
+| `DefaultCancelKeyStyle` | `DefaultCancelKeyStyle() lipgloss.Style` | Default style for `[esc]` in cancel hint |
+| `DefaultCancelTextStyle` | `DefaultCancelTextStyle() lipgloss.Style` | Default style for cancel text |
+| `DefaultStatusStyle` | `DefaultStatusStyle() lipgloss.Style` | Default status indicator style |
+| `DefaultListFooterStyle` | `DefaultListFooterStyle() lipgloss.Style` | Default list footer style |
+| `DefaultListScrollbarStyle` | `DefaultListScrollbarStyle() lipgloss.Style` | Default scrollbar track style |
+| `DefaultListScrollbarThumbStyle` | `DefaultListScrollbarThumbStyle() lipgloss.Style` | Default scrollbar thumb style |
+| `DefaultMultiSelectFooterStyle` | `DefaultMultiSelectFooterStyle() lipgloss.Style` | Default multiselect footer style |
 
 ### Messages
 
@@ -90,12 +191,19 @@ modal := teamodal.NewYesNoModal("message", &teamodal.ConfirmModelArgs{
     DefaultYes:         true,
     YesLabel:           "Confirm",
     NoLabel:            "Cancel",
+    // Alignment (optional — defaults to lipgloss.Center)
+    TextAlign:          lipgloss.Left,   // sets both TitleAlign and MessageAlign
+    ButtonAlign:        lipgloss.Center,
+    // Style overrides (optional)
     TitleStyle:         lipgloss.NewStyle().Bold(true),
     MessageStyle:       lipgloss.NewStyle(),
     ButtonStyle:        lipgloss.NewStyle(),
     FocusedButtonStyle: lipgloss.NewStyle().Bold(true),
     BorderStyle:        lipgloss.NewStyle(),
 })
+
+// Apply a theme (sets all style fields at once)
+modal = modal.WithTheme(myTheme)
 
 // Wither methods for post-construction updates
 modal = modal.
@@ -106,6 +214,7 @@ modal = modal.
 ```
 
 Uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration.
+`WithTheme()` accepts a `teautils.Theme` and applies `theme.Modal.*` style fields. Individual `With*Style()` calls made after `WithTheme()` take precedence.
 
 ## Keyboard Shortcuts
 

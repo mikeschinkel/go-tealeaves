@@ -23,6 +23,72 @@ This package is provisional as of v0.1.0. The public API may change in minor rel
 go get github.com/mikeschinkel/go-tealeaves/teadiff
 ```
 
+## API Reference
+
+### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewSplitDiffModel` | `NewSplitDiffModel(args *SplitDiffModelArgs) SplitDiffModel` | Create a new split diff model |
+| `NewBlockMarker` | `NewBlockMarker(lineNo int, lineCount int) *BlockMarker` | Create a block-start marker |
+| `NewPlaceholderLine` | `NewPlaceholderLine(lineNo int, hunkLine int) *PlaceholderLine` | Create an alignment placeholder |
+
+### PaneLine Interface
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `LineNo` | `LineNo() int` | Display line number |
+| `PaneLine` | `PaneLine()` | Marker method for type safety |
+
+### BlockMarker Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `IsBlockStart` | `IsBlockStart() bool` | Whether this marker represents the start of a change block |
+| `LineNo` | `LineNo() int` | Display line number |
+| `PaneLine` | `PaneLine()` | Implements `PaneLine` interface |
+
+### PlaceholderLine Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `IsWithinHunk` | `IsWithinHunk() bool` | Whether this placeholder is inside a hunk |
+| `LineNo` | `LineNo() int` | Display line number |
+| `PaneLine` | `PaneLine()` | Implements `PaneLine` interface |
+
+### SelectAction Constants
+
+| Const | Value | Description |
+|-------|-------|-------------|
+| `SelectActionNone` | `0` | No selection active |
+| `SelectActionBlock` | `1` | Current change block selected |
+| `SelectActionAllBlocks` | `2` | All change blocks selected |
+
+### Package-Level Variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `CommitGroupColors` | `[]color.Color` | 8 distinct colors (green, blue, orange, purple, cyan, red, yellow, brown) for per-commit-group gutter annotations |
+| `SingleCommitColor` | `color.Color` | Green (`#4CAF50`) for single-commit gutter annotations |
+
+### Package-Level Constants
+
+| Const | Value | Description |
+|-------|-------|-------------|
+| `ChangeBlockBgColor` | `"24"` | Dim cyan background color for change blocks |
+| `SelectionBgColor` | `"7"` | Light gray background color for selected rows |
+
+### CondensedBlock Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Type` | `string` | `"added"` or `"deleted"` |
+| `LineCount` | `int` | Total number of changed lines |
+| `ContextBefore` | `[]string` | Unchanged lines before the change |
+| `ChangedLines` | `[]string` | The added or deleted lines |
+| `ContextAfter` | `[]string` | Unchanged lines after the change |
+| `IsTruncated` | `bool` | Whether the block was truncated |
+
 ## SplitDiffModel — interactive side-by-side diff
 
 `SplitDiffModel` displays two diff panes side-by-side with synchronized horizontal and vertical scrolling, a cursor row, line selection, and optional gutter annotations.
@@ -191,6 +257,7 @@ type SplitPaneRow struct {
 | `NewTextLine` | `NewTextLine(lineNo int, text string) *TextLine` | Create a text cell |
 | `NewBlockMarker` | `NewBlockMarker(lineNo int, lineCount int) *BlockMarker` | Create a block-start marker |
 | `NewPlaceholderLine` | `NewPlaceholderLine(lineNo int, hunkLine int) *PlaceholderLine` | Create an alignment placeholder |
+| `(*BlockMarker).IsBlockStart` | `IsBlockStart() bool` | Reports whether this marker represents the start of a change block on the opposite pane |
 
 ### SelectAction
 
@@ -213,9 +280,11 @@ Two constructors are available:
 | `NewTUIRenderer` | `NewTUIRenderer(args *TUIRendererArgs) *TUIRenderer` | Create with explicit colors; pass `nil` for built-in defaults |
 | `NewThemedTUIRenderer` | `NewThemedTUIRenderer(theme teautils.Theme) *TUIRenderer` | Create with colors derived from a `teautils.Theme` palette (maps `TextMuted`, `AccentAlt`, `StatusSuccess`, `StatusError`, `TintPositive`, `TintNegative`) |
 
-### CommitGroupColors
+### CommitGroupColors and SingleCommitColor
 
 `CommitGroupColors` is a pre-defined `[]color.Color` of 8 distinct colors (green, blue, orange, purple, cyan, red, yellow, brown) intended for use as gutter annotation colors when visualizing per-commit-group line assignments. Use with `SetAnnotations()`.
+
+`SingleCommitColor` is a single green (`#4CAF50`) color for use when all annotated rows belong to the same commit group.
 
 ```go
 annotations := map[int]teadiff.RowAnnotation{}

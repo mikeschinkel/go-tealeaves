@@ -48,7 +48,7 @@ func (m model) Init() tea.Cmd                           { return nil }
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
 	m.editor, cmd = m.editor.Update(msg)
-	if msg, ok := msg.(tea.KeyMsg); ok && msg.String() == "ctrl+q" {
+	if msg, ok := msg.(tea.KeyPressMsg); ok && msg.String() == "ctrl+q" {
 		return m, tea.Quit
 	}
 	return m, cmd
@@ -66,13 +66,52 @@ func (m model) View() string { return m.editor.View() }
 - Wraps `charmbracelet/bubbles/textarea.Model` — all standard textarea features remain available
 - Customizable key bindings via `SelectionKeyMap`
 
-## API reference
+## API Reference
 
 ### Constructors
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
 | `NewTextSnipModel` | `NewTextSnipModel(args *TextSnipModelArgs) TextSnipModel` | Create a textarea with selection and clipboard support |
+| `DefaultSelectionKeyMap` | `DefaultSelectionKeyMap() SelectionKeyMap` | Return the default key bindings; use as a base when overriding specific keys |
+| `NewSelection` | `NewSelection() Selection` | Create an empty, inactive selection |
+| `SelectAll` | `SelectAll(lines []string) Selection` | Create a selection spanning the entire content |
+
+### TextSnipModelArgs Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Textarea` | `*textarea.Model` | Optional existing textarea to wrap; creates a fresh one if nil |
+| `SingleLine` | `bool` | Single-line input mode — height 1, no line numbers, vertical selection keys disabled |
+
+### Position Type
+
+`Position` represents a cursor position with `Row int` and `Col int` fields.
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `After` | `After(other Position) bool` | True if this position comes after `other` in document order |
+| `Before` | `Before(other Position) bool` | True if this position comes before `other` in document order |
+| `Equal` | `Equal(other Position) bool` | True if both positions are the same |
+
+### Selection Type
+
+`Selection` represents a text selection range with `Active bool`, `Start Position`, and `End Position` fields.
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Begin` | `Begin(pos Position) Selection` | Start a new selection at the given position |
+| `Clear` | `Clear() Selection` | Deactivate the selection |
+| `Contains` | `Contains(pos Position) bool` | True if the given position is within the selection |
+| `Extend` | `Extend(pos Position) Selection` | Extend the selection to the given position |
+| `IsEmpty` | `IsEmpty() bool` | True if the selection has zero width (start == end) |
+| `Normalized` | `Normalized() (start, end Position)` | Return the selection with Start before End |
+
+### Package-Level Variables
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `SelectionStyle` | `lipgloss.Style` | Default selection highlight style — blue background (`39`), dark text (`232`). Override to customize. |
 
 ### Key types
 
@@ -103,6 +142,15 @@ func (m model) View() string { return m.editor.View() }
 |--------|-------------|
 | `SetSelectionKeyMap(km SelectionKeyMap) TextSnipModel` | Replace the selection key bindings |
 | `SetLogger(logger *slog.Logger) TextSnipModel` | Set an optional logger for debugging |
+| `WithTheme(theme teautils.Theme) TextSnipModel` | Derive the selection highlight style from a `teautils.Theme` palette |
+
+### tea.Model
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Init` | `Init() tea.Cmd` | Satisfies `tea.Model`; returns nil |
+| `Update` | `Update(msg tea.Msg) (TextSnipModel, tea.Cmd)` | Handles selection and clipboard key events; delegates others to the embedded textarea |
+| `View` | `View() tea.View` | Renders the textarea; if a selection is active, renders highlighted regions instead of delegating to the embedded model |
 
 Since `TextSnipModel` embeds `textarea.Model`, all standard textarea methods are available: `SetWidth()`, `SetHeight()`, `SetValue()`, `Value()`, `Focus()`, `Blur()`, `ShowLineNumbers`, and so on.
 

@@ -53,7 +53,7 @@ func main() {
 - Configurable border and item styles
 - Terminal size auto-detection
 
-## API reference
+## API Reference
 
 ### Constructors and functions
 
@@ -73,6 +73,15 @@ func main() {
 | `Option` | A selectable option with `Text` and `Value` fields |
 | `OptionSelectedMsg` | Message sent when the user selects an option — contains `Index`, `Text`, and `Value` fields |
 | `DropdownModelArgs` | Configuration arguments for `NewDropdownModel` |
+| `ModelArgs` | Type alias for `DropdownModelArgs` (deprecated — use `DropdownModelArgs`) |
+
+### Default Style Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultBorderStyle` | `DefaultBorderStyle() lipgloss.Style` | Default border style for the dropdown container |
+| `DefaultItemStyle` | `DefaultItemStyle() lipgloss.Style` | Default style for unselected items |
+| `DefaultSelectedStyle` | `DefaultSelectedStyle() lipgloss.Style` | Default style for the highlighted item |
 
 ### DropdownKeyMap fields
 

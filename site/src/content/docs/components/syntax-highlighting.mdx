@@ -142,6 +142,45 @@ diff := teadiff.NewSplitDiffModel(teadiff.SplitDiffModelArgs{
 })
 ```
 
+## API Reference
+
+### Package-Level Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `Highlight` | `Highlight(code, language string) (string, error)` | Highlight code using the default `Highlighter` (monokai + terminal256); returns ANSI string |
+| `HighlightLines` | `HighlightLines(code, language string) ([]string, error)` | Same as `Highlight` but split into one element per line |
+| `DetectLanguage[S]` | `DetectLanguage[S ~string](path S) string` | Infer the Chroma lexer alias from a file path or name; returns `"text"` if no match |
+
+### Highlighter Type
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewHighlighter` | `NewHighlighter(args HighlighterArgs) *Highlighter` | Create a configured Highlighter instance |
+
+### Highlighter Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Highlight` | `Highlight(code, language string) (string, error)` | Return ANSI-styled string |
+| `HighlightLines` | `HighlightLines(code, language string) ([]string, error)` | Return `[]string`, one element per line |
+
+### HighlighterArgs Struct
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `StyleName` | `string` | `"monokai"` | Chroma style name |
+| `FormatterName` | `string` | `"terminal256"` | Chroma formatter name |
+
+### Theme Name Constants
+
+| Const | Value | Description |
+|-------|-------|-------------|
+| `DefaultStyleName` | `"monokai"` | Default Chroma style |
+| `DefaultFormatterName` | `"terminal256"` | Default Chroma formatter |
+
+Common style names: `"monokai"`, `"dracula"`, `"github"`, `"solarized-dark"`, `"solarized-light"`, `"vim"`. Unknown names fall back to Chroma's built-in fallback style without error.
+
 ## Related
 
 - [Diff Viewer](/go-tealeaves/components/diff-viewer/) — `SplitDiffModel` accepts a `HighlightFunc` from teahilite

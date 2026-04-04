@@ -93,7 +93,62 @@ type GuideItem struct {
 }
 ```
 
-## API reference
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewGuideModel` | `NewGuideModel() GuideModel` | Create a guide model with default key bindings and styles |
+| `NewGuideItem` | `NewGuideItem(meta teautils.KeyMeta, opts *GuideItemOpts) GuideItem` | Create a guide item from a `KeyMeta` and optional opts |
+| `DefaultGuideStyles` | `DefaultGuideStyles() GuideStyles` | Return the default guide styles |
+
+### GuideData Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Title` | `string` | Title displayed at the top of the guide overlay |
+| `Sections` | `[]GuideSection` | Ordered sections of guide items |
+
+### GuideSection Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Priority` | `GuidePriority` | Display priority (`PriorityRecommended`, `PriorityAvailable`, `PriorityBlocked`) |
+| `Heading` | `string` | Section heading text |
+| `Items` | `[]GuideItem` | Items in this section |
+
+### GuideItemOpts Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ActionKey` | `string` | Key that triggers this action (e.g. `"enter"`, `"v"`) |
+| `KeyDisplay` | `string` | Display string for the key (e.g. `"[Enter]"`) |
+| `Label` | `string` | Short action label |
+| `Prose` | `string` | Prose explanation (shown for `PriorityRecommended` items) |
+| `BlockReason` | `string` | Why this item is blocked (`PriorityBlocked` only) |
+
+### GuidePriority Constants
+
+| Const | Description |
+|-------|-------------|
+| `PriorityRecommended` | Highlighted items with prose explanations (top of guide) |
+| `PriorityAvailable` | Other available actions |
+| `PriorityBlocked` | Collapsed section with block reasons |
+
+### GuideStyles Struct
+
+`GuideStyles` configures the visual presentation of the guide overlay. Obtain a default value via `DefaultGuideStyles()`.
+
+### ActionSelectedMsg
+
+```go
+type ActionSelectedMsg struct {
+    ActionKey string // The action key pressed by the user
+}
+```
+
+### Model Methods
 
 | Method | Description |
 |--------|-------------|

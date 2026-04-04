@@ -81,7 +81,7 @@ func (m model) View() string {
 - Header and footer visibility toggles
 - Keyboard highlight navigation
 
-## API reference
+## API Reference
 
 ### Constructors
 
@@ -254,3 +254,95 @@ grid = grid.WithMetadata(map[string]any{
 <Aside type="caution" title="Known limitations">
 - Column widths must be specified at creation time. There is no auto-width calculation from cell content.
 </Aside>
+
+### Messages
+
+| Message | Fields | When emitted |
+|---------|--------|-------------|
+| `CellEditStartedMsg` | `ColumnKey string`, `Row Row` | Cell editing begins |
+| `CellEditedMsg` | `ColumnKey string`, `Row Row`, `Value string` | Cell edit confirmed |
+| `RowEditCancelledMsg` | `Row Row` | Row edit cancelled |
+| `RowEditedMsg` | `Row Row` | Row edit confirmed |
+
+### UserEvent Types
+
+| Type | Description |
+|------|-------------|
+| `UserEvent` | Generic event type emitted by `Update` |
+| `UserEventCellSelected` | Cell was selected |
+| `UserEventFilterInputFocused` | Filter input gained focus |
+| `UserEventFilterInputUnfocused` | Filter input lost focus |
+| `UserEventHighlightedIndexChanged` | Highlight cursor moved |
+| `UserEventRowSelectToggled` | Row selection toggled |
+
+### Footer Types
+
+| Type | Description |
+|------|-------------|
+| `FooterRow` | Column-aware footer row with cells that can span columns |
+| `FooterCell` | Single cell in a footer row, anchored to a column key with optional `ColSpan` |
+
+### Constructor Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewFooterRow` | `NewFooterRow(cells ...FooterCell) FooterRow` | Create a footer row |
+| `NewFooterCell` | `NewFooterCell(key, value string) FooterCell` | Create a footer cell anchored to the given column key |
+
+### Overflow and Border Types
+
+| Type | Description |
+|------|-------------|
+| `OverflowConfig` | Controls horizontal overflow indicators (left/right) |
+| `BorderChars` | Custom border character set |
+| `BorderRegion` | Border region configuration (visibility, style) |
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultOverflowConfig` | `DefaultOverflowConfig() OverflowConfig` | Config with no indicators (no width stolen from columns) |
+| `WithIndicators` | `WithIndicators() OverflowConfig` | Config with default `<` / `>` overflow indicators |
+
+### KeyMap
+
+| Type | Description |
+|------|-------------|
+| `KeyMap` | Key bindings for grid navigation — `RowDown`, `RowUp`, `RowSelectToggle`, `PageDown`, `PageUp`, `PageFirst`, `PageLast` |
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultKeyMap` | `DefaultKeyMap() KeyMap` | Return the default grid key bindings |
+
+### Type Aliases
+
+| Alias | Underlying Type | Description |
+|-------|----------------|-------------|
+| `StyledCell` | `CellValue` | Rich cell value (alias for `CellValue`) |
+| `StyledCellFunc` | `CellStyleFunc` | Dynamic per-cell style function (alias for `CellStyleFunc`) |
+| `StyledCellFuncInput` | `CellStyleInput` | Input for style functions (alias for `CellStyleInput`) |
+
+### Filter Types
+
+| Type | Description |
+|------|-------------|
+| `FilterFunc` | `func(FilterFuncInput) bool` — custom filter predicate |
+| `FilterFuncInput` | Input context for `FilterFunc`: row data, filter string, column info |
+
+### Row Style and Validation
+
+| Type | Description |
+|------|-------------|
+| `RowStyleFuncInput` | Input for `WithRowStyleFunc`: row data, index, highlighted state |
+| `CellValidatorFunc` | `func(columnKey string, value any) error` — validates cell values during editing |
+
+### Sort Types
+
+| Type | Description |
+|------|-------------|
+| `SortDirection` | `SortDirectionAsc` or `SortDirectionDesc` |
+| `SortColumn` | Sort specification with `ColumnKey` and `Direction` fields |
+
+## Related Components
+
+- [Layout Engine](/go-tealeaves/components/layout-engine/) — Embed grids as pane widgets in multi-pane layouts
+- [Theming](/go-tealeaves/components/theming/) — Apply consistent styles via `WithTheme()`
+- [Status Bar](/go-tealeaves/components/statusbar-view/) — Pair with a status bar for key hints

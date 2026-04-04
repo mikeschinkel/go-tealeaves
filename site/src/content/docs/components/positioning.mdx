@@ -60,6 +60,23 @@ width, height, row, col := teautils.CenterModal(renderedModal, screenW, screenH)
 | `IsJediTerm` | `IsJediTerm() bool` | Returns `true` when running inside a JetBrains IDE terminal (GoLand, IntelliJ, etc.). JediTerm mishandles CBT escape sequences; use this to apply rendering workarounds. Checks `TERMINAL_EMULATOR`, `__CFBundleIdentifier`, and `XPC_SERVICE_NAME`. |
 | `Stderrf` | `Stderrf(format string, args ...any)` | Printf-style write to `stderr`. Useful for debug output in TUI applications where `stdout` is occupied by the terminal UI. |
 
+### Terminal Size Detection (teafields / teamodal)
+
+`EnsureTermGetSize` is available in `teafields` and `teamodal` (not `teautils`). It is used internally by dropdown and modal positioning to detect terminal dimensions:
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr) (w int, h int, ok bool)` | Try hard to get a real terminal size — treats `(0,0,nil)` as "not ready yet" and retries briefly. Returns `(width, height, true)` on success or `(0, 0, false)` if the terminal size is unavailable. |
+
+```go
+import "github.com/mikeschinkel/go-tealeaves/teafields"
+
+w, h, ok := teafields.EnsureTermGetSize(os.Stdout.Fd())
+if ok {
+    dropdown = dropdown.WithScreenSize(w, h)
+}
+```
+
 ## Known Limitations
 
 <Aside type="caution">

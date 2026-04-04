@@ -48,7 +48,7 @@ return contentView + "\n" + sb.View()
 - Message-based updates via `SetMenuItemsMsg` and `SetIndicatorsMsg`
 - Configurable styling for every element (key labels, menu labels, indicators, separators, bar background)
 
-## API reference
+## API Reference
 
 ### Constructors and functions
 
@@ -57,6 +57,8 @@ return contentView + "\n" + sb.View()
 | `NewStatusBarModel` | `NewStatusBarModel() StatusBarModel` | Create a status bar with default styles |
 | `NewStatusIndicator` | `NewStatusIndicator(text string) StatusIndicator` | Create an indicator with text |
 | `NewMenuItemFromBinding` | `NewMenuItemFromBinding(binding key.Binding, label string) MenuItem` | Create a menu item from a Charm key binding |
+| `MenuItemsFromMetas` | `MenuItemsFromMetas(metas []KeyMeta) []MenuItem` | Convert a slice of `teautils.KeyMeta` (e.g., from `KeyRegistry.ForStatusBar()`) to `[]MenuItem` |
+| `NewMenuItem` | `NewMenuItem(binding key.Binding, opts *MenuItemOpts) MenuItem` | Create a menu item with optional opts |
 | `RenderMenuLine` | `RenderMenuLine(items []MenuItem, styles Styles) string` | Render menu items as a formatted string (useful outside the status bar) |
 
 ### Key types
@@ -64,10 +66,13 @@ return contentView + "\n" + sb.View()
 | Type | Description |
 |------|-------------|
 | `StatusBarModel` | Main status bar component -- implements `tea.Model` |
-| `MenuItem` | A key-action entry with `Key`, `Label`, and `Binding` fields |
+| `MenuItem` | A key-action entry with `KeyText`, `Label`, and `Binding` fields |
+| `MenuItemOpts` | Options for `NewMenuItem`: `Label string` |
 | `StatusIndicator` | A text indicator with `Text` and optional `Style` override |
 | `Styles` | Complete styling configuration for both zones |
-| `SeparatorKind` | Indicator separator type (`PipeSeparator`, `SpaceSeparator`, `BracketSeparator`) |
+| `SeparatorKind` | Indicator separator type |
+| `SetMenuItemsMsg` | Message to replace menu items via `tea.Msg` — contains `Items []MenuItem` |
+| `SetIndicatorsMsg` | Message to replace indicators via `tea.Msg` — contains `Indicators []StatusIndicator` |
 
 ## Configuration
 
@@ -106,11 +111,11 @@ indicators := []teastatus.StatusIndicator{
 
 ## Separator kinds
 
-| Kind | Rendering | Example |
-|------|-----------|---------|
-| `PipeSeparator` | Indicators joined with ` \| ` | `DEPS IN-FLUX | 3 batches` |
-| `SpaceSeparator` | Indicators joined with two spaces | `DEPS IN-FLUX  3 batches` |
-| `BracketSeparator` | Each indicator wrapped in brackets | `[DEPS IN-FLUX] [3 batches]` |
+| Const | Value | Rendering | Example |
+|-------|-------|-----------|---------|
+| `PipeSeparator` | `0` | Joined with ` \| ` | `DEPS IN-FLUX \| 3 batches` |
+| `SpaceSeparator` | `1` | Joined with two spaces | `DEPS IN-FLUX  3 batches` |
+| `BracketSeparator` | `2` | Each indicator wrapped in brackets | `[DEPS IN-FLUX] [3 batches]` |
 
 ## Messages
 

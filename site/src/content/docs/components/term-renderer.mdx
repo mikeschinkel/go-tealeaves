@@ -1,0 +1,132 @@
+---
+title: "Terminal Renderer"
+description: Planned Bubble Tea component for embedding a full terminal emulator or subprocess viewer inside a TUI application. Not yet implemented.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teaterm` · **Status:** Planned — not yet implemented
+
+`teaterm` will provide two Bubble Tea components for running processes inside a TUI:
+
+- **`Terminal`** — full PTY + VT emulator for interactive programs (shells, vim, htop)
+- **`ProcessViewer`** — piped I/O with ANSI-aware viewport for command output (build logs, test runners)
+
+<Aside type="note" title="Not yet implemented">
+`teaterm` does not have a released Go package yet. This page documents the planned architecture and API surface based on the feasibility research. Track progress at the [GitHub repository](https://github.com/mikeschinkel/go-tealeaves).
+</Aside>
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teaterm
+```
+
+## Architecture
+
+`teaterm` is designed as an integration layer on top of existing Charm packages — it does not implement its own VT parser or PTY driver:
+
+| Layer | Package | Responsibility |
+|-------|---------|----------------|
+| PTY management | `charmbracelet/x/xpty` | Cross-platform PTY creation, subprocess spawn, resize |
+| VT emulation | `charmbracelet/x/vt` (`SafeEmulator`) | Parse escape sequences, maintain cell grid, scrollback |
+| Cell primitives | `charmbracelet/ultraviolet` | Shared `Cell`, `Screen`, `Position` types with Bubble Tea v2 |
+| Input forwarding | `x/vt.SendKey` / `SendMouse` | Translate `tea.KeyPressMsg` / `tea.MouseClickMsg` to PTY bytes |
+| Rendering | `x/vt.Render()` + `Touched()` cache | Produce ANSI string for `View()`, skip unchanged frames |
+
+## Terminal — planned API
+
+`Terminal` embeds an interactive subprocess with a full PTY. Programs run inside it see a real terminal and behave normally (color output, readline, etc.).
+
+```go
+// Embed the user's shell
+term, err := teaterm.New(exec.Command(os.Getenv("SHELL")),
+    teaterm.WithSize(80, 24),
+    teaterm.WithScrollback(1000),
+)
+
+// Standard Bubble Tea lifecycle
+func (m model) Init() tea.Cmd {
+    return m.term.Init()
+}
+
+func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+    var cmd tea.Cmd
+    m.term, cmd = m.term.Update(msg)
+    return m, cmd
+}
+
+func (m model) View() string {
+    return m.term.View()
+}
+```
+
+### Planned options
+
+| Option | Description |
+|--------|-------------|
+| `WithSize(w, h int)` | Initial terminal dimensions |
+| `WithScrollback(lines int)` | Scrollback buffer size (default: 1,000) |
+| `WithEnv(env []string)` | Environment variables for the subprocess |
+| `WithEscapeKey(key tea.KeyType)` | Key to exit terminal focus (default: `Ctrl+\`) |
+
+### Focus and blur
+
+```go
+// Enter terminal mode — all keystrokes forwarded to PTY
+m.term = m.term.Focus()
+
+// Exit terminal mode — keystrokes return to parent model
+m.term = m.term.Blur()
+
+// Check state
+if m.term.Focused() { ... }
+```
+
+### Resize
+
+`Terminal` responds to `tea.WindowSizeMsg` automatically in its `Update` method, forwarding the resize signal to the PTY and updating the VT emulator.
+
+### Cleanup
+
+```go
+if err := m.term.Close(); err != nil {
+    log.Printf("terminal close: %v", err)
+}
+```
+
+`Close` waits for the subprocess to exit and cleans up the PTY file descriptors.
+
+## ProcessViewer — planned API
+
+`ProcessViewer` runs a subprocess over piped `stdout`/`stderr` with no PTY — lighter weight, but programs that call `isatty()` will detect the pipe and may suppress colors or progress output.
+
+```go
+viewer := teaterm.NewProcessViewer(exec.Command("go", "test", "./..."),
+    teaterm.WithSize(120, 40),
+)
+
+// Streams output into a scrollable viewport
+// Auto-scrolls while running; user can scroll back after completion
+```
+
+`ProcessViewer` is appropriate for build pipelines, log tailing, and other non-interactive output that does not require readline or terminal detection.
+
+## Keyboard handling
+
+`Terminal` forwards all keystrokes to the PTY when focused. The escape-hatch key (default `Ctrl+\`) returns control to the parent model without being forwarded. This avoids intercepting `ESC` itself, which many terminal programs use as a prefix for escape sequences.
+
+## Performance notes
+
+- `View()` calls `emulator.Touched()` before rendering. If no cells changed since the last frame, the cached string is returned immediately — no ANSI regeneration cost.
+- At 80×24 (1,920 cells), a full render takes ~50–100μs — well within a 16ms frame budget at 60fps.
+- PTY reads use Bubble Tea's `tea.Cmd` chain (blocking `Read` → return message → next read) rather than raw goroutines, keeping the model loop clean.
+
+## API Reference
+
+No API is available yet — this package is planned and not yet released. The API surface described above is architectural intent based on feasibility research; actual types and signatures will be defined when implementation begins.
+
+## Related
+
+- [Diff Viewer](/go-tealeaves/components/diff-viewer/) — `teadiff` renders static diff content; `teaterm` will render live processes
+- [Layout Engine](/go-tealeaves/components/layout-engine/) — embed `Terminal` as a pane in a multi-pane layout

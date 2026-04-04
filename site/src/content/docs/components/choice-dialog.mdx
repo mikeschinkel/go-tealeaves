@@ -5,7 +5,13 @@ description: Multi-option selection dialog with hotkey support and horizontal or
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teamodal` · **Type:** `ChoiceModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teamodal`
+> **Module:** `teamodal` · **Type:** `ChoiceModel`
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+```
 
 Multi-option selection dialog with hotkey support and configurable horizontal or vertical layout. Each option can have a label, hotkey character, and string ID. Hotkeys trigger selection immediately without needing Tab + Enter.
 
@@ -64,18 +70,72 @@ case teamodal.ChoiceCancelledMsg:
 |------|-------------|
 | `ChoiceModel` | Multi-option choice dialog with hotkeys |
 | `ChoiceOption` | Option with `Label`, `Hotkey` (rune), and `ID` (string) fields |
-| `ChoiceModelArgs` | Configuration: `Title`, `Message`, `Options`, `DefaultIndex`, `Orientation` |
+| `Orientation` | `Horizontal` (default) or `Vertical` — controls button layout direction |
+| `ChoiceModelArgs` | Full configuration struct — see fields below |
+
+### ChoiceModelArgs fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Title` | `string` | Optional title above message |
+| `Message` | `string` | Main message text |
+| `Options` | `[]ChoiceOption` | 2–5 options to display |
+| `DefaultIndex` | `int` | Initially focused button (0-based) |
+| `Orientation` | `Orientation` | `Horizontal` (default) or `Vertical` |
+| `ShowBrackets` | `*bool` | Show `[ ]` around labels; `nil` = true for Horizontal, false for Vertical |
+| `AllowCancel` | `*bool` | Allow Esc to cancel; `nil` defaults to `true` |
+| `ShowCancelHint` | `*bool` | Show `[esc] Cancel` hint below options; `nil` follows `AllowCancel` |
+| `ScreenWidth` | `int` | Screen width for centering |
+| `ScreenHeight` | `int` | Screen height for centering |
+| `BorderStyle` | `lipgloss.Style` | Optional border style override |
+| `TitleStyle` | `lipgloss.Style` | Optional title style override |
+| `MessageStyle` | `lipgloss.Style` | Optional message style override |
+| `ButtonStyle` | `lipgloss.Style` | Optional unfocused button style override |
+| `FocusedButtonStyle` | `lipgloss.Style` | Optional focused button style override |
+| `CancelKeyStyle` | `lipgloss.Style` | Style for `[esc]` in the cancel hint |
+| `CancelTextStyle` | `lipgloss.Style` | Style for `Cancel` text in the cancel hint |
+
+### Theming
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `WithTheme` | `WithTheme(theme teautils.Theme) ChoiceModel` | Apply all modal styles from a `teautils.Theme` at once; sets `BorderStyle`, `TitleStyle`, `MessageStyle`, `ButtonStyle`, `FocusedButtonStyle`, `CancelKeyStyle`, and `CancelTextStyle` |
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Open` | `Open() (ChoiceModel, tea.Cmd)` | Open the modal; pre-calculates position for overlay |
+| `Close` | `Close() (ChoiceModel, tea.Cmd)` | Close the modal |
+| `SetSize` | `SetSize(width, height int) ChoiceModel` | Set screen dimensions for centering |
+| `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
+| `FocusButton` | `FocusButton() int` | Index of the currently focused option |
+| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over a background view |
 
 ### Messages
 
 | Message | When sent |
 |---------|-----------|
-| `ChoiceSelectedMsg` | Choice option selected — contains `Index` and `OptionID` |
+| `ChoiceSelectedMsg` | Choice option selected — contains `Index` (int) and `OptionID` (string) |
 | `ChoiceCancelledMsg` | Choice modal cancelled with Esc |
 
 ## Configuration
 
+```go
+modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
+    Title:       "How should we proceed?",
+    Message:     "Select an action.",
+    Options:     options,
+    Orientation: teamodal.Vertical,
+    AllowCancel: boolPtr(true),
+})
+
+// Apply a theme (sets all style fields at once)
+modal = modal.WithTheme(myTheme)
+```
+
 `ChoiceModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration.
+`WithTheme()` accepts a `teautils.Theme` and applies `theme.Modal.*` style fields. Individual `With*Style()` calls made after `WithTheme()` take precedence.
 
 ## Keyboard Shortcuts
 

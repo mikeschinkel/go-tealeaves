@@ -59,7 +59,7 @@ return mainContent
 - Configurable chrome styles (border, footer) via `WithStyles()`
 - `ClosedMsg` emitted when user dismisses
 
-## API reference
+## API Reference
 
 ### Constructors
 
@@ -148,6 +148,28 @@ help = help.WithContentStyle(teautils.HelpVisorStyle{
 | `DescStyle` | `lipgloss.Style` | Style for description text |
 | `KeyColumnGap` | `int` | Gap (in spaces) between key and description columns |
 | `CategoryOrder` | `[]string` | Preferred order for categories; unlisted categories follow alphabetically |
+
+### HelpVisorKeyMap
+
+`HelpVisorKeyMap` configures the keys that control the help visor. Override via `WithKeys()`. Create a base value with `DefaultHelpVisorKeyMap()`.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultHelpVisorKeyMap` | `DefaultHelpVisorKeyMap() HelpVisorKeyMap` | Return the default key bindings (`esc`/`?` to close, `←`/`→` to page) |
+
+### HelpVisorStyles
+
+`HelpVisorStyles` configures the chrome styles (border and footer). Override via `WithStyles()`. Obtain a base value with `DefaultHelpVisorStyles()`.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultHelpVisorStyles` | `DefaultHelpVisorStyles() HelpVisorStyles` | Return the default chrome styles |
+
+### Messages
+
+| Message | When emitted |
+|---------|-------------|
+| `ClosedMsg` | User presses `esc` or `?` to dismiss the help visor |
 
 ## Related
 

@@ -52,7 +52,72 @@ treeModel := teatree.NewTreeModel(tree, 20)
 - Expand all / collapse all operations
 - Node search by ID
 
-## API reference
+## API Reference
+
+### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewTree[T]` | `NewTree[T any](nodes []*Node[T], args *TreeArgs[T]) *Tree[T]` | Create a tree with the given root nodes |
+| `NewTreeModel[T]` | `NewTreeModel[T any](tree *Tree[T], height int) TreeModel[T]` | Create a tree view model |
+| `NewRenderer[T]` | `NewRenderer[T any](tree *Tree[T]) *Renderer[T]` | Create a renderer for a tree (internal render pipeline) |
+| `BuildFileTree` | `BuildFileTree(files []*File, args BuildFileTreeArgs) []*FileNode` | Build a hierarchical tree from a flat file list |
+| `NewFile` | `NewFile(path dt.RelFilepath, content *string) *File` | Create a file node |
+
+### TreeArgs[T] Struct
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `ExpanderControls` | `*ExpanderControls` | Which expander style to use (triangle, plus, none) |
+| `NodeProvider` | `NodeProvider[T]` | Pluggable node renderer |
+| `FocusedNode` | `*Node[T]` | Initially focused node |
+
+### TreeOption[T]
+
+`TreeOption[T]` is `func(*Tree[T])` — a functional option for configuring a `Tree`.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `WithInitialFocus[T]` | `WithInitialFocus[T any](nodeID string) TreeOption[T]` | Set the initial focused node by ID |
+| `WithProvider[T]` | `WithProvider[T any](provider NodeProvider[T]) TreeOption[T]` | Set the node provider |
+
+### File Tree Builder API
+
+| Type | Description |
+|------|-------------|
+| `BuildFileTreeArgs` | Args for `BuildFileTree` — `RootPath dt.PathSegment` |
+| `File` | Built-in file node type — `Path dt.RelFilepath`, `YOffset int` |
+| `FileMeta` | File metadata — `Size int64`, `ModTime time.Time`, `Permissions os.FileMode`, `EntryStatus dt.EntryStatus` |
+| `FileNode` | Type alias for `Node[File]` |
+
+### Expander Control Presets
+
+| Variable | Description |
+|----------|-------------|
+| `TriangleExpanderControls` | Uses `▶` (collapsed) and `▼` (expanded) — default style |
+| `PlusExpanderControls` | Uses `+` (collapsed) and `─` (expanded) |
+| `NoExpanderControls` | No visual indicator for expand/collapse state |
+
+### Branch Style Presets
+
+| Function | Description |
+|----------|-------------|
+| `ASCIIBranchStyle(ec)` | ASCII-only tree connectors |
+| `CompactBranchStyle(ec)` | Compact Unicode connectors |
+| `MinimalBranchStyle(ec)` | Minimal connector set |
+| `WideBranchStyle(ec)` | Wide Unicode connectors |
+
+### SimpleNodeProvider[T]
+
+`SimpleNodeProvider[T]` is a minimal provider with no tree structure characters. Useful for flat lists or when you want complete custom control.
+
+### Renderer[T] Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Render` | `Render() string` | Render the tree to a string |
+| `RenderToLines` | `RenderToLines() []string` | Render to a slice of strings (one per line) |
+| `GetMaxLineWidth` | `GetMaxLineWidth() int` | Calculate the maximum width needed (ANSI stripped) |
 
 ### Key types
 

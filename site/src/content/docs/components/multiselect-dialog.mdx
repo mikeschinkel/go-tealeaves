@@ -1,0 +1,214 @@
+---
+title: "MultiSelect Dialog"
+description: Generic checkbox list modal with configurable buttons, scrollable viewport, and hotkey support.
+---
+
+import { Aside } from '@astrojs/starlight/components';
+
+> **Module:** `teamodal` · **Type:** `MultiSelectModel[T]`
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teamodal
+```
+
+Generic multi-select checkbox list modal. Items must implement the `MultiSelectItem` interface. All items start checked by default; users toggle individual items before pressing a button. Supports scrollable lists, optional footer text, and hotkeys on buttons.
+
+## Quick Example
+
+```go
+// Define an item type that implements MultiSelectItem
+type FileItem struct {
+    id   string
+    name string
+}
+func (f FileItem) ID() string    { return f.id }
+func (f FileItem) Label() string { return f.name }
+
+// Create and open the modal
+modal := teamodal.NewMultiSelectModel([]FileItem{
+    {id: "main.go",   name: "main.go"},
+    {id: "util.go",   name: "util.go"},
+    {id: "config.go", name: "config.go"},
+}, &teamodal.MultiSelectModelArgs{
+    Title:   "Select files to delete",
+    Message: "The following files will be permanently removed.",
+    Footer:  "This action cannot be undone.",
+    Buttons: []teamodal.MultiSelectButton{
+        {Label: "Delete", Hotkey: 'd', ID: "delete"},
+    },
+})
+
+// Open it
+m.modal, cmd = m.modal.Open()
+
+// In View()
+if m.modal.IsOpen() {
+    return m.modal.OverlayModal(backgroundView)
+}
+
+// Handle responses
+case teamodal.MultiSelectButtonPressedMsg[FileItem]:
+    switch msg.ButtonID {
+    case "delete":
+        for _, f := range msg.Selected {
+            // f is a FileItem — only the checked items
+        }
+    }
+case teamodal.MultiSelectCancelledMsg:
+    // User pressed Esc
+```
+
+## Features
+
+- Generic over any type implementing `MultiSelectItem` — no type assertions needed
+- Checkbox list with `[✓]` / `[ ]` indicators; all items start checked by default
+- Scrollable viewport with configurable `MaxVisible` (default 8) and scrollbar
+- Two-area focus: list navigation and button row, cycled with Tab / Shift+Tab
+- Button hotkeys (case-insensitive) trigger button press from any focus state
+- Auto-appended Cancel button unless `NoCancel: true`
+- Optional `Title`, `Message`, and `Footer` text areas
+- ANSI-aware overlay compositing via `OverlayModal()`
+- Non-nil `tea.Cmd` message consumption signal (see [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/))
+- Auto-centering on screen based on `SetSize()` dimensions
+
+## API Reference
+
+### Constructor
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewMultiSelectModel` | `NewMultiSelectModel[T MultiSelectItem](items []T, args *MultiSelectModelArgs) MultiSelectModel[T]` | Create a checkbox list modal |
+| `DefaultMultiSelectKeyMap` | `DefaultMultiSelectKeyMap() MultiSelectKeyMap` | Return the default key bindings |
+
+### Key Types
+
+| Type | Description |
+|------|-------------|
+| `MultiSelectModel[T]` | Generic checkbox list modal; `T` must implement `MultiSelectItem` |
+| `MultiSelectItem` | Interface with `ID() string` and `Label() string` methods |
+| `MultiSelectButton` | Button with `Label` (string), `Hotkey` (rune), and `ID` (string) fields |
+| `MultiSelectModelArgs` | Configuration struct (see below) |
+| `MultiSelectKeyMap` | Key bindings — accessible via `m.Keys`; replace to customise |
+
+### MultiSelectModel[T] Public Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Keys` | `MultiSelectKeyMap` | Key bindings; replace with a custom map to override shortcuts |
+| `Logger` | `*slog.Logger` | Optional logger for debugging; set via `WithLogger()` |
+
+### MultiSelectKeyMap Fields
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Up` | `↑`, `k` | Move cursor up (list focus) |
+| `Down` | `↓`, `j` | Move cursor down (list focus) |
+| `Toggle` | `space` | Toggle checkbox under cursor (list focus) |
+| `Confirm` | `enter` | Toggle checkbox (list focus) or activate button (button focus) |
+| `Cancel` | `esc` | Cancel and close modal |
+| `NextFocus` | `tab` | Cycle focus: list → button0 → … → list |
+| `PrevFocus` | `shift+tab` | Reverse focus cycle |
+| `NextButton` | `→`, `l` | Move to next button (button focus) |
+| `PrevButton` | `←`, `h` | Move to previous button (button focus) |
+
+### MultiSelectModelArgs Fields
+
+| Field | Type | Default | Description |
+|-------|------|---------|-------------|
+| `Title` | `string` | `""` | Title text shown at the top of the modal |
+| `Message` | `string` | `""` | Optional description shown above the list |
+| `Footer` | `string` | `""` | Optional note shown below the list (e.g. warning) |
+| `Buttons` | `[]MultiSelectButton` | `nil` | Action buttons (2–4 recommended) |
+| `AllChecked` | `bool` | `true` | Whether all items start checked |
+| `MaxVisible` | `int` | `8` | Maximum items visible; list scrolls beyond this |
+| `NoCancel` | `bool` | `false` | Suppress the auto-appended Cancel button |
+| `CancelEmitsButtonPressed` | `bool` | `false` | Make Cancel button emit `ButtonPressedMsg` instead of `CancelledMsg` |
+| `ScreenWidth` | `int` | `0` | Initial screen width (updated by `WindowSizeMsg`) |
+| `ScreenHeight` | `int` | `0` | Initial screen height (updated by `WindowSizeMsg`) |
+
+Style fields (`BorderStyle`, `TitleStyle`, `MessageStyle`, `FooterStyle`, `ItemStyle`, `SelectedItemStyle`, `CheckedStyle`, `UncheckedStyle`, `ButtonStyle`, `FocusedButtonStyle`) accept `lipgloss.Style` overrides; defaults are applied when zero-value.
+
+### Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `Open` | `Open() (MultiSelectModel[T], tea.Cmd)` | Open the modal, reset cursor and focus |
+| `Close` | `Close() (MultiSelectModel[T], tea.Cmd)` | Close the modal |
+| `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
+| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over background view |
+| `SetSize` | `SetSize(width, height int) MultiSelectModel[T]` | Set screen dimensions |
+| `SetItems` | `SetItems(items []T) MultiSelectModel[T]` | Replace items and reset checked state |
+| `Selected` | `Selected() []T` | Return currently checked items |
+| `Cursor` | `Cursor() int` | Return current cursor position in list |
+
+Style getter / wither methods follow the same pattern:
+
+| Getter | Wither |
+|--------|--------|
+| `BorderStyle()` | `WithBorderStyle(lipgloss.Style)` |
+| `TitleStyle()` | `WithTitleStyle(lipgloss.Style)` |
+| `MessageStyle()` | `WithMessageStyle(lipgloss.Style)` |
+| `FooterStyle()` | `WithFooterStyle(lipgloss.Style)` |
+| `ItemStyle()` | `WithItemStyle(lipgloss.Style)` |
+| `SelectedItemStyle()` | `WithSelectedItemStyle(lipgloss.Style)` |
+| `CheckedStyle()` | `WithCheckedStyle(lipgloss.Style)` |
+| `UncheckedStyle()` | `WithUncheckedStyle(lipgloss.Style)` |
+| `ButtonStyle()` | `WithButtonStyle(lipgloss.Style)` |
+| `FocusedButtonStyle()` | `WithFocusedButtonStyle(lipgloss.Style)` |
+
+Content withers: `WithTitle`, `WithMessage`, `WithFooter`, `WithMaxVisible`, `WithLogger`.
+
+### Messages
+
+| Message | When sent |
+|---------|-----------|
+| `MultiSelectButtonPressedMsg[T]` | A button was pressed — contains `ButtonID` (string) and `Selected` ([]T, the checked items) |
+| `MultiSelectCancelledMsg` | Modal cancelled via Esc (or Cancel button when `CancelEmitsButtonPressed` is false) |
+
+## Configuration
+
+`MultiSelectModel[T]` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for post-construction configuration.
+
+## Keyboard Shortcuts
+
+### List focus
+
+| Key | Action |
+|-----|--------|
+| `↑` / `k` | Move cursor up |
+| `↓` / `j` | Move cursor down |
+| `Space` | Toggle checkbox under cursor |
+| `Enter` | Toggle checkbox under cursor |
+| `Tab` | Move focus to first button |
+| `Shift+Tab` | Move focus to last button |
+| `Esc` | Cancel |
+
+### Button focus
+
+| Key | Action |
+|-----|--------|
+| `→` / `l` | Next button |
+| `←` / `h` | Previous button |
+| `Enter` | Activate focused button |
+| `Tab` | Cycle to next button or back to list |
+| `Shift+Tab` | Cycle to previous button or back to list |
+| Hotkey (e.g. `d`) | Activate matching button from anywhere |
+| `Esc` | Cancel |
+
+## Known Limitations
+
+<Aside type="caution">
+- Modal width is determined by content — there is no explicit width control.
+- Requires screen size to be set via `SetSize()` or a `WindowSizeMsg` for correct centering.
+- `SetItems` resets all checked state to fully-checked regardless of the original `AllChecked` value.
+</Aside>
+
+## Related
+
+- [List Dialog](/go-tealeaves/components/list-dialog/) — Editable list with inline editing and CRUD
+- [Choice Dialog](/go-tealeaves/components/choice-dialog/) — Single-choice dialog with hotkeys
+- [Confirm Dialog](/go-tealeaves/components/confirm-dialog/) — Simple Yes/No and OK dialogs
+- [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) — The non-nil `tea.Cmd` consumption pattern
+- [Overlay Compositing](/go-tealeaves/reference/overlay-compositing/) — How overlays render on top of styled content

@@ -49,6 +49,54 @@ return output
 sidebar.Widget().SetItems(items)
 ```
 
+## API Reference
+
+### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewLayout` | `NewLayout(root *Pane, opts ...Option) *Layout` | Create a layout engine from a root pane |
+| `NewElement[T]` | `NewElement[T any](v T) *Element[T]` | Wrap a widget in a type-safe element handle |
+| `StringElement` | `StringElement(s string) *Element[string]` | Wrap a plain string as a layout element |
+| `NewFocusManager` | `NewFocusManager(layout *Layout) *FocusManager` | Create a focus manager for a layout |
+
+### Core Types
+
+| Type | Description |
+|------|-------------|
+| `Rect` | Positioned rectangle — `X`, `Y`, `Width`, `Height` fields (terminal cell coordinates) |
+| `Size` | Width/height pair in terminal cells — `Width` and `Height` fields |
+| `SizeHint` | Widget size preferences — `Min`, `Desired`, `Max` (each a `Size`; `-1` = unbounded) |
+
+### Widget Interfaces
+
+| Interface | Methods | Description |
+|-----------|---------|-------------|
+| `Viewer` | `View() string` | Required — provides rendered content |
+| `SetSizer` | `SetSize(width, height int)` | Receives resolved content dimensions from the engine |
+| `Styler` | `Style() lipgloss.Style` | Enables frame-subtraction (border + padding aware sizing) |
+| `SizeHinter` | `SizeHint(w, h int) SizeHint` | Reports min/desired/max size preferences |
+| `Focusable` | `Focus(); Blur()` | Receives focus state changes |
+
+### Option Type
+
+`Option` is a functional option for configuring a `Layout`. Pass to `NewLayout` or `NewPaneLayout`.
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `WithAutoDetectSize` | `WithAutoDetectSize(enabled bool) Option` | Auto-detect terminal size on first `Render()` |
+| `WithSizeSource` | `WithSizeSource(fn func() (int, int, error)) Option` | Override the size-detection function |
+
+### Error Sentinels
+
+| Sentinel | When returned |
+|----------|--------------|
+| `ErrStackEmpty` | `Pop()` called on an empty `StackLayoutModel` |
+| `ErrStackUnderflow` | `Pop()` or `PopTo()` at minimum depth |
+| `ErrZeroDimensions` | `Render()` called with zero width or height |
+| `ErrDuplicatePaneName` | Two panes share the same name in the layout tree |
+| `ErrPaneNotFound` | Named pane lookup fails |
+
 ## Dimensions
 
 Every `Pane` has exactly one `Dimension` describing how it sizes along its parent's axis.
@@ -90,7 +138,7 @@ Widgets in a terminal UI have two widths:
 
 ### Collapse behavior (optional panes)
 
-Mark a pane as optional with `WithOptional()`. When the terminal is too small to satisfy all minimum sizes, optional panes are removed from the layout to free space for required panes:
+Mark a pane as optional with `WithOptional(true)`. When the terminal is too small to satisfy all minimum sizes, optional panes are removed from the layout to free space for required panes:
 
 ```go
 sidebar := tealayout.NewColumn(tealayout.Percent(25), sidebarEl).
@@ -119,6 +167,37 @@ Children can be:
 - `*Element[T]` from `NewElement(widget)` — leaf widgets
 - Nested `*Pane` — sub-layouts
 
+## Layout
+
+`Layout` is the engine that wraps a root `Pane` and resolves sizes. Create one with `NewLayout`:
+
+```go
+layout := tealayout.NewLayout(root)
+
+// Call SetSize before rendering (or use WithAutoDetectSize)
+layout.SetSize(termW, termH)
+output, err := layout.Render()
+```
+
+### Layout options
+
+| Option | Description |
+|--------|-------------|
+| `WithAutoDetectSize(enabled bool)` | Detect terminal size on first `Render()` if `SetSize` was not called |
+| `WithSizeSource(fn func() (int, int, error))` | Override the size-detection function used by `WithAutoDetectSize` |
+
+`NewPaneLayout(root, opts...)` and `NewLayout(root, opts...)` both accept these options.
+
+### Rect
+
+`Rect` is a positioned rectangle (terminal cell coordinates) returned by `Pane.ChildRect(i)`. Useful for overlaying widgets or custom hit-testing.
+
+```go
+type Rect struct {
+    X, Y, Width, Height int
+}
+```
+
 ## Element[T]
 
 `Element[T]` is the type-safe handle for a widget embedded in the layout tree. After `layout.Render()`, the layout has called `SetSize` on each widget; you can access the widget via `.Widget()` without unsafe casts.
@@ -132,6 +211,8 @@ layout.Render()
 // Safe, typed access — no interface assertion needed
 el.Widget().DoSomething()
 ```
+
+For convenience, `StringElement(s string)` wraps a plain string as a `*Element[string]` — useful in tests or for static text blocks.
 
 ## Modifier methods on Pane
 
@@ -503,6 +584,16 @@ rotator.Apply()     // re-apply current combo without advancing
 ```
 
 `Next` and `Prev` wrap at the boundaries. After each change, `EnsureFocusedVisible` is called automatically to move focus away from any newly hidden pane.
+
+## Error sentinels
+
+| Sentinel | When |
+|----------|------|
+| `ErrZeroDimensions` | `Render()` called with zero width or height |
+| `ErrDuplicatePaneName` | Two panes share the same name in the layout tree |
+| `ErrPaneNotFound` | Named pane lookup fails (e.g. `FocusPane`, `Pane`) |
+| `ErrStackEmpty` | `Pop()` called on an empty `StackLayoutModel` |
+| `ErrStackUnderflow` | `Pop()` or `PopTo()` called when already at minimum depth |
 
 ## Related
 
