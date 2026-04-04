@@ -87,7 +87,10 @@ func (m model) View() string {
 
 - **`NewGridModel(columns []Column) GridModel`** — Create a grid with the given column definitions.
 - **`NewColumn(key, title string, width int) Column`** — Create a column with a key, display title, and fixed width.
+- **`NewFlexColumn(key, title string, flexFactor int) Column`** — Create a flexible-width column that fills available space. Multiple flex columns share space proportional to their flex factors.
 - **`NewRow(data RowData) Row`** — Create a row from a map of column keys to values.
+- **`NewStyledCell(data any, style lipgloss.Style) StyledCell`** — Create a `StyledCell` (alias for `CellValue`) with a static style.
+- **`NewStyledCellWithStyleFunc(data any, fn StyledCellFunc) StyledCell`** — Create a styled cell with a dynamic style function.
 
 ### Key types
 
@@ -294,11 +297,16 @@ grid = grid.WithMetadata(map[string]any{
 | Type | Description |
 |------|-------------|
 | `OverflowConfig` | Controls horizontal overflow indicators (left/right) |
+| `BorderConfig` | Complete border appearance: `Outer`, `Header`, and `Inner` `BorderRegion` fields |
 | `BorderChars` | Custom border character set |
-| `BorderRegion` | Border region configuration (visibility, style) |
+| `BorderRegion` | Border region configuration — `Visible bool`, `Style lipgloss.Style` |
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
+| `BorderDefault` | `BorderDefault() BorderConfig` | Heavy-weight border on all regions |
+| `BorderMinimal` | `BorderMinimal() BorderConfig` | Border with only a horizontal header separator |
+| `BorderRounded` | `BorderRounded() BorderConfig` | Thin, rounded border configuration |
+| `Borderless` | `Borderless() BorderConfig` | No borders anywhere |
 | `DefaultOverflowConfig` | `DefaultOverflowConfig() OverflowConfig` | Config with no indicators (no width stolen from columns) |
 | `WithIndicators` | `WithIndicators() OverflowConfig` | Config with default `<` / `>` overflow indicators |
 

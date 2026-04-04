@@ -63,6 +63,8 @@ treeModel := teatree.NewTreeModel(tree, 20)
 | `NewRenderer[T]` | `NewRenderer[T any](tree *Tree[T]) *Renderer[T]` | Create a renderer for a tree (internal render pipeline) |
 | `BuildFileTree` | `BuildFileTree(files []*File, args BuildFileTreeArgs) []*FileNode` | Build a hierarchical tree from a flat file list |
 | `NewFile` | `NewFile(path dt.RelFilepath, content *string) *File` | Create a file node |
+| `LoadFileMeta` | `LoadFileMeta(root dt.DirPath, path dt.RelFilepath) (*FileMeta, error)` | Load file metadata from disk for a given path |
+| `DefaultTreeKeyMap` | `DefaultTreeKeyMap() TreeKeyMap` | Return the default key bindings for tree navigation |
 
 ### TreeArgs[T] Struct
 
@@ -87,7 +89,7 @@ treeModel := teatree.NewTreeModel(tree, 20)
 |------|-------------|
 | `BuildFileTreeArgs` | Args for `BuildFileTree` — `RootPath dt.PathSegment` |
 | `File` | Built-in file node type — `Path dt.RelFilepath`, `YOffset int` |
-| `FileMeta` | File metadata — `Size int64`, `ModTime time.Time`, `Permissions os.FileMode`, `EntryStatus dt.EntryStatus` |
+| `FileMeta` | File metadata struct — `Size int64`, `ModTime time.Time`, `Permissions os.FileMode`, `EntryStatus dt.EntryStatus`, `Data any`. Construct with `LoadFileMeta` or directly as a struct literal. |
 | `FileNode` | Type alias for `Node[File]` |
 
 ### Expander Control Presets
@@ -98,14 +100,21 @@ treeModel := teatree.NewTreeModel(tree, 20)
 | `PlusExpanderControls` | Uses `+` (collapsed) and `─` (expanded) |
 | `NoExpanderControls` | No visual indicator for expand/collapse state |
 
+### KeyMap
+
+| Type | Description |
+|------|-------------|
+| `TreeKeyMap` | Key bindings for tree navigation — `Up`, `Down`, `ExpandOrEnter`, `CollapseOrUp`, `Toggle` |
+
 ### Branch Style Presets
 
 | Function | Description |
 |----------|-------------|
 | `ASCIIBranchStyle(ec)` | ASCII-only tree connectors |
-| `CompactBranchStyle(ec)` | Compact Unicode connectors |
-| `MinimalBranchStyle(ec)` | Minimal connector set |
-| `WideBranchStyle(ec)` | Wide Unicode connectors |
+| `CompactBranchStyle(ec)` | Compact Unicode connectors with default spacing |
+| `DefaultBranchStyle(ec)` | Alias for `CompactBranchStyle` — recommended default |
+| `MinimalBranchStyle(ec)` | Minimal connector set (1 char per level) |
+| `WideBranchStyle(ec)` | Wide Unicode connectors (4-space indentation) |
 
 ### SimpleNodeProvider[T]
 

@@ -93,7 +93,21 @@ return viewer.View()
 | `DrillDownModel[T]` | Main component — implements `tea.Model` |
 | `DrillDownArgs[T]` | Constructor args (SelectorFunc, Prompt) |
 | `DrillDownSelectorFunc[T]` | `func(parent *Node[T], children []*Node[T]) (*Node[T], error)` |
-| `DrillDownKeyMap` | Key bindings for path navigation |
+
+### KeyMap
+
+`DrillDownKeyMap` defines the key bindings for path navigation. Access via `DrillDownModel.Keys`.
+
+| Field | Default keys | Description |
+|-------|-------------|-------------|
+| `Up` | `up`, `k` | Move selection up one level |
+| `Down` | `down`, `j` | Move selection down one level |
+| `OpenDropdown` | `space`, `right` | Open alternatives dropdown |
+| `Select` | `enter` | Confirm selection on a leaf node |
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultDrillDownKeyMap` | `DefaultDrillDownKeyMap() DrillDownKeyMap` | Return the default key bindings for drilldown navigation |
 
 ### Methods
 

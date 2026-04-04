@@ -95,6 +95,16 @@ case teamodal.ChoiceCancelledMsg:
 | `CancelKeyStyle` | `lipgloss.Style` | Style for `[esc]` in the cancel hint |
 | `CancelTextStyle` | `lipgloss.Style` | Style for `Cancel` text in the cancel hint |
 
+### KeyMap
+
+| Type | Description |
+|------|-------------|
+| `ChoiceKeyMap` | Key bindings for `ChoiceModel` — `NextButton` (Tab/Right), `PrevButton` (Shift+Tab/Left), `Confirm` (Enter), `Cancel` (Esc) |
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DefaultChoiceKeyMap` | `DefaultChoiceKeyMap() ChoiceKeyMap` | Return the default key bindings for `ChoiceModel` |
+
 ### Theming
 
 | Method | Signature | Description |

@@ -68,6 +68,15 @@ sidebar.Widget().SetItems(items)
 | `Size` | Width/height pair in terminal cells — `Width` and `Height` fields |
 | `SizeHint` | Widget size preferences — `Min`, `Desired`, `Max` (each a `Size`; `-1` = unbounded) |
 
+### Direction Type
+
+`Direction` represents the axis along which a container distributes space.
+
+| Constant | Description |
+|----------|-------------|
+| `Horizontal` | Distributes width (used by `NewRow`) |
+| `Vertical` | Distributes height (used by `NewColumn`) |
+
 ### Widget Interfaces
 
 | Interface | Methods | Description |
