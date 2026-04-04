@@ -17,6 +17,7 @@ import { Aside } from '@astrojs/starlight/components';
 
 **1. Replace the import path:**
 
+{/* non-compilable: illustrative import path replacement — no package declaration */}
 ```go
 // Before
 import "github.com/mikeschinkel/go-tealeaves/teadiffr"
@@ -34,6 +35,7 @@ go mod tidy
 
 **3. Update package prefix in your code:**
 
+{/* non-compilable: illustrative snippet — theme variable not defined */}
 ```go
 // Before
 renderer := teadiffr.NewTUIRenderer(theme)

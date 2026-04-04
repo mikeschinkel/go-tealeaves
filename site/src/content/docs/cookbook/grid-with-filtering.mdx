@@ -19,6 +19,7 @@ go get github.com/mikeschinkel/go-tealeaves/teagrid
 
 ## Full example
 
+{/* verified: site/examples/guide-grid-with-filtering/ — go build passes */}
 ```go
 package main
 
@@ -26,8 +27,8 @@ import (
     "os"
     "strings"
 
-    tea "github.com/charmbracelet/bubbletea"
-    "github.com/charmbracelet/lipgloss"
+    tea "charm.land/bubbletea/v2"
+    lipgloss "charm.land/lipgloss/v2"
     "github.com/mikeschinkel/go-tealeaves/teagrid"
 )
 
@@ -119,18 +120,20 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     return m, tea.Batch(cmds...)
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
     var b strings.Builder
 
     b.WriteString("Filterable Project Grid\n")
     b.WriteString("Press / to filter, Escape to clear, q to quit\n\n")
-    b.WriteString(m.table.View())
+    b.WriteString(m.table.View().Content)
 
-    return b.String()
+    v := tea.NewView(b.String())
+    v.AltScreen = true
+    return v
 }
 
 func main() {
-    p := tea.NewProgram(newModel(), tea.WithAltScreen())
+    p := tea.NewProgram(newModel())
     if _, err := p.Run(); err != nil {
         os.Exit(1)
     }
@@ -143,6 +146,7 @@ func main() {
 
 Not every column should participate in filtering. Use `WithFiltered(true)` on the columns you want the filter to search:
 
+{/* non-compilable: illustrative snippet — colName/colLang/colStars constants not defined here */}
 ```go
 teagrid.NewColumn(colName, "Project", 20).WithFiltered(true)
 teagrid.NewColumn(colLang, "Language", 15).WithFiltered(true)
@@ -155,6 +159,7 @@ Only columns marked as filterable contribute to the filter match. In this exampl
 
 Call `WithFiltered(true)` on the grid model to enable the built-in filter input:
 
+{/* non-compilable: illustrative snippet — columns variable not defined */}
 ```go
 teagrid.NewGridModel(columns).WithFiltered(true)
 ```
@@ -169,6 +174,7 @@ When the user presses `/`, the grid focuses an inline text input. Every keystrok
 
 While the filter input is focused, normal key bindings like `q` should be treated as filter text, not as quit commands. Use `IsFilterInputFocused()` to guard your quit handler:
 
+{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
 ```go
 case "ctrl+c", "q":
     if !m.table.IsFilterInputFocused() {

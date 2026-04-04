@@ -11,6 +11,7 @@ Overlaying one Bubble Tea component on top of another — modals, dropdowns, too
 
 When you render styled text with lipgloss, the resulting string contains invisible ANSI escape codes:
 
+{/* non-compilable: illustrative snippet — no imports or package declaration */}
 ```go
 styled := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("Hello")
 
@@ -36,6 +37,7 @@ Tea Leaves uses **ANSI-aware string operations** from `github.com/charmbracelet/
 
 The core algorithm splits both background and foreground into lines, then composites each line where they overlap:
 
+{/* non-compilable: illustrative implementation — not part of any package */}
 ```go
 func overlayLine(background, foreground string, col int) string {
     bgWidth := ansi.StringWidth(background)
@@ -72,6 +74,7 @@ The pattern is: **left part of background + foreground + right part of backgroun
 
 ### Full overlay function
 
+{/* non-compilable: illustrative implementation — not part of any package */}
 ```go
 func OverlayDropdown(background, foreground string, row, col int) string {
     var result strings.Builder
@@ -109,32 +112,34 @@ Both `teafields` and `teamodal` provide overlay functions. Use them in your `Vie
 
 <Tabs>
   <TabItem label="Modal overlay">
+    {/* non-compilable: illustrative snippet — no complete model type defined */}
     ```go
-    func (m model) View() string {
-        mainView := m.mainContent.View()
+    func (m model) View() tea.View {
+        mainView := m.mainContent.View().Content
 
         if m.modal.IsOpen() {
-            return m.modal.OverlayModal(mainView)
+            return tea.NewView(m.modal.OverlayModal(mainView))
         }
 
-        return mainView
+        return tea.NewView(mainView)
     }
     ```
   </TabItem>
   <TabItem label="Dropdown overlay">
+    {/* non-compilable: illustrative snippet — no complete model type defined */}
     ```go
-    func (m model) View() string {
+    func (m model) View() tea.View {
         baseView := m.renderBase()
 
         if m.dropdown.IsOpen {
             dropdownView := m.dropdown.View()
-            return teafields.OverlayDropdown(
-                baseView, dropdownView,
+            return tea.NewView(teafields.OverlayDropdown(
+                baseView, dropdownView.Content,
                 m.dropdown.Row+2, m.dropdown.Col+3,
-            )
+            ))
         }
 
-        return baseView
+        return tea.NewView(baseView)
     }
     ```
   </TabItem>
@@ -143,18 +148,21 @@ Both `teafields` and `teamodal` provide overlay functions. Use them in your `Vie
 ## Positioning helpers
 
 **Center on screen:**
+{/* non-compilable: illustrative snippet — variable declarations only */}
 ```go
 row := (screenHeight - overlayHeight) / 2
 col := (screenWidth - overlayWidth) / 2
 ```
 
 **Below a trigger element:**
+{/* non-compilable: illustrative snippet — variable declarations only */}
 ```go
 row := triggerRow + 1
 col := triggerCol
 ```
 
 **Right-aligned:**
+{/* non-compilable: illustrative snippet — variable declarations only */}
 ```go
 col := screenWidth - overlayWidth
 ```

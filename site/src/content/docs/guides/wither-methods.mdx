@@ -11,6 +11,7 @@ Tea Leaves uses an **immutable struct pattern** throughout all components: metho
 
 <Tabs>
   <TabItem label="Correct — wither method">
+    {/* non-compilable: illustrative snippet — MyModel type not defined */}
     ```go
     // Methods return the updated model
     func (m MyModel) calculateLayout() MyModel {
@@ -25,6 +26,7 @@ Tea Leaves uses an **immutable struct pattern** throughout all components: metho
     ```
   </TabItem>
   <TabItem label="Avoid — multiple returns">
+    {/* non-compilable: illustrative snippet — MyModel type not defined */}
     ```go
     // Returning multiple values is verbose and error-prone
     func (m MyModel) calculateLayout() (contentWidth, totalWidth int) {
@@ -52,6 +54,7 @@ Tea Leaves uses an **immutable struct pattern** throughout all components: metho
 
 ### teamodal With\*() methods
 
+{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
 ```go
 // Set size using wither pattern
 m.confirmDialog = m.confirmDialog.SetSize(msg.Width, msg.Height)
@@ -65,6 +68,7 @@ modal := teamodal.NewYesNoModal("Proceed?", &teamodal.ModelArgs{
 
 ### teafields configuration
 
+{/* non-compilable: illustrative snippet — no enclosing model type */}
 ```go
 // Chain wither methods for configuration
 m.dropdown = m.dropdown.
@@ -74,6 +78,7 @@ m.dropdown = m.dropdown.
 
 ### teanotify positioning
 
+{/* non-compilable: illustrative snippet — no enclosing model type */}
 ```go
 // Change notification position at runtime
 m.notify = m.notify.WithPosition(teanotify.TopRightPosition)
@@ -85,6 +90,7 @@ m.notify = m.notify.WithPosition(teanotify.TopRightPosition)
 **Pointer-receiver mutation conflicts with Bubble Tea's design.** Bubble Tea passes models by value in `Update()`. If your helper methods use pointer receivers, the mutations happen on a copy that gets discarded.
 </Aside>
 
+{/* non-compilable: illustrative anti-pattern — MyModel type not defined */}
 ```go
 // WRONG — mutation on a copy
 func (m *MyModel) calculateLayout() {

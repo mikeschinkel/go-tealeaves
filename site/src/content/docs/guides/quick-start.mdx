@@ -35,6 +35,7 @@ Before you begin, make sure you have:
 
    Create a `main.go` file with the following code. This builds a full Yes/No confirmation dialog:
 
+   {/* verified: site/examples/guide-quick-start/ — go build passes */}
    ```go
    package main
 
@@ -43,15 +44,15 @@ Before you begin, make sure you have:
        "os"
        "strings"
 
-       tea "github.com/charmbracelet/bubbletea"
+       tea "charm.land/bubbletea/v2"
        "github.com/mikeschinkel/go-tealeaves/teamodal"
    )
 
    type model struct {
-       modal    teamodal.ConfirmModel
-       result   string
-       width    int
-       height   int
+       modal  teamodal.ConfirmModel
+       result string
+       width  int
+       height int
    }
 
    func main() {
@@ -60,7 +61,7 @@ Before you begin, make sure you have:
            &teamodal.ConfirmModelArgs{Title: "Quick Start"},
        )
        m := model{modal: modal}
-       p := tea.NewProgram(m, tea.WithAltScreen())
+       p := tea.NewProgram(m)
        if _, err := p.Run(); err != nil {
            fmt.Fprintf(os.Stderr, "Error: %v\n", err)
            os.Exit(1)
@@ -105,7 +106,7 @@ Before you begin, make sure you have:
        return m, nil
    }
 
-   func (m model) View() string {
+   func (m model) View() tea.View {
        var b strings.Builder
        b.WriteString("Quick Start Example\n\n")
        b.WriteString("Press Space to open the modal, q to quit\n\n")
@@ -121,9 +122,11 @@ Before you begin, make sure you have:
        view = strings.Join(lines, "\n")
 
        if m.modal.IsOpen() {
-           return m.modal.OverlayModal(view)
+           view = m.modal.OverlayModal(view)
        }
-       return view
+       v := tea.NewView(view)
+       v.AltScreen = true
+       return v
    }
    ```
 

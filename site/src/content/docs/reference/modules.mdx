@@ -27,6 +27,7 @@ Tea Leaves uses a **multi-module monorepo** layout. Each module is a standalone 
 
 ## Directory Layout
 
+{/* non-compilable: directory tree diagram */}
 ```
 go-tealeaves/
 ├── teacolor/      # Named color constants (standalone module)
@@ -55,6 +56,7 @@ go-tealeaves/
 
 Each module is tagged independently using the pattern `<module>/v0.X.Y`:
 
+{/* non-compilable: version tag examples */}
 ```
 teafields/v0.3.0
 teagrid/v0.3.0
@@ -68,6 +70,7 @@ This means upgrading one component never forces upgrades to others.
 
 Most components depend only on `teautils` for shared helpers. `teatree`'s `DrillDownModel` also depends on `teafields` for its dropdown UI. No other cross-component dependencies exist.
 
+{/* non-compilable: dependency graph diagram */}
 ```
 teacolor ───► (none — only lipgloss)
 teafields ──► teautils

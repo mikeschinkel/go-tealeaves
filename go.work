@@ -68,4 +68,9 @@ use (
 	./site/examples/text-selection
 	./site/examples/theming
 	./site/examples/tree-view
+	./site/examples/guide-quick-start
+	./site/examples/guide-dropdown-in-form
+	./site/examples/guide-grid-with-filtering
+	./site/examples/guide-notification-after-action
+	./site/examples/guide-tree-with-statusbar
 )

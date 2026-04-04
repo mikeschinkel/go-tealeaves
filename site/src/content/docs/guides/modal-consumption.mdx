@@ -13,6 +13,7 @@ When a dropdown or modal is open, it needs to consume keyboard messages so they 
 **Anti-pattern: State checking in parent.** The parent must know the dropdown's internal state to decide whether to process messages. This violates encapsulation and clutters parent code.
 </Aside>
 
+{/* non-compilable: anti-pattern illustration — no complete model type */}
 ```go
 // Parent Update() — infected with modal checks
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -42,6 +43,7 @@ This approach has several problems:
 
 <Tabs>
   <TabItem label="Parent pattern">
+    {/* non-compilable: illustrative snippet — no complete model type defined */}
     ```go
     func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         var cmd tea.Cmd
@@ -70,6 +72,7 @@ This approach has several problems:
     ```
   </TabItem>
   <TabItem label="Dropdown internals">
+    {/* non-compilable: illustrative internal implementation — not the real teafields source */}
     ```go
     func (m DropdownModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         var cmd tea.Cmd
@@ -121,6 +124,7 @@ This approach has several problems:
 
 The pattern composes naturally with multiple modal components:
 
+{/* non-compilable: illustrative snippet — no complete model type defined */}
 ```go
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     var cmd tea.Cmd

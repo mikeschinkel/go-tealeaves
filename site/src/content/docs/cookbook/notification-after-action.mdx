@@ -19,6 +19,7 @@ go get github.com/mikeschinkel/go-tealeaves/teanotify
 
 ## Full example
 
+{/* verified: site/examples/guide-notification-after-action/ — go build passes */}
 ```go
 package main
 
@@ -28,8 +29,8 @@ import (
     "strings"
     "time"
 
-    tea "github.com/charmbracelet/bubbletea"
-    "github.com/charmbracelet/lipgloss"
+    tea "charm.land/bubbletea/v2"
+    lipgloss "charm.land/lipgloss/v2"
     "github.com/mikeschinkel/go-tealeaves/teanotify"
 )
 
@@ -69,7 +70,7 @@ func main() {
         os.Exit(1)
     }
 
-    p := tea.NewProgram(model{notify: notify}, tea.WithAltScreen())
+    p := tea.NewProgram(model{notify: notify})
     if _, err := p.Run(); err != nil {
         fmt.Fprintf(os.Stderr, "Error: %v\n", err)
         os.Exit(1)
@@ -133,9 +134,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     return m, notifyCmd
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
     if m.width == 0 {
-        return "Loading..."
+        v := tea.NewView("Loading...")
+        v.AltScreen = true
+        return v
     }
 
     var b strings.Builder
@@ -162,7 +165,9 @@ func (m model) View() string {
 
     // Render overlays the notification on top of the content.
     // If no notification is active, it returns the content unchanged.
-    return m.notify.Render(fullContent)
+    v := tea.NewView(m.notify.Render(fullContent))
+    v.AltScreen = true
+    return v
 }
 ```
 
@@ -172,6 +177,7 @@ func (m model) View() string {
 
 `NewNotifyModel` accepts a `NotifyOpts` struct that configures the notification width, auto-dismiss duration, screen position, and ESC-to-close behavior. After construction, you must call `Initialize()` to validate the options and register the four built-in notice types (Info, Warn, Error, Debug).
 
+{/* non-compilable: illustrative snippet — err variable not declared */}
 ```go
 notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
     Width:           40,
@@ -186,6 +192,7 @@ notify, err = notify.Initialize()
 
 When your async operation completes, call `NewNotifyCmd` with a notice type key and a message string. This returns a `tea.Cmd` that, when processed by the Bubble Tea runtime, delivers a notification message to the `NotifyModel`.
 
+{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
 ```go
 cmd := m.notify.NewNotifyCmd(teanotify.InfoKey, "Saved successfully")
 return m, tea.Batch(notifyCmd, cmd)
@@ -195,6 +202,7 @@ return m, tea.Batch(notifyCmd, cmd)
 
 In your `View()`, call `m.notify.Render(content)` as the final step. If a notification is active, `Render` overlays it at the configured position using ANSI-aware string operations. If no notification is active, it returns the content unchanged.
 
+{/* non-compilable: illustrative snippet — no enclosing View function */}
 ```go
 return m.notify.Render(fullContent)
 ```

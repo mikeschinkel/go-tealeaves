@@ -1,5 +1,6 @@
 # Build artifacts
 bin/
+!site/bin/
 *.exe
 *.test
 *.out
@@ -17,3 +18,10 @@ bin/
 # Astro site artifacts
 site/node_modules/
 site/dist/
+
+# Go-related
+go.work
+go.work.sum
+
+# h2 agent artifacts
+.h2-audit-report.md

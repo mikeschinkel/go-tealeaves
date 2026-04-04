@@ -19,6 +19,7 @@ go get github.com/mikeschinkel/go-tealeaves/teafields
 
 ## Full example
 
+{/* verified: site/examples/guide-dropdown-in-form/ — go build passes */}
 ```go
 package main
 
@@ -27,8 +28,8 @@ import (
     "os"
     "strings"
 
-    tea "github.com/charmbracelet/bubbletea"
-    "github.com/charmbracelet/lipgloss"
+    tea "charm.land/bubbletea/v2"
+    lipgloss "charm.land/lipgloss/v2"
     "github.com/mikeschinkel/go-tealeaves/teafields"
 )
 
@@ -82,7 +83,7 @@ func main() {
         FieldCol: formFieldCol,
     })
 
-    p := tea.NewProgram(model{dropdown: dropdown}, tea.WithAltScreen())
+    p := tea.NewProgram(model{dropdown: dropdown})
     if _, err := p.Run(); err != nil {
         fmt.Fprintf(os.Stderr, "Error: %v\n", err)
         os.Exit(1)
@@ -132,7 +133,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     return m, nil
 }
 
-func (m model) View() string {
+func (m model) View() tea.View {
     var b strings.Builder
 
     b.WriteString(titleStyle.Render("New Product Form"))
@@ -178,15 +179,17 @@ func (m model) View() string {
     if m.dropdown.IsOpen {
         dropdownView := m.dropdown.View()
         // Adjust for border (1 row) + padding (1 row top, 2 cols left)
-        return teafields.OverlayDropdown(
+        content = teafields.OverlayDropdown(
             content,
-            dropdownView,
+            dropdownView.Content,
             m.dropdown.Row+2,
             m.dropdown.Col+3,
         )
     }
 
-    return content
+    v := tea.NewView(content)
+    v.AltScreen = true
+    return v
 }
 ```
 
@@ -196,6 +199,7 @@ func (m model) View() string {
 
 The `Update()` method delegates to the dropdown first. If the dropdown returns a non-nil `tea.Cmd`, it means the dropdown handled (consumed) the message and the parent should not process it further. This keeps the parent code clean -- no `if m.dropdown.IsOpen` guards scattered throughout.
 
+{/* non-compilable: illustrative snippet — no enclosing model type */}
 ```go
 dropdown, cmd := m.dropdown.Update(msg)
 if cmd != nil {
@@ -210,12 +214,13 @@ See [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) for the
 
 The dropdown renders its own view as a standalone string. The parent composites it onto the form using `OverlayDropdown()`. The row and column offsets account for the border and padding around the form content:
 
+{/* non-compilable: illustrative snippet — no enclosing View function */}
 ```go
 return teafields.OverlayDropdown(
-    content,        // background: the full form
-    dropdownView,   // foreground: the dropdown popup
-    m.dropdown.Row+2,  // +2 for border row + padding row
-    m.dropdown.Col+3,  // +3 for border col + 2 padding cols
+    content,              // background: the full form
+    dropdownView.Content, // foreground: the dropdown popup
+    m.dropdown.Row+2,     // +2 for border row + padding row
+    m.dropdown.Col+3,     // +3 for border col + 2 padding cols
 )
 ```
 

@@ -24,6 +24,7 @@ Use [GitHub Issues](https://github.com/mikeschinkel/go-tealeaves/issues) to repo
 
    Fork the repository and create a feature branch from `main`:
 
+   {/* non-compilable: shell commands */}
    ```bash
    git clone https://github.com/<you>/go-tealeaves.git
    cd go-tealeaves
@@ -38,6 +39,7 @@ Use [GitHub Issues](https://github.com/mikeschinkel/go-tealeaves/issues) to repo
 
    Before submitting, verify that tests pass and the code is clean:
 
+   {/* non-compilable: shell commands */}
    ```bash
    make test && make vet
    ```
@@ -46,6 +48,7 @@ Use [GitHub Issues](https://github.com/mikeschinkel/go-tealeaves/issues) to repo
 
    Describe the change, not the files. Prefix with the package name when applicable:
 
+   {/* non-compilable: commit message examples */}
    ```
    teamodal: fix ESC propagation when modal closes during Update
    teautils: add CenterModal helper for overlay positioning
@@ -77,6 +80,7 @@ Follow the patterns established in existing code. Key conventions:
 
 - **ClearPath pattern** -- Use `goto end` with named returns instead of early returns. This keeps the success path on the left margin and error handling at the bottom:
 
+  {/* non-compilable: illustrative snippet — fetchData/process not defined */}
   ```go
   func doWork() (result string, err error) {
       data, err := fetchData()
@@ -99,18 +103,21 @@ Follow the patterns established in existing code. Key conventions:
 - **Add tests** for new functionality. Check existing `*_test.go` files in the package you are modifying for conventions.
 - **Run the full test suite** before submitting:
 
+  {/* non-compilable: shell commands */}
   ```bash
   make test
   ```
 
 - **Run static analysis:**
 
+  {/* non-compilable: shell commands */}
   ```bash
   make vet
   ```
 
 - **Verify examples still build.** Example programs in `examples/` serve as integration tests:
 
+  {/* non-compilable: shell commands */}
   ```bash
   make build-examples
   ```
