@@ -13,6 +13,12 @@ Tea Leaves provides a three-layer theming system that lets you apply consistent 
 2. **SystemPalette** — Semantic color slots (TextPrimary, Accent, StatusSuccess, etc.)
 3. **Theme** — Component-specific style groups derived from a Palette
 
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teautils
+```
+
 ## Quick Start
 
 ```go
@@ -144,6 +150,129 @@ Every Tea Leaves component supports `WithTheme()`:
 <Aside type="tip">
 `WithTheme()` is opt-in. Unthemed components use their existing default styles. Individual `With*Style()` methods still take precedence over theme styles.
 </Aside>
+
+## API Reference
+
+### PaletteOpts
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `Adaptive` | `bool` | When `true`, selects ANSI 0-15 colors for text, accents, and status indicators — these respect the user's terminal theme. When `false` (default), all colors use fixed ANSI 16-255 values. |
+
+### Palette Constructor Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `DarkSystemPalette` | `DarkSystemPalette(opts *PaletteOpts) SystemPalette` | Returns a palette suited for dark terminal backgrounds |
+| `LightSystemPalette` | `LightSystemPalette(opts *PaletteOpts) SystemPalette` | Returns a palette suited for light terminal backgrounds |
+| `AdaptiveSystemPalette` | `AdaptiveSystemPalette(opts *PaletteOpts) SystemPalette` | Detects terminal background; falls back to dark if detection fails |
+| `DefaultSystemPalette` | `DefaultSystemPalette(opts *PaletteOpts) SystemPalette` | Alias for `AdaptiveSystemPalette` |
+
+### Theme Constructor Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewTheme` | `NewTheme(sys SystemPalette) Theme` | Build a `Theme` from a `SystemPalette`, deriving all lipgloss styles |
+| `DefaultTheme` | `DefaultTheme() Theme` | Returns `NewTheme(DefaultSystemPalette(nil))` |
+
+### Component Theme Types
+
+Each component-specific field on `Theme` is its own struct with exported `lipgloss.Style` fields:
+
+#### BreadcrumbTheme (`theme.Breadcrumb`)
+
+| Field | Description |
+|-------|-------------|
+| `ParentStyle` | Style for ancestor breadcrumb segments |
+| `CurrentStyle` | Style for the current (last) segment |
+| `SeparatorStyle` | Style for the separator between segments |
+| `HoverStyle` | Style for a hovered/focused segment |
+
+#### StatusBarTheme (`theme.StatusBar`)
+
+| Field | Description |
+|-------|-------------|
+| `MenuKeyStyle` | Style for key labels in the status bar |
+| `MenuLabelStyle` | Style for action labels in the status bar |
+| `IndicatorStyle` | Style for status indicator text |
+| `IndicatorSepStyle` | Style for separators between indicators |
+| `BarStyle` | Base style for the full bar container |
+
+#### HelpVisorTheme (`theme.HelpVisor`)
+
+| Field | Description |
+|-------|-------------|
+| `TitleStyle` | Style for the visor title |
+| `CategoryStyle` | Style for category headers |
+| `KeyStyle` | Style for key labels |
+| `DescStyle` | Style for key descriptions |
+
+#### ModalTheme (`theme.Modal`)
+
+| Field | Description |
+|-------|-------------|
+| `BorderStyle` | Rounded border style for the modal frame |
+| `TitleStyle` | Style for the modal title |
+| `MessageStyle` | Style for the modal body message |
+| `ButtonStyle` | Style for unfocused buttons |
+| `FocusedButtonStyle` | Style for the focused button |
+| `CancelKeyStyle` | Style for the cancel key label |
+| `CancelTextStyle` | Style for the cancel action text |
+
+#### DropdownTheme (`theme.Dropdown`)
+
+| Field | Description |
+|-------|-------------|
+| `BorderStyle` | Rounded border style for the dropdown |
+| `ItemStyle` | Style for unfocused list items |
+| `SelectedStyle` | Style for the selected/highlighted item |
+
+#### ListTheme (`theme.List`)
+
+| Field | Description |
+|-------|-------------|
+| `ItemStyle` | Style for regular list items |
+| `SelectedItemStyle` | Style for the selected item |
+| `ActiveItemStyle` | Style for the active (cursor) item |
+| `FooterStyle` | Style for the list footer text |
+| `StatusStyle` | Style for status messages |
+| `EditItemStyle` | Style for an item in inline-edit mode |
+| `ScrollbarStyle` | Style for the scrollbar track |
+| `ScrollThumbStyle` | Style for the scrollbar thumb |
+
+#### GridTheme (`theme.Grid`)
+
+| Field | Description |
+|-------|-------------|
+| `HeaderStyle` | Style for column header cells |
+| `BaseStyle` | Style for regular data cells |
+| `HighlightStyle` | Style for the highlighted/selected row |
+| `BorderStyle` | Style for the grid border |
+
+### Exported Semantic Color Variables
+
+`teautils` re-exports `SemanticColor` type aliases and pre-built variables from `teacolor` for use when constructing custom palettes. ANSI 0-15 named variables (terminal-theme-adaptive):
+
+| Variable | ANSI Index |
+|----------|-----------|
+| `SemanticBlack` | 0 |
+| `SemanticRed` | 1 |
+| `SemanticGreen` | 2 |
+| `SemanticYellow` | 3 |
+| `SemanticBlue` | 4 |
+| `SemanticMagenta` | 5 |
+| `SemanticCyan` | 6 |
+| `SemanticWhite` | 7 |
+| `SemanticBrightBlack` | 8 |
+| `SemanticBrightRed` | 9 |
+| `SemanticBrightGreen` | 10 |
+| `SemanticBrightYellow` | 11 |
+| `SemanticBrightBlue` | 12 |
+| `SemanticBrightMagenta` | 13 |
+| `SemanticBrightCyan` | 14 |
+| `SemanticBrightWhite` | 15 |
+
+Additional pre-built fixed-color variables for commonly used ANSI 256 values (e.g., `SemanticColor46`, `SemanticColor178`, `SemanticColor240`) are available in the source; see `teautils/palette.go` for the full list. `SemanticColorNil` represents "no color" (transparent/default).
 
 ## Related
 
