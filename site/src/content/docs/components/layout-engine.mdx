@@ -5,7 +5,7 @@ description: Declarative layout engine for Bubble Tea v2 — Percent, Fixed, Fle
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `tealayout` · **Types:** `Pane`, `Element[T]`, `Layout` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/tealayout`
+> **Module:** `github.com/mikeschinkel/go-tealeaves/tealayout` · **Types:** `Pane`, `Element[T]`, `Layout` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/tealayout`
 
 Manual width/height arithmetic in `WindowSizeMsg` handlers is repetitive and error-prone. `tealayout` replaces it with a declarative tree of rows and columns: you describe _proportions_, tealayout does the integer math, handles the "two-width problem" (total vs content dimensions), distributes remainders, respects min/max constraints, and collapses optional children when space runs out.
 
@@ -131,6 +131,13 @@ tealayout.Percent33   // Percent(33)
 tealayout.Percent25   // Percent(25)
 tealayout.Percent20   // Percent(20)
 ```
+
+### Dimension Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `IsFlex` | `IsFlex() bool` | Return true if the dimension is `Flex` (proportional share) |
+| `Value` | `Value() float64` | Return the numeric value of the dimension (n for Fixed/Percent, weight for Flex, 0 for Fit) |
 
 ### Choosing between Percent and Flex
 
@@ -426,6 +433,8 @@ output, _ := mpl.Render()
 ```
 
 ### MultiPaneLayout options
+
+`MultiPaneLayoutOption` is `func(*multiPaneConfig)` — a functional option for configuring `NewMultiPaneLayout`.
 
 | Option | Description |
 |--------|-------------|

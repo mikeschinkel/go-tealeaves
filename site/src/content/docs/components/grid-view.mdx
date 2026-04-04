@@ -5,7 +5,7 @@ description: Tabular data display component with sorting, filtering, pagination,
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teagrid` · **Type:** `GridModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teagrid`
+> **Module:** `github.com/mikeschinkel/go-tealeaves/teagrid` · **Type:** `GridModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teagrid`
 
 Displaying tabular data in the terminal with sorting, filtering, pagination, and row selection requires extensive custom code. `teagrid` provides a ready-made data grid component that handles all of these concerns out of the box, letting you focus on your data rather than table rendering logic.
 
@@ -161,6 +161,13 @@ Use `CellValue` instead of a plain string when you need per-cell styling, rich i
 | `NewCellValueWithSortKey(data, sortValue, style)` | Cell with separate display value and sort key |
 | `NewCellValueWithSpans(spans, style)` | Cell with rich inline text (multiple styled segments) |
 | `NewSpan(text, style)` | Create a single `Span` within a `NewCellValueWithSpans` call |
+
+### CellValue Methods
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `HasSpans` | `HasSpans() bool` | Return true if the cell contains inline `Span` segments |
+| `SortableValue` | `SortableValue() any` | Return the sort key (the separate sort value if set, otherwise the display value) |
 
 ### CellStyleFunc — dynamic per-cell styling
 

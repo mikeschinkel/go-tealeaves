@@ -5,7 +5,7 @@ description: Interactive dependency path viewer for exploring tree graphs — ve
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teatree` · **Type:** `DrillDownModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
+> **Module:** `github.com/mikeschinkel/go-tealeaves/teatree` · **Type:** `DrillDownModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
 
 Dependency graphs are complex — navigating them interactively requires tree traversal with circular dependency detection, path display from root to leaf, and alternative selection at each level. `DrillDownModel[T]` (in the `teatree` module) provides an interactive path viewer that renders a single root-to-leaf path through a node tree, with dropdown selection for choosing sibling alternatives at any level. It integrates `teafields` internally for the dropdown and uses a configurable `DrillDownSelectorFunc` to determine the "best" path.
 

@@ -5,7 +5,7 @@ description: Dropdown selection component with intelligent above/below positioni
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teafields` · **Type:** `DropdownModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teafields`
+> **Module:** `github.com/mikeschinkel/go-tealeaves/teafields` · **Type:** `DropdownModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teafields`
 
 Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teafields` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) pattern.
 
@@ -75,6 +75,7 @@ func main() {
 | `OptionSelectedMsg` | Message sent when the user selects an option — contains `Index`, `Text`, and `Value` fields |
 | `DropdownModelArgs` | Configuration arguments for `NewDropdownModel` |
 | `ModelArgs` | Type alias for `DropdownModelArgs` (deprecated — use `DropdownModelArgs`) |
+| `Position` | Integer type for overlay positioning — constants: `TopLeft`, `TopMiddle`, `TopRight`, `MiddleLeft`, `Middle`, `MiddleRight`, `BottomLeft`, `BottomMiddle`, `BottomRight` |
 
 ### Default Style Functions
 

@@ -5,7 +5,7 @@ description: Yes/No and OK confirmation dialogs with ANSI-aware overlay renderin
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teamodal` · **Type:** `ConfirmModel`
+> **Module:** `github.com/mikeschinkel/go-tealeaves/teamodal` · **Type:** `ConfirmModel`
 
 ## Install
 
@@ -164,6 +164,7 @@ In addition to the `ConfirmModel.OverlayModal(background string) string` method,
 | Function | Signature | Description |
 |----------|-----------|-------------|
 | `OverlayModal` | `OverlayModal(background, foreground string, row, col int) string` | ANSI-aware overlay compositing — places `foreground` on `background` at the given `row` and `col` |
+| `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr) (w int, h int, ok bool)` | Get terminal dimensions from a file descriptor — used internally for auto-sizing modals |
 
 ### Default Style Functions
 
