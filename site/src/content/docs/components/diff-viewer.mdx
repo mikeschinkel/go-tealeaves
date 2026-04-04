@@ -30,7 +30,7 @@ go get github.com/mikeschinkel/go-tealeaves/teadiff
 ### Quick example
 
 ```go
-model := teadiff.NewSplitDiffModel(teadiff.SplitDiffModelArgs{
+model := teadiff.NewSplitDiffModel(&teadiff.SplitDiffModelArgs{
     Width:  termWidth,
     Height: termHeight,
     // Optional: syntax highlighting
@@ -164,9 +164,69 @@ model = model.SetAnnotations(annotations)
 `SplitDiffModel` uses value semantics — every mutating method returns a new copy of the model. Assign the return value: `model = model.MoveCursorDown()`.
 </Aside>
 
+### Pane line types
+
+Each `SplitPaneRow` (returned by `Rows()`) holds two `PaneLine` values — one per side. Three concrete types implement `PaneLine`:
+
+```
+type SplitPaneRow struct {
+    CommitLine PaneLine // Left pane (old/commit version)
+    ActualLine PaneLine // Right pane (new/actual version)
+    BlockIndex int      // 0 = unchanged; >0 = change block (1-based)
+    LineOffset int      // Offset within the block
+}
+```
+
+| Type | Interface | Description |
+|------|-----------|-------------|
+| `PaneLine` | `LineNo() int`, `PaneLine()` | Interface implemented by all pane cell types |
+| `TextLine` | implements `PaneLine` | Real text content — `Text string` field, `LineNo()` for display line number |
+| `BlockMarker` | implements `PaneLine` | Marks the start of a change block on the opposite side — `LineCount int` field |
+| `PlaceholderLine` | implements `PaneLine` | Blank alignment row inserted to keep both sides in sync — `HunkLine int` field |
+
+#### Constructors
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewTextLine` | `NewTextLine(lineNo int, text string) *TextLine` | Create a text cell |
+| `NewBlockMarker` | `NewBlockMarker(lineNo int, lineCount int) *BlockMarker` | Create a block-start marker |
+| `NewPlaceholderLine` | `NewPlaceholderLine(lineNo int, hunkLine int) *PlaceholderLine` | Create an alignment placeholder |
+
+### SelectAction
+
+`SelectAction` tracks the Ctrl+A toggle cycle used by `ToggleBlockSelection()`:
+
+| Constant | Value | Description |
+|----------|-------|-------------|
+| `SelectActionNone` | 0 | No selection active |
+| `SelectActionBlock` | 1 | Current change block selected |
+| `SelectActionAllBlocks` | 2 | All change blocks selected |
+
 ## TUIRenderer — condensed diff display
 
 `TUIRenderer` renders a list of `FileDiff` values in a compact format suitable for non-interactive display — for example in a status pane or log view.
+
+Two constructors are available:
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `NewTUIRenderer` | `NewTUIRenderer(args *TUIRendererArgs) *TUIRenderer` | Create with explicit colors; pass `nil` for built-in defaults |
+| `NewThemedTUIRenderer` | `NewThemedTUIRenderer(theme teautils.Theme) *TUIRenderer` | Create with colors derived from a `teautils.Theme` palette (maps `TextMuted`, `AccentAlt`, `StatusSuccess`, `StatusError`, `TintPositive`, `TintNegative`) |
+
+### CommitGroupColors
+
+`CommitGroupColors` is a pre-defined `[]color.Color` of 8 distinct colors (green, blue, orange, purple, cyan, red, yellow, brown) intended for use as gutter annotation colors when visualizing per-commit-group line assignments. Use with `SetAnnotations()`.
+
+```go
+annotations := map[int]teadiff.RowAnnotation{}
+for lineIdx, groupIdx := range lineGroups {
+    annotations[lineIdx] = teadiff.RowAnnotation{
+        Char:  '●',
+        Color: teadiff.CommitGroupColors[groupIdx%len(teadiff.CommitGroupColors)],
+    }
+}
+model = model.SetAnnotations(annotations)
+```
 
 `NewTUIRenderer` accepts an optional `*TUIRendererArgs` to override specific colors. Pass `nil` to use the built-in defaults:
 
@@ -200,7 +260,8 @@ diffs := []teadiff.FileDiff{
     },
 }
 
-output := renderer.Render(diffs, termWidth)
+lines := teadiff.RenderFileDiffs(diffs, renderer, termWidth)
+output := strings.Join(lines, "\n")
 ```
 
 ### FileDiff and CondensedBlock types
