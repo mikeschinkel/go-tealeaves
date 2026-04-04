@@ -5,9 +5,15 @@ description: ANSI-aware positioning and measurement functions for centering moda
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `teautils` · **Type:** (functions) · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teautils`
+> **Module:** `teautils` · **Type:** (functions)
 
 Functions for centering modals and measuring rendered views with ANSI-aware width calculations. Used internally by modal and dropdown components, and available for custom overlay positioning.
+
+## Install
+
+```bash
+go get github.com/mikeschinkel/go-tealeaves/teautils
+```
 
 ## Quick Example
 
@@ -46,6 +52,13 @@ width, height, row, col := teautils.CenterModal(renderedModal, screenW, screenH)
 | `RenderAlignedLine` | `RenderAlignedLine(text string, style lipgloss.Style, width int, align lipgloss.Position) string` | Render styled text with horizontal alignment within a width |
 | `RenderCenteredLine` | `RenderCenteredLine(text string, style lipgloss.Style, width int) string` | Convenience wrapper for center-aligned rendering |
 | `ApplyBoxBorder` | `ApplyBoxBorder(borderStyle lipgloss.Style, content string) string` | Apply a border with `Padding(1, 2)` to content |
+
+### Terminal Detection and Debug Utilities
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `IsJediTerm` | `IsJediTerm() bool` | Returns `true` when running inside a JetBrains IDE terminal (GoLand, IntelliJ, etc.). JediTerm mishandles CBT escape sequences; use this to apply rendering workarounds. Checks `TERMINAL_EMULATOR`, `__CFBundleIdentifier`, and `XPC_SERVICE_NAME`. |
+| `Stderrf` | `Stderrf(format string, args ...any)` | Printf-style write to `stderr`. Useful for debug output in TUI applications where `stdout` is occupied by the terminal UI. |
 
 ## Known Limitations
 

@@ -62,7 +62,7 @@ registry.MustRegisterMany([]teautils.KeyMeta{
 | `Clear()` | Remove all keys (useful when switching views) |
 | `ForStatusBar() []KeyMeta` | Get keys marked for status bar display, in registration order |
 | `ForHelpModal() []KeyMeta` | Get keys marked for help modal display |
-| `ByCategory() map[string][]KeyMeta` | Get keys grouped by category |
+| `ByCategory() map[string][]KeyMeta` | Get keys grouped by category; keys without a category appear under `"Other"` |
 
 ### Key Types
 

@@ -10,7 +10,7 @@ import { Aside } from '@astrojs/starlight/components';
 Tea Leaves provides a three-layer theming system that lets you apply consistent colors across all components:
 
 1. **teacolor** — Named color constants (ANSI 256 + hex values)
-2. **Palette** — Semantic color slots (TextPrimary, AccentPrimary, StatusSuccess, etc.)
+2. **SystemPalette** — Semantic color slots (TextPrimary, Accent, StatusSuccess, etc.)
 3. **Theme** — Component-specific style groups derived from a Palette
 
 ## Quick Start
@@ -51,29 +51,80 @@ teacolor.Coral, teacolor.SlateGray, teacolor.Teal
 
 ## Palette
 
-A `Palette` contains ~30 semantic color slots:
+A `SystemPalette` contains ~30 semantic color slots organized by purpose. Pass `nil` for fixed (non-adaptive) colors, or pass `&teautils.PaletteOpts{Adaptive: true}` to use ANSI 0-15 colors that respect the user's terminal theme:
 
 ```go
-palette := teautils.DarkPalette()   // Dark terminal colors
-palette := teautils.LightPalette()  // Light terminal colors
-palette := teautils.AdaptivePalette() // Auto-detect
+palette := teautils.DarkSystemPalette(nil)     // Dark terminal colors
+palette := teautils.LightSystemPalette(nil)    // Light terminal colors
+palette := teautils.AdaptiveSystemPalette(nil) // Auto-detect dark/light
+palette := teautils.DefaultSystemPalette(nil)  // Alias for adaptive
 ```
 
-Key slots: `TextPrimary`, `TextSecondary`, `AccentPrimary`, `FocusBg`, `StatusSuccess`, `StatusError`, `ButtonFocusBg`, `DiffTintPositive`, `DiffTintNegative`.
+Color slot groups:
+
+| Group | Fields |
+|-------|--------|
+| Text hierarchy | `TextPrimary`, `TextSecondary`, `TextMuted`, `TextDim` |
+| Accent colors | `Accent`, `AccentAlt`, `AccentSubtle` |
+| Selection / focus | `SelectionBg`, `SelectionFg`, `FocusBorder`, `FocusBg` |
+| Borders and chrome | `Border`, `BorderAccent`, `Separator` |
+| Status indicators | `StatusSuccess`, `StatusInfo`, `StatusWarn`, `StatusError` |
+| Interactive elements | `ButtonBg`, `ButtonFg`, `ButtonFocusBg`, `ButtonFocusFg` |
+| Edit mode | `EditBg`, `EditFg` |
+| Diff context | `TintPositive`, `TintNegative`, `TintNeutral` |
+| Scrollbar | `ScrollTrack`, `ScrollThumb` |
+| Syntax highlighting | `HighlightStyle` (Chroma style name, e.g. `"monokai"`, `"github"`) |
+
+### Palette[T] — App Domain Colors
+
+When your application needs colors beyond the system palette, embed `SystemPalette` inside the generic `Palette[T]`:
+
+```go
+type AppColors struct {
+    Brand    teautils.SemanticColor
+    Sidebar  teautils.SemanticColor
+}
+
+palette := teautils.Palette[AppColors]{
+    System: teautils.DarkSystemPalette(nil),
+    App: AppColors{
+        Brand:   teautils.NewSemanticColor(teacolor.Color46),
+        Sidebar: teautils.NewSemanticColor(teacolor.Color238),
+    },
+}
+```
+
+Pass `palette.System` to `teautils.NewTheme()` for component theming, and access `palette.App` directly for your own rendering code.
 
 ## Theme
 
-A `Theme` derives lipgloss styles from a Palette and organizes them by component:
+A `Theme` derives lipgloss styles from a `SystemPalette` and organizes them by component. It also exposes a set of shared styles useful in custom component rendering:
 
 ```go
 theme := teautils.NewTheme(palette)
-// theme.StatusBar — StatusBarTheme
-// theme.Modal     — ModalTheme
-// theme.Grid      — GridTheme
-// theme.Dropdown  — DropdownTheme
-// theme.HelpVisor — HelpVisorTheme
-// theme.List      — ListTheme
+// theme.Breadcrumb — BreadcrumbTheme
+// theme.StatusBar  — StatusBarTheme
+// theme.Modal      — ModalTheme
+// theme.Grid       — GridTheme
+// theme.Dropdown   — DropdownTheme
+// theme.HelpVisor  — HelpVisorTheme
+// theme.List       — ListTheme
 ```
+
+Common shared styles available directly on `Theme`:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `System` | `SystemPalette` | The source palette used to build the theme |
+| `Border` | `lipgloss.Style` | Rounded border in the default border color |
+| `BorderAccent` | `lipgloss.Style` | Rounded border in the accent border color |
+| `Title` | `lipgloss.Style` | Bold accent-colored text for titles |
+| `Message` | `lipgloss.Style` | Secondary-colored text for body messages |
+| `Button` | `lipgloss.Style` | Unfocused button foreground style |
+| `FocusedButton` | `lipgloss.Style` | Focused button with highlight foreground + background |
+| `Item` | `lipgloss.Style` | Primary-colored list/grid item text |
+| `SelectedItem` | `lipgloss.Style` | Selected item with selection foreground + background |
+| `ActiveItem` | `lipgloss.Style` | Accent-colored text for the active/current item |
 
 ## WithTheme() on Components
 
@@ -88,7 +139,7 @@ Every Tea Leaves component supports `WithTheme()`:
 | teafields | `model.WithTheme(theme)` |
 | teatree | `model.WithTheme(theme)` |
 | teatext | `model.WithTheme(theme)` |
-| teadiffr | `NewThemedTUIRenderer(theme)` |
+| teadiff | `model.WithTheme(theme)` |
 
 <Aside type="tip">
 `WithTheme()` is opt-in. Unthemed components use their existing default styles. Individual `With*Style()` methods still take precedence over theme styles.
