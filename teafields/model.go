@@ -26,9 +26,6 @@ type DropdownModelArgs struct {
 	SelectedStyle lipgloss.Style
 }
 
-// Deprecated: Use DropdownModelArgs instead.
-type ModelArgs = DropdownModelArgs
-
 // DropdownModel is a Bubble Tea model for popup selection
 type DropdownModel struct {
 	Keys DropdownKeyMap // Keyboard bindings
@@ -102,16 +99,6 @@ func NewDropdownModel(options []Option, args *DropdownModelArgs) (m DropdownMode
 	}
 
 	return m
-}
-
-// Deprecated: Use NewDropdownModel with DropdownModelArgs.FieldRow/FieldCol instead.
-func NewModel(options []Option, fieldRow, fieldCol int, args *ModelArgs) DropdownModel {
-	if args == nil {
-		args = &DropdownModelArgs{}
-	}
-	args.FieldRow = fieldRow
-	args.FieldCol = fieldCol
-	return NewDropdownModel(options, args)
 }
 
 // Init implements tea.Model - returns nil (no initial command)

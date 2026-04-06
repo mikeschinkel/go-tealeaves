@@ -51,7 +51,7 @@ func main() {
 
 	finalModel, err := p.Run()
 	if err != nil {
-		cliutil.Stderrf("Error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 

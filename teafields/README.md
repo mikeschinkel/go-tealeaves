@@ -68,7 +68,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         switch msg.String() {
         case "q", "ctrl+c":
             return m, tea.Quit
-        case " ":
+        case "space":
             if m.dropdown.IsOpen {
                 m.dropdown, cmd = m.dropdown.Close()
             } else {
@@ -480,7 +480,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     case tea.KeyMsg:
         switch msg.String() {
-        case " ":
+        case "space":
             if !m.dropdown.IsOpen {
                 m.dropdown, cmd = m.dropdown.Open()
                 return m, cmd
