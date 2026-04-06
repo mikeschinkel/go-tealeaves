@@ -22,15 +22,12 @@ func NewFocusManager(layout *Layout) *FocusManager {
 
 // buildOrder walks the tree depth-first, collecting focusable panes.
 func (fm *FocusManager) buildOrder(p *Pane) {
-	isLeaf := true
 	for _, ch := range p.children {
 		if cp, ok := ch.elem.(*Pane); ok {
-			isLeaf = false
 			fm.buildOrder(cp)
 		}
 	}
-	// A pane is focusable if it's a leaf (has no child panes) or is named.
-	if isLeaf || p.name != "" {
+	if p.focusable {
 		fm.order = append(fm.order, p)
 	}
 }
@@ -100,12 +97,12 @@ func (fm *FocusManager) focusPane(p *Pane) {
 	if fm.focused != nil {
 		fm.focused.focused = false
 		fm.blurWidget(fm.focused)
-		fm.focused.MarkDirty()
+		fm.focused.markDirtyUp()
 	}
 	fm.focused = p
 	p.focused = true
 	fm.focusWidget(p)
-	p.MarkDirty()
+	p.markDirtyUp()
 }
 
 // focusWidget calls Focus() on the pane's child elements if they implement Focusable.

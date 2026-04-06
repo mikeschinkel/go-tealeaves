@@ -11,4 +11,10 @@ var (
 
 	// ErrPaneNotFound is returned when a named pane lookup fails.
 	ErrPaneNotFound = errors.New("pane not found")
+
+	// ErrStackEmpty is returned when popping from an empty stack.
+	ErrStackEmpty = errors.New("stack empty")
+
+	// ErrStackUnderflow is returned when popping below the minimum stack depth.
+	ErrStackUnderflow = errors.New("stack underflow")
 )

@@ -19,7 +19,8 @@ type constraint struct {
 	kind       constraintKind
 	fixedSize  int
 	flexWeight float64
-	minSize    int // 0 = no minimum
-	maxSize    int // -1 = unbounded (default)
+	minSize    int  // 0 = no minimum
+	maxSize    int  // -1 = unbounded (default)
 	optional   bool
+	minSizeFit bool // when true, query SizeHinter.Min as effective minimum
 }

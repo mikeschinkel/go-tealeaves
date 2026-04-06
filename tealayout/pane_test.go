@@ -1,6 +1,9 @@
 package tealayout
 
-import "testing"
+import (
+	"strings"
+	"testing"
+)
 
 func TestPane_NewRow(t *testing.T) {
 	p := NewRow(Percent50)
@@ -183,5 +186,57 @@ func TestPane_NilElementsSkipped(t *testing.T) {
 
 	if w.width != 80 {
 		t.Errorf("w.width = %d, want 80", w.width)
+	}
+}
+
+// mockFitWidget implements SetSizer, ContentProvider, and SizeHinter for vertical Fit tests.
+type mockFitWidget struct {
+	width  int
+	height int
+	char   byte
+	hintW  int
+	hintH  int
+}
+
+func (m *mockFitWidget) SetSize(w, h int) { m.width = w; m.height = h }
+func (m *mockFitWidget) Content() string {
+	if m.width <= 0 || m.height <= 0 {
+		return ""
+	}
+	line := strings.Repeat(string(m.char), m.width)
+	lines := make([]string, m.height)
+	for i := range lines {
+		lines[i] = line
+	}
+	return strings.Join(lines, "\n")
+}
+func (m *mockFitWidget) SizeHint(availW, availH int) SizeHint {
+	return SizeHint{
+		Desired: Size{Width: m.hintW, Height: m.hintH},
+		Max:     Size{Width: -1, Height: -1},
+	}
+}
+
+func TestPane_VerticalFit(t *testing.T) {
+	// In a vertical (Column) layout, a Fit child should use Desired.Height
+	header := &mockFitWidget{char: 'H', hintW: 80, hintH: 3}
+	content := &mockWidget{char: 'C'}
+
+	root := NewColumn(Percent100,
+		NewRow(Fit(), NewElement(header)),
+		NewRow(Flex(1), NewElement(content)),
+	)
+	root.SetSize(80, 24)
+
+	_, err := root.Render()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if header.height != 3 {
+		t.Errorf("header.height = %d, want 3 (Fit should read Desired.Height in vertical layout)", header.height)
+	}
+	if content.height != 21 {
+		t.Errorf("content.height = %d, want 21 (24 - 3)", content.height)
 	}
 }

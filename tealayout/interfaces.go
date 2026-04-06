@@ -9,9 +9,11 @@ type SetSizer interface {
 	SetSize(width, height int)
 }
 
-// Viewer is implemented by widgets that can render themselves to a string.
-type Viewer interface {
-	View() string
+// ContentProvider is implemented by widgets that can render themselves to a
+// string for use in layout panes. This is distinct from tea.Model.View()
+// which returns tea.View — a struct with metadata beyond the content string.
+type ContentProvider interface {
+	Content() string
 }
 
 // Styler is implemented by widgets that expose a lipgloss Style. The layout

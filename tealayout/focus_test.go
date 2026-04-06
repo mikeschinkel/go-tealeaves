@@ -6,8 +6,8 @@ import (
 )
 
 func TestFocusManager_InitialFocus(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
 	root := NewRow(Percent100, tree, code)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -21,9 +21,9 @@ func TestFocusManager_InitialFocus(t *testing.T) {
 }
 
 func TestFocusManager_Next(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
-	diff := NewColumn(Flex(1)).WithName("diff")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
+	diff := NewColumn(Flex(1)).WithName("diff").WithFocusable()
 	root := NewRow(Percent100, tree, code, diff)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -52,8 +52,8 @@ func TestFocusManager_Next(t *testing.T) {
 }
 
 func TestFocusManager_Prev(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
 	root := NewRow(Percent100, tree, code)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -65,8 +65,8 @@ func TestFocusManager_Prev(t *testing.T) {
 }
 
 func TestFocusManager_FocusByName(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
 	root := NewRow(Percent100, tree, code)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -81,7 +81,7 @@ func TestFocusManager_FocusByName(t *testing.T) {
 }
 
 func TestFocusManager_FocusByName_NotFound(t *testing.T) {
-	root := NewRow(Percent100, NewColumn(Flex(1)).WithName("a"))
+	root := NewRow(Percent100, NewColumn(Flex(1)).WithName("a").WithFocusable())
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
 
@@ -95,9 +95,9 @@ func TestFocusManager_FocusByName_NotFound(t *testing.T) {
 }
 
 func TestFocusManager_SkipsHiddenPanes(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
-	diff := NewColumn(Flex(1)).WithName("diff")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
+	diff := NewColumn(Flex(1)).WithName("diff").WithFocusable()
 	root := NewRow(Percent100, tree, code, diff)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -111,8 +111,8 @@ func TestFocusManager_SkipsHiddenPanes(t *testing.T) {
 }
 
 func TestFocusManager_EnsureFocusedVisible(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
 	root := NewRow(Percent100, tree, code)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -126,8 +126,8 @@ func TestFocusManager_EnsureFocusedVisible(t *testing.T) {
 }
 
 func TestFocusManager_Focused_Convenience(t *testing.T) {
-	tree := NewColumn(Flex(1)).WithName("tree")
-	code := NewColumn(Flex(1)).WithName("code")
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
 	root := NewRow(Percent100, tree, code)
 	layout := NewLayout(root)
 	fm := NewFocusManager(layout)
@@ -137,5 +137,31 @@ func TestFocusManager_Focused_Convenience(t *testing.T) {
 	}
 	if fm.Focused("code") {
 		t.Error("Focused(\"code\") should be false")
+	}
+}
+
+func TestFocusManager_NamedNotFocusable(t *testing.T) {
+	header := NewRow(Fixed(1)).WithName("header") // named but NOT focusable
+	tree := NewColumn(Flex(1)).WithName("tree").WithFocusable()
+	code := NewColumn(Flex(1)).WithName("code").WithFocusable()
+	root := NewColumn(Percent100, header, NewRow(Flex(1), tree, code))
+	layout := NewLayout(root)
+	fm := NewFocusManager(layout)
+
+	// Initial focus should be tree, not header
+	if fm.FocusedPane() != tree {
+		t.Errorf("initial focus should be tree, got %q", fm.FocusedPane().Name())
+	}
+
+	// Tab should go to code, not header
+	fm.FocusNext()
+	if fm.FocusedPane() != code {
+		t.Errorf("FocusNext should go to code, got %q", fm.FocusedPane().Name())
+	}
+
+	// Tab wraps back to tree
+	fm.FocusNext()
+	if fm.FocusedPane() != tree {
+		t.Errorf("FocusNext should wrap to tree, got %q", fm.FocusedPane().Name())
 	}
 }

@@ -41,6 +41,16 @@ func Fit() Dimension {
 	return Dimension{kind: dimensionFit}
 }
 
+// IsFlex returns true if the dimension is Flex or Percent (both use flex weighting).
+func (d Dimension) IsFlex() bool {
+	return d.kind == dimensionFlex || d.kind == dimensionPercent
+}
+
+// Value returns the numeric value (weight for flex/percent, cells for fixed, 0 for fit).
+func (d Dimension) Value() float64 {
+	return d.value
+}
+
 // Common Dimension constants for frequently used percentages.
 var (
 	Percent100 = Percent(100)

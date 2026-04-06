@@ -16,17 +16,20 @@ type paneChild struct {
 type Pane struct {
 	dim       Dimension
 	direction Direction
-	minSize   int
-	maxSize   int // -1 = unbounded
-	optional  bool
-	gap       int
+	minSize      int
+	maxSize      int // -1 = unbounded
+	optional     bool
+	gap          int
+	minFlexWeight float64 // floor for ResizeFocused (prevents weight-crushing)
 
 	// Visibility, naming, alignment, focus, and tree structure.
-	name      string
-	visible   bool      // default true; user-controlled show/hide
-	alignment Alignment // default TopLeft
-	focused   bool      // set by FocusManager
-	parent    *Pane
+	name       string
+	visible    bool      // default true; user-controlled show/hide
+	focusable  bool      // when true, FocusManager includes this pane in its order
+	minSizeFit bool      // when true, use SizeHinter.Min as effective minimum
+	alignment  Alignment // default TopLeft
+	focused    bool      // set by FocusManager
+	parent     *Pane
 
 	// Flattened container state (absorbed from old row/column types).
 	children     []paneChild
@@ -119,6 +122,24 @@ func (p *Pane) WithGap(n int) *Pane {
 	return p
 }
 
+// WithMinFlexWeight sets the minimum flex weight for ResizeFocused.
+// This prevents the pane from being weight-crushed even when the resolver's
+// cell-based minSize would still technically allow it.
+func (p *Pane) WithMinFlexWeight(w float64) *Pane {
+	p.minFlexWeight = w
+	return p
+}
+
+// MinFlexWeight returns the minimum flex weight floor for ResizeFocused.
+func (p *Pane) MinFlexWeight() float64 {
+	return p.minFlexWeight
+}
+
+// Dimension returns the pane's current dimension.
+func (p *Pane) Dimension() Dimension {
+	return p.dim
+}
+
 // WithName sets a name for programmatic access via Layout.Pane(name).
 func (p *Pane) WithName(name string) *Pane {
 	p.name = name
@@ -128,6 +149,38 @@ func (p *Pane) WithName(name string) *Pane {
 // Name returns the pane's name, or empty string if unnamed.
 func (p *Pane) Name() string {
 	return p.name
+}
+
+// WithFocusable marks this pane as focusable by the FocusManager.
+// Only focusable panes are included in the focus order.
+func (p *Pane) WithFocusable() *Pane {
+	p.focusable = true
+	return p
+}
+
+// WithoutFocusable removes this pane from the FocusManager's focus order.
+func (p *Pane) WithoutFocusable() *Pane {
+	p.focusable = false
+	return p
+}
+
+// IsFocusable returns whether this pane participates in focus navigation.
+func (p *Pane) IsFocusable() bool {
+	return p.focusable
+}
+
+// WithMinSizeFit tells the layout engine to query the element's SizeHint.Min
+// as the effective minimum size. The pane will not be allocated fewer cells
+// than the widget's reported minimum, preventing content overflow.
+func (p *Pane) WithMinSizeFit() *Pane {
+	p.minSizeFit = true
+	return p
+}
+
+// WithoutMinSizeFit removes the dynamic minimum size constraint.
+func (p *Pane) WithoutMinSizeFit() *Pane {
+	p.minSizeFit = false
+	return p
 }
 
 // WithAlignment sets alignment for content within this pane.
@@ -227,10 +280,19 @@ func (p *Pane) SetSize(width, height int) {
 }
 
 // MarkDirty forces re-resolution and re-rendering on the next call.
+// It propagates downward to all children so nested caches are invalidated.
 func (p *Pane) MarkDirty() {
 	p.dirty = true
 	p.resolved = false
 	p.cachedOutput = ""
+	for _, ch := range p.children {
+		ch.elem.markDirty()
+	}
+}
+
+// markDirty satisfies the element interface, delegating to MarkDirty.
+func (p *Pane) markDirty() {
+	p.MarkDirty()
 }
 
 // Direction returns the pane's layout axis.
@@ -271,7 +333,7 @@ func (p *Pane) Resolve() ([]int, error) {
 	}
 
 	available := p.axisSize()
-	visSizes, err := resolveLinear(available, visConstraints, p.gap, visHinters)
+	visSizes, err := resolveLinear(available, visConstraints, p.gap, visHinters, p.direction == Horizontal)
 	if err != nil {
 		return nil, err
 	}
@@ -316,7 +378,7 @@ func (p *Pane) Render() (string, error) {
 		}
 		childW, childH := p.childDimensions(sizes[i])
 		setChildSizeViaElement(ch.elem, childW, childH)
-		v := viewChildElement(ch.elem, childW, childH)
+		v := contentChildElement(ch.elem, childW, childH)
 		// Apply alignment if the child pane has one set.
 		if cp, ok := ch.elem.(*Pane); ok && cp.alignment != 0 {
 			v = alignContent(v, childW, childH, cp.alignment)
@@ -335,8 +397,8 @@ func (p *Pane) Render() (string, error) {
 	return output, nil
 }
 
-// View implements Viewer by calling Render and discarding the error.
-func (p *Pane) View() string {
+// Content implements ContentProvider by calling Render and discarding the error.
+func (p *Pane) Content() string {
 	s, _ := p.Render()
 	return s
 }
@@ -354,8 +416,8 @@ func (p *Pane) ChildRect(i int) Rect {
 
 // --- element interface (allows Pane to nest inside other Panes) ---
 
-func (p *Pane) view() string {
-	return p.View()
+func (p *Pane) content() string {
+	return p.Content()
 }
 
 func (p *Pane) setSize(width, height int) {
@@ -367,6 +429,11 @@ func (p *Pane) style() (lipgloss.Style, bool) {
 }
 
 func (p *Pane) sizeHint(availW, availH int) (SizeHint, bool) {
+	// Delegate to single child element if it provides a size hint.
+	// This allows Fit() panes wrapping a SizeHinter widget to work.
+	if len(p.children) == 1 {
+		return p.children[0].elem.sizeHint(availW, availH)
+	}
 	return SizeHint{}, false
 }
 
@@ -379,9 +446,10 @@ var _ element = (*Pane)(nil)
 // an internal constraint for use in the resolution algorithm.
 func (p *Pane) toConstraint() constraint {
 	cs := constraint{
-		minSize:  p.minSize,
-		maxSize:  p.maxSize,
-		optional: p.optional,
+		minSize:    p.minSize,
+		maxSize:    p.maxSize,
+		optional:   p.optional,
+		minSizeFit: p.minSizeFit,
 	}
 	switch p.dim.kind {
 	case dimensionPercent:

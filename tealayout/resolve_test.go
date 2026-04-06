@@ -7,12 +7,16 @@ import (
 
 // mockHinter implements SizeHinter for testing.
 type mockHinter struct {
-	desiredWidth int
+	minWidth      int
+	minHeight     int
+	desiredWidth  int
+	desiredHeight int
 }
 
 func (m mockHinter) SizeHint(availWidth, availHeight int) SizeHint {
 	return SizeHint{
-		Desired: Size{Width: m.desiredWidth},
+		Min:     Size{Width: m.minWidth, Height: m.minHeight},
+		Desired: Size{Width: m.desiredWidth, Height: m.desiredHeight},
 		Max:     Size{Width: -1, Height: -1},
 	}
 }
@@ -28,7 +32,7 @@ func sum(s []int) int {
 // --- Fixed-only tests ---
 
 func TestResolveLinear_FixedOnly(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{fixedConstraint(20), fixedConstraint(20), fixedConstraint(20)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{fixedConstraint(20), fixedConstraint(20), fixedConstraint(20)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -39,7 +43,7 @@ func TestResolveLinear_FixedOnly(t *testing.T) {
 
 func TestResolveLinear_FixedOverflow(t *testing.T) {
 	// Fixed children exceed available — no panic, just assigned their sizes
-	sizes, err := resolveLinear(30, []constraint{fixedConstraint(20), fixedConstraint(20), fixedConstraint(20)}, 0, nil)
+	sizes, err := resolveLinear(30, []constraint{fixedConstraint(20), fixedConstraint(20), fixedConstraint(20)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -49,7 +53,7 @@ func TestResolveLinear_FixedOverflow(t *testing.T) {
 }
 
 func TestResolveLinear_SingleFixed(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{fixedConstraint(30)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{fixedConstraint(30)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -61,7 +65,7 @@ func TestResolveLinear_SingleFixed(t *testing.T) {
 // --- Flex-only tests ---
 
 func TestResolveLinear_FlexEqual(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{flexConstraint(1), flexConstraint(1), flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{flexConstraint(1), flexConstraint(1), flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -77,7 +81,7 @@ func TestResolveLinear_FlexEqual(t *testing.T) {
 }
 
 func TestResolveLinear_FlexUnequal(t *testing.T) {
-	sizes, err := resolveLinear(90, []constraint{flexConstraint(1), flexConstraint(2)}, 0, nil)
+	sizes, err := resolveLinear(90, []constraint{flexConstraint(1), flexConstraint(2)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -93,7 +97,7 @@ func TestResolveLinear_FlexUnequal(t *testing.T) {
 }
 
 func TestResolveLinear_FlexGoldenRatio(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{flexConstraint(1.0), flexConstraint(1.618)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{flexConstraint(1.0), flexConstraint(1.618)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -111,7 +115,7 @@ func TestResolveLinear_FlexGoldenRatio(t *testing.T) {
 }
 
 func TestResolveLinear_SingleFlex(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -123,7 +127,7 @@ func TestResolveLinear_SingleFlex(t *testing.T) {
 // --- Mixed tests ---
 
 func TestResolveLinear_FixedAndFlex(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{fixedConstraint(20), flexConstraint(1), flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{fixedConstraint(20), flexConstraint(1), flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,7 +146,7 @@ func TestResolveLinear_FixedAndFlex(t *testing.T) {
 
 func TestResolveLinear_Fit(t *testing.T) {
 	hinters := []SizeHinter{mockHinter{desiredWidth: 25}}
-	sizes, err := resolveLinear(80, []constraint{fitConstraint()}, 0, hinters)
+	sizes, err := resolveLinear(80, []constraint{fitConstraint()}, 0, hinters, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +157,7 @@ func TestResolveLinear_Fit(t *testing.T) {
 
 func TestResolveLinear_FitAndFlex(t *testing.T) {
 	hinters := []SizeHinter{mockHinter{desiredWidth: 25}, nil}
-	sizes, err := resolveLinear(80, []constraint{fitConstraint(), flexConstraint(1)}, 0, hinters)
+	sizes, err := resolveLinear(80, []constraint{fitConstraint(), flexConstraint(1)}, 0, hinters, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -167,7 +171,7 @@ func TestResolveLinear_FitAndFlex(t *testing.T) {
 
 func TestResolveLinear_FitNoHinter(t *testing.T) {
 	// Fit without a SizeHinter → size 0
-	sizes, err := resolveLinear(80, []constraint{fitConstraint()}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{fitConstraint()}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -181,7 +185,7 @@ func TestResolveLinear_FitNoHinter(t *testing.T) {
 func TestResolveLinear_FlexMaxSize(t *testing.T) {
 	c1 := flexConstraint(1)
 	c1.maxSize = 20
-	sizes, err := resolveLinear(80, []constraint{c1, flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(80, []constraint{c1, flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -197,7 +201,7 @@ func TestResolveLinear_FlexMinSize(t *testing.T) {
 	// Two flex children in 40 space, one needs min 30
 	c1 := flexConstraint(1)
 	c1.minSize = 30
-	sizes, err := resolveLinear(40, []constraint{c1, flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(40, []constraint{c1, flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -211,7 +215,7 @@ func TestResolveLinear_MultipleClamped(t *testing.T) {
 	c1.maxSize = 15
 	c2 := flexConstraint(1)
 	c2.maxSize = 15
-	sizes, err := resolveLinear(100, []constraint{c1, c2, flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(100, []constraint{c1, c2, flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -233,7 +237,7 @@ func TestResolveLinear_OptionalRemoved(t *testing.T) {
 	c3 := flexConstraint(1)
 	c3.minSize = 20
 	c3.optional = true
-	sizes, err := resolveLinear(30, []constraint{flexConstraint(1), flexConstraint(1), c3}, 0, nil)
+	sizes, err := resolveLinear(30, []constraint{flexConstraint(1), flexConstraint(1), c3}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -250,7 +254,7 @@ func TestResolveLinear_OptionalKept(t *testing.T) {
 	c3 := flexConstraint(1)
 	c3.minSize = 20
 	c3.optional = true
-	sizes, err := resolveLinear(90, []constraint{flexConstraint(1), flexConstraint(1), c3}, 0, nil)
+	sizes, err := resolveLinear(90, []constraint{flexConstraint(1), flexConstraint(1), c3}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +266,7 @@ func TestResolveLinear_OptionalKept(t *testing.T) {
 // --- Gap tests ---
 
 func TestResolveLinear_Gap(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{flexConstraint(1), flexConstraint(1), flexConstraint(1)}, 2, nil)
+	sizes, err := resolveLinear(80, []constraint{flexConstraint(1), flexConstraint(1), flexConstraint(1)}, 2, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -273,7 +277,7 @@ func TestResolveLinear_Gap(t *testing.T) {
 }
 
 func TestResolveLinear_GapSingleChild(t *testing.T) {
-	sizes, err := resolveLinear(80, []constraint{flexConstraint(1)}, 5, nil)
+	sizes, err := resolveLinear(80, []constraint{flexConstraint(1)}, 5, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -288,7 +292,7 @@ func TestResolveLinear_GapWithOptionalRemoval(t *testing.T) {
 	c3 := flexConstraint(1)
 	c3.minSize = 20
 	c3.optional = true
-	sizes, err := resolveLinear(40, []constraint{flexConstraint(1), flexConstraint(1), c3}, 2, nil)
+	sizes, err := resolveLinear(40, []constraint{flexConstraint(1), flexConstraint(1), c3}, 2, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -304,7 +308,7 @@ func TestResolveLinear_GapWithOptionalRemoval(t *testing.T) {
 // --- Edge cases ---
 
 func TestResolveLinear_ZeroAvailable(t *testing.T) {
-	sizes, err := resolveLinear(0, []constraint{flexConstraint(1), flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(0, []constraint{flexConstraint(1), flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -314,7 +318,7 @@ func TestResolveLinear_ZeroAvailable(t *testing.T) {
 }
 
 func TestResolveLinear_NegativeAvailable(t *testing.T) {
-	sizes, err := resolveLinear(-10, []constraint{flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(-10, []constraint{flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -324,7 +328,7 @@ func TestResolveLinear_NegativeAvailable(t *testing.T) {
 }
 
 func TestResolveLinear_Empty(t *testing.T) {
-	sizes, err := resolveLinear(80, nil, 0, nil)
+	sizes, err := resolveLinear(80, nil, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -358,7 +362,7 @@ func TestResolveLinear_SumInvariant(t *testing.T) {
 			}
 		}
 
-		sizes, err := resolveLinear(available, constraints, gap, nil)
+		sizes, err := resolveLinear(available, constraints, gap, nil, true)
 		if err != nil {
 			t.Fatalf("trial %d: %v", trial, err)
 		}
@@ -386,7 +390,7 @@ func TestResolveLinear_SumInvariant(t *testing.T) {
 // --- No negatives ---
 
 func TestResolveLinear_NoNegativeSizes(t *testing.T) {
-	sizes, err := resolveLinear(10, []constraint{fixedConstraint(20), flexConstraint(1)}, 0, nil)
+	sizes, err := resolveLinear(10, []constraint{fixedConstraint(20), flexConstraint(1)}, 0, nil, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -394,5 +398,94 @@ func TestResolveLinear_NoNegativeSizes(t *testing.T) {
 		if s < 0 {
 			t.Errorf("sizes[%d] = %d (negative)", i, s)
 		}
+	}
+}
+
+// --- Vertical Fit tests ---
+
+func TestResolveLinear_VerticalFit(t *testing.T) {
+	hinters := []SizeHinter{mockHinter{desiredHeight: 10}}
+	sizes, err := resolveLinear(50, []constraint{fitConstraint()}, 0, hinters, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sizes[0] != 10 {
+		t.Errorf("sizes[0] = %d, want 10 (vertical Fit should read Desired.Height)", sizes[0])
+	}
+}
+
+func TestResolveLinear_VerticalFitAndFlex(t *testing.T) {
+	hinters := []SizeHinter{mockHinter{desiredWidth: 99, desiredHeight: 8}, nil}
+	sizes, err := resolveLinear(24, []constraint{fitConstraint(), flexConstraint(1)}, 0, hinters, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sizes[0] != 8 {
+		t.Errorf("sizes[0] = %d, want 8 (vertical Fit reads Height, not Width)", sizes[0])
+	}
+	if sizes[1] != 16 {
+		t.Errorf("sizes[1] = %d, want 16 (24 - 8)", sizes[1])
+	}
+}
+
+// --- MinSizeFit tests ---
+
+func TestResolveLinear_MinSizeFit(t *testing.T) {
+	// Flex child with minSizeFit should not shrink below hinter's Min.Width
+	c1 := flexConstraint(1)
+	c1.minSizeFit = true
+	hinters := []SizeHinter{mockHinter{minWidth: 20}, nil}
+	sizes, err := resolveLinear(80, []constraint{c1, flexConstraint(3)}, 0, hinters, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sizes[0] < 20 {
+		t.Errorf("sizes[0] = %d, want >= 20 (minSizeFit)", sizes[0])
+	}
+	if sum(sizes) != 80 {
+		t.Errorf("sum = %d, want 80", sum(sizes))
+	}
+}
+
+func TestResolveLinear_MinSizeFitOverridesStatic(t *testing.T) {
+	// minSizeFit should override static minSize when hinted min is larger
+	c1 := flexConstraint(1)
+	c1.minSize = 5
+	c1.minSizeFit = true
+	hinters := []SizeHinter{mockHinter{minWidth: 15}, nil}
+	sizes, err := resolveLinear(80, []constraint{c1, flexConstraint(1)}, 0, hinters, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sizes[0] < 15 {
+		t.Errorf("sizes[0] = %d, want >= 15 (hinted min > static min)", sizes[0])
+	}
+}
+
+func TestResolveLinear_MinSizeFitKeepsLargerStatic(t *testing.T) {
+	// Static minSize larger than hinted min should be preserved
+	c1 := flexConstraint(1)
+	c1.minSize = 30
+	c1.minSizeFit = true
+	hinters := []SizeHinter{mockHinter{minWidth: 10}, nil}
+	sizes, err := resolveLinear(80, []constraint{c1, flexConstraint(1)}, 0, hinters, true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sizes[0] < 30 {
+		t.Errorf("sizes[0] = %d, want >= 30 (static min preserved)", sizes[0])
+	}
+}
+
+func TestResolveLinear_MinSizeFitVertical(t *testing.T) {
+	c1 := flexConstraint(1)
+	c1.minSizeFit = true
+	hinters := []SizeHinter{mockHinter{minHeight: 8}, nil}
+	sizes, err := resolveLinear(24, []constraint{c1, flexConstraint(1)}, 0, hinters, false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if sizes[0] < 8 {
+		t.Errorf("sizes[0] = %d, want >= 8 (vertical minSizeFit)", sizes[0])
 	}
 }

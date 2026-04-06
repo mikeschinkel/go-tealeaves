@@ -5,7 +5,9 @@ import "math"
 // resolveLinear resolves a single axis of layout: given available space,
 // constraints, gap between children, and optional SizeHinters (may be nil
 // or contain nil entries), it returns the assigned size for each child.
-func resolveLinear(available int, constraints []constraint, gap int, hinters []SizeHinter) ([]int, error) {
+// horizontal indicates the layout direction — when true, Fit reads Desired.Width;
+// when false, Fit reads Desired.Height.
+func resolveLinear(available int, constraints []constraint, gap int, hinters []SizeHinter, horizontal bool) ([]int, error) {
 	n := len(constraints)
 	if n == 0 {
 		return nil, nil
@@ -24,14 +26,30 @@ func resolveLinear(available int, constraints []constraint, gap int, hinters []S
 		active[i] = true
 	}
 
-	sizes, _ = resolveWithOptionalRemoval(available, constraints, gap, hinters, sizes, active)
+	sizes, _ = resolveWithOptionalRemoval(available, constraints, gap, hinters, sizes, active, horizontal)
 	return sizes, nil
 }
 
 // resolveWithOptionalRemoval runs the full 5-phase algorithm including
 // optional child removal and retry.
-func resolveWithOptionalRemoval(available int, constraints []constraint, gap int, hinters []SizeHinter, sizes []int, active []bool) ([]int, []bool) {
+func resolveWithOptionalRemoval(available int, constraints []constraint, gap int, hinters []SizeHinter, sizes []int, active []bool, horizontal bool) ([]int, []bool) {
 	n := len(constraints)
+
+	// Apply minSizeFit: query hinters for effective minimums.
+	work := make([]constraint, n)
+	copy(work, constraints)
+	for i, c := range work {
+		if c.minSizeFit && hinters[i] != nil {
+			hint := hinters[i].SizeHint(available, available)
+			minVal := hint.Min.Width
+			if !horizontal {
+				minVal = hint.Min.Height
+			}
+			if minVal > work[i].minSize {
+				work[i].minSize = minVal
+			}
+		}
+	}
 
 	for {
 		// Count active children for gap calculation
@@ -53,10 +71,10 @@ func resolveWithOptionalRemoval(available int, constraints []constraint, gap int
 		}
 
 		// Phase 1: Resolve Fixed and Fit children
-		remaining = resolveFixedAndFit(remaining, constraints, hinters, sizes, active)
+		remaining = resolveFixedAndFit(remaining, work, hinters, sizes, active, horizontal)
 
 		// Phase 2+3: Distribute remaining to Flex with clamping loop
-		distributeFlexWithClamping(remaining, constraints, sizes, active)
+		distributeFlexWithClamping(remaining, work, sizes, active)
 
 		// Phase 4: Check optional children — remove any below MinSize
 		removed := false
@@ -64,7 +82,7 @@ func resolveWithOptionalRemoval(available int, constraints []constraint, gap int
 			if !active[i] {
 				continue
 			}
-			c := constraints[i]
+			c := work[i]
 			if c.optional && c.minSize > 0 && sizes[i] < c.minSize {
 				active[i] = false
 				sizes[i] = 0
@@ -88,7 +106,7 @@ func resolveWithOptionalRemoval(available int, constraints []constraint, gap int
 
 // resolveFixedAndFit handles Phase 1: assign sizes to Fixed and Fit children,
 // subtract from remaining. Returns updated remaining space.
-func resolveFixedAndFit(remaining int, constraints []constraint, hinters []SizeHinter, sizes []int, active []bool) int {
+func resolveFixedAndFit(remaining int, constraints []constraint, hinters []SizeHinter, sizes []int, active []bool, horizontal bool) int {
 	for i, c := range constraints {
 		if !active[i] {
 			continue
@@ -103,7 +121,11 @@ func resolveFixedAndFit(remaining int, constraints []constraint, hinters []SizeH
 			desired := 0
 			if hinters[i] != nil {
 				hint := hinters[i].SizeHint(remaining, 0)
-				desired = hint.Desired.Width
+				if horizontal {
+					desired = hint.Desired.Width
+				} else {
+					desired = hint.Desired.Height
+				}
 			}
 			size := clampConstraint(desired, c)
 			sizes[i] = size

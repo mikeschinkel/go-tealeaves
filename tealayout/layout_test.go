@@ -77,7 +77,9 @@ func TestLayout_MarkDirty(t *testing.T) {
 	w := &mockWidget{char: 'X'}
 	layout := NewLayout(NewRow(Percent100, NewColumn(Flex(1), NewElement(w))))
 	layout.SetSize(80, 24)
-	layout.Render()
+	if _, err := layout.Render(); err != nil {
+		t.Fatalf("initial Render: %v", err)
+	}
 
 	layout.MarkDirty()
 	_, err := layout.Render()

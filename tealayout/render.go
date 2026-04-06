@@ -24,12 +24,12 @@ func setChildSizeViaElement(elem element, totalW, totalH int) {
 	elem.setSize(contentW, contentH)
 }
 
-// viewChildElement renders an element. If it has a view function, view() is
-// called. Otherwise returns empty space of the given dimensions.
-func viewChildElement(elem element, width, height int) string {
-	v := elem.view()
-	if v != "" {
-		return v
+// contentChildElement renders an element. If it has a content function,
+// content() is called. Otherwise returns empty space of the given dimensions.
+func contentChildElement(elem element, width, height int) string {
+	c := elem.content()
+	if c != "" {
+		return c
 	}
 	return emptyBlock(width, height)
 }

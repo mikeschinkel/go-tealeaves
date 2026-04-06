@@ -7,7 +7,7 @@ import (
 	lipgloss "charm.land/lipgloss/v2"
 )
 
-// mockWidget implements SetSizer and Viewer for testing.
+// mockWidget implements SetSizer and ContentProvider for testing.
 type mockWidget struct {
 	width  int
 	height int
@@ -19,7 +19,7 @@ func (m *mockWidget) SetSize(w, h int) {
 	m.height = h
 }
 
-func (m *mockWidget) View() string {
+func (m *mockWidget) Content() string {
 	if m.width <= 0 || m.height <= 0 {
 		return ""
 	}
@@ -134,7 +134,9 @@ func TestRow_MarkDirty(t *testing.T) {
 	w := &mockWidget{char: 'X'}
 	pane := NewRow(Percent100, NewColumn(Flex(1), NewElement(w)))
 	pane.SetSize(80, 5)
-	pane.Render()
+	if _, err := pane.Render(); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
 
 	pane.MarkDirty()
 	if pane.resolved {
@@ -149,7 +151,9 @@ func TestColumn_MarkDirty(t *testing.T) {
 	w := &mockWidget{char: 'X'}
 	pane := NewColumn(Percent100, NewRow(Flex(1), NewElement(w)))
 	pane.SetSize(80, 24)
-	pane.Render()
+	if _, err := pane.Render(); err != nil {
+		t.Fatalf("Render: %v", err)
+	}
 
 	pane.MarkDirty()
 	if pane.resolved {

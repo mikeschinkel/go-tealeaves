@@ -9,10 +9,11 @@ import (
 // element is the unexported interface that both *Element[T] and *Pane satisfy.
 // It allows Pane to hold heterogeneous children in []element.
 type element interface {
-	view() string
+	content() string
 	setSize(width, height int)
 	style() (lipgloss.Style, bool)
 	sizeHint(availW, availH int) (SizeHint, bool)
+	markDirty()
 }
 
 // Element wraps any value with auto-detected capabilities for use in layouts.
@@ -24,18 +25,20 @@ type Element[T any] struct {
 	sizeFn  func(T, int, int)
 	styleFn func(T) lipgloss.Style
 	hintFn  func(T, int, int) SizeHint
+	focusFn func()
+	blurFn  func()
 }
 
 // NewElement creates an Element wrapping v and auto-detects capabilities.
-// Detected interfaces: Viewer, SetSizer, Styler, SizeHinter, fmt.Stringer.
+// Detected interfaces: ContentProvider, SetSizer, Styler, SizeHinter, fmt.Stringer.
 // For plain string values, view() returns the string itself.
 func NewElement[T any](v T) *Element[T] {
 	e := &Element[T]{value: v}
 
-	// Detect view capability
+	// Detect content capability
 	switch w := any(v).(type) {
-	case Viewer:
-		e.viewFn = func(_ T) string { return w.View() }
+	case ContentProvider:
+		e.viewFn = func(_ T) string { return w.Content() }
 	case fmt.Stringer:
 		e.viewFn = func(_ T) string { return w.String() }
 	default:
@@ -59,6 +62,12 @@ func NewElement[T any](v T) *Element[T] {
 		e.hintFn = func(_ T, w, h int) SizeHint { return sh.SizeHint(w, h) }
 	}
 
+	// Detect Focusable capability
+	if fc, ok := any(v).(Focusable); ok {
+		e.focusFn = fc.Focus
+		e.blurFn = fc.Blur
+	}
+
 	return e
 }
 
@@ -67,8 +76,8 @@ func (e *Element[T]) Widget() T {
 	return e.value
 }
 
-// view satisfies the element interface.
-func (e *Element[T]) view() string {
+// content satisfies the element interface.
+func (e *Element[T]) content() string {
 	if e.viewFn != nil {
 		return e.viewFn(e.value)
 	}
@@ -96,6 +105,23 @@ func (e *Element[T]) sizeHint(availW, availH int) (SizeHint, bool) {
 		return e.hintFn(e.value, availW, availH), true
 	}
 	return SizeHint{}, false
+}
+
+// markDirty satisfies the element interface. Elements have no cache, so this is a no-op.
+func (e *Element[T]) markDirty() {}
+
+// focus notifies the wrapped widget that it has received focus.
+func (e *Element[T]) focus() {
+	if e.focusFn != nil {
+		e.focusFn()
+	}
+}
+
+// blur notifies the wrapped widget that it has lost focus.
+func (e *Element[T]) blur() {
+	if e.blurFn != nil {
+		e.blurFn()
+	}
 }
 
 // StringElement is a shorthand for NewElement wrapping a plain string.

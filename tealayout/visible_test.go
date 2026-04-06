@@ -81,7 +81,9 @@ func TestPane_HidePropagatesDirtyUp(t *testing.T) {
 	child := NewColumn(Flex(1))
 	root := NewRow(Percent100, child)
 	root.SetSize(80, 10)
-	root.Resolve()
+	if _, err := root.Resolve(); err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
 
 	if !root.resolved {
 		t.Fatal("root should be resolved")

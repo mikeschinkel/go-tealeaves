@@ -13,14 +13,18 @@ func TestPane_SetDimension(t *testing.T) {
 	root.SetSize(80, 10)
 
 	// Initially 40/40
-	root.Render()
+	if _, err := root.Render(); err != nil {
+		t.Fatalf("initial Render: %v", err)
+	}
 	if w1.width != 40 || w2.width != 40 {
 		t.Fatalf("initial: w1=%d w2=%d, want 40/40", w1.width, w2.width)
 	}
 
 	// Change col1 to Fixed(20) at runtime
 	col1.SetDimension(Fixed(20))
-	root.Render()
+	if _, err := root.Render(); err != nil {
+		t.Fatalf("Render after SetDimension: %v", err)
+	}
 	if w1.width != 20 {
 		t.Errorf("after SetDimension: w1=%d, want 20", w1.width)
 	}
@@ -34,7 +38,9 @@ func TestPane_SetMinSize_Runtime(t *testing.T) {
 	col2 := NewColumn(Flex(1))
 	root := NewRow(Percent100, col1, col2)
 	root.SetSize(80, 10)
-	root.Resolve()
+	if _, err := root.Resolve(); err != nil {
+		t.Fatalf("initial Resolve: %v", err)
+	}
 
 	col1.SetMinSize(50)
 	sizes, _ := root.Resolve()

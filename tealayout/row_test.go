@@ -107,7 +107,9 @@ func TestRow_CachedResolve(t *testing.T) {
 func TestRow_SetSizeInvalidatesCache(t *testing.T) {
 	p := NewRow(Percent100, NewColumn(Flex(1)))
 	p.SetSize(80, 24)
-	p.Resolve()
+	if _, err := p.Resolve(); err != nil {
+		t.Fatalf("Resolve: %v", err)
+	}
 
 	p.SetSize(100, 24)
 	if p.resolved {
