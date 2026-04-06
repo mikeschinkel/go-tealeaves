@@ -51,8 +51,8 @@ func BuildFileTree(files []*File, args BuildFileTreeArgs) (nodes []*FileNode) {
 		// Create folder nodes for each segment (except last, which is the file)
 		for i := 0; i < len(segments)-1; i++ {
 			segment := segments[i]
-			switch {
-			case currentPath == "":
+			switch currentPath {
+			case "":
 				currentPath = string(segment)
 			default:
 				currentPath = currentPath + "/" + string(segment)

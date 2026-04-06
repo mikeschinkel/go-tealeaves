@@ -220,8 +220,8 @@ func (m DrillDownModel[T]) View() tea.View {
 
 	// Render each level in path with full-width highlight
 	for i, node = range m.Path {
-		switch {
-		case i == m.SelectedLevel:
+		switch i {
+		case m.SelectedLevel:
 			style = m.SelectedStyle
 		default:
 			style = m.PathStyle

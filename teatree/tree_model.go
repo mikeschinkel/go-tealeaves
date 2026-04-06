@@ -13,9 +13,6 @@ import (
 )
 
 // TreeModel is the BubbleTea model for the tree.
-//
-// Deprecated name: This type was previously named Model. The deprecated
-// [NewModel] constructor is provided for backward compatibility.
 type TreeModel[T any] struct {
 	Keys     TreeKeyMap // Keyboard bindings
 	tree     *Tree[T]

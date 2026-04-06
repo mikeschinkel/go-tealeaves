@@ -68,7 +68,7 @@ func main() {
 
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
-		cliutil.Stderrf("Error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }

@@ -152,26 +152,3 @@ func (r *Renderer[T]) GetMaxLineWidth() int {
 
 	return maxWidth
 }
-
-// stripANSI removes ANSI escape codes from a string
-func stripANSI(s string) string {
-	result := strings.Builder{}
-	inEscape := false
-
-	for i := 0; i < len(s); i++ {
-		if s[i] == '\x1b' && i+1 < len(s) && s[i+1] == '[' {
-			inEscape = true
-			i++ // Skip the '['
-			continue
-		}
-		if inEscape {
-			if s[i] == 'm' {
-				inEscape = false
-			}
-			continue
-		}
-		result.WriteByte(s[i])
-	}
-
-	return result.String()
-}
