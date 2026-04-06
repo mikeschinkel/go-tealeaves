@@ -213,11 +213,6 @@ func TestModel_View_ZeroWidth(t *testing.T) {
 	if view.Content == "" {
 		t.Error("expected non-empty view with zero width")
 	}
-	// With zero width, should NOT contain right-side indicators in the gap layout
-	// (falls through to left-only rendering)
-	if strings.Contains(view.Content, "Help") {
-		// Menu items should still appear (they're in left zone)
-	}
 }
 
 func TestModel_View_NegativeWidth(t *testing.T) {
