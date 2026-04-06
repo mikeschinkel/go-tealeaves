@@ -116,9 +116,9 @@ func TestCompile_MultiPaneLayout(t *testing.T) {
 	refs := &testWidget{}
 
 	panes := []tealayout.PaneDef{
-		{Name: "sidebar", Element: tealayout.NewElement(sidebar), FlexWeight: 0.3, MinSize: 20},
-		{Name: "editor", Element: tealayout.NewElement(editor), FlexWeight: 0.7},
-		{Name: "refs", Element: tealayout.NewElement(refs), FlexWeight: 0.3, Optional: true},
+		{Name: "sidebar", Element: tealayout.NewElement(sidebar), Dim: tealayout.Flex(0.3), MinSize: 20},
+		{Name: "editor", Element: tealayout.NewElement(editor), Dim: tealayout.Flex(0.7)},
+		{Name: "refs", Element: tealayout.NewElement(refs), Dim: tealayout.Flex(0.3), Optional: true},
 	}
 
 	mpl := tealayout.NewMultiPaneLayout(panes)

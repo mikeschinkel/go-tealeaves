@@ -6,19 +6,19 @@
 
 ## Criteria Referenced
 
-| ID  | Criterion (original) |
+| ID  | Criterion (Round 1 original → Round 2 refined) |
 |-----|-----------|
-| C1  | Every component package (tea* dir with tea.Model impl) has a dedicated doc page |
-| C2  | Each component page references a distinct icon file; no two SVGs identical |
-| C3  | Each page: iconMap entry, sidebar config entry, ComponentCard on home page |
-| C4  | Home page lists all components with accurate one-line descriptions |
-| C5  | Component count in index page subtitle matches actual table row count |
-| C6  | Site builds without errors (just site-build) |
-| C7  | Navigation sidebar includes every component |
-| C8  | Every new page has required structural sections |
-| C9  | No broken links or missing references |
-| C10 | Component pages document all exported types, fields, and key methods |
-| C11 | All code examples exist as compilable source in ./site/examples/ |
+| C1  | R1: tea* dir with tea.Model impl → R2: tea* dir with at least one exported Go symbol (teaterm excepted if no released Go code) |
+| C2  | Each component page references a distinct icon file; no two SVGs identical (unchanged) |
+| C3  | Each page: iconMap entry, sidebar config entry, ComponentCard on home page (index.mdx) |
+| C4  | R1: accurate one-line descriptions → R2: non-empty, non-placeholder descriptions matching primary exported type or go doc summary |
+| C5  | Component count in index page subtitle matches actual table row count (unchanged) |
+| C6  | Site builds without errors (just site-build) (unchanged) |
+| C7  | Navigation sidebar includes every component (unchanged) |
+| C8  | R1: every new page → R2: every component page in site/src/content/docs/components/ |
+| C9  | No broken links or missing references (unchanged) |
+| C10 | R1: all exported types, fields, key methods → R2: all exported symbols per go doc -all; doterr.go/errors.go excluded |
+| C11 | R1: no go.mod spec → R2: each example in site/examples/<name>/ has go.mod with replace directives for local packages |
 
 ---
 
@@ -99,6 +99,41 @@ Recipe fix: Add 'bun add @astrojs/check typescript' (or equivalent) to the site 
 Source: Evaluator observation.
 The check-go-syntax.sh script correctly extracts fenced Go blocks containing 'package' declarations and runs gofmt -e. It checked 7 blocks and all passed. The script is well-written and should be retained and wired into CI.
 Recipe fix: Add site/scripts/check-go-syntax.sh to the justfile as 'just check-go-syntax' and run it in CI alongside the site build.
+
+---
+
+## Sprint Contract Refinements
+### Round 2 — 2026-04-04 (Evaluator observation, pre-work criteria review)
+
+**SCR-R2-1: C1 — Original criterion excluded non-Model packages already documented on the site**
+Source: Evaluator observation.
+The original criterion defined component packages as "tea* dirs with a tea.Model implementation." However, teacolor, teahilite, teapane, teadiffr, and teautils have no tea.Model but are already documented. Also, View() was written as returning tea.View, which is technically a type alias for string but is confusing.
+Accepted fix: "Every tea* directory containing at least one exported Go symbol has a dedicated documentation page. teaterm is excepted if it has no released Go code."
+
+**SCR-R2-2: C4 — 'Accurate' descriptions are untestable**
+Source: Evaluator observation.
+"Accurate one-line descriptions" has no objective test. A worker could write any non-empty string and claim it passes.
+Accepted fix: "non-empty, non-placeholder descriptions that match the component's primary exported type or go doc summary."
+
+**SCR-R2-3: C8 — 'Every new page' is undefined without git history context**
+Source: Evaluator observation.
+"New" pages cannot be determined without comparing against a baseline, and pre-existing structurally incomplete pages would be overlooked.
+Accepted fix: "Every component page in site/src/content/docs/components/" (applies to all pages, not just new ones).
+
+**SCR-R2-4: C10 — 'Key methods' is subjective**
+Source: Evaluator observation.
+"Key methods" requires evaluator judgment; two evaluators would produce different results.
+Accepted fix: "all exported symbols (types, functions, methods, constants, variables) per 'go doc -all <package>'. Internal infrastructure files (doterr.go, errors.go) are excluded."
+
+**SCR-R2-5: C11 — site/examples/ infrastructure approach was unspecified**
+Source: Evaluator observation.
+The original C11 required compiled examples in ./site/examples/ but did not specify how those modules would import local packages (replace directives vs. go.work).
+Accepted fix: "Each example in site/examples/<name>/ must have its own go.mod with replace directives pointing to local packages."
+
+**SCR-R2-6: C3 — 'index.mdx' vs. 'index.md' (verification note, not blocking)**
+Source: Evaluator observation.
+C3 references the home page as index.mdx, but the current file is index.md. ComponentCard is an Astro component import, which requires .mdx format. Workers must either convert or create index.mdx. This is not blocking but must be verified at evaluation time.
+Recipe fix: State explicitly in the criterion: "the home page must be index.mdx (MDX format required for ComponentCard imports)."
 
 ---
 

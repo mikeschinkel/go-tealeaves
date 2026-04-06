@@ -54,7 +54,7 @@ teacolor.Coral, teacolor.SlateGray, teacolor.Teal
 ```
 
 <Aside type="note" title="Package move">
-`teacolor` was previously shipped as a sub-package of `teautils` (`teautils/teacolor`). It is now a standalone module at `github.com/mikeschinkel/go-tealeaves/teacolor`. Similarly, `teautils.SemanticColor` and `teautils.NewSemanticColor` are now type aliases that re-export from `teacolor` for backward compatibility — new code should import `teacolor` directly. See [Color Constants](/go-tealeaves/components/color-constants/) for the full `teacolor` API.
+`teacolor` was previously shipped as a sub-package of `teautils` (`teautils/teacolor`). It is now a standalone module at `github.com/mikeschinkel/go-tealeaves/teacolor`. See [Color Constants](/go-tealeaves/components/color-constants/) for the full `teacolor` API.
 </Aside>
 
 ## Palette
@@ -91,15 +91,15 @@ When your application needs colors beyond the system palette, embed `SystemPalet
 {/* verified: site/examples/theming/ — go test passes */}
 ```go
 type AppColors struct {
-    Brand    teautils.SemanticColor
-    Sidebar  teautils.SemanticColor
+    Brand    teacolor.SemanticColor
+    Sidebar  teacolor.SemanticColor
 }
 
 palette := teautils.Palette[AppColors]{
     System: teautils.DarkSystemPalette(nil),
     App: AppColors{
-        Brand:   teautils.NewSemanticColor(teacolor.Color46),
-        Sidebar: teautils.NewSemanticColor(teacolor.Color238),
+        Brand:   teacolor.NewSemanticColor(teacolor.Color46),
+        Sidebar: teacolor.NewSemanticColor(teacolor.Color238),
     },
 }
 ```

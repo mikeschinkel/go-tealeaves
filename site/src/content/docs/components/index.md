@@ -24,7 +24,6 @@ Tea Leaves ships components across Go modules. Each module has its own `go.mod` 
 | [Tree View](/go-tealeaves/components/tree-view/) | `TreeModel[T]` | teatree | Expand/collapse, pluggable node providers |
 | [Drilldown View](/go-tealeaves/components/drilldown-view/) | `DrillDownModel[T]` | teatree | Interactive dependency path viewer |
 | [Diff Viewer](/go-tealeaves/components/diff-viewer/) | `SplitDiffModel` / `TUIRenderer` | teadiff | Side-by-side interactive diff and condensed diff rendering |
-| [Diff Renderer (Legacy)](/go-tealeaves/components/diff-renderer/) | `TUIRenderer`, `DiffRenderer` | teadiffr | Condensed diff renderer for non-interactive display — superseded by teadiff |
 | [Terminal Renderer](/go-tealeaves/components/term-renderer/) | `Terminal`, `ProcessViewer` | teaterm | Full PTY emulator and piped process viewer — planned, not yet released |
 | [Breadcrumb Nav](/go-tealeaves/components/breadcrumb-nav/) | `BreadcrumbsModel` | teacrumbs | Mouse-aware breadcrumb trail with click and hover events |
 

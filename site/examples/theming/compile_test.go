@@ -37,15 +37,15 @@ func TestCompile_PaletteConstructors(t *testing.T) {
 // TestCompile_PaletteGeneric verifies generic Palette[T] from theming.mdx.
 func TestCompile_PaletteGeneric(t *testing.T) {
 	type AppColors struct {
-		Brand   teautils.SemanticColor
-		Sidebar teautils.SemanticColor
+		Brand   teacolor.SemanticColor
+		Sidebar teacolor.SemanticColor
 	}
 
 	palette := teautils.Palette[AppColors]{
 		System: teautils.DarkSystemPalette(nil),
 		App: AppColors{
-			Brand:   teautils.NewSemanticColor(teacolor.Color46),
-			Sidebar: teautils.NewSemanticColor(teacolor.Color238),
+			Brand:   teacolor.NewSemanticColor(teacolor.Color46),
+			Sidebar: teacolor.NewSemanticColor(teacolor.Color238),
 		},
 	}
 

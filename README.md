@@ -11,7 +11,6 @@ go-tealeaves is a multi-module repository of independently importable Bubble Tea
 | Package | Import Path | Description |
 |---------|------------|-------------|
 | **teacrumbs** | `github.com/mikeschinkel/go-tealeaves/teacrumbs` | Breadcrumb trail with hover/click support |
-| **teadiffr** | `github.com/mikeschinkel/go-tealeaves/teadiffr` | Condensed diff rendering for terminal UIs |
 | **teadiff** | `github.com/mikeschinkel/go-tealeaves/teadiff` | Interactive side-by-side split diff viewer |
 | **teafields** | `github.com/mikeschinkel/go-tealeaves/teafields` | Dropdown selection with intelligent positioning |
 | **teagrid** | `github.com/mikeschinkel/go-tealeaves/teagrid` | Data grid with sorting, filtering, pagination, panning |
@@ -52,9 +51,7 @@ Each module contains its own examples under `<module>/examples/`:
 | `teagrid/examples/sorting` | teagrid | Grid with column sorting |
 | `teagrid/examples/scrolling` | teagrid | Grid with horizontal scrolling |
 | `teagrid/examples/panning` | teagrid | Grid with horizontal panning |
-| `tealayout/examples/threepane` | tealayout | Three-pane layout with resizing |
-| `tealayout/examples/collapsible` | tealayout | Collapsible sidebar layout |
-| `tealayout/examples/golden` | tealayout | Golden ratio layout |
+| `tealayout/examples/multipane` | tealayout | Multi-pane layout with nested groups, resizing, and visibility |
 | `teamodal/examples/choices` | teamodal | Choice modal dialog |
 | `teamodal/examples/editlist` | teamodal | List modal with task management |
 | `teamodal/examples/multiselect` | teamodal | Multi-select modal with scrollbar |
@@ -100,7 +97,6 @@ teafields --> teautils
 teagrid   --> teautils
 teaguide  --> teautils
 teahelp   --> teautils
-teadiffr  --> teautils
 teadiff -> teautils
 teanotify --> teautils
 teastatus --> teautils

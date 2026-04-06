@@ -57,7 +57,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case " ", "enter":
+		case "space", "enter":
 			if !m.modal.IsOpen() {
 				m.modal, cmd = m.modal.Open()
 				return m, cmd

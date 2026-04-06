@@ -117,7 +117,7 @@ Configure the grid using `With*()` wither methods. These return the updated mode
 - **`WithRows(rows []Row)`** — Set row data.
 - **`WithColumns(cols []Column)`** — Update column definitions.
 - **`WithPageSize(n int)`** — Set rows per page.
-- **`WithTargetWidth(w int)`** — Set target total width for the grid.
+- **`WithSize(w, h int)`** — Set the grid viewport width and height.
 - **`WithBaseStyle(s lipgloss.Style)`** — Set the base cell style applied to all cells.
 - **`WithFilterFunc(fn FilterFunc)`** — Provide a custom filter function.
 - **`WithFuzzyFilter()`** — Enable the built-in fuzzy filter.

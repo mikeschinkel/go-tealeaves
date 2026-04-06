@@ -9,10 +9,6 @@ import { Aside } from '@astrojs/starlight/components';
 
 Rendering diffs in a terminal requires synchronized scrolling, accurate ANSI-aware width measurement, and sensible keyboard navigation. `teadiff` provides two modes: an interactive `SplitDiffModel` for side-by-side comparison, and a `TUIRenderer` for condensed inline display.
 
-<Aside type="note" title="Replaces teadiffview">
-`teadiff` supersedes `teadiffview`. All condensed diff types (`TUIRenderer`, `DiffRenderer`, `FileDiff`, `CondensedBlock`, `FileStatus`) are available here unchanged, plus the new `SplitDiffModel`. See [migrating from teadiffr](/go-tealeaves/migration/teadiffr/).
-</Aside>
-
 <Aside type="caution" title="Provisional API">
 This package is provisional as of v0.1.0. The public API may change in minor releases until promoted to stable.
 </Aside>
@@ -423,5 +419,4 @@ type DiffRenderer interface {
 
 - [Syntax Highlighting](/go-tealeaves/components/syntax-highlighting/) — `teahilite` can supply the `HighlightFunc` for `SplitDiffModel`
 - [Theming](/go-tealeaves/components/theming/) — `TintPositive` and `TintNegative` palette slots control diff colors
-- [Diff Renderer](/go-tealeaves/components/diff-renderer/) — Deprecated predecessor; types migrated to this package
 - [Pane Widgets](/go-tealeaves/components/pane-widgets/) — Embed `SplitDiffModel` in a `StyledPane` for bordered multi-pane diff views

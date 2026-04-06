@@ -61,7 +61,7 @@ This approach has several problems:
             switch msg.String() {
             case "q":
                 return m, tea.Quit
-            case " ":
+            case "space":
                 m.dropdown, cmd = m.dropdown.Open()
                 return m, cmd
             }

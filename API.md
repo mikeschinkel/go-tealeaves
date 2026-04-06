@@ -103,81 +103,6 @@
     - `ParentStyle lipgloss.Style`
     - `SeparatorStyle lipgloss.Style`
 
-## Module: `./teadiffr`
-
-### Package: `teadiffr`
-- Path: `./teadiffr`
-
-#### Vars
-- `ErrDiff = errors.New("diff")`
-- `ErrEmptyDiff = errors.New("empty diff")`
-- `ErrInvalidBlock = errors.New("invalid block")`
-- `ErrInvalidFile = errors.New("invalid file")`
-
-#### Funcs
-- `RenderFileDiffs(files []FileDiff, renderer DiffRenderer, width int) []string`
-
-#### Types
-
-- `CondensedBlock struct{}`
-  - Properties
-    - `ChangedLines []string`
-    - `ContextAfter []string`
-    - `ContextBefore []string`
-    - `IsTruncated bool`
-    - `LineCount int`
-    - `Type string`
-
-- `DiffRenderer interface{}`
-  - Methods
-    - `RenderAddedLine(line string, status FileStatus, width int) string`
-    - `RenderBlockHeader(blockType string, lineCount int) string`
-    - `RenderContextLine(line string, status FileStatus, width int) string`
-    - `RenderDeletedLine(line string, status FileStatus, width int) string`
-    - `RenderFileHeader(path string, status FileStatus, width int) string`
-    - `RenderSeparator() string`
-    - `RenderTruncation(status FileStatus) string`
-
-- `FileDiff struct{}`
-  - Properties
-    - `Blocks []CondensedBlock`
-    - `Path string`
-    - `Status FileStatus`
-
-- `FileStatus int`
-
-- `TUIRenderer struct{}`
-  - Properties
-    - `AddedColor color.Color`
-    - `BlockHeaderColor color.Color`
-    - `ContextColor color.Color`
-    - `DeletedBgColor color.Color`
-    - `DeletedColor color.Color`
-    - `DeletedStatusColor color.Color`
-    - `FileHeaderColor color.Color`
-    - `NewBgColor color.Color`
-    - `NewStatusColor color.Color`
-  - Methods
-    - `RenderAddedLine(line string, status FileStatus, width int) string`
-    - `RenderBlockHeader(blockType string, lineCount int) string`
-    - `RenderContextLine(line string, status FileStatus, width int) string`
-    - `RenderDeletedLine(line string, status FileStatus, width int) string`
-    - `RenderFileHeader(path string, status FileStatus, width int) string`
-    - `RenderSeparator() string`
-    - `RenderTruncation(status FileStatus) string`
-
-- `TUIRendererArgs struct{}`
-  - Properties
-    - `AddedColor color.Color`
-    - `BlockHeaderColor color.Color`
-    - `ContextColor color.Color`
-    - `DeletedBgColor color.Color`
-    - `DeletedColor color.Color`
-    - `DeletedStatusColor color.Color`
-    - `FileHeaderColor color.Color`
-    - `NewBgColor color.Color`
-    - `NewStatusColor color.Color`
-
 ## Module: `./teadiff`
 
 ### Package: `teadiff`
@@ -444,8 +369,6 @@
     - `SelectedStyle lipgloss.Style`
     - `TopMargin int`
 
-- `ModelArgs = DropdownModelArgs`
-
 - `Option struct{}`
   - Properties
     - `Text string`
@@ -623,8 +546,6 @@
 - `GridModel struct{}`
   - Methods
     - `Border() BorderConfig`
-    - `BorderDefault() GridModel`
-    - `BorderRounded() GridModel`
     - `CanFilter() bool`
     - `ColCursorColumnIndex() int`
     - `ColCursorMode() bool`
@@ -634,8 +555,6 @@
     - `CurrentPage() int`
     - `FillWidth() bool`
     - `FullHelp() [][]key.Binding`
-    - `HeaderStyle(style lipgloss.Style) GridModel`
-    - `HighlightStyle(style lipgloss.Style) GridModel`
     - `HighlightedRow() Row`
     - `HighlightedRowIndex() int`
     - `HorizontalScrollColumnOffset() int`
@@ -659,9 +578,7 @@
     - `ScrollLeft() GridModel`
     - `ScrollOffset() int`
     - `ScrollRight() GridModel`
-    - `SelectableRows(selectable bool) GridModel`
     - `SelectedRows() []Row`
-    - `SetBorder(border BorderConfig) GridModel`
     - `ShortHelp() []key.Binding`
     - `SortByAsc(columnKey string) GridModel`
     - `SortByDesc(columnKey string) GridModel`
@@ -687,7 +604,6 @@
     - `WithColCursorWrapping(wrapping bool) GridModel`
     - `WithColumns(columns []Column) GridModel`
     - `WithCurrentPage(currentPage int) GridModel`
-    - `WithCustomFilterFunc(fn FilterFunc) GridModel`
     - `WithDataRowCount(n int) GridModel`
     - `WithEditable(editable bool) GridModel`
     - `WithFillWidth(fill bool) GridModel`
@@ -701,18 +617,14 @@
     - `WithFooterStyle(style lipgloss.Style) GridModel`
     - `WithFooterVisibility(visible bool) GridModel`
     - `WithFuzzyFilter() GridModel`
-    - `WithGlobalMetadata(metadata map[string]any) GridModel`
-    - `WithHeaderStyle(style lipgloss.Style) GridModel`
     - `WithHeaderVisibility(visible bool) GridModel`
     - `WithHighlightStyle(style lipgloss.Style) GridModel`
     - `WithHighlightedRow(index int) GridModel`
     - `WithHorizontalFreezeColumnCount(count int) GridModel`
     - `WithKeyMap(keyMap KeyMap) GridModel`
-    - `WithMaxTotalWidth(width int) GridModel`
     - `WithMetadata(metadata map[string]any) GridModel`
     - `WithMinimumHeight(height int) GridModel`
     - `WithMissingDataIndicator(str string) GridModel`
-    - `WithMissingDataIndicatorStyled(styled StyledCell) GridModel`
     - `WithNoPagination() GridModel`
     - `WithOverflowIndicator(enabled bool) GridModel`
     - `WithPageSize(pageSize int) GridModel`
@@ -725,7 +637,6 @@
     - `WithSelectedText(unselected string, selected string) GridModel`
     - `WithSize(width int, height int) GridModel`
     - `WithStaticFooter(footer string) GridModel`
-    - `WithTargetWidth(width int) GridModel`
     - `WithTheme(theme teautils.Theme) GridModel`
 
 - `KeyMap struct{}`
@@ -790,12 +701,6 @@
   - Properties
     - `Style lipgloss.Style`
     - `Text string`
-
-- `StyledCell = CellValue`
-
-- `StyledCellFunc = CellStyleFunc`
-
-- `StyledCellFuncInput = CellStyleInput`
 
 - `UserEvent any`
 
@@ -1083,20 +988,10 @@
   - Methods
     - `View() string`
 
-## Module: `./tealayout/examples/collapsible`
+## Module: `./tealayout/examples/multipane`
 
-### Package: `collapsible`
-- Path: `./tealayout/examples/collapsible`
-
-## Module: `./tealayout/examples/golden`
-
-### Package: `golden`
-- Path: `./tealayout/examples/golden`
-
-## Module: `./tealayout/examples/threepane`
-
-### Package: `threepane`
-- Path: `./tealayout/examples/threepane`
+### Package: `multipane`
+- Path: `./tealayout/examples/multipane`
 
 ## Module: `./teamodal`
 
@@ -2043,53 +1938,53 @@
 - `ErrKeyIdentifierInvalidPart = errors.New("key identifier contains invalid part")`
 - `ErrKeyIdentifierMissingDot = errors.New("key identifier must contain at least one dot separator")`
 - `ErrKeyNotFound = errors.New("key not found in registry")`
-- `SemanticBlack = NewSemanticColor(teacolor.Black)`
-- `SemanticBlue = NewSemanticColor(teacolor.Blue)`
-- `SemanticBrightBlack = NewSemanticColor(teacolor.BrightBlack)`
-- `SemanticBrightBlue = NewSemanticColor(teacolor.BrightBlue)`
-- `SemanticBrightCyan = NewSemanticColor(teacolor.BrightCyan)`
-- `SemanticBrightGreen = NewSemanticColor(teacolor.BrightGreen)`
-- `SemanticBrightMagenta = NewSemanticColor(teacolor.BrightMagenta)`
-- `SemanticBrightRed = NewSemanticColor(teacolor.BrightRed)`
-- `SemanticBrightWhite = NewSemanticColor(teacolor.BrightWhite)`
-- `SemanticBrightYellow = NewSemanticColor(teacolor.BrightYellow)`
-- `SemanticColor0 = NewSemanticColor(teacolor.Color0)`
-- `SemanticColor124 = NewSemanticColor(teacolor.Color124)`
-- `SemanticColor130 = NewSemanticColor(teacolor.Color130)`
-- `SemanticColor15 = NewSemanticColor(teacolor.Color15)`
-- `SemanticColor153 = NewSemanticColor(teacolor.Color153)`
-- `SemanticColor157 = NewSemanticColor(teacolor.Color157)`
-- `SemanticColor160 = NewSemanticColor(teacolor.Color160)`
-- `SemanticColor166 = NewSemanticColor(teacolor.Color166)`
-- `SemanticColor178 = NewSemanticColor(teacolor.Color178)`
-- `SemanticColor214 = NewSemanticColor(teacolor.Color214)`
-- `SemanticColor217 = NewSemanticColor(teacolor.Color217)`
-- `SemanticColor22 = NewSemanticColor(teacolor.Color22)`
-- `SemanticColor226 = NewSemanticColor(teacolor.Color226)`
-- `SemanticColor230 = NewSemanticColor(teacolor.Color230)`
-- `SemanticColor232 = NewSemanticColor(teacolor.Color232)`
-- `SemanticColor238 = NewSemanticColor(teacolor.Color238)`
-- `SemanticColor240 = NewSemanticColor(teacolor.Color240)`
-- `SemanticColor244 = NewSemanticColor(teacolor.Color244)`
-- `SemanticColor248 = NewSemanticColor(teacolor.Color248)`
-- `SemanticColor250 = NewSemanticColor(teacolor.Color250)`
-- `SemanticColor252 = NewSemanticColor(teacolor.Color252)`
-- `SemanticColor28 = NewSemanticColor(teacolor.Color28)`
-- `SemanticColor30 = NewSemanticColor(teacolor.Color30)`
-- `SemanticColor33 = NewSemanticColor(teacolor.Color33)`
-- `SemanticColor39 = NewSemanticColor(teacolor.Color39)`
-- `SemanticColor46 = NewSemanticColor(teacolor.Color46)`
-- `SemanticColor51 = NewSemanticColor(teacolor.Color51)`
-- `SemanticColor52 = NewSemanticColor(teacolor.Color52)`
-- `SemanticColor62 = NewSemanticColor(teacolor.Color62)`
-- `SemanticColor86 = NewSemanticColor(teacolor.Color86)`
-- `SemanticColorNil = NewSemanticColor(nil)`
-- `SemanticCyan = NewSemanticColor(teacolor.Cyan)`
-- `SemanticGreen = NewSemanticColor(teacolor.Green)`
-- `SemanticMagenta = NewSemanticColor(teacolor.Magenta)`
-- `SemanticRed = NewSemanticColor(teacolor.Red)`
-- `SemanticWhite = NewSemanticColor(teacolor.White)`
-- `SemanticYellow = NewSemanticColor(teacolor.Yellow)`
+- `SemanticBlack = teacolor.NewSemanticColor(teacolor.Black)`
+- `SemanticBlue = teacolor.NewSemanticColor(teacolor.Blue)`
+- `SemanticBrightBlack = teacolor.NewSemanticColor(teacolor.BrightBlack)`
+- `SemanticBrightBlue = teacolor.NewSemanticColor(teacolor.BrightBlue)`
+- `SemanticBrightCyan = teacolor.NewSemanticColor(teacolor.BrightCyan)`
+- `SemanticBrightGreen = teacolor.NewSemanticColor(teacolor.BrightGreen)`
+- `SemanticBrightMagenta = teacolor.NewSemanticColor(teacolor.BrightMagenta)`
+- `SemanticBrightRed = teacolor.NewSemanticColor(teacolor.BrightRed)`
+- `SemanticBrightWhite = teacolor.NewSemanticColor(teacolor.BrightWhite)`
+- `SemanticBrightYellow = teacolor.NewSemanticColor(teacolor.BrightYellow)`
+- `SemanticColor0 = teacolor.NewSemanticColor(teacolor.Color0)`
+- `SemanticColor124 = teacolor.NewSemanticColor(teacolor.Color124)`
+- `SemanticColor130 = teacolor.NewSemanticColor(teacolor.Color130)`
+- `SemanticColor15 = teacolor.NewSemanticColor(teacolor.Color15)`
+- `SemanticColor153 = teacolor.NewSemanticColor(teacolor.Color153)`
+- `SemanticColor157 = teacolor.NewSemanticColor(teacolor.Color157)`
+- `SemanticColor160 = teacolor.NewSemanticColor(teacolor.Color160)`
+- `SemanticColor166 = teacolor.NewSemanticColor(teacolor.Color166)`
+- `SemanticColor178 = teacolor.NewSemanticColor(teacolor.Color178)`
+- `SemanticColor214 = teacolor.NewSemanticColor(teacolor.Color214)`
+- `SemanticColor217 = teacolor.NewSemanticColor(teacolor.Color217)`
+- `SemanticColor22 = teacolor.NewSemanticColor(teacolor.Color22)`
+- `SemanticColor226 = teacolor.NewSemanticColor(teacolor.Color226)`
+- `SemanticColor230 = teacolor.NewSemanticColor(teacolor.Color230)`
+- `SemanticColor232 = teacolor.NewSemanticColor(teacolor.Color232)`
+- `SemanticColor238 = teacolor.NewSemanticColor(teacolor.Color238)`
+- `SemanticColor240 = teacolor.NewSemanticColor(teacolor.Color240)`
+- `SemanticColor244 = teacolor.NewSemanticColor(teacolor.Color244)`
+- `SemanticColor248 = teacolor.NewSemanticColor(teacolor.Color248)`
+- `SemanticColor250 = teacolor.NewSemanticColor(teacolor.Color250)`
+- `SemanticColor252 = teacolor.NewSemanticColor(teacolor.Color252)`
+- `SemanticColor28 = teacolor.NewSemanticColor(teacolor.Color28)`
+- `SemanticColor30 = teacolor.NewSemanticColor(teacolor.Color30)`
+- `SemanticColor33 = teacolor.NewSemanticColor(teacolor.Color33)`
+- `SemanticColor39 = teacolor.NewSemanticColor(teacolor.Color39)`
+- `SemanticColor46 = teacolor.NewSemanticColor(teacolor.Color46)`
+- `SemanticColor51 = teacolor.NewSemanticColor(teacolor.Color51)`
+- `SemanticColor52 = teacolor.NewSemanticColor(teacolor.Color52)`
+- `SemanticColor62 = teacolor.NewSemanticColor(teacolor.Color62)`
+- `SemanticColor86 = teacolor.NewSemanticColor(teacolor.Color86)`
+- `SemanticColorNil = teacolor.NewSemanticColor(nil)`
+- `SemanticCyan = teacolor.NewSemanticColor(teacolor.Cyan)`
+- `SemanticGreen = teacolor.NewSemanticColor(teacolor.Green)`
+- `SemanticMagenta = teacolor.NewSemanticColor(teacolor.Magenta)`
+- `SemanticRed = teacolor.NewSemanticColor(teacolor.Red)`
+- `SemanticWhite = teacolor.NewSemanticColor(teacolor.White)`
+- `SemanticYellow = teacolor.NewSemanticColor(teacolor.Yellow)`
 
 #### Funcs
 - `ApplyBoxBorder(borderStyle lipgloss.Style, content string) string`
@@ -2196,16 +2091,6 @@
   - Properties
     - `Adaptive bool`
 
-- `SemanticColor struct{}`
-  - Methods
-    - `Background() lipgloss.Style`
-    - `BorderForeground() lipgloss.Style`
-    - `Color() color.Color`
-    - `Foreground() lipgloss.Style`
-    - `IsZero() bool`
-    - `RGBA() (r uint32, g uint32, b uint32, a uint32)`
-    - `Render(text string) string`
-
 - `StatusBarTheme struct{}`
   - Properties
     - `BarStyle lipgloss.Style`
@@ -2216,36 +2101,36 @@
 
 - `SystemPalette struct{}`
   - Properties
-    - `Accent SemanticColor`
-    - `AccentAlt SemanticColor`
-    - `AccentSubtle SemanticColor`
-    - `Border SemanticColor`
-    - `BorderAccent SemanticColor`
-    - `ButtonBg SemanticColor`
-    - `ButtonFg SemanticColor`
-    - `ButtonFocusBg SemanticColor`
-    - `ButtonFocusFg SemanticColor`
-    - `EditBg SemanticColor`
-    - `EditFg SemanticColor`
-    - `FocusBg SemanticColor`
-    - `FocusBorder SemanticColor`
+    - `Accent teacolor.SemanticColor`
+    - `AccentAlt teacolor.SemanticColor`
+    - `AccentSubtle teacolor.SemanticColor`
+    - `Border teacolor.SemanticColor`
+    - `BorderAccent teacolor.SemanticColor`
+    - `ButtonBg teacolor.SemanticColor`
+    - `ButtonFg teacolor.SemanticColor`
+    - `ButtonFocusBg teacolor.SemanticColor`
+    - `ButtonFocusFg teacolor.SemanticColor`
+    - `EditBg teacolor.SemanticColor`
+    - `EditFg teacolor.SemanticColor`
+    - `FocusBg teacolor.SemanticColor`
+    - `FocusBorder teacolor.SemanticColor`
     - `HighlightStyle string`
-    - `ScrollThumb SemanticColor`
-    - `ScrollTrack SemanticColor`
-    - `SelectionBg SemanticColor`
-    - `SelectionFg SemanticColor`
-    - `Separator SemanticColor`
-    - `StatusError SemanticColor`
-    - `StatusInfo SemanticColor`
-    - `StatusSuccess SemanticColor`
-    - `StatusWarn SemanticColor`
-    - `TextDim SemanticColor`
-    - `TextMuted SemanticColor`
-    - `TextPrimary SemanticColor`
-    - `TextSecondary SemanticColor`
-    - `TintNegative SemanticColor`
-    - `TintNeutral SemanticColor`
-    - `TintPositive SemanticColor`
+    - `ScrollThumb teacolor.SemanticColor`
+    - `ScrollTrack teacolor.SemanticColor`
+    - `SelectionBg teacolor.SemanticColor`
+    - `SelectionFg teacolor.SemanticColor`
+    - `Separator teacolor.SemanticColor`
+    - `StatusError teacolor.SemanticColor`
+    - `StatusInfo teacolor.SemanticColor`
+    - `StatusSuccess teacolor.SemanticColor`
+    - `StatusWarn teacolor.SemanticColor`
+    - `TextDim teacolor.SemanticColor`
+    - `TextMuted teacolor.SemanticColor`
+    - `TextPrimary teacolor.SemanticColor`
+    - `TextSecondary teacolor.SemanticColor`
+    - `TintNegative teacolor.SemanticColor`
+    - `TintNeutral teacolor.SemanticColor`
+    - `TintPositive teacolor.SemanticColor`
 
 - `Theme struct{}`
   - Properties

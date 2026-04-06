@@ -1,0 +1,32 @@
+# Maps source packages to their documentation pages.
+# A package can map to one page (string) or multiple
+# pages (list).
+
+teacolor: color-constants.mdx
+teacrumbs: breadcrumb-nav.mdx
+teadiff: diff-viewer.mdx
+teadiffr: diff-renderer.mdx
+teafields:
+  - dropdown-control.mdx
+  - drilldown-view.mdx
+teagrid: grid-view.mdx
+teaguide: guide-overlay.mdx
+teahelp: help-visor.mdx
+teahilite: syntax-highlighting.mdx
+tealayout:
+  - layout-engine.mdx
+  - positioning.mdx
+  - theming.mdx
+teamodal:
+  - choice-dialog.mdx
+  - confirm-dialog.mdx
+  - list-dialog.mdx
+  - multiselect-dialog.mdx
+  - progress-dialog.mdx
+teanotify: notification-view.mdx
+teapane: pane-widgets.mdx
+teastatus: statusbar-view.mdx
+teaterm: term-renderer.mdx
+teatext: text-selection.mdx
+teatree: tree-view.mdx
+teautils: key-registry.mdx

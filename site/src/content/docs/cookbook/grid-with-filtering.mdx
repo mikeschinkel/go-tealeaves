@@ -104,7 +104,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
     switch msg := msg.(type) {
     case tea.WindowSizeMsg:
-        m.table = m.table.WithTargetWidth(msg.Width)
+        m.table = m.table.WithSize(msg.Width, msg.Height)
 
     case tea.KeyMsg:
         switch msg.String() {
@@ -195,7 +195,7 @@ Press `Escape` while the filter input is focused to blur the input and keep the 
 | `Escape` (when blurred) | Clear the filter |
 
 <Aside type="tip">
-The `WithTargetWidth` call in the `WindowSizeMsg` handler ensures flex columns (created with `NewFlexColumn`) expand to fill the available terminal width. Fixed-width columns keep their specified width regardless of the terminal size.
+The `WithSize` call in the `WindowSizeMsg` handler ensures flex columns (created with `NewFlexColumn`) expand to fill the available terminal width. Fixed-width columns keep their specified width regardless of the terminal size.
 </Aside>
 
 ## Related

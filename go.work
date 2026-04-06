@@ -3,8 +3,9 @@ go 1.25.7
 use (
 	./cmd/color-viewer
 	./cmd/jediterm-bug
+	./site/examples
+	./teacolor
 	./teacrumbs
-	./teadiffr
 	./teadiff
 	./teadiff/examples/splitdiff
 	./teafields
@@ -12,15 +13,16 @@ use (
 	./teafields/examples/simple
 	./teagrid
 	./teagrid/examples/filtering
+	./teagrid/examples/panning
 	./teagrid/examples/scrolling
 	./teagrid/examples/simplest
-	./teagrid/examples/panning
 	./teagrid/examples/sorting
+	./teaguide
+	./teaguide/example
 	./teahelp
+	./teahilite
 	./tealayout
 	./tealayout/examples/multipane
-	./teapane
-	./teahilite
 	./teamodal
 	./teamodal/examples/choices
 	./teamodal/examples/editlist
@@ -29,48 +31,16 @@ use (
 	./teamodal/examples/vertical
 	./teanotify
 	./teanotify/examples/simple
+	./teapane
 	./teastatus
 	./teastatus/examples/statusbar
+	./teatext
+	./teatext/examples/editor
 	./teatree
 	./teatree/examples/drilldown
 	./teatree/examples/filetree
-	./teatext
-	./teatext/examples/editor
-	./teacolor
-	./teaguide
-	./teaguide/example
 	./teautils
 	./teautils/examples/keyhelp
 	./teautils/examples/theming
 	cmd/temp
-	./site/examples/breadcrumb-nav
-	./site/examples/choice-dialog
-	./site/examples/color-constants
-	./site/examples/confirm-dialog
-	./site/examples/diff-renderer
-	./site/examples/diff-viewer
-	./site/examples/drilldown-view
-	./site/examples/dropdown-control
-	./site/examples/grid-view
-	./site/examples/guide-overlay
-	./site/examples/help-visor
-	./site/examples/key-registry
-	./site/examples/layout-engine
-	./site/examples/list-dialog
-	./site/examples/multiselect-dialog
-	./site/examples/notification-view
-	./site/examples/pane-widgets
-	./site/examples/positioning
-	./site/examples/progress-dialog
-	./site/examples/statusbar-view
-	./site/examples/syntax-highlighting
-	./site/examples/term-renderer
-	./site/examples/text-selection
-	./site/examples/theming
-	./site/examples/tree-view
-	./site/examples/guide-quick-start
-	./site/examples/guide-dropdown-in-form
-	./site/examples/guide-grid-with-filtering
-	./site/examples/guide-notification-after-action
-	./site/examples/guide-tree-with-statusbar
 )

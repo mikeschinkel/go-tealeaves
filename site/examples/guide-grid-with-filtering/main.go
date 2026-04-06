@@ -81,7 +81,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 	switch msg := msg.(type) {
 	case tea.WindowSizeMsg:
-		m.table = m.table.WithTargetWidth(msg.Width)
+		m.table = m.table.WithSize(msg.Width, msg.Height)
 
 	case tea.KeyMsg:
 		switch msg.String() {

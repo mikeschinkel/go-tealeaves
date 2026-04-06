@@ -112,7 +112,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         switch msg.String() {
         case "q":
             return m, tea.Quit  // Only processed when dropdown didn't consume
-        case " ":
+        case "space":
             m.dropdown, cmd = m.dropdown.Open()
             return m, cmd
         }
