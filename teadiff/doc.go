@@ -9,16 +9,6 @@
 //   - [TUIRenderer]: A condensed diff renderer using lipgloss for styled
 //     +/- line output. Suitable for non-interactive display.
 //
-// # Migration from teadiffr
-//
-// This package replaces teadiffr, which is now deprecated. Import paths:
-//
-//	Old: github.com/mikeschinkel/go-tealeaves/teadiffr
-//	New: github.com/mikeschinkel/go-tealeaves/teadiff
-//
-// All teadiffr types are available here unchanged: [TUIRenderer],
-// [DiffRenderer], [FileDiff], [CondensedBlock], [FileStatus], etc.
-//
 // # Stability
 //
 // This package is provisional as of v0.1.0. The public API may change in

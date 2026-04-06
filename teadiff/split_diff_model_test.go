@@ -204,11 +204,7 @@ func TestSplitDiffModel_CenterOnFirstChangeBlock(t *testing.T) {
 	if model.CursorIndex() == 0 {
 		// Row 0 is unchanged "line 1", cursor should be on a change block
 		if model.RowCount() > 1 {
-			blockIdx := model.GetBlockIndexAtCursor()
-			if blockIdx == 0 {
-				// Cursor might be at index 1 which is the first change
-				// This is acceptable depending on the block structure
-			}
+			_ = model.GetBlockIndexAtCursor()
 		}
 	}
 }
