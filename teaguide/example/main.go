@@ -7,8 +7,6 @@ import (
 
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
-	"github.com/mikeschinkel/go-cliutil"
-
 	"github.com/mikeschinkel/go-tealeaves/teaguide"
 )
 
@@ -287,7 +285,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 	_, err := p.Run()
 	if err != nil {
-		cliutil.Stderrf("Error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }

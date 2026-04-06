@@ -22,8 +22,6 @@ type GuideModel struct {
 	scrollOffset    int
 	blockedExpanded bool
 	actionMap       map[string]bool // keys that trigger ActionSelectedMsg
-	lastRow         int             // cached overlay position
-	lastCol         int
 }
 
 // NewGuideModel creates a new guide model with default key bindings and styles.
@@ -172,9 +170,6 @@ func (m GuideModel) OverlayModal(background string) (view string) {
 
 	modalView = m.renderGuide()
 	_, _, row, col = teautils.CenterModal(modalView, m.screenWidth, m.screenHeight)
-	m.lastRow = row
-	m.lastCol = col
-
 	view = overlayModal(background, modalView, row, col)
 
 end:
