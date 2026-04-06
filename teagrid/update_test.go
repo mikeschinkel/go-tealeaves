@@ -8,10 +8,6 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newKeyPress(keyStr string) tea.KeyPressMsg {
-	return tea.KeyPressMsg{Code: rune(keyStr[0])}
-}
-
 func TestUpdateNotFocused(t *testing.T) {
 	m := NewGridModel([]Column{NewColumn("x", "X", 5)}).
 		WithRows([]Row{NewRow(RowData{"x": 1})})
