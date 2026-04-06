@@ -96,7 +96,7 @@ func FormatKeyDisplay(k KeyMeta) string {
 // Handles special keys like space, arrows, etc.
 func formatSingleKey(key string) string {
 	switch key {
-	case " ":
+	case " ", "space":
 		return "Space"
 	case "backspace":
 		return "Bksp"

@@ -52,7 +52,7 @@ func (m model) applyTheme() model {
 		WithSelectableRows(true)
 
 	if m.width > 0 {
-		m.grid = m.grid.WithTargetWidth(m.width)
+		m.grid = m.grid.WithSize(m.width, m.height)
 	}
 
 	// Build status bar with theme
@@ -65,11 +65,11 @@ func (m model) applyTheme() model {
 		SetMenuItems([]teastatus.MenuItem{
 			teastatus.NewMenuItem(
 				key.NewBinding(key.WithKeys("t"), key.WithHelp("t", "Toggle theme")),
-				"Theme",
+				&teastatus.MenuItemOpts{Label: "Theme"},
 			),
 			teastatus.NewMenuItem(
 				key.NewBinding(key.WithKeys("q"), key.WithHelp("q", "Quit")),
-				"Quit",
+				&teastatus.MenuItemOpts{Label: "Quit"},
 			),
 		}).
 		SetIndicators([]teastatus.StatusIndicator{
@@ -107,7 +107,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.WindowSizeMsg:
 		m.width = msg.Width
 		m.height = msg.Height
-		m.grid = m.grid.WithTargetWidth(m.width)
+		m.grid = m.grid.WithSize(m.width, m.height)
 		m.statusBar = m.statusBar.SetSize(m.width)
 
 	case tea.KeyPressMsg:
@@ -156,7 +156,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		cliutil.Stderrf("Error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }

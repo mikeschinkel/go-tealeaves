@@ -2,13 +2,15 @@ package teautils
 
 import (
 	"testing"
+
+	"github.com/mikeschinkel/go-tealeaves/teacolor"
 )
 
 func TestDarkSystemPalette_AllFieldsNonNil(t *testing.T) {
 	p := DarkSystemPalette(nil)
 	fields := []struct {
 		name  string
-		value SemanticColor
+		value teacolor.SemanticColor
 	}{
 		{"TextPrimary", p.TextPrimary},
 		{"TextSecondary", p.TextSecondary},
@@ -49,7 +51,7 @@ func TestLightSystemPalette_AllFieldsNonNil(t *testing.T) {
 	p := LightSystemPalette(nil)
 	fields := []struct {
 		name  string
-		value SemanticColor
+		value teacolor.SemanticColor
 	}{
 		{"TextPrimary", p.TextPrimary},
 		{"TextSecondary", p.TextSecondary},
@@ -154,7 +156,7 @@ func TestDarkSystemPalette_Adaptive_AllFieldsNonNil(t *testing.T) {
 	p := DarkSystemPalette(&PaletteOpts{Adaptive: true})
 	fields := []struct {
 		name  string
-		value SemanticColor
+		value teacolor.SemanticColor
 	}{
 		{"TextPrimary", p.TextPrimary},
 		{"TextSecondary", p.TextSecondary},
@@ -195,7 +197,7 @@ func TestLightSystemPalette_Adaptive_AllFieldsNonNil(t *testing.T) {
 	p := LightSystemPalette(&PaletteOpts{Adaptive: true})
 	fields := []struct {
 		name  string
-		value SemanticColor
+		value teacolor.SemanticColor
 	}{
 		{"TextPrimary", p.TextPrimary},
 		{"TextSecondary", p.TextSecondary},
@@ -255,7 +257,7 @@ func TestAdaptiveSystemPalette_Adaptive_ReturnsValid(t *testing.T) {
 }
 
 func TestSemanticColor_CachedStyles(t *testing.T) {
-	sc := NewSemanticColor(nil)
+	sc := teacolor.NewSemanticColor(nil)
 
 	// Even nil-color SemanticColor should return valid styles
 	_ = sc.Foreground()
@@ -276,18 +278,18 @@ func TestSemanticColor_CachedStyles(t *testing.T) {
 }
 
 func TestSemanticColor_NilHandling(t *testing.T) {
-	sc := NewSemanticColor(nil)
+	sc := teacolor.NewSemanticColor(nil)
 
 	if !sc.IsZero() {
-		t.Error("NewSemanticColor(nil).IsZero() should be true")
+		t.Error("teacolor.NewSemanticColor(nil).IsZero() should be true")
 	}
 	if sc.Color() != nil {
-		t.Error("NewSemanticColor(nil).Color() should be nil")
+		t.Error("teacolor.NewSemanticColor(nil).Color() should be nil")
 	}
 
 	r, g, b, a := sc.RGBA()
 	if r != 0 || g != 0 || b != 0 || a != 0 {
-		t.Errorf("NewSemanticColor(nil).RGBA() = (%d,%d,%d,%d), want (0,0,0,0)", r, g, b, a)
+		t.Errorf("teacolor.NewSemanticColor(nil).RGBA() = (%d,%d,%d,%d), want (0,0,0,0)", r, g, b, a)
 	}
 }
 

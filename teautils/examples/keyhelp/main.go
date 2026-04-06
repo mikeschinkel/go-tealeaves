@@ -8,6 +8,7 @@ import (
 	"charm.land/bubbles/v2/key"
 	tea "charm.land/bubbletea/v2"
 	"charm.land/lipgloss/v2"
+
 	"github.com/mikeschinkel/go-tealeaves/teahelp"
 	"github.com/mikeschinkel/go-tealeaves/teamodal"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
@@ -118,7 +119,7 @@ func main() {
 
 	p := tea.NewProgram(m)
 	if _, err := p.Run(); err != nil {
-		cliutil.Stderrf("Error: %v\n", err)
+		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
 		os.Exit(1)
 	}
 }
