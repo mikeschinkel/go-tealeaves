@@ -244,14 +244,14 @@ func (m TextSnipModel) Update(msg tea.Msg) (TextSnipModel, tea.Cmd) {
 // cursorPosition returns the current cursor position
 func (m TextSnipModel) cursorPosition() Position {
 	return Position{
-		Row: m.Model.Line(),
-		Col: m.Model.LineInfo().CharOffset,
+		Row: m.Line(),
+		Col: m.LineInfo().CharOffset,
 	}
 }
 
 // lines returns the textarea content as a slice of lines
 func (m TextSnipModel) lines() []string {
-	return strings.Split(m.Model.Value(), "\n")
+	return strings.Split(m.Value(), "\n")
 }
 
 // lineRunes returns the runes for a specific line
@@ -529,18 +529,18 @@ func (m TextSnipModel) extendSelectionToEnd() TextSnipModel {
 // moveCursorTo moves the textarea cursor to the specified position
 func (m TextSnipModel) moveCursorTo(row, col int) TextSnipModel {
 	// Move to correct row
-	currentRow := m.Model.Line()
+	currentRow := m.Line()
 	for currentRow < row && currentRow < m.lineCount()-1 {
-		m.Model.CursorDown()
-		currentRow = m.Model.Line()
+		m.CursorDown()
+		currentRow = m.Line()
 	}
 	for currentRow > row && currentRow > 0 {
-		m.Model.CursorUp()
-		currentRow = m.Model.Line()
+		m.CursorUp()
+		currentRow = m.Line()
 	}
 
 	// Move to correct column
-	m.Model.SetCursorColumn(col)
+	m.SetCursorColumn(col)
 	return m
 }
 

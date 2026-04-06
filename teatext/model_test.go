@@ -10,10 +10,10 @@ import (
 
 func newTestModel() TextSnipModel {
 	m := NewTextSnipModel(nil)
-	m.Model.SetWidth(80)
-	m.Model.SetHeight(10)
-	m.Model.SetValue("Hello World\nSecond line\nThird line")
-	m.Model.Focus()
+	m.SetWidth(80)
+	m.SetHeight(10)
+	m.SetValue("Hello World\nSecond line\nThird line")
+	m.Focus()
 	// Move cursor to start
 	m = m.moveCursorTo(0, 0)
 	return m
@@ -267,8 +267,8 @@ func TestModel_TypingReplacesSelection(t *testing.T) {
 
 func TestModel_SingleLine_BlocksEnter(t *testing.T) {
 	m := NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
-	m.Model.SetValue("test")
-	m.Model.Focus()
+	m.SetValue("test")
+	m.Focus()
 
 	m, _ = m.Update(tea.KeyPressMsg{Code: tea.KeyEnter})
 
@@ -280,8 +280,8 @@ func TestModel_SingleLine_BlocksEnter(t *testing.T) {
 
 func TestModel_SingleLine_BlocksVerticalSelection(t *testing.T) {
 	m := NewTextSnipModel(&TextSnipModelArgs{SingleLine: true})
-	m.Model.SetValue("test content")
-	m.Model.Focus()
+	m.SetValue("test content")
+	m.Focus()
 
 	// SelectUp and SelectDown should be disabled
 	km := m.SelectionKeyMap()
@@ -378,8 +378,8 @@ func TestModel_View_FocusedStylePath(t *testing.T) {
 	m := newTestModel()
 	m = m.extendSelectionRight(5) // Select "Hello"
 
-	// Focused path: m.Model.Focused() is true (set in newTestModel)
-	if !m.Model.Focused() {
+	// Focused path: m.Focused() is true (set in newTestModel)
+	if !m.Focused() {
 		t.Fatal("expected model to be focused")
 	}
 	focusedView := m.View()
@@ -391,8 +391,8 @@ func TestModel_View_FocusedStylePath(t *testing.T) {
 	}
 
 	// Blurred path: after Blur()
-	m.Model.Blur()
-	if m.Model.Focused() {
+	m.Blur()
+	if m.Focused() {
 		t.Fatal("expected model to be blurred after Blur()")
 	}
 	blurredView := m.View()

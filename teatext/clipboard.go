@@ -72,7 +72,7 @@ func (m TextSnipModel) Paste() (TextSnipModel, tea.Cmd) {
 
 	// Insert the text by simulating typing
 	// This handles newlines correctly through the textarea
-	m.Model.InsertString(text)
+	m.InsertString(text)
 
 	return m, nil
 }
@@ -203,10 +203,10 @@ func (m TextSnipModel) deleteSelection() TextSnipModel {
 	)
 
 	// Set new value and move cursor to start of selection
-	m.Model.SetValue(newValue)
+	m.SetValue(newValue)
 	m.log("deleteSelection: SetValue called, verifying",
-		"actual_value_len", len(m.Model.Value()),
-		"values_match", m.Model.Value() == newValue,
+		"actual_value_len", len(m.Value()),
+		"values_match", m.Value() == newValue,
 	)
 	m = m.moveCursorTo(start.Row, start.Col)
 	m.selection = m.selection.Clear()

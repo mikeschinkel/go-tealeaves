@@ -9,7 +9,7 @@ import (
 func TestModel_WithTheme(t *testing.T) {
 	m := NewTextSnipModel(nil)
 	theme := teautils.NewTheme(teautils.DarkSystemPalette(nil))
-	m = m.WithTheme(theme)
+	_ = m.WithTheme(theme)
 
 	// SelectionStyle should have been updated
 	if SelectionStyle.GetBackground() == nil {

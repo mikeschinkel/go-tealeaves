@@ -43,8 +43,8 @@ func (m TextSnipModel) renderWithSelection() string {
 	var result strings.Builder
 
 	// Get viewport dimensions from textarea
-	width := m.Model.Width()
-	height := m.Model.Height()
+	width := m.Width()
+	height := m.Height()
 
 	// Calculate visible line range (simplified - textarea handles scrolling)
 	// For now, render all lines and let textarea handle viewport
@@ -110,7 +110,7 @@ func (m TextSnipModel) renderWithSelection() string {
 	content := padded.String()
 
 	// Use textarea's base style
-	if m.Model.Focused() {
+	if m.Focused() {
 		return m.renderFocused(content, width, height)
 	}
 	return m.renderBlurred(content, width, height)
@@ -139,7 +139,7 @@ func (m TextSnipModel) isPositionSelected(pos Position, start, end Position) boo
 
 // renderFocused applies focused styling to the content
 func (m TextSnipModel) renderFocused(content string, width, height int) string {
-	style := m.Model.Styles().Focused
+	style := m.Styles().Focused
 
 	// Apply prompt and line styling
 	lines := strings.Split(content, "\n")
@@ -151,7 +151,7 @@ func (m TextSnipModel) renderFocused(content string, width, height int) string {
 		}
 
 		// Apply cursor line style if this is the current line
-		if i == m.Model.Line() {
+		if i == m.Line() {
 			result.WriteString(style.CursorLine.Render(line))
 		} else {
 			result.WriteString(line)
@@ -164,6 +164,6 @@ func (m TextSnipModel) renderFocused(content string, width, height int) string {
 
 // renderBlurred applies blurred styling to the content
 func (m TextSnipModel) renderBlurred(content string, width, height int) string {
-	style := m.Model.Styles().Blurred
+	style := m.Styles().Blurred
 	return style.Base.Render(content)
 }
