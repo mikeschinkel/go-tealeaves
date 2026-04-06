@@ -793,7 +793,7 @@ func (m ListModel[T]) renderItemsWithPadding(leftPad int) (view string) {
 		}
 
 		// Active badge suffix
-		if item.IsActive() && !(m.isEditing && i == m.cursor) {
+		if item.IsActive() && (!m.isEditing || i != m.cursor) {
 			ld.suffix = " " + m.activeItemStyle.Render("[ACTIVE]")
 		} else {
 			ld.suffix = "         " // 9 spaces to match " [ACTIVE]" width
@@ -865,17 +865,6 @@ end:
 	return view
 }
 
-// padLabel pads a label to the fixed labelWidth with trailing spaces
-// Uses ansi.StringWidth to properly handle emojis and wide characters
-func (m ListModel[T]) padLabel(label string) string {
-	labelWidth := ansi.StringWidth(label)
-	if labelWidth >= m.labelWidth {
-		return label
-	}
-	// Pad with spaces to reach labelWidth
-	padding := strings.Repeat(" ", m.labelWidth-labelWidth)
-	return label + padding
-}
 
 // renderEditField renders the inline edit field with cursor, padded to labelWidth
 func (m ListModel[T]) renderEditField() string {

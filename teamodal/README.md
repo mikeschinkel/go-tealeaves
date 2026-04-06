@@ -72,7 +72,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case " ":
+		case "space":
 			m.confirmDialog, cmd = m.confirmDialog.Open()
 			return m, cmd
 		}

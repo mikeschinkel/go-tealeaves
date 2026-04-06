@@ -179,7 +179,7 @@ func TestListModel_KeyEdit(t *testing.T) {
 
 func TestListModel_KeyDelete(t *testing.T) {
 	m := newTestListModel(testItems())
-	m, cmd := m.Update(tea.KeyPressMsg{Code: 'd', Text: "d"})
+	_, cmd := m.Update(tea.KeyPressMsg{Code: 'd', Text: "d"})
 
 	msg := extractMsg(cmd)
 	del, ok := msg.(DeleteItemRequestedMsg[testItem])

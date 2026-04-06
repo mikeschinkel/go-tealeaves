@@ -91,7 +91,7 @@ func TestProgressModal_BackgroundDisabled(t *testing.T) {
 func TestProgressModal_ClosedIgnoresInput(t *testing.T) {
 	m := newTestProgressModal(false)
 	m = m.Close()
-	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
+	_, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 	if cmd != nil {
 		t.Error("expected nil cmd when modal is closed")
 	}

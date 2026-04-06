@@ -230,9 +230,10 @@ func (m ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(keyMsg, m.Keys.Confirm):
 			// Confirm selection
 			m.isOpen = false
-			if m.typ == ModalTypeOK {
+			switch m.typ {
+			case ModalTypeOK:
 				cmd = func() tea.Msg { return ClosedMsg{} }
-			} else if m.typ == ModalTypeYesNo {
+			case ModalTypeYesNo:
 				if m.focusButton == 0 {
 					cmd = func() tea.Msg { return AnsweredYesMsg{} }
 				} else {
@@ -244,9 +245,10 @@ func (m ConfirmModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case key.Matches(keyMsg, m.Keys.Cancel):
 			// Cancel/close
 			m.isOpen = false
-			if m.typ == ModalTypeOK {
+			switch m.typ {
+			case ModalTypeOK:
 				cmd = func() tea.Msg { return ClosedMsg{} }
-			} else {
+			default:
 				cmd = func() tea.Msg { return AnsweredNoMsg{} }
 			}
 			goto end
@@ -495,9 +497,10 @@ func (m ConfirmModel) calculateMessageWidth() (width int) {
 
 // calculateButtonWidth returns the total width needed for buttons
 func (m ConfirmModel) calculateButtonWidth() (width int) {
-	if m.typ == ModalTypeOK {
+	switch m.typ {
+	case ModalTypeOK:
 		width = len([]rune(m.okLabel)) + 4 // +4 for button padding
-	} else if m.typ == ModalTypeYesNo {
+	case ModalTypeYesNo:
 		yesWidth := len([]rune(m.yesLabel)) + 4
 		noWidth := len([]rune(m.noLabel)) + 4
 		width = yesWidth + noWidth + 2 // +2 for space between buttons
