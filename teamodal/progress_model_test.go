@@ -7,8 +7,8 @@ import (
 	tea "charm.land/bubbletea/v2"
 )
 
-func newTestProgressModal(bgEnabled bool) ProgressModal {
-	m := NewProgressModal(&ProgressModalArgs{
+func newTestProgressModel(bgEnabled bool) ProgressModel {
+	m := NewProgressModel(&ProgressModelArgs{
 		ScreenWidth:       80,
 		ScreenHeight:      24,
 		Title:             "Commit Message",
@@ -20,15 +20,15 @@ func newTestProgressModal(bgEnabled bool) ProgressModal {
 
 // --- Layer 1 ---
 
-func TestNewProgressModal(t *testing.T) {
-	m := NewProgressModal(&ProgressModalArgs{Title: "Test"})
+func TestNewProgressModel(t *testing.T) {
+	m := NewProgressModel(&ProgressModelArgs{Title: "Test"})
 	if m.IsOpen() {
 		t.Error("expected not open initially")
 	}
 }
 
-func TestProgressModal_Open(t *testing.T) {
-	m := NewProgressModal(&ProgressModalArgs{
+func TestProgressModel_Open(t *testing.T) {
+	m := NewProgressModel(&ProgressModelArgs{
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 		Title:        "Test",
@@ -39,16 +39,16 @@ func TestProgressModal_Open(t *testing.T) {
 	}
 }
 
-func TestProgressModal_Close(t *testing.T) {
-	m := newTestProgressModal(false)
+func TestProgressModel_Close(t *testing.T) {
+	m := newTestProgressModel(false)
 	m = m.Close()
 	if m.IsOpen() {
 		t.Error("expected IsOpen=false after Close()")
 	}
 }
 
-func TestProgressModal_EscCancels(t *testing.T) {
-	m := newTestProgressModal(false)
+func TestProgressModel_EscCancels(t *testing.T) {
+	m := newTestProgressModel(false)
 	m, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 
 	if m.IsOpen() {
@@ -61,8 +61,8 @@ func TestProgressModal_EscCancels(t *testing.T) {
 	}
 }
 
-func TestProgressModal_BackgroundKey(t *testing.T) {
-	m := newTestProgressModal(true)
+func TestProgressModel_BackgroundKey(t *testing.T) {
+	m := newTestProgressModel(true)
 	m, cmd := m.Update(tea.KeyPressMsg{Code: 'b', Text: "b"})
 
 	if m.IsOpen() {
@@ -75,8 +75,8 @@ func TestProgressModal_BackgroundKey(t *testing.T) {
 	}
 }
 
-func TestProgressModal_BackgroundDisabled(t *testing.T) {
-	m := newTestProgressModal(false)
+func TestProgressModel_BackgroundDisabled(t *testing.T) {
+	m := newTestProgressModel(false)
 	m, cmd := m.Update(tea.KeyPressMsg{Code: 'b', Text: "b"})
 
 	// Should remain open when background is disabled
@@ -88,8 +88,8 @@ func TestProgressModal_BackgroundDisabled(t *testing.T) {
 	}
 }
 
-func TestProgressModal_ClosedIgnoresInput(t *testing.T) {
-	m := newTestProgressModal(false)
+func TestProgressModel_ClosedIgnoresInput(t *testing.T) {
+	m := newTestProgressModel(false)
 	m = m.Close()
 	_, cmd := m.Update(tea.KeyPressMsg{Code: tea.KeyEsc})
 	if cmd != nil {
@@ -99,8 +99,8 @@ func TestProgressModal_ClosedIgnoresInput(t *testing.T) {
 
 // --- Layer 2 ---
 
-func TestProgressModal_View_Open(t *testing.T) {
-	m := newTestProgressModal(false)
+func TestProgressModel_View_Open(t *testing.T) {
+	m := newTestProgressModel(false)
 	view := m.View()
 	if !strings.Contains(view.Content, "Commit Message") {
 		t.Error("expected view to contain title")
@@ -110,9 +110,9 @@ func TestProgressModal_View_Open(t *testing.T) {
 	}
 }
 
-func TestProgressModal_View_BackgroundHint(t *testing.T) {
+func TestProgressModel_View_BackgroundHint(t *testing.T) {
 	t.Run("Enabled", func(t *testing.T) {
-		m := newTestProgressModal(true)
+		m := newTestProgressModel(true)
 		view := m.View()
 		if !strings.Contains(view.Content, "Background") {
 			t.Error("expected 'Background' hint when enabled")
@@ -120,7 +120,7 @@ func TestProgressModal_View_BackgroundHint(t *testing.T) {
 	})
 
 	t.Run("Disabled", func(t *testing.T) {
-		m := newTestProgressModal(false)
+		m := newTestProgressModel(false)
 		view := m.View()
 		if strings.Contains(view.Content, "Background") {
 			t.Error("expected no 'Background' hint when disabled")
@@ -128,8 +128,8 @@ func TestProgressModal_View_BackgroundHint(t *testing.T) {
 	})
 }
 
-func TestProgressModal_OverlayModal(t *testing.T) {
-	m := newTestProgressModal(false)
+func TestProgressModel_OverlayModal(t *testing.T) {
+	m := newTestProgressModel(false)
 
 	bgLines := make([]string, 24)
 	for i := range bgLines {

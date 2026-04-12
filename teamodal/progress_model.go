@@ -9,15 +9,15 @@ import (
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
-// ProgressModalKeyMap defines the key bindings for the progress modal
-type ProgressModalKeyMap struct {
+// ProgressModelKeyMap defines the key bindings for the progress modal
+type ProgressModelKeyMap struct {
 	Cancel     key.Binding
 	Background key.Binding
 }
 
-// DefaultProgressModalKeyMap returns the default key bindings
-func DefaultProgressModalKeyMap() ProgressModalKeyMap {
-	return ProgressModalKeyMap{
+// DefaultProgressModelKeyMap returns the default key bindings
+func DefaultProgressModelKeyMap() ProgressModelKeyMap {
+	return ProgressModelKeyMap{
 		Cancel: key.NewBinding(
 			key.WithKeys("esc"),
 			key.WithHelp("esc", "cancel"),
@@ -29,10 +29,10 @@ func DefaultProgressModalKeyMap() ProgressModalKeyMap {
 	}
 }
 
-// ProgressModal is a modal for showing an in-progress operation with Cancel and Background options.
+// ProgressModel is a modal for showing an in-progress operation with Cancel and Background options.
 // Used for AI-powered operations, long-running tasks, etc.
-type ProgressModal struct {
-	Keys ProgressModalKeyMap
+type ProgressModel struct {
+	Keys ProgressModelKeyMap
 
 	// Content
 	title string
@@ -54,23 +54,23 @@ type ProgressModal struct {
 	titleStyle  lipgloss.Style
 }
 
-// ProgressModalArgs contains initialization arguments for ProgressModal
-type ProgressModalArgs struct {
+// ProgressModelArgs contains initialization arguments for ProgressModel
+type ProgressModelArgs struct {
 	ScreenWidth       int
 	ScreenHeight      int
 	Title             string
 	BackgroundEnabled bool // Whether to show [b] Background option
 }
 
-// NewProgressModal creates a new progress modal.
+// NewProgressModel creates a new progress modal.
 // The title should describe what is in progress (e.g., "Commit Message").
-func NewProgressModal(args *ProgressModalArgs) ProgressModal {
+func NewProgressModel(args *ProgressModelArgs) ProgressModel {
 	if args == nil {
-		args = &ProgressModalArgs{}
+		args = &ProgressModelArgs{}
 	}
 
-	return ProgressModal{
-		Keys:              DefaultProgressModalKeyMap(),
+	return ProgressModel{
+		Keys:              DefaultProgressModelKeyMap(),
 		title:             args.Title,
 		backgroundEnabled: args.BackgroundEnabled,
 		screenWidth:       args.ScreenWidth,
@@ -81,12 +81,12 @@ func NewProgressModal(args *ProgressModalArgs) ProgressModal {
 }
 
 // Init implements tea.Model
-func (m ProgressModal) Init() tea.Cmd {
+func (m ProgressModel) Init() tea.Cmd {
 	return nil
 }
 
 // Update implements tea.Model
-func (m ProgressModal) Update(msg tea.Msg) (ProgressModal, tea.Cmd) {
+func (m ProgressModel) Update(msg tea.Msg) (ProgressModel, tea.Cmd) {
 	var cmd tea.Cmd
 	var keyMsg tea.KeyPressMsg
 	var ok bool
@@ -127,7 +127,7 @@ end:
 }
 
 // View renders the modal
-func (m ProgressModal) View() tea.View {
+func (m ProgressModel) View() tea.View {
 	var view string
 
 	if !m.isOpen {
@@ -141,7 +141,7 @@ end:
 }
 
 // Open opens the modal and returns updated model
-func (m ProgressModal) Open() ProgressModal {
+func (m ProgressModel) Open() ProgressModel {
 	m.isOpen = true
 
 	// Pre-calculate modal dimensions and position
@@ -152,37 +152,37 @@ func (m ProgressModal) Open() ProgressModal {
 }
 
 // Close closes the modal and returns updated model
-func (m ProgressModal) Close() ProgressModal {
+func (m ProgressModel) Close() ProgressModel {
 	m.isOpen = false
 	return m
 }
 
 // IsOpen returns whether the modal is currently open
-func (m ProgressModal) IsOpen() bool {
+func (m ProgressModel) IsOpen() bool {
 	return m.isOpen
 }
 
 // SetSize sets screen dimensions
-func (m ProgressModal) SetSize(width, height int) ProgressModal {
+func (m ProgressModel) SetSize(width, height int) ProgressModel {
 	m.screenWidth = width
 	m.screenHeight = height
 	return m
 }
 
 // SetTitle sets the modal title
-func (m ProgressModal) SetTitle(title string) ProgressModal {
+func (m ProgressModel) SetTitle(title string) ProgressModel {
 	m.title = title
 	return m
 }
 
 // SetBackgroundEnabled sets whether the Background option is shown
-func (m ProgressModal) SetBackgroundEnabled(enabled bool) ProgressModal {
+func (m ProgressModel) SetBackgroundEnabled(enabled bool) ProgressModel {
 	m.backgroundEnabled = enabled
 	return m
 }
 
 // OverlayModal renders the modal centered over the background view
-func (m ProgressModal) OverlayModal(background string) (view string) {
+func (m ProgressModel) OverlayModal(background string) (view string) {
 	var modalView string
 	var row, col int
 
@@ -202,7 +202,7 @@ end:
 }
 
 // renderModal creates the modal box view
-func (m ProgressModal) renderModal() string {
+func (m ProgressModel) renderModal() string {
 	var content strings.Builder
 	var titleLine string
 	var helpLine string

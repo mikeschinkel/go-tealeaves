@@ -8,7 +8,7 @@ import (
 
 // TestCompile_ProgressDialogQuickExample verifies the quick example from progress-dialog.mdx.
 func TestCompile_ProgressDialogQuickExample(t *testing.T) {
-	modal := teamodal.NewProgressModal(&teamodal.ProgressModalArgs{
+	modal := teamodal.NewProgressModel(&teamodal.ProgressModelArgs{
 		Title:             "Commit Message",
 		BackgroundEnabled: true,
 	})
