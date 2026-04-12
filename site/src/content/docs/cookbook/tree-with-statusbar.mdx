@@ -21,7 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teastatus
 
 ## Full example
 
-{/* verified: site/examples/guide-tree-with-statusbar/ — go build passes */}
+<!-- verified: site/examples/guide-tree-with-statusbar/main.go:1 -->
 ```go
 package main
 
@@ -218,7 +218,7 @@ The screen height is divided between three zones:
 
 When a `tea.WindowSizeMsg` arrives, both components receive their allocated dimensions:
 
-{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
+<!-- verified: site/examples/guide-tree-with-statusbar/compile_test.go:36 -->
 ```go
 // Tree gets all available height minus header and status bar
 treeHeight := msg.Height - headerLines - statusBarLines
@@ -238,7 +238,7 @@ If you add more components (e.g., a breadcrumb bar or a notification overlay), a
 
 The status bar's right-side indicators update to reflect the currently focused tree node. Each time the tree navigates to a new node, the `Update()` method refreshes the indicator:
 
-{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
+<!-- verified: site/examples/guide-tree-with-statusbar/compile_test.go:55 -->
 ```go
 if focused := m.tree.FocusedNode(); focused != nil {
     m.statusBar = m.statusBar.SetIndicators([]teastatus.StatusIndicator{

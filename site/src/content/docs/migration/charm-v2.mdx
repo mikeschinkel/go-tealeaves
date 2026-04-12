@@ -33,7 +33,7 @@ Charm v2 removed and rearchitected the table component from Bubbles. If your app
 
 <Tabs>
   <TabItem label="Bubbles v1">
-    {/* non-compilable: illustrative snippet — table package not imported */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:35 -->
     ```go
     columns := []table.Column{
         {Title: "Name", Width: 20},
@@ -43,7 +43,7 @@ Charm v2 removed and rearchitected the table component from Bubbles. If your app
     ```
   </TabItem>
   <TabItem label="teagrid">
-    {/* non-compilable: illustrative snippet — no enclosing function */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:45 -->
     ```go
     columns := []teagrid.Column{
         teagrid.NewColumn("name", "Name", 20),
@@ -60,7 +60,7 @@ In `teagrid`, each column has a **key** (used for data lookup) in addition to th
 
 <Tabs>
   <TabItem label="Bubbles v1">
-    {/* non-compilable: illustrative snippet — table package not imported */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:55 -->
     ```go
     rows := []table.Row{
         {"Alice", "Active", "30"},
@@ -69,7 +69,7 @@ In `teagrid`, each column has a **key** (used for data lookup) in addition to th
     ```
   </TabItem>
   <TabItem label="teagrid">
-    {/* non-compilable: illustrative snippet — no enclosing function */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:64 -->
     ```go
     rows := []teagrid.Row{
         teagrid.NewRow(teagrid.RowData{
@@ -93,7 +93,7 @@ The map-based row format means column order in data does not need to match colum
 
 <Tabs>
   <TabItem label="Bubbles v1">
-    {/* non-compilable: illustrative snippet — table package not imported */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:81 -->
     ```go
     s := table.DefaultStyles()
     s.Header = s.Header.
@@ -112,7 +112,7 @@ The map-based row format means column order in data does not need to match colum
     ```
   </TabItem>
   <TabItem label="teagrid">
-    {/* non-compilable: illustrative snippet — columns/rows variables not defined */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:108 -->
     ```go
     t := teagrid.NewGridModel(columns).
         WithRows(rows).
@@ -137,7 +137,7 @@ The map-based row format means column order in data does not need to match colum
 
 <Tabs>
   <TabItem label="Bubbles v1">
-    {/* non-compilable: illustrative snippet — table package not imported, columns/rows not defined */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:145 -->
     ```go
     t := table.New(
         table.WithColumns(columns),
@@ -148,7 +148,7 @@ The map-based row format means column order in data does not need to match colum
     ```
   </TabItem>
   <TabItem label="teagrid">
-    {/* non-compilable: illustrative snippet — columns/rows variables not defined */}
+    <!-- verified: site/examples/migration-charm-v2/compile_test.go:165 -->
     ```go
     t := teagrid.NewGridModel(columns).
         WithRows(rows).

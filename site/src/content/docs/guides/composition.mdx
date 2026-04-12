@@ -11,7 +11,7 @@ When using multiple components, each receives `Update()` in sequence. The first 
 
 Order your components from highest to lowest priority:
 
-{/* non-compilable: illustrative snippet — no complete model type defined */}
+<!-- verified: site/examples/guide-composition/compile_test.go:100 -->
 ```go
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Modals first (highest priority)
@@ -39,7 +39,7 @@ A modal that is open should consume all keyboard input so the user cannot intera
 
 When rendering, overlay order matters. Each overlay draws on top of whatever came before it, so modals should render last (on top of everything) and dropdowns should render after main content but before modals.
 
-{/* non-compilable: illustrative snippet — no complete model type defined */}
+<!-- verified: site/examples/guide-composition/compile_test.go:108 -->
 ```go
 func (m model) View() string {
     view := m.mainContent.View()
@@ -64,7 +64,7 @@ The overlay functions replace characters in the underlying view string at the co
 
 All components that need sizing must receive `tea.WindowSizeMsg`. Propagate it to every component in your model:
 
-{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
+<!-- verified: site/examples/guide-composition/compile_test.go:115 -->
 ```go
 case tea.WindowSizeMsg:
     m.width = msg.Width
@@ -81,7 +81,7 @@ Note that you can adjust dimensions per component. In the example above, the tre
 
 Here is a sketch of how three components work together -- a status bar at the bottom, a modal overlay when triggered, and notifications in the corner:
 
-{/* non-compilable: illustrative snippet — no complete model type or Init/View defined */}
+<!-- verified: site/examples/guide-composition/compile_test.go:176 -->
 ```go
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     // Modal has highest priority

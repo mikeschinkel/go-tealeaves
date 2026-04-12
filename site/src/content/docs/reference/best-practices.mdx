@@ -25,7 +25,7 @@ Common symptoms of fighting lipgloss instead of working with it:
 
 `Width()` in lipgloss **includes padding but excludes border**. This is the single most important fact for layout code.
 
-{/* non-compilable: illustrative snippet — no imports or package declaration */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:53 -->
 ```go
 style := lipgloss.NewStyle().
     Width(100).                       // includes padding, excludes border
@@ -51,7 +51,7 @@ Border(1) | Pad(1) | Content | Pad(1) | Border(1)
 
 ### If you want a total rendered width of 37
 
-{/* non-compilable: illustrative snippet — no imports or package declaration */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:63 -->
 ```go
 const borderWidth = 2 // 1 left + 1 right
 totalWidth := 37
@@ -70,7 +70,7 @@ style := lipgloss.NewStyle().
 
 The **parent model** applies borders, not child components. Children have no knowledge of borders. The parent calculates total width including border, passes content width to the child via `SetSize()`, and wraps the child's `View()` output with a border style.
 
-{/* non-compilable: illustrative snippet — MyModel type not defined */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:79 -->
 ```go
 func (m MyModel) View() string {
     childContent := m.childModel.View()
@@ -92,7 +92,7 @@ Never make a "fix" without first understanding the discrepancy. Bad: "I'll add 3
 3. **Compare calculated vs actual.** Any discrepancy points to the root cause.
 4. **Fix the root cause.** Do not apply magic constant adjustments.
 
-{/* non-compilable: illustrative snippet — Logger field not defined on any model type */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:86 -->
 ```go
 m.Logger.Info("WIDTH DEBUG calculateLayout",
     "terminalWidth", m.terminalWidth,
@@ -127,7 +127,7 @@ if lines := strings.Split(treeRendered, "\n"); len(lines) > 0 {
 
 Always use `*slog.Logger` which writes to a log file, not the terminal:
 
-{/* non-compilable: illustrative snippet — value variable not defined */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:116 -->
 ```go
 // WRONG — corrupts TUI display
 fmt.Printf("DEBUG: value=%d\n", value)
@@ -147,7 +147,7 @@ Not all Bubble Tea components return `tea.Model` from their `Update()` method. S
 | `textarea.Model` | `textarea.Model` | No — assign directly |
 | Tea Leaves components | `tea.Model` | Yes — type assert |
 
-{/* non-compilable: illustrative snippet — model type not defined */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:129 -->
 ```go
 // viewport returns concrete type — assign directly
 m.contextViewport, cmd = m.contextViewport.Update(msg)
@@ -164,7 +164,7 @@ When unsure, check the component's method signature. The compiler will tell you.
 
 Use the viewport's **native horizontal scrolling** rather than manually tracking an offset. The manual approach breaks because `viewport.View()` internally truncates lines to the viewport width, and then removing more characters from the left causes content loss on both sides.
 
-{/* non-compilable: illustrative snippet — viewport package not imported */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:157 -->
 ```go
 // Enable native horizontal scrolling
 vp := viewport.New(width, height)
@@ -182,7 +182,7 @@ The viewport's default keymap already binds `left`/`h` and `right`/`l` for horiz
 
 Replace tabs with spaces **before** setting viewport content. Tab characters have variable visual width depending on column position. When the viewport applies horizontal scrolling via `ansi.Cut()`, it counts characters, not visual columns, causing content to jump and misalign.
 
-{/* non-compilable: illustrative snippet — model type not defined */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:173 -->
 ```go
 diff = strings.ReplaceAll(diff, "\t", "    ")
 m.diffViewport.SetContent(diff)
@@ -211,7 +211,7 @@ Emojis and wide Unicode characters **cannot** be reliably aligned in terminal UI
 
 For width-sensitive layouts (list items, table columns, fixed-width fields), use ASCII characters only:
 
-{/* non-compilable: illustrative string literals only */}
+<!-- verified: site/examples/reference-best-practices/compile_test.go:184 -->
 ```go
 // Unreliable alignment
 "  Commit Batch #1"

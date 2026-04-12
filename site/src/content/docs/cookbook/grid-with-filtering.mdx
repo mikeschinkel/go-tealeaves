@@ -19,7 +19,7 @@ go get github.com/mikeschinkel/go-tealeaves/teagrid
 
 ## Full example
 
-{/* verified: site/examples/guide-grid-with-filtering/ — go build passes */}
+<!-- verified: site/examples/guide-grid-with-filtering/main.go:1 -->
 ```go
 package main
 
@@ -146,7 +146,7 @@ func main() {
 
 Not every column should participate in filtering. Use `WithFiltered(true)` on the columns you want the filter to search:
 
-{/* non-compilable: illustrative snippet — colName/colLang/colStars constants not defined here */}
+<!-- verified: site/examples/guide-grid-with-filtering/compile_test.go:21 -->
 ```go
 teagrid.NewColumn(colName, "Project", 20).WithFiltered(true)
 teagrid.NewColumn(colLang, "Language", 15).WithFiltered(true)
@@ -159,7 +159,7 @@ Only columns marked as filterable contribute to the filter match. In this exampl
 
 Call `WithFiltered(true)` on the grid model to enable the built-in filter input:
 
-{/* non-compilable: illustrative snippet — columns variable not defined */}
+<!-- verified: site/examples/guide-grid-with-filtering/compile_test.go:33 -->
 ```go
 teagrid.NewGridModel(columns).WithFiltered(true)
 ```
@@ -174,7 +174,7 @@ When the user presses `/`, the grid focuses an inline text input. Every keystrok
 
 While the filter input is focused, normal key bindings like `q` should be treated as filter text, not as quit commands. Use `IsFilterInputFocused()` to guard your quit handler:
 
-{/* non-compilable: illustrative snippet — no enclosing Update function or model type */}
+<!-- verified: site/examples/guide-grid-with-filtering/compile_test.go:44 -->
 ```go
 case "ctrl+c", "q":
     if !m.table.IsFilterInputFocused() {

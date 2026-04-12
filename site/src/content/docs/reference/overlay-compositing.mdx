@@ -11,7 +11,7 @@ Overlaying one Bubble Tea component on top of another — modals, dropdowns, too
 
 When you render styled text with lipgloss, the resulting string contains invisible ANSI escape codes:
 
-{/* non-compilable: illustrative snippet — no imports or package declaration */}
+<!-- verified: site/examples/reference-overlay-compositing/compile_test.go:130 -->
 ```go
 styled := lipgloss.NewStyle().Foreground(lipgloss.Color("205")).Render("Hello")
 
@@ -37,7 +37,7 @@ Tea Leaves uses **ANSI-aware string operations** from `github.com/charmbracelet/
 
 The core algorithm splits both background and foreground into lines, then composites each line where they overlap:
 
-{/* non-compilable: illustrative implementation — not part of any package */}
+<!-- verified: site/examples/reference-overlay-compositing/compile_test.go:141 -->
 ```go
 func overlayLine(background, foreground string, col int) string {
     bgWidth := ansi.StringWidth(background)
@@ -74,7 +74,7 @@ The pattern is: **left part of background + foreground + right part of backgroun
 
 ### Full overlay function
 
-{/* non-compilable: illustrative implementation — not part of any package */}
+<!-- verified: site/examples/reference-overlay-compositing/compile_test.go:147 -->
 ```go
 func OverlayDropdown(background, foreground string, row, col int) string {
     var result strings.Builder
@@ -112,7 +112,7 @@ Both `teafields` and `teamodal` provide overlay functions. Use them in your `Vie
 
 <Tabs>
   <TabItem label="Modal overlay">
-    {/* non-compilable: illustrative snippet — no complete model type defined */}
+    <!-- verified: site/examples/reference-overlay-compositing/compile_test.go:155 -->
     ```go
     func (m model) View() tea.View {
         mainView := m.mainContent.View().Content
@@ -126,7 +126,7 @@ Both `teafields` and `teamodal` provide overlay functions. Use them in your `Vie
     ```
   </TabItem>
   <TabItem label="Dropdown overlay">
-    {/* non-compilable: illustrative snippet — no complete model type defined */}
+    <!-- verified: site/examples/reference-overlay-compositing/compile_test.go:167 -->
     ```go
     func (m model) View() tea.View {
         baseView := m.renderBase()
@@ -148,21 +148,21 @@ Both `teafields` and `teamodal` provide overlay functions. Use them in your `Vie
 ## Positioning helpers
 
 **Center on screen:**
-{/* non-compilable: illustrative snippet — variable declarations only */}
+<!-- verified: site/examples/reference-overlay-compositing/compile_test.go:179 -->
 ```go
 row := (screenHeight - overlayHeight) / 2
 col := (screenWidth - overlayWidth) / 2
 ```
 
 **Below a trigger element:**
-{/* non-compilable: illustrative snippet — variable declarations only */}
+<!-- verified: site/examples/reference-overlay-compositing/compile_test.go:192 -->
 ```go
 row := triggerRow + 1
 col := triggerCol
 ```
 
 **Right-aligned:**
-{/* non-compilable: illustrative snippet — variable declarations only */}
+<!-- verified: site/examples/reference-overlay-compositing/compile_test.go:203 -->
 ```go
 col := screenWidth - overlayWidth
 ```
