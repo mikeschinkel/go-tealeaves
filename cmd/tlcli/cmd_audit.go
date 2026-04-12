@@ -442,14 +442,21 @@ func collectExports(dir string, re *regexp.Regexp) []string {
 	return result
 }
 
-// parseVerifiedComment extracts the path from a "<!-- verified: path/to/file -->" comment.
+// parseVerifiedComment extracts the path from a verified comment.
+// Accepts both MDX JSX-style "{/* verified: path -->" and HTML "<!-- verified: path -->".
 func parseVerifiedComment(line string) string {
 	trimmed := strings.TrimSpace(line)
-	if !strings.HasPrefix(trimmed, "<!-- verified:") {
-		return ""
+	// MDX JSX comment: {/* verified: ... */}
+	if strings.HasPrefix(trimmed, "{/* verified:") {
+		trimmed = strings.TrimPrefix(trimmed, "{/* verified:")
+		trimmed = strings.TrimSuffix(trimmed, "*/}")
+		return strings.TrimSpace(trimmed)
 	}
-	trimmed = strings.TrimPrefix(trimmed, "<!-- verified:")
-	trimmed = strings.TrimSuffix(trimmed, "-->")
-	trimmed = strings.TrimSpace(trimmed)
-	return trimmed
+	// HTML comment: <!-- verified: ... -->
+	if strings.HasPrefix(trimmed, "<!-- verified:") {
+		trimmed = strings.TrimPrefix(trimmed, "<!-- verified:")
+		trimmed = strings.TrimSuffix(trimmed, "-->")
+		return strings.TrimSpace(trimmed)
+	}
+	return ""
 }

@@ -21,7 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/teaguide
 
 ## Quick example
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:12 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:12 */}
 ```go
 // Create once, embed in your root model
 guide := teaguide.NewGuideModel()
@@ -73,7 +73,7 @@ Guide content is organized into three priority tiers:
 | Available | `PriorityAvailable` | Other actions the user can take now |
 | Blocked | `PriorityBlocked` | Collapsed section with block reasons |
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:46 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:46 */}
 ```go
 type GuideData struct {
     Title    string
@@ -164,7 +164,7 @@ type GuideItem struct {
 
 ### ActionSelectedMsg
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:77 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:77 */}
 ```go
 type ActionSelectedMsg struct {
     ActionKey string // The action key pressed by the user
@@ -173,7 +173,7 @@ type ActionSelectedMsg struct {
 
 ### GuideDismissedMsg
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:83 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:83 */}
 ```go
 type GuideDismissedMsg struct{}
 ```
@@ -212,7 +212,7 @@ Emitted when the user closes the guide without selecting an action (via `esc` or
 
 Action keys are the `ActionKey` values from the `GuideItem` entries in the current `GuideData`. Pressing one closes the guide and emits:
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:77 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:77 */}
 ```go
 type ActionSelectedMsg struct {
     ActionKey string
@@ -223,7 +223,7 @@ type ActionSelectedMsg struct {
 
 The guide doubles as a launcher: when the user sees `[Enter] Select Module`, they don't need to close the guide first — pressing `Enter` inside the guide emits `ActionSelectedMsg{ActionKey: "enter"}` and closes the overlay. The host application handles this the same way it handles the key pressed directly:
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:46 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:46 */}
 ```go
 case teaguide.ActionSelectedMsg:
     switch msg.ActionKey {
@@ -238,7 +238,7 @@ case teaguide.ActionSelectedMsg:
 
 Set `Priority: PriorityBlocked` and populate `BlockReason` to show the user actions they cannot yet take and why:
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:46 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:46 */}
 ```go
 teaguide.GuideItem{
     Label:       "Publish package",
@@ -252,7 +252,7 @@ The blocked section is collapsed by default and can be expanded with the `b` key
 
 The guide's visual appearance and key bindings can be replaced at construction time:
 
-<!-- verified: site/examples/guide-overlay/compile_test.go:66 -->
+{/* verified: site/examples/guide-overlay/compile_test.go:66 */}
 ```go
 guide := teaguide.NewGuideModel()
 guide.Keys = teaguide.GuideKeyMap{

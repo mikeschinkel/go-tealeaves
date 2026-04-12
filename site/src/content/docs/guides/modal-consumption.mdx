@@ -13,7 +13,7 @@ When a dropdown or modal is open, it needs to consume keyboard messages so they 
 **Anti-pattern: State checking in parent.** The parent must know the dropdown's internal state to decide whether to process messages. This violates encapsulation and clutters parent code.
 </Aside>
 
-<!-- verified: site/examples/guide-modal-consumption/compile_test.go:39 -->
+{/* verified: site/examples/guide-modal-consumption/compile_test.go:39 */}
 ```go
 // Parent Update() — infected with modal checks
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -43,7 +43,7 @@ This approach has several problems:
 
 <Tabs>
   <TabItem label="Parent pattern">
-    <!-- verified: site/examples/guide-modal-consumption/compile_test.go:86 -->
+    {/* verified: site/examples/guide-modal-consumption/compile_test.go:86 */}
     ```go
     func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         var cmd tea.Cmd
@@ -72,7 +72,7 @@ This approach has several problems:
     ```
   </TabItem>
   <TabItem label="Dropdown internals">
-    <!-- verified: site/examples/guide-modal-consumption/compile_test.go:148 -->
+    {/* verified: site/examples/guide-modal-consumption/compile_test.go:148 */}
     ```go
     func (m DropdownModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
         var cmd tea.Cmd
@@ -124,7 +124,7 @@ This approach has several problems:
 
 The pattern composes naturally with multiple modal components:
 
-<!-- verified: site/examples/guide-modal-consumption/compile_test.go:190 -->
+{/* verified: site/examples/guide-modal-consumption/compile_test.go:190 */}
 ```go
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
     var cmd tea.Cmd

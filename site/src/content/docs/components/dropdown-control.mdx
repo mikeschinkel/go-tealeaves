@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teafields
 
 ## Quick example
 
-<!-- verified: site/examples/dropdown-control/compile_test.go:13 -->
+{/* verified: site/examples/dropdown-control/compile_test.go:13 */}
 ```go
 package main
 
@@ -95,7 +95,7 @@ func main() {
 | `Select` | `enter` | Confirm and select the highlighted item |
 | `Cancel` | `esc` | Dismiss the dropdown without selecting |
 
-<!-- verified: site/examples/dropdown-control/compile_test.go:23 -->
+{/* verified: site/examples/dropdown-control/compile_test.go:23 */}
 ```go
 km := teafields.DefaultDropdownKeyMap()
 km.Up = key.NewBinding(key.WithKeys("ctrl+p"), key.WithHelp("ctrl+p", "move up"))
@@ -147,7 +147,7 @@ dropdown.Keys = km
 
 `DropdownModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration:
 
-<!-- verified: site/examples/dropdown-control/compile_test.go:34 -->
+{/* verified: site/examples/dropdown-control/compile_test.go:34 */}
 ```go
 m.dropdown = m.dropdown.
     WithScreenSize(msg.Width, msg.Height).
@@ -168,7 +168,7 @@ m.dropdown = m.dropdown.
 | `OptionSelectedMsg` | User selects an option — contains `Index`, `Text`, and `Value` fields |
 | `DropdownCancelledMsg` | User presses `esc` to cancel without selecting — struct with no fields |
 
-<!-- verified: site/examples/dropdown-control/compile_test.go:45 -->
+{/* verified: site/examples/dropdown-control/compile_test.go:45 */}
 ```go
 case teafields.OptionSelectedMsg:
     // User picked an option

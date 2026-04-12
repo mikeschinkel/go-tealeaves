@@ -19,7 +19,7 @@ go get github.com/mikeschinkel/go-tealeaves/teafields
 
 ## Full example
 
-<!-- verified: site/examples/guide-dropdown-in-form/main.go:1 -->
+{/* verified: site/examples/guide-dropdown-in-form/main.go:1 */}
 ```go
 package main
 
@@ -199,7 +199,7 @@ func (m model) View() tea.View {
 
 The `Update()` method delegates to the dropdown first. If the dropdown returns a non-nil `tea.Cmd`, it means the dropdown handled (consumed) the message and the parent should not process it further. This keeps the parent code clean -- no `if m.dropdown.IsOpen` guards scattered throughout.
 
-<!-- verified: site/examples/guide-dropdown-in-form/compile_test.go:14 -->
+{/* verified: site/examples/guide-dropdown-in-form/compile_test.go:14 */}
 ```go
 dropdown, cmd := m.dropdown.Update(msg)
 if cmd != nil {
@@ -214,7 +214,7 @@ See [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) for the
 
 The dropdown renders its own view as a standalone string. The parent composites it onto the form using `OverlayDropdown()`. The row and column offsets account for the border and padding around the form content:
 
-<!-- verified: site/examples/guide-dropdown-in-form/compile_test.go:30 -->
+{/* verified: site/examples/guide-dropdown-in-form/compile_test.go:30 */}
 ```go
 return teafields.OverlayDropdown(
     content,              // background: the full form

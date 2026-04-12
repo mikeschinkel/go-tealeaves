@@ -11,7 +11,7 @@ Tea Leaves uses an **immutable struct pattern** throughout all components: metho
 
 <Tabs>
   <TabItem label="Correct — wither method">
-    <!-- verified: site/examples/guide-wither-methods/compile_test.go:27 -->
+    {/* verified: site/examples/guide-wither-methods/compile_test.go:27 */}
     ```go
     // Methods return the updated model
     func (m MyModel) calculateLayout() MyModel {
@@ -26,7 +26,7 @@ Tea Leaves uses an **immutable struct pattern** throughout all components: metho
     ```
   </TabItem>
   <TabItem label="Avoid — multiple returns">
-    <!-- verified: site/examples/guide-wither-methods/compile_test.go:40 -->
+    {/* verified: site/examples/guide-wither-methods/compile_test.go:40 */}
     ```go
     // Returning multiple values is verbose and error-prone
     func (m MyModel) calculateLayout() (contentWidth, totalWidth int) {
@@ -54,7 +54,7 @@ Tea Leaves uses an **immutable struct pattern** throughout all components: metho
 
 ### teamodal With\*() methods
 
-<!-- verified: site/examples/guide-wither-methods/compile_test.go:48 -->
+{/* verified: site/examples/guide-wither-methods/compile_test.go:48 */}
 ```go
 // Set size using wither pattern
 m.confirmDialog = m.confirmDialog.SetSize(msg.Width, msg.Height)
@@ -68,7 +68,7 @@ modal := teamodal.NewYesNoModal("Proceed?", &teamodal.ModelArgs{
 
 ### teafields configuration
 
-<!-- verified: site/examples/guide-wither-methods/compile_test.go:69 -->
+{/* verified: site/examples/guide-wither-methods/compile_test.go:69 */}
 ```go
 // Chain wither methods for configuration
 m.dropdown = m.dropdown.
@@ -78,7 +78,7 @@ m.dropdown = m.dropdown.
 
 ### teanotify positioning
 
-<!-- verified: site/examples/guide-wither-methods/compile_test.go:88 -->
+{/* verified: site/examples/guide-wither-methods/compile_test.go:88 */}
 ```go
 // Change notification position at runtime
 m.notify = m.notify.WithPosition(teanotify.TopRightPosition)
@@ -90,7 +90,7 @@ m.notify = m.notify.WithPosition(teanotify.TopRightPosition)
 **Pointer-receiver mutation conflicts with Bubble Tea's design.** Bubble Tea passes models by value in `Update()`. If your helper methods use pointer receivers, the mutations happen on a copy that gets discarded.
 </Aside>
 
-<!-- verified: site/examples/guide-wither-methods/compile_test.go:127 -->
+{/* verified: site/examples/guide-wither-methods/compile_test.go:127 */}
 ```go
 // WRONG — mutation on a copy
 func (m *MyModel) calculateLayout() {

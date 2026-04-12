@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teatree
 
 ## Quick example
 
-<!-- verified: site/examples/drilldown-view/compile_test.go:13 -->
+{/* verified: site/examples/drilldown-view/compile_test.go:13 */}
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teatree"
 
@@ -152,7 +152,7 @@ When the alternatives dropdown is open, it captures input and uses the standard 
 
 The `DrillDownSelectorFunc[T]` determines which child to follow when building the initial path from root to leaf:
 
-<!-- verified: site/examples/drilldown-view/compile_test.go:37 -->
+{/* verified: site/examples/drilldown-view/compile_test.go:37 */}
 ```go
 selector := func(parent *teatree.Node[MyData], children []*teatree.Node[MyData]) (*teatree.Node[MyData], error) {
     // Pick the child with the deepest subtree

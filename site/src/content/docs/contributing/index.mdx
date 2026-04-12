@@ -80,7 +80,7 @@ Follow the patterns established in existing code. Key conventions:
 
 - **ClearPath pattern** -- Use `goto end` with named returns instead of early returns. This keeps the success path on the left margin and error handling at the bottom:
 
-  <!-- verified: site/examples/contributing/compile_test.go:25 -->
+  {/* verified: site/examples/contributing/compile_test.go:25 */}
   ```go
   func doWork() (result string, err error) {
       data, err := fetchData()

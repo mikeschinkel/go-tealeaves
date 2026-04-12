@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teatree
 
 ## Quick example
 
-<!-- verified: site/examples/tree-view/compile_test.go:13 -->
+{/* verified: site/examples/tree-view/compile_test.go:13 */}
 ```go
 // Build file tree from flat file list
 files := []*teatree.File{
@@ -153,7 +153,7 @@ treeModel := teatree.NewTreeModel(tree, 20)
 
 `NodeProvider[T]` controls how each node is rendered. Implement it to customize icons, display text, suffixes, and styles for your own data type:
 
-<!-- verified: site/examples/tree-view/compile_test.go:53 -->
+{/* verified: site/examples/tree-view/compile_test.go:53 */}
 ```go
 type NodeProvider[T any] interface {
     Icon(node *Node[T]) string           // Leading glyph (folder/file icon, etc.)
@@ -167,7 +167,7 @@ type NodeProvider[T any] interface {
 
 ### Custom NodeProvider example
 
-<!-- verified: site/examples/tree-view/compile_test.go:84 -->
+{/* verified: site/examples/tree-view/compile_test.go:84 */}
 ```go
 type Package struct {
     Name    string

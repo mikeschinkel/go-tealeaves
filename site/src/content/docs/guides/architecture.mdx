@@ -63,7 +63,7 @@ All components depend on Bubble Tea and Lip Gloss from Charm, but they do not de
 
 Tea Leaves follows the ClearPath coding style: all variables are declared upfront, control flow uses `goto end` with named returns, and each function has a single return point. This makes the flow of every function immediately visible from top to bottom.
 
-<!-- verified: site/examples/guide-architecture/compile_test.go:29 -->
+{/* verified: site/examples/guide-architecture/compile_test.go:29 */}
 ```go
 func (m Model) doSomething() (result Model, err error) {
     var value string
@@ -84,7 +84,7 @@ end:
 
 Components use a custom error system that attaches key-value metadata to errors. This provides rich context for debugging without sacrificing the simplicity of Go's error model.
 
-<!-- verified: site/examples/guide-architecture/compile_test.go:64 -->
+{/* verified: site/examples/guide-architecture/compile_test.go:64 */}
 ```go
 err = doterr.New(ErrInvalidOption, "option", name, causeErr)
 // Later: extract metadata with doterr.ErrValue[string](err, "option")
@@ -96,7 +96,7 @@ Errors support sentinel values for type checking, key-value pairs for metadata, 
 
 Components use value receivers and return updated copies rather than mutating in place. Methods that modify state are named with a `With` prefix (or `Set` for Bubble Tea convention) and return the modified model. This is sometimes called the "wither pattern."
 
-<!-- verified: site/examples/guide-architecture/compile_test.go:91 -->
+{/* verified: site/examples/guide-architecture/compile_test.go:91 */}
 ```go
 m.modal = m.modal.SetSize(width, height)
 m.dropdown = m.dropdown.WithMaxItems(10)

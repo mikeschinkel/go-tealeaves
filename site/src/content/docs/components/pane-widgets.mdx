@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teapane
 
 ## Quick example
 
-<!-- verified: site/examples/pane-widgets/compile_test.go:15 -->
+{/* verified: site/examples/pane-widgets/compile_test.go:15 */}
 ```go
 import (
     "github.com/mikeschinkel/go-tealeaves/teapane"
@@ -47,7 +47,7 @@ layout := tealayout.NewLayout(
 
 `BorderStyle` configures the visual frame shared by `StyledPane` and `ScrollPane`:
 
-<!-- verified: site/examples/pane-widgets/compile_test.go:40 -->
+{/* verified: site/examples/pane-widgets/compile_test.go:40 */}
 ```go
 type BorderStyle struct {
     Border       lipgloss.Border // e.g. lipgloss.RoundedBorder()
@@ -73,7 +73,7 @@ The `Build(focused bool)` method returns a `lipgloss.Style`. `FrameWidth()` and 
 | `SizeHinter` | Reports `Min.Width = FrameWidth() + minWidth` |
 | `Focusable` | Rebuilds style on `Focus()` / `Blur()` |
 
-<!-- verified: site/examples/pane-widgets/compile_test.go:52 -->
+{/* verified: site/examples/pane-widgets/compile_test.go:52 */}
 ```go
 pane := teapane.NewStyledPane(border, func(w, h int, focused bool) string {
     if focused {
@@ -106,7 +106,7 @@ pane.FlexPercent()   // Flex percentage (for MultiPaneLayout)
 
 `ScrollPane` extends `StyledPane` with scroll offset management. The content callback receives the current scroll offset.
 
-<!-- verified: site/examples/pane-widgets/compile_test.go:65 -->
+{/* verified: site/examples/pane-widgets/compile_test.go:65 */}
 ```go
 scroll := teapane.NewScrollPane(border, func(w, h, offset int) string {
     return renderLines(w, h, offset)
@@ -143,7 +143,7 @@ case tea.KeyPressMsg:
 `PlainPane.SetSize` stores only the width — the height parameter is silently discarded. `Height()` always returns 0. If your content callback needs a height, use `StyledPane` instead.
 </Aside>
 
-<!-- verified: site/examples/pane-widgets/compile_test.go:78 -->
+{/* verified: site/examples/pane-widgets/compile_test.go:78 */}
 ```go
 header := teapane.NewPlainPane(func(w, h int, _ bool) string {
     return lipgloss.NewStyle().Bold(true).Render("My App v1.0")

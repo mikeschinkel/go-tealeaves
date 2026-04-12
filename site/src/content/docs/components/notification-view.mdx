@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teanotify
 
 ## Quick example
 
-<!-- verified: site/examples/notification-view/compile_test.go:12 -->
+{/* verified: site/examples/notification-view/compile_test.go:12 */}
 ```go
 // Create notification model
 notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
@@ -63,7 +63,7 @@ return m.notify.Render(fullContent)
 
 This is different from the single-step `Init() tea.Cmd` that satisfies `tea.Model`. Call `Initialize()` once at startup, then use `Init()` as part of the normal Bubble Tea lifecycle.
 
-<!-- verified: site/examples/notification-view/compile_test.go:12 -->
+{/* verified: site/examples/notification-view/compile_test.go:12 */}
 ```go
 notify := teanotify.NewNotifyModel(opts)
 notify, err := notify.Initialize() // required before use
@@ -157,7 +157,7 @@ Configure the notification using `With*()` wither methods. These return the upda
 | `BottomRightPosition` | Bottom-right corner of the screen |
 | `CenterPosition` | Centered on screen |
 
-<!-- verified: site/examples/notification-view/compile_test.go:29 -->
+{/* verified: site/examples/notification-view/compile_test.go:29 */}
 ```go
 // Set at construction
 notify := teanotify.NewNotifyModel(teanotify.NotifyOpts{
@@ -172,7 +172,7 @@ notify = notify.WithPosition(teanotify.TopCenterPosition)
 
 Register additional notice types beyond the four built-ins using `RegisterNoticeType()`. It returns the updated model and an error if validation fails (e.g. nil color):
 
-<!-- verified: site/examples/notification-view/compile_test.go:40 -->
+{/* verified: site/examples/notification-view/compile_test.go:40 */}
 ```go
 notify, err := notify.RegisterNoticeType(teanotify.NoticeDefinition{
     Key:       "success",
