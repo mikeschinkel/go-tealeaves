@@ -82,7 +82,7 @@ sidebar.Widget().SetItems(items)
 
 | Interface | Methods | Description |
 |-----------|---------|-------------|
-| `Viewer` | `View() string` | Required — provides rendered content |
+| `ContentProvider` | `Content() string` | Required — provides the rendered content string |
 | `SetSizer` | `SetSize(width, height int)` | Receives resolved content dimensions from the engine |
 | `Styler` | `Style() lipgloss.Style` | Enables frame-subtraction (border + padding aware sizing) |
 | `SizeHinter` | `SizeHint(w, h int) SizeHint` | Reports min/desired/max size preferences |
@@ -312,7 +312,7 @@ Widgets are recognized by the interfaces they implement:
 
 | Interface | Methods | Effect |
 |-----------|---------|--------|
-| `Viewer` | `View() string` | Required — provides content |
+| `ContentProvider` | `Content() string` | Required — provides the rendered content string |
 | `SetSizer` | `SetSize(w, h int)` | Receives resolved dimensions |
 | `Styler` | `Style() lipgloss.Style` | Enables frame-subtraction (border+padding aware sizing) |
 | `SizeHinter` | `SizeHint(w, h int) SizeHint` | Reports min/max preferences |
@@ -388,7 +388,10 @@ pl.ResizeFocused(-0.05)  // shrinks by 5% weight
 | `ShowPane(name)` | Make pane visible |
 | `HidePane(name)` | Hide pane |
 | `SetPaneVisible(name, bool)` | Set visibility |
-| `ResizeFocused(delta)` | Adjust focused pane's flex weight |
+| `ResizeFocused(delta)` | Adjust focused pane's flex weight by delta |
+| `ResizeFocusedByCells(cells)` | Adjust focused pane's size by a fixed number of cells |
+| `ResizePane(name, delta)` | Adjust a named pane's flex weight by delta |
+| `ResizePaneByCells(name, cells)` | Adjust a named pane's size by a fixed number of cells |
 | `Layout()` | Underlying `*Layout` for advanced use |
 
 ## MultiPaneLayout
@@ -400,15 +403,15 @@ pl.ResizeFocused(-0.05)  // shrinks by 5% weight
 {/* verified: site/examples/layout-engine/ — go test passes */}
 ```go
 type PaneDef struct {
-    Name          string    // required: lookup key, unique across layout
-    Element       any       // *Element[T] or *Pane (required if Children is empty)
-    Children      []PaneDef // vertical stack of sub-panes (Element ignored when set)
-    FlexWeight    float64   // default 1.0
+    Name          string    // required: lookup key, must be unique
+    Element       any       // required when Children is empty: *Element[T] or *Pane
+    Children      []PaneDef // vertical stack of sub-panes; Element is ignored when set
+    Dim           Dimension // sizing: Percent(25), Flex(1.618), Fixed(30), Fit(); zero defaults to Flex(1)
     MinFlexWeight float64   // floor for ResizeFocused (0 = no floor)
     MinSize       int       // minimum cells (0 = none)
     MaxSize       int       // maximum cells (0 = unbounded)
     MinSizeFit    bool      // use SizeHinter.Min as effective minimum
-    Optional      bool      // auto-remove when space runs out
+    Optional      bool      // auto-remove when too small
 }
 ```
 
@@ -417,9 +420,9 @@ type PaneDef struct {
 {/* verified: site/examples/layout-engine/ — go test passes */}
 ```go
 panes := []tealayout.PaneDef{
-    {Name: "sidebar", Element: tealayout.NewElement(sidebar), FlexWeight: 0.3, MinSize: 20},
-    {Name: "editor",  Element: tealayout.NewElement(editor),  FlexWeight: 0.7},
-    {Name: "refs",    Element: tealayout.NewElement(refs),    FlexWeight: 0.3, Optional: true},
+    {Name: "sidebar", Element: tealayout.NewElement(sidebar), Dim: tealayout.Flex(0.3), MinSize: 20},
+    {Name: "editor",  Element: tealayout.NewElement(editor),  Dim: tealayout.Flex(0.7)},
+    {Name: "refs",    Element: tealayout.NewElement(refs),    Dim: tealayout.Flex(0.3), Optional: true},
 }
 
 mpl := tealayout.NewMultiPaneLayout(panes,
@@ -458,6 +461,8 @@ All `PaneLayout` focus and visibility methods are available directly on `MultiPa
 | `TogglePane(name)` | Flip visibility; no-op if it would hide the last visible pane |
 | `SoloPane(name)` | Show only the named pane, hide all others |
 | `ShowAllPanes()` | Make all content panes visible |
+| `ResizeFocusedColumn(delta)` | Adjust the focused content column's flex weight by delta |
+| `ResizeFocusedColumnByCells(cells)` | Adjust the focused content column by a fixed number of cells |
 
 ## TreeContentLayout
 
@@ -607,6 +612,8 @@ stack.DeleteCached("detail:42") // explicit eviction
 | `UpdateCurrent(updated)` | Replace top-of-stack after `Update` returns a new value |
 | `GetCached(key)` | Retrieve cached view |
 | `DeleteCached(key)` | Evict cached view |
+| `BreadcrumbsView(width)` | Render the breadcrumb bar alone (for custom layout embedding) |
+| `SetSize(width, height)` | Set available dimensions; passed to the current view |
 
 ## VisibilityRotator
 

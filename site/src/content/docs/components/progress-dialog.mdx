@@ -5,7 +5,7 @@ description: Progress indicator dialog for long-running operations with optional
 
 import { Aside } from '@astrojs/starlight/components';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teamodal` · **Type:** `ProgressModal`
+> **Module:** `github.com/mikeschinkel/go-tealeaves/teamodal` · **Type:** `ProgressModel`
 
 ## Install
 
@@ -17,15 +17,15 @@ Progress indicator for long-running operations with optional background and canc
 
 ## Quick Example
 
-{/* verified: site/examples/progress-dialog/ — go test passes */}
+{/* TODO: coder will verify example */}
 ```go
-modal := teamodal.NewProgressModal(&teamodal.ProgressModalArgs{
+modal := teamodal.NewProgressModel(&teamodal.ProgressModelArgs{
     Title:             "Commit Message",
     BackgroundEnabled: true,
 })
 
 // Open it
-m.modal, cmd = m.modal.Open()
+m.modal = m.modal.Open()
 
 // In View()
 if m.modal.IsOpen() {
@@ -54,18 +54,18 @@ case teamodal.ProgressBackgroundMsg:
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `NewProgressModal` | `NewProgressModal(args *ProgressModalArgs) ProgressModal` | Create a progress indicator dialog |
-| `DefaultProgressModalKeyMap` | `DefaultProgressModalKeyMap() ProgressModalKeyMap` | Returns default key bindings (Esc = cancel, b/B = background) |
+| `NewProgressModel` | `NewProgressModel(args *ProgressModelArgs) ProgressModel` | Create a progress indicator dialog |
+| `DefaultProgressModelKeyMap` | `DefaultProgressModelKeyMap() ProgressModelKeyMap` | Returns default key bindings (Esc = cancel, b/B = background) |
 
 ### Key Types
 
 | Type | Description |
 |------|-------------|
-| `ProgressModal` | Progress indicator with cancel/background support |
-| `ProgressModalArgs` | Configuration: `Title`, `BackgroundEnabled`, `ScreenWidth`, `ScreenHeight` |
-| `ProgressModalKeyMap` | Key bindings — `Cancel` (Esc) and `Background` (b/B); accessible via `ProgressModal.Keys` |
+| `ProgressModel` | Progress indicator with cancel/background support |
+| `ProgressModelArgs` | Configuration: `Title`, `BackgroundEnabled`, `ScreenWidth`, `ScreenHeight` |
+| `ProgressModelKeyMap` | Key bindings — `Cancel` (Esc) and `Background` (b/B); accessible via `ProgressModel.Keys` |
 
-### ProgressModalKeyMap Fields
+### ProgressModelKeyMap Fields
 
 | Field | Default keys | Description |
 |-------|-------------|-------------|
@@ -76,14 +76,14 @@ case teamodal.ProgressBackgroundMsg:
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `Open` | `Open() ProgressModal` | Open the modal; pre-calculates overlay position |
-| `Close` | `Close() ProgressModal` | Close the modal |
+| `Open` | `Open() ProgressModel` | Open the modal; pre-calculates overlay position |
+| `Close` | `Close() ProgressModel` | Close the modal |
 | `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
-| `SetSize` | `SetSize(width, height int) ProgressModal` | Set screen dimensions for centering |
-| `SetTitle` | `SetTitle(title string) ProgressModal` | Update the title at runtime |
-| `SetBackgroundEnabled` | `SetBackgroundEnabled(enabled bool) ProgressModal` | Enable or disable the Background option at runtime |
-| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over a background view |
-| `Update` | `Update(msg tea.Msg) (ProgressModal, tea.Cmd)` | Handle keyboard and window-size messages; returns typed `ProgressModal`, not `tea.Model` |
+| `SetSize` | `SetSize(width, height int) ProgressModel` | Set screen dimensions for centering |
+| `SetTitle` | `SetTitle(title string) ProgressModel` | Update the title at runtime |
+| `SetBackgroundEnabled` | `SetBackgroundEnabled(enabled bool) ProgressModel` | Enable or disable the Background option at runtime |
+| `OverlayModal` | `OverlayModal(background string) (view string)` | Render modal centered over a background view |
+| `Update` | `Update(msg tea.Msg) (ProgressModel, tea.Cmd)` | Handle keyboard and window-size messages; returns typed `ProgressModel`, not `tea.Model` |
 
 ### Messages
 
@@ -103,9 +103,9 @@ case teamodal.ProgressBackgroundMsg:
 
 <Aside type="caution">
 - Requires screen size to be set via `SetSize()` for correct centering.
-- `ProgressModal.Update()` returns `(ProgressModal, tea.Cmd)`, not `(tea.Model, tea.Cmd)` — store the result in a typed field, not a `tea.Model` interface.
+- `ProgressModel.Update()` returns `(ProgressModel, tea.Cmd)`, not `(tea.Model, tea.Cmd)` — store the result in a typed field, not a `tea.Model` interface.
 - The progress display is static text; there is no animated spinner.
-- `ProgressModal` has no `WithTheme()` — apply `WithBorderStyle()`/`WithTitleStyle()` directly or call `DefaultBorderStyle()` / `DefaultTitleStyle()` from the `teamodal` package.
+- `ProgressModel` has no `WithTheme()` — apply styling directly or call `DefaultBorderStyle()` / `DefaultTitleStyle()` from the `teamodal` package.
 </Aside>
 
 ### Error Variables

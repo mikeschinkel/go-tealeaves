@@ -1,0 +1,105 @@
+---
+title: Components Overview
+description: All Tea Leaves components — 17 model types across 12 component packages, plus 5 foundation packages.
+---
+
+import { CardGrid, Card } from '@astrojs/starlight/components';
+
+Tea Leaves is a Go component library for [Bubble Tea](https://github.com/charmbracelet/bubbletea) TUI applications. It provides 17 composable model types across 12 component packages, plus 5 foundation packages used by those components.
+
+## Views
+
+Full-featured view models that manage data display and keyboard navigation.
+
+<CardGrid>
+  <Card title="Grid View" icon="table">
+    Sortable, filterable, scrollable data grid with column pinning and horizontal scroll. [teagrid →](/go-tealeaves/components/grid-view/)
+  </Card>
+  <Card title="Tree View" icon="list-format">
+    Generic tree with expand/collapse, keyboard navigation, and pluggable node providers. [teatree →](/go-tealeaves/components/tree-view/)
+  </Card>
+  <Card title="Drilldown View" icon="right-arrow">
+    Path-focused tree navigation with dropdown sibling selection at each level. [teatree →](/go-tealeaves/components/drilldown-view/)
+  </Card>
+  <Card title="Status Bar" icon="bars">
+    Key-hint status bar with live segment updates and keyboard shortcut display. [teastatus →](/go-tealeaves/components/statusbar-view/)
+  </Card>
+  <Card title="Notifications" icon="information">
+    Ephemeral notification overlay with auto-dismiss timers. [teanotify →](/go-tealeaves/components/notification-view/)
+  </Card>
+  <Card title="Diff Viewer" icon="pencil">
+    Side-by-side or unified diff display with syntax highlighting. [teadiff →](/go-tealeaves/components/diff-viewer/)
+  </Card>
+  <Card title="Breadcrumb Nav" icon="right-caret">
+    Navigation trail showing the current path through a hierarchy. [teacrumbs →](/go-tealeaves/components/breadcrumb-nav/)
+  </Card>
+</CardGrid>
+
+## Dialogs
+
+Modal overlays for user interaction, confirmations, and long-running operations.
+
+<CardGrid>
+  <Card title="Confirm Dialog" icon="approve-check-circle">
+    Yes/No and OK confirmation dialogs with ANSI-aware overlay compositing. [teamodal →](/go-tealeaves/components/confirm-dialog/)
+  </Card>
+  <Card title="Choice Dialog" icon="list-format">
+    Multi-option selection dialog with hotkey support and horizontal or vertical layout. [teamodal →](/go-tealeaves/components/choice-dialog/)
+  </Card>
+  <Card title="List Dialog" icon="pencil">
+    Generic editable list dialog with inline editing and CRUD operations. [teamodal →](/go-tealeaves/components/list-dialog/)
+  </Card>
+  <Card title="Progress Dialog" icon="rocket">
+    Progress indicator for long-running operations with optional background/cancel. [teamodal →](/go-tealeaves/components/progress-dialog/)
+  </Card>
+  <Card title="MultiSelect Dialog" icon="approve-check">
+    Checkbox list modal for selecting multiple items before confirming an action. [teamodal →](/go-tealeaves/components/multiselect-dialog/)
+  </Card>
+  <Card title="Guide Overlay" icon="open-book">
+    Context-aware workflow guidance overlay with direct key dispatch. [teaguide →](/go-tealeaves/components/guide-overlay/)
+  </Card>
+</CardGrid>
+
+## Controls
+
+Interactive input controls for use inside forms and panels.
+
+<CardGrid>
+  <Card title="Dropdown Control" icon="down-caret">
+    Dropdown with intelligent above/below positioning and ANSI-aware overlay compositing. [teafields →](/go-tealeaves/components/dropdown-control/)
+  </Card>
+</CardGrid>
+
+## Text
+
+Text editing and display components.
+
+<CardGrid>
+  <Card title="Text Selection" icon="pencil">
+    Text area with Shift+Arrow selection and clipboard operations (Ctrl+C/X/V). [teatext →](/go-tealeaves/components/text-selection/)
+  </Card>
+</CardGrid>
+
+## Layout
+
+Layout engines for composing multiple components into a unified view.
+
+<CardGrid>
+  <Card title="Layout Engine" icon="puzzle">
+    Flex-based layout engine for composing multi-pane TUI layouts. [tealayout →](/go-tealeaves/components/layout-engine/)
+  </Card>
+</CardGrid>
+
+## System
+
+Foundational packages used by the components above.
+
+| Package | Slug | Description |
+|---------|------|-------------|
+| `teahelp` | [Help Visor](/go-tealeaves/components/help-visor/) | Scrollable key-binding help overlay |
+| `teapane` | [Pane Widgets](/go-tealeaves/components/pane-widgets/) | Ready-made `tealayout`-compatible pane widgets |
+| `teautils` | [Key Registry](/go-tealeaves/components/key-registry/) | Centralized key binding registry for status bars and help overlays |
+| `teautils` | [Theming](/go-tealeaves/components/theming/) | Consistent color palette and style system |
+| `teautils` | [Positioning](/go-tealeaves/components/positioning/) | Terminal-aware overlay positioning utilities |
+| `teacolor` | [Color Constants](/go-tealeaves/components/color-constants/) | Named ANSI color constants |
+| `teahilite` | [Syntax Highlighting](/go-tealeaves/components/syntax-highlighting/) | Syntax highlighting via Chroma |

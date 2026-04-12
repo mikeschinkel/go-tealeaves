@@ -189,7 +189,7 @@ Emitted when the user closes the guide without selecting an action (via `esc` or
 | `IsOpen` | `IsOpen() bool` | Returns whether the overlay is currently visible |
 | `SetSize` | `SetSize(w, h int) GuideModel` | Updates screen dimensions |
 | `WithStyles` | `WithStyles(styles GuideStyles) GuideModel` | Override the guide styles |
-| `OverlayModal` | `OverlayModal(background string) string` | Renders the guide overlaid on the background string |
+| `OverlayModal` | `OverlayModal(background string) (view string)` | Renders the guide overlaid on the background string |
 | `Init` | `Init() tea.Cmd` | Returns nil (no initial command) |
 | `Update` | `Update(msg tea.Msg) (tea.Model, tea.Cmd)` | Standard Bubble Tea `Update` |
 | `View` | `View() tea.View` | Returns the rendered guide |

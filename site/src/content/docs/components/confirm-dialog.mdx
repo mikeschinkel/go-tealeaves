@@ -97,7 +97,7 @@ Sends `ClosedMsg` when the user presses Enter or Esc.
 | `Close` | `Close() (ConfirmModel, tea.Cmd)` | Close the modal |
 | `SetSize` | `SetSize(width, height int) ConfirmModel` | Set screen dimensions for centering |
 | `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
-| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over a background view |
+| `OverlayModal` | `OverlayModal(background string) (view string)` | Render modal centered over a background view |
 | `TitleAlign` | `TitleAlign() lipgloss.Position` | Current title alignment (defaults to `lipgloss.Center`) |
 | `MessageAlign` | `MessageAlign() lipgloss.Position` | Current message alignment |
 | `ButtonAlign` | `ButtonAlign() lipgloss.Position` | Current button alignment |

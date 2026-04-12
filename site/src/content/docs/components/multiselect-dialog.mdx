@@ -138,7 +138,7 @@ Style fields (`BorderStyle`, `TitleStyle`, `MessageStyle`, `FooterStyle`, `ItemS
 | `Open` | `Open() (MultiSelectModel[T], tea.Cmd)` | Open the modal, reset cursor and focus |
 | `Close` | `Close() (MultiSelectModel[T], tea.Cmd)` | Close the modal |
 | `IsOpen` | `IsOpen() bool` | Whether the modal is currently open |
-| `OverlayModal` | `OverlayModal(background string) string` | Render modal centered over background view |
+| `OverlayModal` | `OverlayModal(background string) (view string)` | Render modal centered over background view |
 | `SetSize` | `SetSize(width, height int) MultiSelectModel[T]` | Set screen dimensions |
 | `SetItems` | `SetItems(items []T) MultiSelectModel[T]` | Replace items and reset checked state |
 | `Selected` | `Selected() []T` | Return currently checked items |

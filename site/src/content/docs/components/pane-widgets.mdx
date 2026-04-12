@@ -67,7 +67,7 @@ The `Build(focused bool)` method returns a `lipgloss.Style`. `FrameWidth()` and 
 
 | Interface | Provided by StyledPane |
 |-----------|----------------------|
-| `Viewer` | Renders content inside the styled border |
+| `ContentProvider` | Renders content inside the styled border |
 | `SetSizer` | Stores content dimensions (frame already subtracted) |
 | `Styler` | Returns the lipgloss style for frame-subtraction |
 | `SizeHinter` | Reports `Min.Width = FrameWidth() + minWidth` |
@@ -137,7 +137,7 @@ case tea.KeyPressMsg:
 
 ## PlainPane
 
-`PlainPane` is a borderless, non-focusable pane for static content like headers, footers, and labels. It implements `Viewer` and `SetSizer` only.
+`PlainPane` is a borderless, non-focusable pane for static content like headers, footers, and labels. It implements `ContentProvider` and `SetSizer` only.
 
 <Aside type="note">
 `PlainPane.SetSize` stores only the width — the height parameter is silently discarded. `Height()` always returns 0. If your content callback needs a height, use `StyledPane` instead.

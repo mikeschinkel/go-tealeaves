@@ -3,18 +3,22 @@ import { defineConfig } from 'astro/config';
 import starlight from '@astrojs/starlight';
 
 // Package-to-slug mapping (canonical reference for evaluator verification):
+// teacolor      -> components/color-constants         [foundation]
 // teacrumbs     -> components/breadcrumb-nav
 // teadiff       -> components/diff-viewer
 // teafields     -> components/dropdown-control
 // teagrid       -> components/grid-view
 // teaguide      -> components/guide-overlay
 // teahelp       -> components/help-visor
+// teahilite     -> components/syntax-highlighting     [foundation]
 // tealayout     -> components/layout-engine
 // teamodal      -> components/choice-dialog, components/confirm-dialog, components/list-dialog, components/multiselect-dialog, components/progress-dialog
 // teanotify     -> components/notification-view
+// teapane       -> components/pane-widgets            [foundation]
 // teastatus     -> components/statusbar-view
 // teatext       -> components/text-selection
 // teatree       -> components/tree-view, components/drilldown-view
+// teautils      -> components/key-registry, components/positioning, components/theming  [foundation]
 
 // https://astro.build/config
 export default defineConfig({
@@ -61,7 +65,6 @@ export default defineConfig({
 								{ label: 'Status Bar', slug: 'components/statusbar-view' },
 								{ label: 'Notifications', slug: 'components/notification-view' },
 								{ label: 'Diff Viewer', slug: 'components/diff-viewer' },
-									{ label: 'Terminal Renderer', slug: 'components/term-renderer' },
 								{ label: 'Breadcrumb Nav', slug: 'components/breadcrumb-nav' },
 							],
 						},
@@ -86,23 +89,23 @@ export default defineConfig({
 							label: 'Text',
 							items: [
 								{ label: 'Text Selection', slug: 'components/text-selection' },
-								{ label: 'Syntax Highlighting', slug: 'components/syntax-highlighting' },
 							],
 						},
 						{
 							label: 'Layout',
 							items: [
 								{ label: 'Layout Engine', slug: 'components/layout-engine' },
-								{ label: 'Pane Widgets', slug: 'components/pane-widgets' },
 							],
 						},
 						{
 							label: 'System',
 							items: [
 								{ label: 'Help Visor', slug: 'components/help-visor' },
+								{ label: 'Pane Widgets', slug: 'components/pane-widgets' },
 								{ label: 'Key Registry', slug: 'components/key-registry' },
 								{ label: 'Theming', slug: 'components/theming' },
 								{ label: 'Color Constants', slug: 'components/color-constants' },
+								{ label: 'Syntax Highlighting', slug: 'components/syntax-highlighting' },
 								{ label: 'Positioning', slug: 'components/positioning' },
 							],
 						},

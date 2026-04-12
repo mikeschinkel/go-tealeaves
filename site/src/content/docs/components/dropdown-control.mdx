@@ -63,7 +63,7 @@ func main() {
 | `NewDropdownModel` | `NewDropdownModel(options []Option, args *DropdownModelArgs) DropdownModel` | Create a dropdown with the given options and configuration |
 | `ToOptions` | `ToOptions(items []string) []Option` | Convert a string slice into a slice of `Option` values |
 | `OverlayDropdown` | `OverlayDropdown(background, foreground string, row, col int) string` | ANSI-aware overlay compositing of foreground onto background |
-| `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr)` | Initialize terminal size detection for above/below positioning |
+| `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr) (w int, h int, ok bool)` | Get terminal dimensions; returns `(width, height, true)` on success or `(0, 0, false)` if unavailable |
 
 ### Key types
 
@@ -74,8 +74,7 @@ func main() {
 | `Option` | A selectable option with `Text` and `Value` fields |
 | `OptionSelectedMsg` | Message sent when the user selects an option — contains `Index`, `Text`, and `Value` fields |
 | `DropdownModelArgs` | Configuration arguments for `NewDropdownModel` |
-| `ModelArgs` | Type alias for `DropdownModelArgs` (deprecated — use `DropdownModelArgs`) |
-| `Position` | Integer type for overlay positioning — constants: `TopLeft`, `TopMiddle`, `TopRight`, `MiddleLeft`, `Middle`, `MiddleRight`, `BottomLeft`, `BottomMiddle`, `BottomRight` |
+| `Position` | Integer type for overlay positioning |
 
 ### Default Style Functions
 

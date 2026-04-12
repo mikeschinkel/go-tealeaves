@@ -119,13 +119,13 @@ treeModel := teatree.NewTreeModel(tree, 20)
 
 ### SimpleNodeProvider[T]
 
-`SimpleNodeProvider[T]` is a minimal provider with no tree structure characters. Useful for flat lists or when you want complete custom control.
+`SimpleNodeProvider[T]` is a minimal provider intended as a base type to embed when building a fully custom node provider. It does not implement the full `NodeProvider[T]` interface on its own — embed `CompactNodeProvider[T]` instead if you want a complete default implementation.
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `Format` | `Format(node *Node[T]) string` | Return the full display string for a node (icon + text + suffix) |
+| `Format` | `Format(node *Node[T]) string` | Return the full display string for a node |
 | `Icon` | `Icon(node *Node[T]) string` | Return the leading glyph for a node (empty string — no icon by default) |
-| `Style` | `Style(node *Node[T], isFocused bool) lipgloss.Style` | Return the style for a node based on focus state |
+| `Style` | `Style(node *Node[T], isFocused bool) lipgloss.Style` | Return the style for a node based on a boolean focus flag |
 
 ### Renderer[T] Methods
 
