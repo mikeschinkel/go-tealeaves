@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/confirm-dialog.mdx:21,50,205
 package examples_test
 
 import (

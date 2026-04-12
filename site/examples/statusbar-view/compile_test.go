@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/statusbar-view.mdx:21,81,107,135,153
 package examples_test
 
 import (

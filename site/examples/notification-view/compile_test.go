@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/notification-view.mdx:21,67,161,176
 package examples_test
 
 import (

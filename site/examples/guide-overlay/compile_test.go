@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/guide-overlay.mdx:25,77,168,177,216,227,242,256
 package examples_test
 
 import (
@@ -76,4 +77,10 @@ func TestCompile_GuideKeyBindings(t *testing.T) {
 func TestCompile_ActionSelectedMsg(t *testing.T) {
 	msg := teaguide.ActionSelectedMsg{ActionKey: "enter"}
 	_ = msg.ActionKey
+}
+
+// TestCompile_GuideDismissedMsg verifies GuideDismissedMsg type from guide-overlay.mdx.
+func TestCompile_GuideDismissedMsg(t *testing.T) {
+	var msg teaguide.GuideDismissedMsg
+	_ = msg
 }

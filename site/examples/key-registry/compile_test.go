@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/key-registry.mdx:21,118,134,151
 package examples_test
 
 import (

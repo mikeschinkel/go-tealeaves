@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/pane-widgets.mdx:21,51,77,110,147
 package examples_test
 
 import (

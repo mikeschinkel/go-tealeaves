@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/text-selection.mdx:21
 package examples_test
 
 import (

@@ -17,7 +17,7 @@ Binary Yes/No and single-button OK dialogs for confirmations and alerts. Renders
 
 ## Quick Example
 
-{/* verified: site/examples/confirm-dialog/ — go test passes */}
+<!-- verified: site/examples/confirm-dialog/compile_test.go:12 -->
 ```go
 // Create a Yes/No confirmation
 modal := teamodal.NewYesNoModal("Save changes before exiting?", &teamodal.ConfirmModelArgs{
@@ -46,7 +46,7 @@ case teamodal.AnsweredNoMsg:
 
 Single-button acknowledgment dialog:
 
-{/* verified: site/examples/confirm-dialog/ — go test passes */}
+<!-- verified: site/examples/confirm-dialog/compile_test.go:25 -->
 ```go
 modal := teamodal.NewOKModal("Operation completed successfully.", &teamodal.ConfirmModelArgs{
     Title:   "Done",
@@ -201,7 +201,7 @@ All `teamodal` components share these package-level style constructors:
 
 ## Configuration
 
-{/* verified: site/examples/confirm-dialog/ — go test passes */}
+<!-- verified: site/examples/confirm-dialog/compile_test.go:34 -->
 ```go
 modal := teamodal.NewYesNoModal("message", &teamodal.ConfirmModelArgs{
     Title:              "Title",

@@ -111,7 +111,7 @@ go get github.com/mikeschinkel/go-tealeaves/teadiff
 
 ### Quick example
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:90 -->
 ```go
 model := teadiff.NewSplitDiffModel(&teadiff.SplitDiffModelArgs{
     Width:  termWidth,
@@ -150,7 +150,7 @@ return model.View()
 
 Add visual indicators in the gutter column alongside any row:
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:25 -->
 ```go
 annotations := map[int]teadiff.RowAnnotation{
     42: {Char: '●', Color: teacolor.Coral},  // Line 42: red dot
@@ -304,7 +304,7 @@ Two constructors are available:
 
 `SingleCommitColor` is a single green (`#4CAF50`) color for use when all annotated rows belong to the same commit group.
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:40 -->
 ```go
 annotations := map[int]teadiff.RowAnnotation{}
 for lineIdx, groupIdx := range lineGroups {
@@ -318,7 +318,7 @@ model = model.SetAnnotations(annotations)
 
 `NewTUIRenderer` accepts an optional `*TUIRendererArgs` to override specific colors. Pass `nil` to use the built-in defaults:
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:63 -->
 ```go
 type TUIRendererArgs struct {
     FileHeaderColor    color.Color
@@ -335,7 +335,7 @@ type TUIRendererArgs struct {
 
 ### Quick example
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:63 -->
 ```go
 // Pass nil for default colors, or &teadiff.TUIRendererArgs{...} to override specific colors
 renderer := teadiff.NewTUIRenderer(nil)
@@ -356,7 +356,7 @@ output := strings.Join(lines, "\n")
 
 ### FileDiff and CondensedBlock types
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:63 -->
 ```go
 type FileDiff struct {
     Path   string
@@ -378,7 +378,7 @@ type CondensedBlock struct {
 
 `RenderFileDiffs` is a standalone function that drives a `DiffRenderer` over a slice of `FileDiff` values and returns rendered lines:
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:63 -->
 ```go
 func RenderFileDiffs(files []FileDiff, renderer DiffRenderer, width int) []string
 ```
@@ -391,7 +391,7 @@ func RenderFileDiffs(files []FileDiff, renderer DiffRenderer, width int) []strin
 
 Returns a `[]string` of styled lines ready to join with newlines or pass to a scroll pane.
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:63 -->
 ```go
 renderer := teadiff.NewTUIRenderer(nil)
 lines := teadiff.RenderFileDiffs(diffs, renderer, termWidth)
@@ -402,7 +402,7 @@ output := strings.Join(lines, "\n")
 
 Implement `DiffRenderer` to customize rendering for any output medium:
 
-{/* verified: site/examples/diff-viewer/ — go test passes */}
+<!-- verified: site/examples/diff-viewer/compile_test.go:63 -->
 ```go
 type DiffRenderer interface {
     RenderFileHeader(path string, status FileStatus, width int) string

@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teautils
 
 ## Quick Example
 
-{/* verified: site/examples/key-registry/ — go test passes */}
+<!-- verified: site/examples/key-registry/compile_test.go:13 -->
 ```go
 registry := teautils.NewKeyRegistry()
 
@@ -114,7 +114,7 @@ registry.MustRegisterMany([]teautils.KeyMeta{
 | `ProperCaseShortcut` | `ProperCaseShortcut(s string) string` | Title-case each part of a shortcut: `ctrl+c` → `Ctrl+C`, `esc` → `Esc` |
 | `GetSortedCategories` | `GetSortedCategories(keysByCategory map[string][]KeyMeta, preferredOrder []string) []string` | Sort category names: preferred order first, then alphabetical |
 
-{/* verified: site/examples/key-registry/ — go test passes */}
+<!-- verified: site/examples/key-registry/compile_test.go:37 -->
 ```go
 // Format a key for display in a status bar or help overlay
 label := teautils.FormatKeyDisplay(km)   // e.g. "[Ctrl+C]"
@@ -130,7 +130,7 @@ cats := teautils.GetSortedCategories(
 
 Key identifiers use dot-separated namespaces. The parser validates format at registration time:
 
-{/* verified: site/examples/key-registry/ — go test passes */}
+<!-- verified: site/examples/key-registry/compile_test.go:80 -->
 ```go
 // Valid identifiers
 teautils.MustParseKeyIdentifier("nav.up")
@@ -147,14 +147,14 @@ teautils.MustParseKeyIdentifier("nav.")       // trailing dot
 
 The registry produces `teastatus.MenuItem` values for the status bar:
 
-{/* verified: site/examples/key-registry/ — go test passes */}
+<!-- verified: site/examples/key-registry/compile_test.go:59 -->
 ```go
 statusKeys := registry.ForStatusBar()
 menuItems := make([]teastatus.MenuItem, len(statusKeys))
 for i, km := range statusKeys {
-    menuItems[i] = teastatus.NewMenuItemFromBinding(
+    menuItems[i] = teastatus.NewMenuItem(
         km.Binding,
-        km.StatusBarLabel,
+        &teastatus.MenuItemOpts{Label: km.StatusBarLabel},
     )
 }
 sb := teastatus.NewStatusBarModel().SetMenuItems(menuItems)

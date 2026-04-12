@@ -1,9 +1,11 @@
+// Source: site/src/content/docs/components/choice-dialog.mdx:21,139
 package examples_test
 
 import (
 	"testing"
 
 	"github.com/mikeschinkel/go-tealeaves/teamodal"
+	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
 // TestCompile_ChoiceQuickExample verifies the quick example from choice-dialog.mdx.
@@ -32,11 +34,16 @@ func TestCompile_ChoiceConfiguration(t *testing.T) {
 		{Label: "Option B", Hotkey: 'b', ID: "b"},
 	}
 
+	allowCancel := true
 	modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
 		Title:       "How should we proceed?",
 		Message:     "Select an action.",
 		Options:     options,
 		Orientation: teamodal.Vertical,
+		AllowCancel: &allowCancel,
 	})
+
+	theme := teautils.DefaultTheme()
+	modal = modal.WithTheme(theme)
 	_ = modal
 }

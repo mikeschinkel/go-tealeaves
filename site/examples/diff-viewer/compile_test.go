@@ -1,9 +1,11 @@
+// Source: site/src/content/docs/components/diff-viewer.mdx:115,154,308,322,339,360,382,395,406
 package examples_test
 
 import (
 	"strings"
 	"testing"
 
+	"github.com/mikeschinkel/go-diffutils"
 	"github.com/mikeschinkel/go-tealeaves/teacolor"
 	"github.com/mikeschinkel/go-tealeaves/teadiff"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
@@ -82,6 +84,28 @@ func TestCompile_ThemedTUIRenderer(t *testing.T) {
 	theme := teautils.DefaultTheme()
 	renderer := teadiff.NewThemedTUIRenderer(theme)
 	_ = renderer
+}
+
+// TestCompile_SplitDiffWithHighlight verifies SetContent and HighlightFunc from diff-viewer.mdx.
+func TestCompile_SplitDiffWithHighlight(t *testing.T) {
+	model := teadiff.NewSplitDiffModel(&teadiff.SplitDiffModelArgs{
+		Width:  80,
+		Height: 24,
+		HighlightFunc: func(text, lang string) string {
+			return text // identity; real usage would call teahilite.Highlight
+		},
+	})
+
+	content, err := diffutils.DiffLines(
+		[]string{"func main() {}"},
+		[]string{"func main() { fmt.Println() }"},
+		"main.go",
+	)
+	if err != nil {
+		t.Fatal(err)
+	}
+	model = model.SetContent(content)
+	_ = model
 }
 
 // TestCompile_PaneLineTypes verifies pane line types from diff-viewer.mdx.

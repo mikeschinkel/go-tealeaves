@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/breadcrumb-nav.mdx:25,54,116,127,136,175
 package examples_test
 
 import (

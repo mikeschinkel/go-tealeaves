@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/dropdown-control.mdx:21,99,151,172
 package examples_test
 
 import (

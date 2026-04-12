@@ -17,7 +17,7 @@ Multi-option selection dialog with hotkey support and configurable horizontal or
 
 ## Quick Example
 
-{/* verified: site/examples/choice-dialog/ — go test passes */}
+<!-- verified: site/examples/choice-dialog/compile_test.go:12 -->
 ```go
 modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
     Title:   "How should we proceed?",
@@ -135,18 +135,20 @@ case teamodal.ChoiceCancelledMsg:
 
 ## Configuration
 
-{/* verified: site/examples/choice-dialog/ — go test passes */}
+<!-- verified: site/examples/choice-dialog/compile_test.go:31 -->
 ```go
+allowCancel := true
 modal := teamodal.NewChoiceModel(&teamodal.ChoiceModelArgs{
     Title:       "How should we proceed?",
     Message:     "Select an action.",
     Options:     options,
     Orientation: teamodal.Vertical,
-    AllowCancel: boolPtr(true),
+    AllowCancel: &allowCancel,
 })
 
 // Apply a theme (sets all style fields at once)
-modal = modal.WithTheme(myTheme)
+theme := teautils.DefaultTheme()
+modal = modal.WithTheme(theme)
 ```
 
 `ChoiceModel` uses the [Wither Methods](/go-tealeaves/guides/wither-methods/) pattern for configuration.

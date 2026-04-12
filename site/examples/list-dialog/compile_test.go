@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/list-dialog.mdx:21
 package examples_test
 
 import (

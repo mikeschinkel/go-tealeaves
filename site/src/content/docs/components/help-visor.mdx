@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teahelp
 
 ## Quick example
 
-{/* verified: site/examples/help-visor/ — go test passes */}
+<!-- verified: site/examples/help-visor/compile_test.go:15 -->
 ```go
 // Create once, embed in your root model
 help := teahelp.NewHelpVisorModel()
@@ -120,7 +120,7 @@ return mainContent
 | `PrevPage` | `←` | Navigate to the previous page |
 | `NextPage` | `→` | Navigate to the next page |
 
-{/* verified: site/examples/help-visor/ — go test passes */}
+<!-- verified: site/examples/help-visor/compile_test.go:39 -->
 ```go
 km := teahelp.DefaultHelpVisorKeyMap()
 km.Close = key.NewBinding(key.WithKeys("esc"), key.WithHelp("esc", "close help"))
@@ -131,7 +131,7 @@ help = help.WithKeys(km)
 
 The content style controls the rendered key binding entries. Configure via `WithContentStyle()`:
 
-{/* verified: site/examples/help-visor/ — go test passes */}
+<!-- verified: site/examples/help-visor/compile_test.go:47 -->
 ```go
 help = help.WithContentStyle(teautils.HelpVisorStyle{
     TitleStyle:    lipgloss.NewStyle().Bold(true),

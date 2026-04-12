@@ -1,9 +1,13 @@
+// Source: site/src/content/docs/components/theming.mdx:25,42,65,92,114
 package examples_test
 
 import (
 	"testing"
 
 	"github.com/mikeschinkel/go-tealeaves/teacolor"
+	"github.com/mikeschinkel/go-tealeaves/teagrid"
+	"github.com/mikeschinkel/go-tealeaves/teamodal"
+	"github.com/mikeschinkel/go-tealeaves/teastatus"
 	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
@@ -11,7 +15,17 @@ import (
 func TestCompile_ThemingQuickStart(t *testing.T) {
 	// Use adaptive palette (auto-detects dark/light terminal)
 	theme := teautils.DefaultTheme()
-	_ = theme
+
+	// Apply to any component
+	columns := []teagrid.Column{teagrid.NewColumn("id", "ID", 10)}
+	grid := teagrid.NewGridModel(columns).WithTheme(theme)
+	_ = grid
+
+	statusBar := teastatus.NewStatusBarModel().WithTheme(theme)
+	_ = statusBar
+
+	modal := teamodal.NewYesNoModal("Confirm?", nil).WithTheme(theme)
+	_ = modal
 }
 
 // TestCompile_PaletteConstructors verifies palette constructors from theming.mdx.

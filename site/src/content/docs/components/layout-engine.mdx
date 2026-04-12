@@ -21,7 +21,7 @@ go get github.com/mikeschinkel/go-tealeaves/tealayout`
 
 ## Quick example
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:23 -->
 ```go
 // Wrap widgets with type-safe Element handles
 header := tealayout.NewElement(newHeaderWidget())
@@ -122,7 +122,7 @@ Every `Pane` has exactly one `Dimension` describing how it sizes along its paren
 
 ### Predefined percent constants
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:45 -->
 ```go
 tealayout.Percent100  // Percent(100)
 tealayout.Percent75   // Percent(75)
@@ -158,7 +158,7 @@ Widgets in a terminal UI have two widths:
 
 Mark a pane as optional with `WithOptional(true)`. When the terminal is too small to satisfy all minimum sizes, optional panes are removed from the layout to free space for required panes:
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:55 -->
 ```go
 sidebar := tealayout.NewColumn(tealayout.Percent(25), sidebarEl).
     WithOptional(true).
@@ -175,7 +175,7 @@ If the terminal width drops below the sidebar's minimum, `sidebar` is removed fr
 
 Panes nest into rows and columns:
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:23 -->
 ```go
 // NewRow — children laid out horizontally
 // NewColumn — children laid out vertically
@@ -191,7 +191,7 @@ Children can be:
 
 `Layout` is the engine that wraps a root `Pane` and resolves sizes. Create one with `NewLayout`:
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:23 -->
 ```go
 layout := tealayout.NewLayout(root)
 
@@ -213,7 +213,7 @@ output, err := layout.Render()
 
 `Rect` is a positioned rectangle (terminal cell coordinates) returned by `Pane.ChildRect(i)`. Useful for overlaying widgets or custom hit-testing.
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:168 -->
 ```go
 type Rect struct {
     X, Y, Width, Height int
@@ -224,7 +224,7 @@ type Rect struct {
 
 `Element[T]` is the type-safe handle for a widget embedded in the layout tree. After `layout.Render()`, the layout has called `SetSize` on each widget; you can access the widget via `.Widget()` without unsafe casts.
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:74 -->
 ```go
 el := tealayout.NewElement(myWidget)
 root := tealayout.NewRow(tealayout.Flex(1), el)
@@ -278,7 +278,7 @@ MiddleLeft  MiddleCenter  MiddleRight
 BottomLeft  BottomCenter  BottomRight
 ```
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:136 -->
 ```go
 sidebar.WithAlignment(tealayout.MiddleCenter)
 header.WithAlignment(tealayout.TopLeft)
@@ -290,7 +290,7 @@ Bits on each axis are independent — setting a new horizontal bit preserves the
 
 `tealayout` includes a `FocusManager` that cycles through focusable panes:
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:147 -->
 ```go
 fm := tealayout.NewFocusManager(layout)  // takes *Layout, not *Pane
 ```
@@ -320,7 +320,7 @@ Widgets are recognized by the interfaces they implement:
 
 ## SizeHint
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:181 -->
 ```go
 type SizeHint struct {
     Min     Size // Minimum usable size
@@ -338,7 +338,7 @@ Widgets return a `SizeHint` from `SizeHint(w, h int)` to influence how `Fit` dim
 
 `PaneLayout` combines a `Layout` and a `FocusManager` into a single convenience type. It is the primary way to manage a named-pane layout with integrated focus cycling and pane visibility.
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:193 -->
 ```go
 root := tealayout.NewRow(tealayout.Flex(1),
     tealayout.NewColumn(tealayout.Flex(0.3), sidebarEl).WithName("sidebar").WithFocusable(),
@@ -400,7 +400,7 @@ pl.ResizeFocused(-0.05)  // shrinks by 5% weight
 
 ### PaneDef
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:216 -->
 ```go
 type PaneDef struct {
     Name          string    // required: lookup key, must be unique
@@ -417,7 +417,7 @@ type PaneDef struct {
 
 ### Creating a MultiPaneLayout
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:216 -->
 ```go
 panes := []tealayout.PaneDef{
     {Name: "sidebar", Element: tealayout.NewElement(sidebar), Dim: tealayout.Flex(0.3), MinSize: 20},
@@ -468,7 +468,7 @@ All `PaneLayout` focus and visibility methods are available directly on `MultiPa
 
 `TreeContentLayout[T, C]` is a prebuilt 2-pane layout: a `Fit`-dimensioned tree pane on the left and a `Flex(1)` content pane on the right. It provides typed access to both widgets without interface assertions.
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:305 -->
 ```go
 // T = tree widget type, C = content widget type
 tcl := tealayout.NewTreeContentLayout(
@@ -520,7 +520,7 @@ The tree widget should implement `SizeHinter` (return a `SizeHint` with a meanin
 
 Every view in the stack must implement `StackView`:
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:253 -->
 ```go
 type StackView interface {
     tea.Model                          // Init, Update, View
@@ -539,7 +539,7 @@ type StackView interface {
 
 ### Creating a StackLayoutModel
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:253 -->
 ```go
 crumbStyles := teacrumbs.Styles{ /* optional custom styles */ }
 stack := tealayout.NewStackLayoutModel(homeView, crumbStyles)
@@ -566,7 +566,7 @@ func (m RootModel) View() tea.View {
 
 ### Push and pop
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:253 -->
 ```go
 // Push programmatically (or send PushViewMsg via tea.Cmd)
 cmd := stack.Push(detailView, "detail:42") // cacheKey optional
@@ -590,7 +590,7 @@ return m, tea.Cmd(func() tea.Msg {
 
 Views are cached by `cacheKey`. A non-empty cache key stores the view on push and keeps it warm through pops:
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:253 -->
 ```go
 if cached, ok := stack.GetCached("detail:42"); ok {
     cmd := stack.Push(cached, "detail:42")
@@ -619,7 +619,7 @@ stack.DeleteCached("detail:42") // explicit eviction
 
 `VisibilityRotator` cycles a `MultiPaneLayout` through a predefined list of visibility combinations. Each combination is a slice of pane names that should be visible; all other content panes are hidden when that combo is applied.
 
-{/* verified: site/examples/layout-engine/ — go test passes */}
+<!-- verified: site/examples/layout-engine/compile_test.go:275 -->
 ```go
 rotator := tealayout.NewVisibilityRotator(mpl, [][]string{
     {"sidebar", "editor", "refs"}, // combo 0: all panes

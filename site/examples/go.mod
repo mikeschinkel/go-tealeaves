@@ -28,6 +28,7 @@ require (
 	charm.land/bubbles/v2 v2.1.0
 	charm.land/bubbletea/v2 v2.0.2
 	charm.land/lipgloss/v2 v2.0.2
+	github.com/mikeschinkel/go-diffutils v0.0.0
 	github.com/mikeschinkel/go-dt v0.7.0
 	github.com/mikeschinkel/go-tealeaves/teacolor v0.0.0
 	github.com/mikeschinkel/go-tealeaves/teacrumbs v0.0.0
@@ -61,7 +62,6 @@ require (
 	github.com/dlclark/regexp2 v1.11.5 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.22 // indirect
-	github.com/mikeschinkel/go-diffutils v0.0.0 // indirect
 	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect

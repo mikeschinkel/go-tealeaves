@@ -17,7 +17,7 @@ go get github.com/mikeschinkel/go-tealeaves/teautils
 
 ## Quick Example
 
-{/* verified: site/examples/positioning/ — go test passes */}
+<!-- verified: site/examples/positioning/compile_test.go:14 -->
 ```go
 // Measure a rendered view (ANSI-aware)
 width, height := teautils.MeasureRenderedView(renderedModal)
@@ -69,7 +69,7 @@ width, height, row, col := teautils.CenterModal(renderedModal, screenW, screenH)
 |----------|-----------|-------------|
 | `EnsureTermGetSize` | `EnsureTermGetSize(fd uintptr) (w int, h int, ok bool)` | Try hard to get a real terminal size — treats `(0,0,nil)` as "not ready yet" and retries briefly. Returns `(width, height, true)` on success or `(0, 0, false)` if the terminal size is unavailable. |
 
-{/* verified: site/examples/positioning/ — go test passes */}
+<!-- verified: site/examples/positioning/compile_test.go:31 -->
 ```go
 import "github.com/mikeschinkel/go-tealeaves/teafields"
 

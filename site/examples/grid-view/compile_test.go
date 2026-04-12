@@ -1,7 +1,9 @@
+// Source: site/src/content/docs/components/grid-view.mdx:21,175,201,212,226,251,265
 package examples_test
 
 import (
 	"testing"
+	"time"
 
 	lipgloss "charm.land/lipgloss/v2"
 	"github.com/mikeschinkel/go-tealeaves/teagrid"
@@ -84,4 +86,14 @@ func TestCompile_GridMetadata(t *testing.T) {
 		"selectedIDs": selectedSet,
 	})
 	_ = grid
+}
+
+// TestCompile_CellWithSortKey verifies NewCellValueWithSortKey from grid-view.mdx.
+func TestCompile_CellWithSortKey(t *testing.T) {
+	cell := teagrid.NewCellValueWithSortKey(
+		"Jan 1",
+		time.Date(2024, 1, 1, 0, 0, 0, 0, time.UTC),
+		lipgloss.Style{},
+	)
+	_ = cell
 }

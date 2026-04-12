@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/multiselect-dialog.mdx:21
 package examples_test
 
 import (

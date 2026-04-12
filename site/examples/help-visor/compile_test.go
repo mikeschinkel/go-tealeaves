@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/components/help-visor.mdx:21,124,135
 package examples_test
 
 import (
