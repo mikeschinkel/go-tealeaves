@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/guides/quick-start.mdx:39
 package main
 
 import (

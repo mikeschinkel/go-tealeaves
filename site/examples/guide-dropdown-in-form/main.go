@@ -1,3 +1,4 @@
+// Source: site/src/content/docs/cookbook/dropdown-in-form.mdx:23
 package main
 
 import (

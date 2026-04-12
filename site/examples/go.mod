@@ -8,7 +8,6 @@ replace (
 	github.com/mikeschinkel/go-tealeaves/teacolor => ../../teacolor
 	github.com/mikeschinkel/go-tealeaves/teacrumbs => ../../teacrumbs
 	github.com/mikeschinkel/go-tealeaves/teadiff => ../../teadiff
-	github.com/mikeschinkel/go-tealeaves/teadrpdwn => ../../teadrpdwn
 	github.com/mikeschinkel/go-tealeaves/teafields => ../../teafields
 	github.com/mikeschinkel/go-tealeaves/teagrid => ../../teagrid
 	github.com/mikeschinkel/go-tealeaves/teaguide => ../../teaguide
@@ -28,6 +27,7 @@ require (
 	charm.land/bubbles/v2 v2.1.0
 	charm.land/bubbletea/v2 v2.0.2
 	charm.land/lipgloss/v2 v2.0.2
+	github.com/charmbracelet/x/ansi v0.11.6
 	github.com/mikeschinkel/go-diffutils v0.0.0
 	github.com/mikeschinkel/go-dt v0.7.0
 	github.com/mikeschinkel/go-tealeaves/teacolor v0.0.0
@@ -53,7 +53,6 @@ require (
 	github.com/atotto/clipboard v0.1.4 // indirect
 	github.com/charmbracelet/colorprofile v0.4.3 // indirect
 	github.com/charmbracelet/ultraviolet v0.0.0-20260223171050-89c142e4aa73 // indirect
-	github.com/charmbracelet/x/ansi v0.11.6 // indirect
 	github.com/charmbracelet/x/term v0.2.2 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
