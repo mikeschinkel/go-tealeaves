@@ -5,6 +5,11 @@ go 1.25.5
 require github.com/charmbracelet/x/ansi v0.11.6
 
 require (
+	github.com/aymanbagabas/go-udiff v0.4.1 // indirect
+	github.com/charmbracelet/x/exp/golden v0.0.0-20260406091427-a791e22d5143 // indirect
+)
+
+require (
 	github.com/charmbracelet/ultraviolet v0.0.0-20260223171050-89c142e4aa73 // indirect
 	github.com/charmbracelet/x/termios v0.1.1 // indirect
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
