@@ -1,0 +1,11 @@
+{
+  "name": "go-tealeaves",
+  "label": "Tea Leaves",
+  "description": "The Missing BubbleTea Component Library for building TUIs in Go",
+  "language": "go",
+  "status": "active",
+  "dependencies": [],
+  "documents": {
+    "rules": []
+  }
+}
