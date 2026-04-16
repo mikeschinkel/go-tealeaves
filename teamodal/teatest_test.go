@@ -1,7 +1,3 @@
-//go:build ignore
-// Disabled: teatest (charmbracelet/x/exp/teatest) has no v2 equivalent yet.
-// Re-enable when charm.land ships a v2-compatible teatest package.
-
 package teamodal
 
 import (
@@ -9,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/x/exp/teatest"
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/exp/teatest/v2"
 )
 
 // --- OK Modal wrapper ---
