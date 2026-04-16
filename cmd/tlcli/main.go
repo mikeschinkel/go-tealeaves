@@ -11,9 +11,12 @@ Usage:
   tlcli <command> [flags]
 
 Commands:
-  audit     Run documentation gap analysis and code example verification
-  models    List types implementing the tea.Model component pattern
-  colors    Interactive 256-color palette viewer
+  audit            Run documentation gap analysis and code example verification
+  audit examples   Deep audit of MDX code blocks vs example files (bidirectional)
+  seed-hashes      Add content hashes to // Source: comments in example files
+  models           List types implementing the tea.Model component pattern
+  exports          List exported API for all packages in the repo
+  colors           Interactive 256-color palette viewer
 
 Run 'tlcli <command> -help' for details on a specific command.
 `
@@ -28,9 +31,17 @@ func main() {
 
 	switch os.Args[1] {
 	case "audit":
-		err = runAudit(os.Args[2:])
+		if len(os.Args) >= 3 && os.Args[2] == "examples" {
+			err = runAuditExamples(os.Args[3:])
+		} else {
+			err = runAudit(os.Args[2:])
+		}
+	case "seed-hashes":
+		err = runSeedHashes(os.Args[2:])
 	case "models":
 		err = runModels(os.Args[2:])
+	case "exports":
+		err = runExports(os.Args[2:])
 	case "colors":
 		err = runColors(os.Args[2:])
 	case "-help", "--help", "help":

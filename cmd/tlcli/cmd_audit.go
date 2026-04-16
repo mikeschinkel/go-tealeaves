@@ -195,102 +195,31 @@ func runAudit(args []string) error {
 		}
 	}
 
-	// --- Code Example Verification ---
-	fmt.Println("## Code Example Verification")
+	// --- Config Package Verification ---
+	fmt.Println("## Config Package Verification")
 	fmt.Println()
 
-	var totalBlocks, verifiedCount, unverifiedCount, staleCount int
-	type blockInfo struct {
-		file string
-		line int
-	}
-	var unverified []blockInfo
-	var staleBlocks []blockInfo
-
-	siteDocsRoot := filepath.Join(srcDir, "site", "src", "content", "docs")
-	if info, statErr := os.Stat(siteDocsRoot); statErr == nil && info.IsDir() {
-		_ = filepath.Walk(siteDocsRoot, func(path string, info os.FileInfo, walkErr error) error {
-			if walkErr != nil || info.IsDir() {
-				return walkErr
-			}
-			if !strings.HasSuffix(path, ".mdx") {
-				return nil
-			}
-
-			f, openErr := os.Open(path)
-			if openErr != nil {
-				return nil
-			}
-			defer f.Close()
-
-			scanner := bufio.NewScanner(f)
-			lineNum := 0
-			prevLine := ""
-			relPath, _ := filepath.Rel(srcDir, path)
-
-			for scanner.Scan() {
-				lineNum++
-				line := scanner.Text()
-
-				if strings.Contains(line, "```go") {
-					totalBlocks++
-					verifiedPath := parseVerifiedComment(prevLine)
-					if verifiedPath == "" {
-						unverifiedCount++
-						unverified = append(unverified, blockInfo{file: relPath, line: lineNum})
-					} else {
-						verifiedCount++
-						// Strip optional ":line" suffix before stat (e.g. "file.go:15" → "file.go")
-						statPath := verifiedPath
-						if idx := strings.LastIndex(statPath, ":"); idx >= 0 {
-							if _, err := fmt.Sscanf(statPath[idx+1:], "%d", new(int)); err == nil {
-								statPath = statPath[:idx]
-							}
-						}
-						absVerified := filepath.Join(srcDir, statPath)
-						if _, statErr2 := os.Stat(absVerified); os.IsNotExist(statErr2) {
-							staleCount++
-							staleBlocks = append(staleBlocks, blockInfo{file: relPath, line: lineNum})
-						} else {
-							// Check if source is newer than doc
-							srcInfo, _ := os.Stat(absVerified)
-							if srcInfo != nil && srcInfo.ModTime().After(info.ModTime()) {
-								staleCount++
-								staleBlocks = append(staleBlocks, blockInfo{file: relPath, line: lineNum})
-							}
-						}
-					}
-				}
-				prevLine = line
-			}
-			return nil
-		})
-	}
-
-	fmt.Printf("%d total: %d verified, %d unverified, %d stale\n",
-		totalBlocks, verifiedCount, unverifiedCount, staleCount)
-	fmt.Println()
-
-	fmt.Println("### Unverified Code Blocks")
-	if len(unverified) == 0 {
-		fmt.Println("None")
+	configPath := filepath.Join(srcDir, "site", "config.yaml")
+	configPkgs, configErr := extractConfigPackages(configPath)
+	if configErr != nil {
+		fmt.Printf("Warning: %v\n", configErr)
 	} else {
-		for _, u := range unverified {
-			fmt.Printf("- %s:%d\n", u.file, u.line)
+		var missingPkgs []string
+		for _, pkg := range configPkgs {
+			pkgDir := filepath.Join(srcDir, pkg)
+			if !hasGoFiles(pkgDir) {
+				missingPkgs = append(missingPkgs, pkg)
+			}
+		}
+		if len(missingPkgs) == 0 {
+			fmt.Printf("All %d config packages have live Go source.\n", len(configPkgs))
+		} else {
+			for _, pkg := range missingPkgs {
+				fmt.Printf("- %s — no Go source found\n", pkg)
+			}
+			totalIssues += len(missingPkgs)
 		}
 	}
-	totalIssues += unverifiedCount
-	fmt.Println()
-
-	fmt.Println("### Stale Verified Blocks")
-	if len(staleBlocks) == 0 {
-		fmt.Println("None")
-	} else {
-		for _, s := range staleBlocks {
-			fmt.Printf("- %s:%d\n", s.file, s.line)
-		}
-	}
-	totalIssues += staleCount
 	fmt.Println()
 
 	// Summary
@@ -298,6 +227,57 @@ func runAudit(args []string) error {
 	fmt.Printf("%d packages, %d doc pages, %d issues\n", len(packages), len(docPages), totalIssues)
 
 	return nil
+}
+
+// extractConfigPackages reads site/config.yaml and returns unique package names
+// from both components (e.g. "teagrid.GridModel" → "teagrid") and foundations.
+func extractConfigPackages(configPath string) ([]string, error) {
+	data, err := os.ReadFile(configPath)
+	if err != nil {
+		return nil, fmt.Errorf("reading config.yaml: %w", err)
+	}
+
+	var cfg struct {
+		Components  map[string][]string `yaml:"components"`
+		Foundations []string            `yaml:"foundations"`
+	}
+	if err := yaml.Unmarshal(data, &cfg); err != nil {
+		return nil, fmt.Errorf("parsing config.yaml: %w", err)
+	}
+
+	seen := make(map[string]bool)
+	for _, entries := range cfg.Components {
+		for _, entry := range entries {
+			if pkg, _, ok := strings.Cut(entry, "."); ok {
+				seen[pkg] = true
+			}
+		}
+	}
+	for _, pkg := range cfg.Foundations {
+		seen[pkg] = true
+	}
+
+	pkgs := make([]string, 0, len(seen))
+	for pkg := range seen {
+		pkgs = append(pkgs, pkg)
+	}
+	sort.Strings(pkgs)
+	return pkgs, nil
+}
+
+// hasGoFiles returns true if dir exists and contains at least one non-test .go file.
+func hasGoFiles(dir string) bool {
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return false
+	}
+	for _, e := range entries {
+		name := e.Name()
+		if strings.HasSuffix(name, ".go") && !strings.HasSuffix(name, "_test.go") {
+			return true
+		}
+	}
+	return false
 }
 
 // loadMappings reads doc-pages.yaml. Values can be a single string or a list of strings.
