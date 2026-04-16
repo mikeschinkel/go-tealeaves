@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"strings"
 
 	tea "charm.land/bubbletea/v2"
 	"github.com/mikeschinkel/go-tealeaves/teagrid"
+	"github.com/mikeschinkel/go-tealeaves/teautils"
 )
 
 const (
@@ -114,7 +114,7 @@ func main() {
 	p := tea.NewProgram(newModel())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+		teautils.Stderrf("Error: %v\n", err)
 		os.Exit(1)
 	}
 }
