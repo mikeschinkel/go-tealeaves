@@ -1,15 +1,24 @@
-module github.com/mikeschinkel/go-tealeaves/tealayout/examples/multipane
+module github.com/mikeschinkel/go-tealeaves/tealayout/examples
 
 go 1.25.7
 
+replace (
+	github.com/mikeschinkel/go-dt => ../../../go-dt
+	github.com/mikeschinkel/go-dt/dtx => ../../../go-dt/dtx
+	github.com/mikeschinkel/go-tealeaves/teacolor => ../../teacolor
+	github.com/mikeschinkel/go-tealeaves/teacrumbs => ../../teacrumbs
+	github.com/mikeschinkel/go-tealeaves/tealayout => ../
+	github.com/mikeschinkel/go-tealeaves/teapane => ../../teapane
+	github.com/mikeschinkel/go-tealeaves/teautils => ../../teautils
+)
+
 require (
 	charm.land/bubbletea/v2 v2.0.2
-	charm.land/lipgloss/v2 v2.0.0
-	github.com/charmbracelet/colorprofile v0.4.2
-	github.com/mikeschinkel/go-cliutil v0.3.0
+	charm.land/lipgloss/v2 v2.0.2
+	github.com/charmbracelet/colorprofile v0.4.3
 	github.com/mikeschinkel/go-tealeaves/teacolor v0.0.0
 	github.com/mikeschinkel/go-tealeaves/tealayout v0.0.0
-	github.com/mikeschinkel/go-tealeaves/teapane v0.0.0
+	github.com/mikeschinkel/go-tealeaves/teapane v0.0.0-00010101000000-000000000000
 	github.com/mikeschinkel/go-tealeaves/teautils v0.0.0
 )
 
@@ -22,25 +31,14 @@ require (
 	github.com/charmbracelet/x/windows v0.2.2 // indirect
 	github.com/clipperhouse/displaywidth v0.11.0 // indirect
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
-	github.com/lucasb-eyer/go-colorful v1.3.0 // indirect
-	github.com/mattn/go-runewidth v0.0.20 // indirect
-	github.com/mikeschinkel/go-dt v0.5.0 // indirect
-	github.com/mikeschinkel/go-dt/appinfo v0.2.1 // indirect
+	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
+	github.com/mattn/go-runewidth v0.0.22 // indirect
+	github.com/mikeschinkel/go-dt v0.7.0 // indirect
 	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
 	github.com/mikeschinkel/go-tealeaves/teacrumbs v0.0.0 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/xo/terminfo v0.0.0-20220910002029-abceb7e1c41e // indirect
-	golang.org/x/sync v0.19.0 // indirect
-	golang.org/x/sys v0.41.0 // indirect
+	golang.org/x/sync v0.20.0 // indirect
+	golang.org/x/sys v0.42.0 // indirect
 )
-
-replace github.com/mikeschinkel/go-tealeaves/teacolor => ../../../teacolor
-
-replace github.com/mikeschinkel/go-tealeaves/tealayout => ../../
-
-replace github.com/mikeschinkel/go-tealeaves/teacrumbs => ../../../teacrumbs
-
-replace github.com/mikeschinkel/go-tealeaves/teapane => ../../../teapane
-
-replace github.com/mikeschinkel/go-tealeaves/teautils => ../../../teautils

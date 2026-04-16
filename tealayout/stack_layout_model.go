@@ -189,6 +189,15 @@ func (m *StackLayoutModel) UpdateCurrent(updated StackView) {
 	}
 }
 
+// SetSize updates the StackLayoutModel's dimensions. Call this when the host
+// application handles WindowSizeMsg directly instead of delegating to
+// StackLayoutModel.Update(). This ensures popOne() and Push() propagate
+// correct dimensions to views via their SetSize methods.
+func (m *StackLayoutModel) SetSize(width, height int) {
+	m.width = width
+	m.height = height
+}
+
 // BreadcrumbsView renders just the breadcrumb trail for manual composition.
 // Use this when the host application needs to compose breadcrumbs, view content,
 // and other chrome (status bar, overlays) separately rather than using View().
