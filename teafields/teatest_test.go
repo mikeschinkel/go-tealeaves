@@ -1,8 +1,3 @@
-//go:build ignore
-
-// Disabled: teatest (charmbracelet/x/exp/teatest) has no v2 equivalent yet.
-// Re-enable when charm.land ships a v2-compatible teatest package.
-
 package teafields
 
 import (
@@ -10,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/x/exp/teatest"
+	tea "charm.land/bubbletea/v2"
+	"github.com/charmbracelet/x/exp/teatest/v2"
 )
 
 // testProgram wraps DropdownModel into a standalone tea.Model for teatest.
@@ -22,7 +17,9 @@ type testProgram struct {
 }
 
 func newTestProgram(opts []Option) testProgram {
-	m := NewModel(opts, 2, 5, &ModelArgs{
+	m := NewDropdownModel(opts, &DropdownModelArgs{
+		FieldRow:     2,
+		FieldCol:     5,
 		ScreenWidth:  80,
 		ScreenHeight: 24,
 	})
