@@ -1,11 +1,21 @@
-module github.com/mikeschinkel/go-tealeaves/teatree/examples/drilldown
+module github.com/mikeschinkel/go-tealeaves/teatree/examples
 
 go 1.25.7
 
+replace (
+	github.com/mikeschinkel/go-dt => ../../../go-dt
+	github.com/mikeschinkel/go-dt/dtx => ../../../go-dt/dtx
+	github.com/mikeschinkel/go-tealeaves/teacolor => ../../teacolor
+	github.com/mikeschinkel/go-tealeaves/teafields => ../../teafields
+	github.com/mikeschinkel/go-tealeaves/teatree => ../
+	github.com/mikeschinkel/go-tealeaves/teautils => ../../teautils
+)
+
 require (
 	charm.land/bubbletea/v2 v2.0.2
-	charm.land/lipgloss/v2 v2.0.0
-	github.com/mikeschinkel/go-tealeaves/teatree v0.0.0
+	charm.land/lipgloss/v2 v2.0.2
+	github.com/mikeschinkel/go-dt v0.7.0
+	github.com/mikeschinkel/go-tealeaves/teatree v0.0.0-00010101000000-000000000000
 )
 
 require (
@@ -20,8 +30,8 @@ require (
 	github.com/clipperhouse/uax29/v2 v2.7.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.4.0 // indirect
 	github.com/mattn/go-runewidth v0.0.22 // indirect
-	github.com/mikeschinkel/go-dt v0.7.0 // indirect
 	github.com/mikeschinkel/go-dt/dtx v0.2.1 // indirect
+	github.com/mikeschinkel/go-tealeaves/teacolor v0.0.0 // indirect
 	github.com/mikeschinkel/go-tealeaves/teafields v0.0.0 // indirect
 	github.com/mikeschinkel/go-tealeaves/teautils v0.2.0 // indirect
 	github.com/muesli/cancelreader v0.2.2 // indirect
@@ -31,11 +41,3 @@ require (
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/term v0.40.0 // indirect
 )
-
-replace github.com/mikeschinkel/go-tealeaves/teatree => ../../
-
-replace github.com/mikeschinkel/go-tealeaves/teafields => ../../../teafields
-
-replace github.com/mikeschinkel/go-tealeaves/teautils => ../../../teautils
-
-replace github.com/mikeschinkel/go-dt => /Users/mikeschinkel/Projects/go-pkgs/go-dt

@@ -1,9 +1,10 @@
-[?25l[?2004h└─▼ Root1[K
-├─▶ Child1[K
+[?2026$p[?2027$p[?25l[?2004h[>4;2m[=1;1u[?u[J└─▼ Root1
+├─▶ Child1
+└── Child2
+└── Root2[3A[5DRoot1
+[4CChild1[A[J└─▼ Root1
+├─▼ Child1
+│ ├─ Grandchild1
+│ └─ Grandchild2
 └── Child2[K
-└── Root2[K[80D[3A
-├─▼ Child1[K
-│ ├─ Grandchild1[K
-│ └─ Grandchild2[K
-└── Child2[K
-└── Root2[K[80D
+└── Root2[K
