@@ -12,21 +12,21 @@ const { icon, name, href, description, category, functions } = Astro.props;
 const funcList = functions ? functions.split(',').map(f => f.trim()) : [];
 ---
 
-<a class="sys-card" href={href} data-category={category}>
-  <img class="sys-card-icon" src={icon} alt="" width="40" height="40" loading="lazy" />
-  <div class="sys-card-body">
-    <span class="sys-card-name">{name}</span>
-    <span class="sys-card-desc">{description}</span>
+<a class="fnd-card" href={href} data-category={category}>
+  <img class="fnd-card-icon" src={icon} alt="" width="40" height="40" loading="lazy" />
+  <div class="fnd-card-body">
+    <span class="fnd-card-name">{name}</span>
+    <span class="fnd-card-desc">{description}</span>
     {funcList.length > 0 && (
-      <div class="sys-card-funcs">
-        {funcList.map(fn => <code class="sys-card-func">{fn}</code>)}
+      <div class="fnd-card-funcs">
+        {funcList.map(fn => <code class="fnd-card-func">{fn}</code>)}
       </div>
     )}
   </div>
 </a>
 
 <style>
-  .sys-card {
+  .fnd-card {
     display: flex;
     align-items: flex-start;
     gap: 1.25rem;
@@ -39,12 +39,12 @@ const funcList = functions ? functions.split(',').map(f => f.trim()) : [];
     background: rgba(15, 23, 42, 0.6);
     transition: border-color 0.2s ease, background-color 0.2s ease;
   }
-  .sys-card:hover {
+  .fnd-card:hover {
     border-color: rgba(103, 232, 249, 0.5);
     border-left-color: #67e8f9;
     background: rgba(15, 23, 42, 0.8);
   }
-  .sys-card-icon {
+  .fnd-card-icon {
     flex-shrink: 0;
     width: 36px;
     height: 36px;
@@ -52,14 +52,14 @@ const funcList = functions ? functions.split(',').map(f => f.trim()) : [];
     object-fit: contain;
     filter: drop-shadow(0 0 6px rgba(103, 232, 249, 0.2));
   }
-  .sys-card-body {
+  .fnd-card-body {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
     min-width: 0;
     flex: 1;
   }
-  .sys-card-name {
+  .fnd-card-name {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-weight: 700;
     font-size: 1.1rem;
@@ -67,18 +67,18 @@ const funcList = functions ? functions.split(',').map(f => f.trim()) : [];
     line-height: 1.2;
     margin: 0;
   }
-  .sys-card-desc {
+  .fnd-card-desc {
     font-size: 0.88rem;
     color: #94a3b8;
     line-height: 1.5;
   }
-  .sys-card-funcs {
+  .fnd-card-funcs {
     display: flex;
     flex-wrap: wrap;
     gap: 0.35rem;
     margin-top: 0.35rem;
   }
-  .sys-card-func {
+  .fnd-card-func {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     font-size: 0.72rem;
     color: #a7f3d0;

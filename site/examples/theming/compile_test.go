@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/theming.mdx:25,42,65,92,114
+// Source: site/src/content/docs/components/theming.mdx:26#295a7232,43#5ff1e885,66#c34175e4,93#517778d7,115#3cd30429
 package examples_test
 
 import (

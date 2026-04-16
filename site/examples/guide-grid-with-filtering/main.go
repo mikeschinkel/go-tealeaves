@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/cookbook/grid-with-filtering.mdx:23
+// Source: site/src/content/docs/cookbook/grid-with-filtering.mdx:23#fe548d0a
 package main
 
 import (

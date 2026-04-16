@@ -4,8 +4,9 @@ description: Two-zone status bar with key-action menu items on the left and text
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teastatus` · **Type:** `StatusBarModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teastatus`
+<ModuleInfo module="teastatus" type="StatusBarModel" />
 
 Status bars with key menus on the left and indicators on the right require manual layout calculations -- measuring ANSI-aware string widths, computing gap sizes, and formatting key labels with consistent styling. `teastatus` provides a two-zone status bar that handles all of this in a single component: set your menu items and indicators, give it a width, and it renders the bar.
 

@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/choice-dialog.mdx:21,139
+// Source: site/src/content/docs/components/choice-dialog.mdx:22#21309e73,140#7fb06f47
 package examples_test
 
 import (

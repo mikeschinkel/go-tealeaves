@@ -1,0 +1,74 @@
+# Home page classification — what goes where.
+# Components are grouped by category. Foundations get their own section.
+# Everything else (slugs, descriptions, icons, types) is derived from source.
+# Foundations list package names (no Model type).
+
+components:
+  Views:
+    - teagrid.GridModel
+    - teatree.TreeModel
+    - teatree.DrillDownModel
+    - teastatus.StatusBarModel
+    - teanotify.NotifyModel
+    - teadiff.SplitDiffModel
+    - teacrumbs.BreadcrumbsModel
+    - teahelp.HelpVisorModel
+  Dialogs:
+    - teamodal.ConfirmModel
+    - teamodal.ChoiceModel
+    - teamodal.ListModel
+    - teamodal.ProgressModel
+    - teamodal.MultiSelectModel
+    - teaguide.GuideModel
+  Controls:
+    - teafields.DropdownModel
+  Text:
+    - teatext.TextSnipModel
+  Layout:
+    - tealayout.StackLayoutModel
+
+foundations:
+  - teapane
+  - teautils
+  - teacolor
+  - teahilite
+
+# Canonical mapping from package.Type (or package) to doc page slug.
+# Used by all agents and tlcli to resolve component → doc page.
+slugs:
+  teagrid.GridModel: grid-view
+  teatree.TreeModel: tree-view
+  teatree.DrillDownModel: drilldown-view
+  teastatus.StatusBarModel: statusbar-view
+  teanotify.NotifyModel: notification-view
+  teadiff.SplitDiffModel: diff-viewer
+  teacrumbs.BreadcrumbsModel: breadcrumb-nav
+  teahelp.HelpVisorModel: help-visor
+  teamodal.ConfirmModel: confirm-dialog
+  teamodal.ChoiceModel: choice-dialog
+  teamodal.ListModel: list-dialog
+  teamodal.ProgressModel: progress-dialog
+  teamodal.MultiSelectModel: multiselect-dialog
+  teaguide.GuideModel: guide-overlay
+  teafields.DropdownModel: dropdown-control
+  teatext.TextSnipModel: text-selection
+  tealayout.StackLayoutModel: layout-engine
+  # Foundations
+  teapane: pane-widgets
+  teautils: theming
+  teacolor: color-constants
+  teahilite: syntax-highlighting
+
+# Infrastructure symbols excluded from API documentation coverage.
+# These appear in doterr.go/errors.go and are internal plumbing, not user API.
+exclude_symbols:
+  - AppendErr
+  - CombineErrs
+  - ErrMeta
+  - ErrValue
+  - Errors
+  - FindErr
+  - MsgErr
+  - NewErr
+  - WithErr
+  - IsDotErrEntry

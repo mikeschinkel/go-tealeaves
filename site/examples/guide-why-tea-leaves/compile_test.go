@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/guides/why-tea-leaves.mdx:15,33,52,60,75
+// Source: site/src/content/docs/guides/why-tea-leaves.mdx:15#9ccb87ee,33#40d08afe,52#717eb20b,60#3e198631,75#1074485c
 package examples_test
 
 import (

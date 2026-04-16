@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/guides/architecture.mdx:67,88,100
+// Source: site/src/content/docs/guides/architecture.mdx:67#03624845,88#9ae7a93f,100#9196c8c4
 package examples_test
 
 import (

@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/breadcrumb-nav.mdx:25,54,116,127,136,175
+// Source: site/src/content/docs/components/breadcrumb-nav.mdx:26#a53b0433,55#e1c7b957,117#baedb87d,128#604ea989,137#a0de8d2f,176#5ccf4d14
 package examples_test
 
 import (

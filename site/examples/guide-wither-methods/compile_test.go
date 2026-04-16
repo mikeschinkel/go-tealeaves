@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/guides/wither-methods.mdx:15,30,58,72,82,94
+// Source: site/src/content/docs/guides/wither-methods.mdx:15#4dbf5c40,30#a5593646,58#1ff4b1ff,72#f8e5c21f,82#250ea1a1,94#fe12e6f5
 package examples_test
 
 import (

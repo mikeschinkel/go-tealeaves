@@ -1,0 +1,65 @@
+---
+interface Props {
+  module: string;
+  type?: string;
+  types?: string;
+  install?: boolean;
+}
+
+const { module, type, types, install = true } = Astro.props;
+const displayTypes = types || type;
+const installCmd = `go get github.com/mikeschinkel/go-tealeaves/${module}`;
+---
+
+<div class="mod-info">
+  <div class="mod-info-row">
+    <span class="mod-info-label">Module</span>
+    <code class="mod-info-value">{module}</code>
+  </div>
+  {displayTypes && (
+    <div class="mod-info-row">
+      <span class="mod-info-label">{types ? 'Types' : 'Type'}</span>
+      <code class="mod-info-value">{displayTypes}</code>
+    </div>
+  )}
+  {install && (
+    <div class="mod-info-row">
+      <span class="mod-info-label">Install</span>
+      <code class="mod-info-value">{installCmd}</code>
+    </div>
+  )}
+</div>
+
+<style>
+  .mod-info {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 2rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.375rem;
+    background: rgba(15, 23, 42, 0.4);
+    border: 1px solid rgba(103, 232, 249, 0.1);
+    font-size: 0.88rem;
+  }
+  .mod-info-row {
+    display: flex;
+    align-items: baseline;
+    gap: 0.5rem;
+  }
+  .mod-info-label {
+    color: #94a3b8;
+    font-weight: 600;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .mod-info-value {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.85rem;
+    color: #e2e8f0;
+    background: rgba(15, 23, 42, 0.6);
+    padding: 0.1rem 0.4rem;
+    border-radius: 3px;
+  }
+</style>

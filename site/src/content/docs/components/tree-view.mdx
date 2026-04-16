@@ -4,8 +4,9 @@ description: Generic tree view component with expand/collapse, keyboard navigati
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teatree` · **Type:** `TreeModel[T]` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatree`
+<ModuleInfo module="teatree" type="TreeModel[T]" />
 
 File trees, directory browsers, and hierarchical navigation require expand/collapse state, viewport scrolling for large trees, and customizable node rendering. Building these from scratch each time is tedious and error-prone. `teatree` provides a generic tree view component that handles all of this out of the box, with pluggable node providers so you control how each node is rendered.
 

@@ -4,8 +4,9 @@ description: Declarative layout engine for Bubble Tea v2 — Percent, Fixed, Fle
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/tealayout` · **Types:** `Pane`, `Element[T]`, `Layout` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/tealayout`
+<ModuleInfo module="tealayout" types="Pane, Element[T], Layout" />
 
 Manual width/height arithmetic in `WindowSizeMsg` handlers is repetitive and error-prone. `tealayout` replaces it with a declarative tree of rows and columns: you describe _proportions_, tealayout does the integer math, handles the "two-width problem" (total vs content dimensions), distributes remainders, respects min/max constraints, and collapses optional children when space runs out.
 

@@ -4,8 +4,9 @@ description: TUI diff rendering for Bubble Tea — interactive side-by-side spli
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teadiff` · **Types:** `SplitDiffModel`, `TUIRenderer` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teadiff`
+<ModuleInfo module="teadiff" types="SplitDiffModel, TUIRenderer" />
 
 Rendering diffs in a terminal requires synchronized scrolling, accurate ANSI-aware width measurement, and sensible keyboard navigation. `teadiff` provides two modes: an interactive `SplitDiffModel` for side-by-side comparison, and a `TUIRenderer` for condensed inline display.
 

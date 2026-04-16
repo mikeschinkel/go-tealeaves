@@ -195,16 +195,16 @@ Existing `choice_model_test.go` covers ChoiceModel Layer 1. Extend with remainin
 
 | Test | Layer | What It Verifies |
 |---|---|---|
-| `TestNewProgressModal` | 1 | Not open initially; title stored |
-| `TestProgressModal_Open` | 1 | IsOpen becomes true |
-| `TestProgressModal_Close` | 1 | IsOpen becomes false |
-| `TestProgressModal_EscCancels` | 1 | Esc → ProgressCancelledMsg |
-| `TestProgressModal_BackgroundKey` | 1 | 'b' key → ProgressBackgroundMsg when enabled |
-| `TestProgressModal_BackgroundDisabled` | 1 | 'b' key → no msg when disabled |
-| `TestProgressModal_ClosedIgnoresInput` | 1 | Returns nil cmd when closed |
-| `TestProgressModal_View_Open` | 2 | Contains title, cancel hint; border characters present |
-| `TestProgressModal_View_BackgroundHint` | 2 | Background hint visible when enabled, absent when disabled |
-| `TestProgressModal_OverlayModal` | 2 | Overlay compositing correct |
+| `TestNewProgressModel` | 1 | Not open initially; title stored |
+| `TestProgressModel_Open` | 1 | IsOpen becomes true |
+| `TestProgressModel_Close` | 1 | IsOpen becomes false |
+| `TestProgressModel_EscCancels` | 1 | Esc → ProgressCancelledMsg |
+| `TestProgressModel_BackgroundKey` | 1 | 'b' key → ProgressBackgroundMsg when enabled |
+| `TestProgressModel_BackgroundDisabled` | 1 | 'b' key → no msg when disabled |
+| `TestProgressModel_ClosedIgnoresInput` | 1 | Returns nil cmd when closed |
+| `TestProgressModel_View_Open` | 2 | Contains title, cancel hint; border characters present |
+| `TestProgressModel_View_BackgroundHint` | 2 | Background hint visible when enabled, absent when disabled |
+| `TestProgressModel_OverlayModal` | 2 | Overlay compositing correct |
 
 #### `list_model_test.go` — Layer 1 + Layer 2
 

@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/cookbook/notification-after-action.mdx:23
+// Source: site/src/content/docs/cookbook/notification-after-action.mdx:23#136b7ebb
 package main
 
 import (

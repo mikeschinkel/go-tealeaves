@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/migration/charm-v2.mdx:37,47,64,73,97,116,141,152
+// Source: site/src/content/docs/migration/charm-v2.mdx:37#3b06ae6f,47#f6c1b482,64#2ea7fc16,73#c00e6560,97#f4a9c7f8,116#7b6632c7,141#8779ae19,152#bd0a2210
 package examples_test
 
 import (

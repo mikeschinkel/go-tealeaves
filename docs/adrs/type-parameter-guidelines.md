@@ -21,7 +21,7 @@
 | `DrillDownModel[T]` | Yes | Same Node[T] as TreeModel; drill-down selections carry T |
 | `ConfirmModel` | No | Returns Yes/No boolean answer, no data payload |
 | `ChoiceModel` | No | Returns OptionID string; options are fixed ChoiceOption structs |
-| `ProgressModal` | No | Display only — spinner with text |
+| `ProgressModel` | No | Display only — spinner with text |
 | `GridModel` | No | Display/sort/filter; data is [][]string (fixed) |
 | `StatusBarModel` | No | Display only — status text |
 | `TextSnipModel` | No | Display only — text selection overlay |

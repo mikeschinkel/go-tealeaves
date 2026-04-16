@@ -1361,29 +1361,29 @@
 
 - `ProgressCancelledMsg struct{}`
 
-- `ProgressModal struct{}`
+- `ProgressModel struct{}`
   - Properties
-    - `Keys ProgressModalKeyMap`
+    - `Keys ProgressModelKeyMap`
   - Methods
-    - `Close() ProgressModal`
+    - `Close() ProgressModel`
     - `Init() tea.Cmd`
     - `IsOpen() bool`
-    - `Open() ProgressModal`
+    - `Open() ProgressModel`
     - `OverlayModal(background string) (view string)`
-    - `SetBackgroundEnabled(enabled bool) ProgressModal`
-    - `SetSize(width int, height int) ProgressModal`
-    - `SetTitle(title string) ProgressModal`
-    - `Update(msg tea.Msg) (ProgressModal, tea.Cmd)`
+    - `SetBackgroundEnabled(enabled bool) ProgressModel`
+    - `SetSize(width int, height int) ProgressModel`
+    - `SetTitle(title string) ProgressModel`
+    - `Update(msg tea.Msg) (ProgressModel, tea.Cmd)`
     - `View() tea.View`
 
-- `ProgressModalArgs struct{}`
+- `ProgressModelArgs struct{}`
   - Properties
     - `BackgroundEnabled bool`
     - `ScreenHeight int`
     - `ScreenWidth int`
     - `Title string`
 
-- `ProgressModalKeyMap struct{}`
+- `ProgressModelKeyMap struct{}`
   - Properties
     - `Background key.Binding`
     - `Cancel key.Binding`

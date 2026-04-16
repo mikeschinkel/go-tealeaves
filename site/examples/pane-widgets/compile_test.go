@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/pane-widgets.mdx:21,51,77,110,147
+// Source: site/src/content/docs/components/pane-widgets.mdx:22#cc90502b,52#81cc5ef3,78#e359f6c6,111#3f5cb8a2,148#a8eb80e7
 package examples_test
 
 import (

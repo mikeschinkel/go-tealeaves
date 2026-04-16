@@ -4,8 +4,9 @@ description: Text area component with Shift+Arrow selection, clipboard operation
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teatext` · **Type:** `TextSnipModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teatext`
+<ModuleInfo module="teatext" type="TextSnipModel" />
 
 Bubble Tea's built-in `textarea.Model` has no text selection or clipboard support. Users cannot highlight text with Shift+Arrow keys, copy with Ctrl+C, cut with Ctrl+X, or paste with Ctrl+V. Building these features from scratch requires tracking selection anchors, normalizing ranges, rendering highlighted regions with ANSI styles, and integrating with the system clipboard. `teatext` wraps the standard textarea with all of this functionality.
 

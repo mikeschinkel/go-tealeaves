@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/reference/overlay-compositing.mdx:15,41,78,116,130,152,159,166
+// Source: site/src/content/docs/reference/overlay-compositing.mdx:15#4f6ac14f,41#2b88e577,78#6bc5947d,116#7aa2f6a1,130#ed13cd20,152#343bd201,159#27ee549e,166#2541d440
 package examples_test
 
 import (

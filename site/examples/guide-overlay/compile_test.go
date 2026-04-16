@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/guide-overlay.mdx:25,77,168,177,216,227,242,256
+// Source: site/src/content/docs/components/guide-overlay.mdx:26#6ce86b4b,78#95332a15,169#f59ea972,178#0d3dacea,217#9dd2de53,228#7aa6a9f9,243#5d9563a8,257#42407fc9
 package examples_test
 
 import (

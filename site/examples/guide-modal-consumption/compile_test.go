@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/guides/modal-consumption.mdx:17,47,76,128
+// Source: site/src/content/docs/guides/modal-consumption.mdx:17#113a0749,47#07f38fa2,76#3aef4928,128#b3c48c43
 package examples_test
 
 import (

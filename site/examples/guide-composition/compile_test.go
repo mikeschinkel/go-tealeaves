@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/guides/composition.mdx:15,43,68,85
+// Source: site/src/content/docs/guides/composition.mdx:15#6c66409d,43#1c1460bf,68#b88d4093,85#04237063
 package examples_test
 
 import (

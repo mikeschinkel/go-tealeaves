@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/reference/best-practices.mdx:29,55,74,96,131,151,168,186,215
+// Source: site/src/content/docs/reference/best-practices.mdx:29#4634ea36,55#7485b386,74#76d23d4f,96#478c7580,131#7df373e0,151#a0feca89,168#7eb157e6,186#fec23d38,215#d934dd87
 package examples_test
 
 import (

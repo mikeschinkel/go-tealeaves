@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/drilldown-view.mdx:21,156
+// Source: site/src/content/docs/components/drilldown-view.mdx:22#9a2374ab,157#9d797105
 package examples_test
 
 import (

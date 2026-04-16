@@ -4,8 +4,9 @@ description: Named color constants for terminal UI components — 256 ANSI index
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teacolor` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teacolor`
+<ModuleInfo module="teacolor" />
 
 `teacolor` provides named constants for all 256 ANSI colors, standard ANSI names (colors 0–15), and the `SemanticColor` type for caching pre-built lipgloss styles. All constants are `image/color.Color` values, compatible with any lipgloss v2 method that accepts `color.Color`.
 

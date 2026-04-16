@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/guides/quick-start.mdx:39
+// Source: site/src/content/docs/guides/quick-start.mdx:39#972a53f5
 package main
 
 import (

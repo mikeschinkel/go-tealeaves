@@ -4,8 +4,9 @@ description: Dropdown selection component with intelligent above/below positioni
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teafields` · **Type:** `DropdownModel` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teafields`
+<ModuleInfo module="teafields" type="DropdownModel" />
 
 Bubble Tea has no built-in dropdown component. Building one from scratch requires overlay compositing that respects ANSI escape codes, intelligent above/below positioning based on available terminal space, keyboard and mouse input handling, and scrollable option lists. `teafields` handles all of this in a single, composable component that follows the Tea Leaves [Modal Message Consumption](/go-tealeaves/guides/modal-consumption/) pattern.
 

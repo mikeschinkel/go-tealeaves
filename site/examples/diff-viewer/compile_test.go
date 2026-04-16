@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/diff-viewer.mdx:115,154,308,322,339,360,382,395,406
+// Source: site/src/content/docs/components/diff-viewer.mdx:116#1194718b,155#8d5c4ba3,309#cb8743a3,323#28eff952,340#fc087f23,361#cbb70018,383#547f1d06,396#3a43b372,407#c0b891dc
 package examples_test
 
 import (

@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/color-constants.mdx:25,44,56,68,79,111
+// Source: site/src/content/docs/components/color-constants.mdx:26#62d558e3,45#9a7d58cb,57#d981446c,69#388b98e3,80#f10b4507,112#0a3ea19d
 package examples_test
 
 import (

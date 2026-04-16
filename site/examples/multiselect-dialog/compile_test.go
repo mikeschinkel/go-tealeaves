@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/multiselect-dialog.mdx:21
+// Source: site/src/content/docs/components/multiselect-dialog.mdx:22#52cc5936
 package examples_test
 
 import (

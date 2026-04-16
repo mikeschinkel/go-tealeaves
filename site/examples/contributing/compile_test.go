@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/contributing/index.mdx:84
+// Source: site/src/content/docs/contributing/index.mdx:84#cc88d1b3
 package examples_test
 
 import (

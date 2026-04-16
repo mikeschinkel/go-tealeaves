@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/progress-dialog.mdx:21
+// Source: site/src/content/docs/components/progress-dialog.mdx:22#9b99db49
 package examples_test
 
 import (

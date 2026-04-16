@@ -3,44 +3,33 @@ go 1.25.7
 use (
 	./cmd/color-viewer
 	./cmd/jediterm-bug
+	./cmd/tlcli
 	./site/examples
 	./teacolor
 	./teacrumbs
 	./teadiff
-	./teadiff/examples/splitdiff
+	./teadiff/examples
 	./teafields
-	./teafields/examples/demo
-	./teafields/examples/simple
+	./teafields/examples
 	./teagrid
-	./teagrid/examples/filtering
-	./teagrid/examples/panning
-	./teagrid/examples/scrolling
-	./teagrid/examples/simplest
-	./teagrid/examples/sorting
+	./teagrid/examples
 	./teaguide
-	./teaguide/example
+	./teaguide/examples
 	./teahelp
 	./teahilite
 	./tealayout
-	./tealayout/examples/multipane
+	./tealayout/examples
 	./teamodal
-	./teamodal/examples/choices
-	./teamodal/examples/editlist
-	./teamodal/examples/multiselect
-	./teamodal/examples/various
-	./teamodal/examples/vertical
+	./teamodal/examples
 	./teanotify
-	./teanotify/examples/simple
+	./teanotify/examples
 	./teapane
 	./teastatus
-	./teastatus/examples/statusbar
+	./teastatus/examples
 	./teatext
-	./teatext/examples/editor
+	./teatext/examples
 	./teatree
-	./teatree/examples/drilldown
-	./teatree/examples/filetree
+	./teatree/examples
 	./teautils
-	./teautils/examples/keyhelp
-	./teautils/examples/theming
-	cmd/temp
+	./teautils/examples
 )

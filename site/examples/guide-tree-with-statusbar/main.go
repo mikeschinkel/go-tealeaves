@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/cookbook/tree-with-statusbar.mdx:25
+// Source: site/src/content/docs/cookbook/tree-with-statusbar.mdx:25#c2568167
 package main
 
 import (

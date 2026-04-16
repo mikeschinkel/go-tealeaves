@@ -4,8 +4,9 @@ description: Ready-made tealayout-compatible pane widgets — PlainPane for stat
 ---
 
 import { Aside } from '@astrojs/starlight/components';
+import ModuleInfo from '../../../components/ModuleInfo.astro';
 
-> **Module:** `github.com/mikeschinkel/go-tealeaves/teapane` · **Types:** `PlainPane`, `StyledPane`, `ScrollPane`, `BorderStyle` · **Install:** `go get github.com/mikeschinkel/go-tealeaves/teapane`
+<ModuleInfo module="teapane" types="PlainPane, StyledPane, ScrollPane, BorderStyle" />
 
 `teapane` provides three ready-made pane widgets that implement the full set of [`tealayout`](/go-tealeaves/components/layout-engine/) interfaces out of the box. Instead of wiring `SetSize`, `Style`, `SizeHint`, and `Focus`/`Blur` yourself for every pane, you supply a `BorderStyle` and a content callback — `teapane` handles the rest.
 

@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/notification-view.mdx:21,67,161,176
+// Source: site/src/content/docs/components/notification-view.mdx:22#c205e6d6,68#9b0cf55e,162#ea32a9b3,177#087f0726
 package examples_test
 
 import (

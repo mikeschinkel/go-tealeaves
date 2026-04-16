@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/statusbar-view.mdx:21,81,107,135,153
+// Source: site/src/content/docs/components/statusbar-view.mdx:22#b811a057,82#3a187afd,108#15050ba0,136#e8c1b86d,154#c071d3b3
 package examples_test
 
 import (

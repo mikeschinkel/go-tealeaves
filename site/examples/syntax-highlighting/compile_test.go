@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/syntax-highlighting.mdx:25,44,76,101,106,119,130,142
+// Source: site/src/content/docs/components/syntax-highlighting.mdx:26#5f0070cd,45#3c8639d7,77#0e93c69c,102#364f53c9,107#b35889c6,120#48d3dc52,131#5e4b4c89,143#fd7447d2
 package examples_test
 
 import (

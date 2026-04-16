@@ -1,4 +1,4 @@
-// Source: site/src/content/docs/components/text-selection.mdx:21
+// Source: site/src/content/docs/components/text-selection.mdx:22#eefbdd06
 package examples_test
 
 import (
